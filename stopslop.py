@@ -18,13 +18,11 @@ import argparse
 import json
 import os
 import sys
-from collections import Counter
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 PROTOTYPE_DIR = os.path.join(REPO_ROOT, "prototype")
 sys.path.insert(0, PROTOTYPE_DIR)
 
-HISTORY_LOG = os.path.join(REPO_ROOT, ".claude", "ste100-history.log")
 SETTINGS_EXAMPLE = os.path.join(REPO_ROOT, ".claude", "settings.local.json.example")
 SETTINGS_REAL = os.path.join(REPO_ROOT, ".claude", "settings.local.json")
 
@@ -51,6 +49,16 @@ def cmd_init(args):
         f.write("\n")
     print(f"Wrote {SETTINGS_REAL}")
     print("Start (or restart) a Claude Code session in this directory to pick it up.")
+
+    # The gate itself needs nothing beyond the above -- it's stdlib-only.
+    # The optional MCP tools (.mcp.json, already checked into this repo)
+    # need their own venv, since that's a real dependency, not stdlib.
+    venv_python = os.path.join(REPO_ROOT, ".venv", "bin", "python3")
+    if not os.path.exists(venv_python):
+        print("\nOptional: the MCP convenience tools (.mcp.json) need a venv. Not required for "
+              "the gate itself. To set one up:")
+        print(f"  python3 -m venv {os.path.join(REPO_ROOT, '.venv')}")
+        print(f"  {venv_python} -m pip install -r {os.path.join(REPO_ROOT, 'requirements.txt')}")
     return 0
 
 
@@ -113,55 +121,12 @@ def cmd_lint(args):
 
 def cmd_register(args):
     import register_term
-    return register_term.main(args.rest) or 0
-
-
-def _read_history():
-    if not os.path.exists(HISTORY_LOG):
-        return []
-    events = []
-    with open(HISTORY_LOG) as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    events.append(json.loads(line))
-                except json.JSONDecodeError:
-                    continue
-    return events
+    return register_term.main(args.rest)
 
 
 def cmd_status(args):
-    import ste100_lint as lint
-
-    print("stopslop status\n")
-
-    print(f"Dictionary:      {len(lint.APPROVED_WORDS)} approved words, "
-          f"{len(lint.UNAPPROVED_MAP) + len(lint.UNAPPROVED_NO_REPLACEMENT)} forbidden words")
-    print(f"Project terms:   {len(lint.PROJECT_TERMS)} registered "
-          f"(prototype/ste100-project-terms.json)")
-
-    events = _read_history()
-    action_counts = Counter(e.get("action") for e in events)
-    print(f"\nGate activity:   {len(events)} event(s) logged")
-    for action in ("deny", "auto_fix", "clean", "unscoped_write", "register_term"):
-        if action_counts.get(action):
-            print(f"  {action:16s} {action_counts[action]}")
-
-    memory_path = os.path.join(REPO_ROOT, ".claude", "ste100-memory.md")
-    if os.path.exists(memory_path):
-        with open(memory_path) as f:
-            pattern_count = f.read().count("\n- (")
-        print(f"\nCoaching memory: {pattern_count} recurring pattern(s) tracked "
-              f"(.claude/ste100-memory.md)")
-    else:
-        print("\nCoaching memory: none yet -- no gate activity logged so far")
-
-    integrity_path = os.path.join(REPO_ROOT, ".claude", "ste100-integrity.json")
-    print(f"\nIntegrity:       {'baseline recorded' if os.path.exists(integrity_path) else 'not established yet -- start a session to record one'}")
-
-    settings_status = "configured" if os.path.exists(SETTINGS_REAL) else "NOT SET UP -- run `stopslop.py init`"
-    print(f"Hook wiring:     {settings_status}")
+    import status_report
+    print(status_report.format_status_report(status_report.build_status_report()))
     return 0
 
 

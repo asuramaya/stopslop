@@ -1,0 +1,4 @@
+# Only needed for prototype/mcp_server.py -- the gate itself
+# (pretool_hook.py, sessionstart_hook.py) and stopslop.py are pure
+# standard-library Python. They require no install at all.
+mcp

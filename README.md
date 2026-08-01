@@ -32,6 +32,18 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 - `python3 stopslop.py register WORD "a short note"` adds a word to the project glossary. It refuses a word the real dictionary already forbids unless you add `--override-unapproved "reason"`.
 - `python3 stopslop.py status` shows dictionary size, glossary size, recent gate activity, and whether the hook is even wired up yet.
 
+## MCP tools (optional)
+
+`prototype/mcp_server.py` exposes the same checks as MCP tools: `lint_text`, `check_word`, `register_project_term`, and `get_status`. A model can call these directly, with no Bash shell needed.
+
+This is not a second gate. It is a different kind of tool, on purpose. The hook sits in front of `Write` and `Edit`. It can deny a call before the write happens. The model must choose to call an MCP tool, or it never runs. A model can still write a file directly instead. No rule stops that. The MCP layer exists to cut down on denied attempts, not to replace the hook.
+
+Setup needs a virtual environment, since `mcp` is this project's only external dependency:
+
+1. Run `python3 -m venv .venv`.
+2. Run `.venv/bin/pip install -r requirements.txt`.
+3. Start a Claude Code session. `.mcp.json` is already in this repository. It wires the server up on its own.
+
 ## What it does not do
 
 This is a prototype, not a finished product. Here is the honest gap list:
