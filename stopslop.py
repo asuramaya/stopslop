@@ -124,6 +124,27 @@ def cmd_register(args):
     return register_term.main(args.rest)
 
 
+def cmd_unregister(args):
+    import register_term
+    result = register_term.unregister(args.word)
+    print(result["message"])
+    return 0 if result["ok"] else 1
+
+
+def cmd_terms(args):
+    import register_term
+    terms = register_term.list_terms()
+    if not terms:
+        print("No project terms registered yet. Add one with `stopslop.py register`.")
+        return 0
+    for word in sorted(terms):
+        info = terms[word]
+        flag = " [overrides a real ASD-STE100 prohibition]" if info.get("overrides_unapproved") else ""
+        note = info.get("note", "")
+        print(f"{word}{flag}" + (f" -- {note}" if note else ""))
+    return 0
+
+
 def cmd_status(args):
     import status_report
     print(status_report.format_status_report(status_report.build_status_report()))
@@ -159,6 +180,13 @@ def main():
     p_register.add_argument("rest", nargs=argparse.REMAINDER,
                              help="WORD [NOTE] [--override-unapproved REASON]")
     p_register.set_defaults(func=cmd_register)
+
+    p_unregister = sub.add_parser("unregister", help="remove a word from the project glossary")
+    p_unregister.add_argument("word")
+    p_unregister.set_defaults(func=cmd_unregister)
+
+    p_terms = sub.add_parser("terms", help="list every registered project-glossary word")
+    p_terms.set_defaults(func=cmd_terms)
 
     p_status = sub.add_parser("status", help="dictionary, glossary, and gate-activity summary")
     p_status.set_defaults(func=cmd_status)

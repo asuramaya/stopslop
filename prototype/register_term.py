@@ -84,6 +84,34 @@ def register(word, note="", override_unapproved=None):
     return {"ok": True, "status": "registered", "message": message}
 
 
+def unregister(word):
+    """Remove a word from the glossary. Pure function, same shape as
+    register() -- {"ok", "status", "message"}, status one of "removed",
+    "no-op" (was never registered). Before this existed, undoing a
+    mistaken registration meant hand-editing
+    prototype/ste100-project-terms.json directly."""
+    word = word.strip().lower()
+    terms = lint._load_project_terms()
+    if word not in terms:
+        return {"ok": True, "status": "no-op", "message": f"'{word}' was not registered"}
+
+    del terms[word]
+    with open(lint.PROJECT_TERMS_PATH, "w") as f:
+        json.dump(terms, f, indent=2, sort_keys=True)
+        f.write("\n")
+
+    log_event({"action": "unregister_term", "word": word})
+    return {"ok": True, "status": "removed", "message": f"removed '{word}' from the project glossary"}
+
+
+def list_terms():
+    """All registered terms as {"word": {"note", "overrides_unapproved"}, ...},
+    freshly re-read from disk (not the module-level ste100_lint.PROJECT_TERMS
+    snapshot, which was loaded once at import time and won't reflect a
+    registration made later in the same process)."""
+    return lint._load_project_terms()
+
+
 def main(argv=None):
     """argv defaults to sys.argv[1:] (normal CLI use); an explicit list lets
     stopslop.py's unified dispatcher delegate to this without a subprocess."""

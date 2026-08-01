@@ -124,6 +124,24 @@ def register_project_term(word: str, note: str = "", override_unapproved: str = 
 
 
 @mcp.tool()
+def unregister_project_term(word: str) -> dict:
+    """Remove a word from this project's Tier 2 glossary -- undoes a
+    mistaken register_project_term call. The gate goes back to flagging
+    the word normally.
+    """
+    return register_term.unregister(word)
+
+
+@mcp.tool()
+def list_project_terms() -> dict:
+    """Every word currently registered in this project's Tier 2 glossary,
+    with the note it was registered under and whether it overrides a real
+    ASD-STE100 prohibition.
+    """
+    return {"terms": register_term.list_terms()}
+
+
+@mcp.tool()
 def get_status() -> dict:
     """Current state of the gate: dictionary size, project glossary size,
     how many gate events have been logged and what kind, whether an

@@ -30,11 +30,13 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 - `python3 stopslop.py init` sets up the hook for your own clone. Pass `--force` to replace the current setup.
 - `python3 stopslop.py lint "some text"` checks text. It does not write the text to any file. Use `--file PATH` to check a real file instead. Add `--all` to see every flag the engine can produce, not just the ones that will actually block a write today.
 - `python3 stopslop.py register WORD "a short note"` adds a word to the project glossary. It refuses a word the real dictionary already forbids unless you add `--override-unapproved "reason"`.
+- `python3 stopslop.py unregister WORD` removes a word from the project glossary.
+- `python3 stopslop.py terms` lists every word in the project glossary, with its note.
 - `python3 stopslop.py status` shows dictionary size, glossary size, recent gate activity, and whether the hook is even wired up yet.
 
 ## MCP tools (optional)
 
-`prototype/mcp_server.py` exposes the same checks as MCP tools: `lint_text`, `check_word`, `register_project_term`, and `get_status`. A model can call these directly, with no Bash shell needed.
+`prototype/mcp_server.py` exposes the same checks as MCP tools: `lint_text`, `check_word`, `register_project_term`, `unregister_project_term`, `list_project_terms`, and `get_status`. A model can call these directly, with no Bash shell needed.
 
 This is not a second gate. It is a different kind of tool, on purpose. The hook sits in front of `Write` and `Edit`. It can deny a call before the write happens. The model must choose to call an MCP tool, or it never runs. A model can still write a file directly instead. No rule stops that. The MCP layer exists to cut down on denied attempts, not to replace the hook.
 
@@ -51,7 +53,7 @@ This is a prototype, not a finished product. Here is the honest gap list:
 - Vocabulary enforcement is not a denial reason yet, on purpose. The real dictionary improves flag quality now. Unknown or forbidden words do not block a write yet. This waits until the project glossary is mature enough to avoid new friction on ordinary software vocabulary.
 - The dictionary does not track part of speech. The standard approves about 70 words in one part of speech. It forbids the same words in another part of speech. For example, the standard approves "check" as a noun. It forbids "check" as a verb. The checker only looks at the word, not its role in the sentence.
 - Bash detection is deliberately conservative. It does not catch every write. `printf` with real format arguments, or a multi-line `cat >>` append with no heredoc, both pass through undetected.
-- There is no automated test suite yet. A person verified each piece by hand, live, through the actual hook.
+- `prototype/test_ste100_lint.py` covers the rule engine now, with `python3 -m unittest test_ste100_lint` from inside `prototype/`. The live hook and the CLI still have no automated coverage. A person verified both by hand, live, through real writes.
 - Vocabulary auto-fix is off, on purpose, for every unapproved word, not just the hard ones. An early version fixed a word to its one listed replacement with no check of the replacement's own part of speech. That silently broke real sentences. A person found this by hand, in this project's own README, not through any automated check. Real replacement-aware auto-fix needs new data this project does not have yet.
 
 See `docs/incidents/` for a real incident this project had with its own gate, and the fix that followed.

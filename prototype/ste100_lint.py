@@ -265,7 +265,16 @@ def check_vocabulary(sentence):
     violations = []
     for w in words(sentence):
         lw = w.lower().strip("'")
-        if not lw or lw in APPROVED_WORDS or lw in PROJECT_TERMS:
+        # MODAL_WORDS are deliberately absent from UNAPPROVED_MAP (see the
+        # comment above MODAL_DEFAULT_REPLACEMENTS) so check_modals is the
+        # only path that acts on them. Without this check they fell through
+        # to unknown_vocabulary below and double-reported every should/
+        # would/may/could/might under kind:vocabulary too, alongside the
+        # real kind:modal flag check_modals already produces for the same
+        # word -- harmless for the gate decision (unknown_vocabulary is
+        # excluded from denial either way) but noisy everywhere the raw
+        # flag list gets read: --all output, coaching-memory aggregation.
+        if not lw or lw in APPROVED_WORDS or lw in PROJECT_TERMS or lw in MODAL_WORDS:
             continue
         if lw in UNAPPROVED_MAP:
             violations.append({
@@ -764,6 +773,18 @@ def lint_and_gate(text, context="procedure"):
     mechanical = dedup_flags(mechanical)
     semantic = dedup_flags(semantic)
 
+    # "status" reports whether the ENGINE found any semantic flag at all --
+    # it does NOT mean "would deny." Callers that make the actual gate
+    # decision (pretool_hook.py, stopslop.py) never read this field; they
+    # call blocking_semantic_flags(semantic_flags) instead, which excludes
+    # vocabulary flags staged out of denial for now. A sentence can
+    # legitimately report status="semantic_flags" here and still pass the
+    # live gate cleanly -- e.g. any unknown_vocabulary hit alone produces
+    # this status, even though it blocks nothing. Found via the test suite
+    # (test_ste100_lint.py): an example meant to demonstrate pure
+    # mechanical-only status turned out to also contain ordinary
+    # unapproved vocabulary, which doesn't affect denial but does affect
+    # this field.
     status = "clean" if not mechanical and not semantic else (
         "semantic_flags" if semantic else "mechanical_violations")
 
