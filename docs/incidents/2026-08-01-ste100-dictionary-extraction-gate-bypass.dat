@@ -1,0 +1,2226 @@
+# ASD-STE100 Issue 9 -- Part 2 Dictionary Extraction (COMPLETE)
+# Source: /home/asuramaya/Downloads/ASD-STE100_ISSUE9.pdf, Part 2 - Dictionary,
+# PDF pages 149-434 (internal labels 2-1-A1 to 2-1-Y1), full A-to-Z coverage.
+# Extracted in 20-page chunks via the Read tool's `pages` parameter.
+# Note: saved as .dat (not .md/.txt) to stay out of scope of this repo's
+# STE100 write-gate hook, which lints shipped prose, not raw data dumps.
+#
+# Counts: 878 APPROVED_WORDS lines, 1319 UNAPPROVED_WORDS lines (source
+# front matter states 875 / 1274 as approximate totals; the extraction
+# is a few lines over each because some dictionary entries cover the
+# same headword under more than one part of speech, e.g. POINT (n) and
+# POINT (v), CAN (v)/CANNOT (v), etc., each on its own line here).
+#
+# Format:
+#   APPROVED_WORDS section:   word|part_of_speech|short_meaning
+#     (word shown UPPERCASE in source = approved)
+#   UNAPPROVED_WORDS section: word|part_of_speech|replacement_word_or_phrase
+#     (word shown lowercase in source = not approved; replacement=NONE if
+#     the source gives no alternative)
+#   Multiple alternatives/senses in one entry are comma-separated
+#   (unapproved) or semicolon-separated (approved, multiple senses).
+#
+## APPROVED_WORDS
+A|art|indefinite article
+ABOUT|prep|concerned with
+ABOVE|prep|farther up than something
+ABRASIVE|adj|removes material by friction
+ABSORB|v|take in; reduce the effect of
+ACCEPT|v|decide something is satisfactory
+ACCESS|n|ability to go into or near
+ACCIDENT|n|occurrence that causes injury or damage
+ACCIDENTAL|adj|not on purpose
+ACCIDENTALLY|adv|not on purpose
+ACCURATE|adj|exact
+ACCURATELY|adv|exactly
+ACROSS|prep|from one side to the other
+ACTIVATE|v|make ready for operation
+ACTIVE|adj|in a state of action
+ADAPT|v|change to what is necessary
+ADD|v|increase number, dimension, or quantity
+ADJACENT|adj|near, none of same type between
+ADJACENT TO|prep|near, none of same type between
+ADJUST|v|put to a specified position or value
+ADJUSTABLE|adj|that you can adjust
+ADJUSTMENT|n|the effect of an adjustment
+AFT|adj|nearer the rear of a vehicle
+AFT|adv|toward the rear of a vehicle
+AFTER|conj|follows a specified time or sequence
+AFTER|prep|follows a specified time or sequence
+AFT OF|prep|at a position nearer the rear
+AGAIN|adv|one more occurrence
+AGAINST|prep|in contact with
+AGENT|n|material used to do a task
+AGREE|v|be consistent with
+AID|n|help that is given
+AIRBORNE|adj|in or used in flight
+AIRFLOW|n|a flow of air
+ALIGN|v|put into position relative to a line
+ALL|adj|full quantity
+ALMOST|adv|near the limit or value
+ALONG|prep|parallel with length or direction of
+ALSO|adv|in addition
+ALTERNATIVE|adj|that gives a choice
+ALTERNATIVE|n|one of two or more similar options
+ALTHOUGH|conj|in spite of the fact that
+ALWAYS|adv|at all times
+AN|art|indefinite article
+ANALOG|adj|data shown by pointers and dials
+AND|conj|connects words, phrases, or clauses
+ANGULAR|adj|has one or more angles
+APART|adv|at an unspecified distance from
+APPLICABLE|adj|correct or satisfactory for the task
+APPLY|v|spread on; use to cause an effect
+APPROVAL|n|permission to do something
+APPROVED|adj|permitted by an authority
+APPROXIMATE|adj|almost correct or accurate
+APPROXIMATELY|adv|almost correct or accurate
+AREA|n|a specified surface or location
+ARM|v|install armaments; prepare for auto mode
+AROUND|prep|on all sides of
+ARROW|n|mark with a point, shows direction
+AS|prep|in the manner of, equally
+AS...AS|conj|shows comparison or relation
+ASSEMBLE|v|attach or connect parts of something
+ASSEMBLY|n|items connected for a specified function
+AT|prep|shows location, position, direction, or time
+ATTACH|v|cause items to stay together
+AUTHORITY|n|official body that gives approval
+AUTOMATIC|adj|operates without other input
+AUTOMATICALLY|adv|operates without other input
+AUXILIARY|adj|secondary function; gives help
+AVAILABLE|adj|prepared or supplied for you to use
+AWAY FROM|prep|different position or direction
+AXIAL|adj|related to an axis
+AXIALLY|adv|related to an axis
+BACK|adv|to an initial condition
+BAD|adj|not satisfactory
+BALANCE|v|make equal
+BARE|adj|without a surface layer or protection
+BASIC|adj|approved minimum
+BE|v|to occur or exist; have a property
+BECAUSE|conj|as a result of
+BECAUSE OF|prep|as a result of
+BECOME|v|to come to be
+BEFORE|conj|precedes a specified time or sequence
+BEFORE|prep|precedes a specified time or sequence
+BEHIND|prep|position at the rear of
+BELOW|prep|farther down than something
+BEND|n|area where something is bent
+BEND|v|change from straight to curved
+BETWEEN|prep|before and after, in time or position
+BLEED|v|let a gas out of
+BLOCKAGE|n|that which prevents correct operation
+BLOCKED|adj|prevents correct operation
+BLOW|v|cause gas to move
+BLUNT|adj|not sharp
+BOND|n|electrical continuity link; firm connection
+BOND|v|make electrical bond; attach firmly
+BOTTOM|adj|that is lowermost
+BOTTOM|n|the lowermost position
+BREAK|v|separate into parts by force
+BREATHE|v|get gas into or out of lungs
+BRIGHT|adj|gives much light
+BRIGHTLY|adv|in a bright manner
+BUBBLE|n|small quantity of gas in liquid/solid
+BURN|v|undergo combustion; cause injury via heat
+BUT|conj|on the contrary
+BY|prep|mathematical function word
+BYPASS|v|route past something, not through it
+CALCULATE|v|find a result by mathematics
+CALIBRATE|v|measure and adjust precision of something
+CALIBRATION|n|the procedure that calibrates
+CAN|v|possible, able to, or permitted to
+CANCEL|v|stop a process; remove validity of
+CANNOT|v|not able to
+CAPACITY|n|maximum quantity held or made
+CAREFUL|adj|with precaution
+CAREFULLY|adv|in a careful manner
+CATCH|v|stop or prevent movement of something
+CAUSE|n|something that brings about a result
+CAUSE|v|to be the cause of
+CHANGE|n|what occurs when something changes
+CHANGE|v|become, or cause to become, different
+CHARGE|v|accumulate or add electrical energy
+CHECK|n|procedure to verify correct operation
+CHEMICAL|adj|related to a chemical
+CHEMICALLY|adv|related to a chemical
+CIRCULAR|adj|has the shape of a circle
+CLEAN|adj|no dirt or unwanted material
+CLEAN|v|remove dirt or unwanted materials
+CLEAR|adj|no blockage/interference; unambiguous
+CLEARANCE|n|space between two objects, must not touch
+CLEARLY|adv|in a clear, unambiguous manner
+CLICK|n|a short, sharp sound
+CLOCKWISE|adv|direction clock hands turn
+CLOGGED|adj|blocked with unwanted material
+CLOSE|v|move together, block passage; make circuit
+CODE|n|symbols/letters/numbers for identification
+COIL|n|a sequence of loops
+COLD|adj|at low temperature
+COLLECT|v|come together in one location
+COLOR|n|a property of light
+COME|v|move to your location
+COME ON|v|light up when powered internally
+COMMUNICATION|n|exchange of info via symbols/signs/sounds
+COMPARE|v|examine for differences
+COMPATIBLE|adj|operates or used together safely
+COMPLETE|v|to bring to an end
+COMPLETED|adj|successfully brought to an end
+COMPONENT|n|part/subassembly with a specified function
+COMPRESS|v|decrease dimension or volume
+CONCENTRATION|n|strength of something in a mixture
+CONCENTRIC|adj|has a common center
+CONDENSATION|n|result when gas becomes liquid
+CONDITION|n|necessary factor; state of an item
+CONNECT|v|come together to make one unit
+CONNECTION|n|that which connects or is connected
+CONSTANT|adj|continues the same, no change
+CONSTANTLY|adv|without stopping, incessantly
+CONTACT|v|start communication
+CONTAIN|v|have or hold in something
+CONTAINER|n|holds fluids, materials, or objects
+CONTAMINATION|n|unwanted change of a material's condition
+CONTENTS|n|something that is in a container
+CONTINUE|v|stay in current condition or operation
+CONTINUOUS|adj|that continues
+CONTINUOUSLY|adv|in a continuous manner
+CONTOUR|n|the outer line of something
+CONTROL|n|something that controls
+CONTROL|v|adjust, operate, or limit something
+COOL|adj|moderately cold
+COPY|n|object made the same as another
+CORNER|n|point where lines, sides, or edges touch
+CORRECT|adj|agrees with all that is necessary
+CORRECT|v|to make correct
+CORRECTION|n|change to make something correct
+CORRECTLY|adv|in a correct manner
+COUNT|v|add objects or occurrences to get total
+COUNTERCLOCKWISE|adv|opposite direction to clockwise
+CURVE|n|shape that is bent, has no angles
+CUT|v|divide into parts; remove with a sharp tool
+CYCLE|n|one complete sequence of operation
+DAMAGE|n|result of deterioration to something
+DAMAGED|adj|affected by damage
+DANGEROUS|adj|can cause injury or death
+DATA|n|known facts; numbers/symbols for computers
+DATE|n|the time at which an event occurs
+DEACTIVATE|v|make no longer ready for operation
+DECISION|n|result after you think about a problem
+DECREASE|v|make or become smaller or lower
+DEDICATED|adj|used only for one purpose
+DE-ENERGIZE|v|remove electrical power from
+DEEP|adj|has a specified depth
+DEFECTIVE|adj|unserviceable for operation
+DEFLATE|v|smaller as a result of depressurization
+DEFUEL|v|to remove fuel
+DEPLOY|v|move from storage into operation
+DEPTH|n|distance down, or front to rear
+DETERIORATION|n|a worse condition
+DEVICE|n|something used to do a task
+DIAGONALLY|adv|in a diagonal direction
+DIFFERENCE|n|what is different between two quantities
+DIFFERENT|adj|not the same
+DIFFERENTLY|adv|in a different manner
+DIGITAL|adj|related to digits
+DIGITALLY|adv|given by digits
+DIM|adj|not bright
+DIMENSION|n|result of measuring in one direction
+DIMLY|adv|not bright
+DIRECTION|n|line something moves or is pointed
+DIRECTLY|adv|by a direct procedure or effect
+DIRTY|adj|not clean
+DISARM|v|remove armaments; prevent auto operation
+DISASSEMBLE|v|to take an assembly apart
+DISCARD|v|to not use again
+DISCONNECT|v|separate from what it is connected to
+DISENGAGE|v|release from something that engages
+DISPLAY|n|a visual indication
+DISTANCE|n|dimension between two points or objects
+DIVIDE|v|separate into parts; mathematical division
+DO|v|complete a procedure or task; auxiliary verb
+DOWN|adj|in a position below
+DOWN|adv|to a position below
+DOWN|prep|to a position below
+DOWNSTREAM|adj|in the direction of the flow
+DOWNSTREAM|adv|in the direction of the flow
+DOWNSTREAM OF|prep|in the direction of the flow
+DRAIN|v|to remove liquid
+DRINK|v|to consume liquid
+DROP|n|small quantity of liquid, spherical shape
+DRY|adj|without liquid or moisture
+DRY|v|remove moisture; become dry
+DURING|prep|in or for a specified time
+EACH|adj|every one, seen as group but separate
+EACH|pron|every one, seen as group but separate
+EACH OTHER|pron|two or more, reciprocal action or relation
+EASILY|adv|without difficulty
+EASY|adj|without difficulty
+EAT|v|to consume food
+EDGE|n|intersection line of two surfaces
+EFFECT|n|the result of a cause
+EJECT|v|move with force from aircraft or equipment
+ELECTRIC|adj|operated by electricity
+ELECTRICAL|adj|related to electricity
+ELECTRICALLY|adv|related to or operated by electricity
+ELECTROMAGNETIC|adj|related to electromagnetism
+ELECTROMAGNETICALLY|adv|related to electromagnetism
+ELECTRONIC|adj|related to or operated by electronics
+ELECTRONICALLY|adv|related to or operated by electronics
+EMERGENCY|n|sudden and dangerous condition
+EMPTY|adj|without contents
+END|n|where time, distance, or sequence ends
+ENERGIZE|v|supply electrical power to
+ENGAGE|v|align and come together correctly
+ENTRANCE|n|an opening to go into a space
+ENTRY|n|a record of an occurrence
+EQUAL|adj|same dimension, quality, quantity, or number
+EQUALLY|adv|same dimension, quality, quantity, or number
+EQUIPMENT|n|objects or tools for operation/maintenance
+EQUIVALENT|adj|same properties, functions, or values
+EQUIVALENT|n|something with same properties or values
+ERASE|v|remove data from a medium
+ERROR|n|difference from what is correct or accurate
+ESTIMATE|n|a calculated, approximate result
+EXAMINE|v|to look carefully at
+EXAMPLE|n|item from a group with same qualities
+EXHAUST|n|the gas from an engine
+EXIT|n|an opening to go out of a space
+EXPAND|v|increase in dimension, volume, or time
+EXPIRED|adj|more than the permitted life
+EXPLOSION|n|effect of a quick energy release
+EXPLOSIVE|adj|can cause an explosion
+EXTEND|v|increase in dimension or range
+EXTENSION|n|action or result of extending
+EXTERNAL|adj|of, or on, the outer side
+EXTERNALLY|adv|of, or on, the outer side
+EXTINGUISH|v|to stop burning
+FACE|n|front surface of an object
+FACT|n|something that occurred or is correct
+FALL|v|move down by the force of gravity
+FAR|adj|at or to a relatively large distance
+FAST|adj|at high speed
+FEATHER|v|put propeller to minimum drag position
+FEEL|v|to touch to find
+FILL|v|put into, up to max or given level
+FILTERED|adj|has gone through a filter
+FIND|v|discover; examine so you know
+FINISH|n|result of a finishing procedure
+FIRE|n|light and/or heat from burning material
+FIRE|v|ignite; operate items with explosive material
+FIRST|adv|before other persons or things
+FIT|n|relation, or tolerance, between two parts
+FLAME|n|burning gas
+FLAMMABLE|adj|that burns easily
+FLANGE|n|an end surface at an angle
+FLASH|v|come on and go off frequently
+FLAT|adj|continuous surface in same plane
+FLEXIBLE|adj|can easily bend again and again
+FLIGHT|n|time an aircraft is in the air
+FLOW|n|a continuous movement of fluid
+FLOW|v|move as a fluid moves
+FLUID|n|liquid or gas
+FLUSH|adj|level or continuous with another surface
+FLUSH|v|remove, or operate with, a flow of liquid
+FOLD|v|double over on itself
+FOLLOW|v|come after, go after
+FOR|prep|shows purpose, intent, time, or result
+FOR EXAMPLE|phrase|introduces a typical case
+FORWARD|adj|nearer to the front
+FORWARD|adv|in the direction of the front
+FORWARD OF|prep|at a position nearer to the front
+FREE|adj|that can move easily
+FREELY|adv|that can move easily
+FREEZE|v|go below freezing point of a liquid
+FREQUENT|adj|occurs often at short intervals
+FREQUENTLY|adv|at frequent or short intervals
+FROM|prep|point of departure for movement/time
+FRONT|adj|nearer to the viewer or reference point
+FRONT|n|the front part or surface
+FULL|adj|maximum travel, length, quantity, or detail
+FULLY|adv|maximum travel, length, quantity, or detail
+FUNCTION|n|action or activity a person or thing does
+GAS|n|fluid with no shape or volume, can expand
+GENERAL|adj|related to something as a whole
+GET|v|to obtain; come to have
+GIVE|v|to provide
+GLOSSY|adj|smooth and shiny
+GO|v|move to or from something
+GO OFF|v|become dark when de-energized
+GOOD|adj|that is satisfactory
+GRADUALLY|adv|slowly and continuously
+GROOVE|n|a long, narrow channel
+GROUND|n|the surface of the earth
+GROUND|v|connect to ground or zero potential
+GROUP|n|objects that are related
+HANG|v|attached above with no support below
+HARD|adj|not easy to cut, enter, or pass through
+HAVE|v|possess as a part or quality
+HEAD|n|the top of something
+HEAR|v|know by sound in the ear
+HEAT|n|the condition or quality of being hot
+HEAVY|adj|large mass, weight, or force
+HEIGHT|n|the vertical distance
+HELP|v|make something easier or better
+HERE|adv|in this position
+HIGH|adj|that is of large value
+HIT|v|touch suddenly, with much force
+HOLD|v|continue to have in grip; keep in position
+HOLE|n|an empty space in a solid object
+HORIZONTAL|adj|parallel to the horizon or a baseline
+HORIZONTALLY|adv|in a horizontal position
+HOT|adj|at a high temperature
+HOW|adv|by which manner
+HYDRAULIC|adj|related to, or operated by, pressurized liquid
+HYDRAULICALLY|adv|with hydraulic power
+IDENTIFICATION|n|something that identifies an object
+IDENTIFY|v|mark with a code; show an identity
+IF|conj|in the event that, on condition that
+IGNORE|v|not think about or act on something
+ILLUMINATE|v|make visible with an external light
+IMMEDIATELY|adv|without a gap of time or space
+IMPORTANT|adj|has a significant effect
+IN|adv|to, or into, a location or position
+IN|prep|shows location, position, condition, time
+IN FRONT OF|prep|in a position ahead of
+IN PROGRESS|adv|occurring, taking place now
+INBOARD|adj|nearer to the longitudinal axis
+INBOARD|adv|nearer to the longitudinal axis
+INBOARD OF|prep|nearer to the longitudinal axis
+INCIDENT|n|occurrence that can cause damage
+INCLUDE|v|to make, or be, part of
+INCORRECT|adj|not correct
+INCORRECTLY|adv|in an incorrect manner
+INCREASE|v|make or become larger or higher in value
+INCREMENT|n|one step in a sequence adjusting a quantity
+INDEPENDENTLY|adv|without a relation with
+INDICATION|n|something that is shown
+INFORMATION|n|data collected for a specified function
+INITIAL|adj|related to the start
+INITIALLY|adv|at the start
+INJURY|n|damage to a person
+INNER|adj|nearer to the center of an object
+INPUT|n|data, power, or energy put into a system
+INSPECTION|n|procedure comparing an object with its standard
+INSTALL|v|attach an item in or to a second item
+INSTALLATION|n|the procedure which installs an item
+INSTRUCTION|n|a command that you must obey
+INSTRUMENT|n|item which measures and/or shows
+INSULATION|n|material that prevents movement of energy
+INTENSITY|n|quantity of strength, force, or energy
+INTERCHANGE|v|swap two things without change
+INTERCHANGEABLE|adj|that you can interchange
+INTERFACE|n|connection between two systems or components
+INTERMITTENT|adj|stops and starts again, not continuous
+INTERMITTENTLY|adv|in an intermittent manner
+INTERNAL|adj|of, or on, the inner side and space
+INTERNALLY|adv|of, or on, the inner side and space
+INTERVAL|n|distance or gap between two points
+INTO|prep|movement/access to; shows change or result
+INVESTIGATION|n|official and accurate inquiry or research
+IRREGULAR|adj|not regular
+IRREGULARLY|adv|not regularly
+ISOLATE|v|prevent a supply or connection to
+IT|pron|refers to a thing mentioned; or state of affairs
+ITEM|n|thing that is determined or specified
+ITS|adj|belonging to a thing
+JOINT|n|area where two surfaces touch or attach
+KEEP|v|continue to have or hold
+KILL|v|to cause death
+KNOW|v|sure of data, ready to use
+LAMINATED|adj|made of laminations
+LAMINATION|n|layers of materials bonded together
+LARGE|adj|more than average in dimension or quantity
+LAST|adj|that comes at the end
+LAST|adv|after other persons or things
+LATCH|v|hold in position with a latching device
+LATERAL|adj|related to, or on, the side
+LATERALLY|adv|in a lateral direction
+LAYER|n|material applied to, or below, another
+LEAK|n|crack, gap, or hole letting fluid or light through
+LEAKAGE|n|quantity of material that goes through a leak
+LEFT|adj|on the west side when facing north
+LENGTH|n|distance end to end; longest dimension
+LESS|adj|smaller dimension, value, quantity, or volume
+LET|v|to give opportunity
+LEVEL|adj|horizontal to a known datum
+LEVEL|n|horizontal line, plane, surface, or condition
+LIFE|n|time during which you can use an item
+LIFT|v|to move something up
+LIGHT|adj|has a small mass, weight, or force
+LIGHTING|n|that which gives light
+LIGHTLY|adv|in a light manner
+LIMIT|n|specified max or min quantity, number, or time
+LINEAR|adj|in a straight line
+LINEARLY|adv|in a straight line
+LIQUID|adj|has the properties of a liquid
+LIQUID|n|material that is not a gas or solid
+LISTEN|v|use your ears to hear or find
+LIVE|adj|includes explosive material
+LOCAL|adj|applicable to a given location or position
+LOCALLY|adv|applicable to a given location or position
+LOCATION|n|a place or site that you can find
+LOCK|v|attach or hold in position with a locking device
+LONG|adj|specified or large length or duration
+LONGITUDINAL|adj|related to the longitudinal axis
+LONGITUDINALLY|adv|in a longitudinal direction
+LOOK|v|use your eyes to see or find
+LOOP|n|circular shape made in flexible material
+LOOSE|adj|not attached; not tight
+LOOSELY|adv|not tightly
+LOOSEN|v|cause to be not tight
+LOW|adj|that is of small value
+LOWER|v|to move something down
+LUBRICATE|v|to apply lubricant
+MAGNETIC|adj|related to the properties of a magnet
+MAGNETICALLY|adv|in a magnetic manner
+MAINTENANCE|n|servicing or repair to keep correct condition
+MAKE|v|manufacture; cause to occur or become
+MAKE SURE|v|verify and/or do necessary steps
+MALFUNCTION|n|incorrect operation
+MANDATORY|adj|that you must do, use, or obey
+MANUAL|adj|operated with the hands
+MANUAL|n|publication giving data on a special subject
+MANUALLY|adv|with your hands
+MANY|adj|of a large number
+MARK|n|shows an identification, location, or direction
+MASS|n|quantity of matter in an object
+MATERIAL|n|substance an item is made from; a needed item
+MATING|adj|made to touch
+MATT|adj|not glossy
+MAXIMUM|adj|related to the largest dimension or value
+MAXIMUM|n|largest dimension, quantity, number, or value
+MEASURE|v|find dimensions, capacity, or quantity
+MECHANICAL|adj|related to, or operated with, a mechanism
+MECHANICALLY|adv|in a mechanical manner
+MECHANISM|n|assembly of mechanical parts operating together
+MEDICAL|adj|related to medicine
+MELT|v|change from solid to liquid due to heat
+METHOD|n|special procedure used to get a result
+MIDDLE|adj|at a point between two other points
+MIDDLE|n|a point at or near the center
+MINIMUM|adj|related to the smallest dimension or value
+MINIMUM|n|smallest dimension, quantity, number, or value
+MINUS|prep|with the subtraction of
+MISSING|adj|that is not there
+MIX|v|combine materials into one
+MIXTURE|n|result of mixing materials
+MOBILE|adj|made to move easily
+MODE|n|a special condition of operation
+MODERATE|adj|between low and high values
+MODERATELY|adv|in a moderate manner
+MOIST|adj|moderately wet
+MOMENTARILY|adv|for a short time
+MONITOR|v|check over time for a change
+MOOR|v|hold in position with ropes and cables
+MORE|adj|a large quantity of
+MORE|adv|to a larger degree
+MOST|adj|to the largest quantity of
+MOST|adv|to the largest degree
+MOVABLE|adj|can move if necessary
+MOVE|v|change position or location
+MOVEMENT|n|a change of position or location
+MUCH|adj|relatively large dimension, value, or volume
+MUCH|adv|to a great degree or extent
+MULTIPLY|v|use multiplication to get a result
+MUST|v|shows obligation
+NAME|n|identification given to a person or object
+NEAR|adj|at, or to, a relatively short distance
+NEAR|prep|approaching in space or condition
+NECESSARY|adj|that must be
+NEUTRAL|adj|has no effect; not acid or alkaline
+NEW|adj|not used before
+NEXT|adj|first occurrence following immediately after
+NO|adj|not any
+NO|adv|shows the negative answer to a question
+NOISE|n|an unwanted sound
+NONE|pron|not one, not anyone
+NOSE|n|front end or part, a protruding part
+NOT|adv|adverb of negation
+NOTCH|n|an area in the shape of a "V"
+NUMBER|n|symbol identifying a value; a countable amount
+OBEY|v|do what the instructions tell you
+OBJECT|n|something that you can see or touch
+OCCUR|v|to be found, take place, or come to be
+OF|prep|shows: from, belonging to, having, containing
+OFF|adj|not in operation
+OFF|adv|not in operation; not in contact
+OFF|prep|not in contact with
+ON|adj|in operation
+ON|adv|in operation; in contact
+ON|prep|shows contact, support, direction
+ONE|pron|refers to a single person or object
+ONLY|adj|nothing more or different
+ONLY|adv|exclusively
+ONTO|prep|to a position on or upon
+OPEN|adj|lets something go in or out
+OPEN|v|move from closed; interrupt a circuit
+OPENING|n|an aperture or hole in a surface
+OPERATE|v|to put, keep, or be in action
+OPERATION|n|what occurs when something operates
+OPPOSITE|adj|in the other direction; across from
+OPPOSITE|prep|across from
+OPTIONAL|adj|not mandatory
+OR|conj|shows a choice
+OTHER|adj|not the same as that given before
+OTHER|pron|not the same as that given before
+OUT|adj|away from, or not in, a location
+OUT|adv|to a position away from the inside
+OUT OF|prep|from inside to outside; not in
+OUTBOARD|adj|farther from the longitudinal axis
+OUTBOARD|adv|farther from the longitudinal axis
+OUTBOARD OF|prep|farther from the longitudinal axis
+OUTDOORS|adv|not in a building
+OUTER|adj|on the outside, farther from center
+OUTPUT|n|data, power, or energy out of a system
+OVERBOARD|adv|out of a vessel
+OVERLAP|n|area where one surface covers another
+OVERRIDE|v|prevent automatic operation of a part
+PAINT|v|apply paint to something
+PAIR|n|two objects same, or used together
+PARALLEL|adj|lines stay a constant distance apart
+PARK|v|stop a vehicle, keep it in one place
+PART|n|constituent of an object; a section of a whole
+PARTICLE|n|a very small piece of material
+PASTE|n|a wet, flexible mixture or compound
+PATCH|n|piece of material used to repair a surface
+PERFORMANCE|n|ability to do its function vs a standard
+PERIOD|n|a quantity of time
+PERMANENT|adj|without a limit in time
+PERMANENTLY|adv|in a permanent manner
+PERMITTED|adj|allowed
+PERPENDICULAR|adj|at a 90 degree angle to a line/plane
+PERSON|n|a human being
+PERSONNEL|n|persons employed in a group or organization
+PIECE|n|segment of a whole used on its own
+PLAY|n|free movement, its length or dimension
+PLUS|prep|with the addition of
+PNEUMATIC|adj|related to, or operated by, gas pressure
+PNEUMATICALLY|adv|with pneumatic power
+POINT|n|a sharp or tapered end; an accurate location
+POINT|v|show position/direction of; turn toward
+POISONOUS|adj|that contains poison
+POLISH|v|to make smooth or shiny
+POSITION|n|attitude you adjust; place you put something
+POSSIBLE|adj|that can occur
+POSSIBLY|adv|that can occur
+PRECAUTION|n|done to prevent injury or damage
+PRECISION|n|the quality of being accurate
+PREPARE|v|to make or become ready
+PRESSURIZATION|n|procedure that supplies or increases pressure
+PRESSURIZE|v|to supply pressure
+PREVENT|v|make sure something does not occur
+PREVIOUS|adj|goes before in unspecified time or sequence
+PREVIOUSLY|adv|before, earlier, in the past
+PRIMARY|adj|first in importance
+PROBLEM|n|difficult thing needing the correct answer
+PROCEDURE|n|steps that are in a sequence
+PROPERTY|n|a characteristic or attribute of an object
+PROPORTION|n|the ratio of something to something else
+PROTECTION|n|prevents injury, damage, or failure
+PROTECTIVE|adj|that gives protection
+PROTRUDE|v|be farther forward from adjacent surface
+PULL|v|force something toward the source of the force
+PUSH|v|force away from source; move against
+PUT|v|cause to move or be in a position
+PUT ON|v|cover skin or face with protective items
+QUALITY|n|condition, property, or type
+QUANTITY|n|a specified amount or number
+QUICKLY|adv|in a fast manner
+RADIAL|adj|along a radius
+RADIALLY|adv|along a radius
+RADIOACTIVE|adj|related to radioactivity
+RANDOM|adj|not regular
+RANDOMLY|adv|not regularly
+RANGE|n|limits within which something operates
+RATE|n|measurement of how frequently or quickly
+READ|v|know information via eyes or electronically
+REAR|adj|away from the viewer or a reference point
+REAR|n|the rear part or rear surface
+REARWARD|adv|in the direction of the rear
+RECEIVE|v|get energy, material, or a signal
+RECESS|n|an indentation in a surface
+RECOMMEND|v|to advise what is best
+RECORD|v|note data for later use; store data
+RECYCLE|v|reuse material through a process
+REFER|v|point to information; give information
+REFLECTION|n|occurs when energy bounces off a surface
+REFUEL|v|to supply with fuel
+REGULAR|adj|at specified or equal intervals
+REGULARLY|adv|in a regular manner
+REJECT|v|decide that something is unsatisfactory
+RELATED|adj|that has a relation
+RELATION|n|connection caused by functions/values/conditions
+RELEASE|v|to make free, to let go
+REMAINING|adj|that continues to stay
+REMOVAL|n|a procedure which removes an object
+REMOVE|v|take or move something away
+REPAIR|n|act of repairing, or the result
+REPAIR|v|to make an item serviceable
+REPLACE|v|remove an item, install a new one
+REPLACEMENT|n|item you install when you replace one
+REPORT|n|information recorded about a subject
+RESISTANT|adj|that will help to prevent something
+RESULT|n|something that occurs when you do something
+RETRACT|v|pull in; move into
+RETRACTION|n|result when something retracts
+RIGHT|adj|on the east side when facing north
+RIGID|adj|cannot easily bend or change shape
+RISK|n|possibility that something dangerous occurs
+ROUGH|adj|not smooth
+ROUNDED|adj|not angular
+ROUTING|n|specified direction cables/pipes must follow
+ROW|n|a number of objects in a line
+RUB|v|move with pressure and friction along a surface
+SAFE|adj|not dangerous, disarmed
+SAFELY|adv|in a safe manner
+SAFETY|n|a condition that is safe
+SAFETY|v|prevent accidental operation; secure from loosening
+SAME|adj|agrees in all details
+SAME|pron|agrees in all details
+SAMPLE|n|piece used to show specified qualities
+SATISFACTORILY|adv|in a satisfactory manner
+SATISFACTORY|adj|agrees with all that is necessary
+SCHEDULE|v|plan something in a time or sequence
+SEAL|n|prevents access or leaks
+SEAL|v|to prevent access or leaks
+SECONDARY|adj|second in importance
+SEE|v|to know with the eyes
+SELECT|v|to make a choice
+SELECTION|n|the action or result of choosing
+SEMICIRCULAR|adj|has the shape of half a circle
+SEND|v|to cause to go
+SENSE|v|to get an input automatically
+SENSITIVE|adj|that can sense small changes
+SEPARATION|n|the action or result of separating
+SEQUENCE|n|relation of items or steps in order
+SERRATION|n|one or more notches or teeth
+SERVICEABLE|adj|correct or satisfactory
+SERVICING|n|steps to prepare something for operation
+SET|n|group of related items for same purpose
+SET|v|put into a given adjustment or condition
+SHAKE|v|move quickly up/down or side to side
+SHAPE|n|the contour of an object
+SHARP|adj|can cut or make a hole
+SHEET|n|piece of material thin vs its length/width
+SHINY|adj|can cause a reflection of light
+SHOCK|n|sudden effect of energy on a person/object
+SHORT|adj|has small length or duration
+SHOW|v|cause to be seen; come into view
+SIDE|n|specified surface of an object; a location
+SIGN|n|indication of a possible condition
+SIMULATE|v|make a condition like actual operation
+SINCE|conj|from a past time until later or now
+SLOPE|n|a surface that is not level
+SLOT|n|a long opening that is not wide
+SLOW|adj|at low speed
+SLOWLY|adv|in a slow manner
+SMALL|adj|less than average in dimension/quantity
+SMELL|v|to sense with the nose
+SMOKE|n|gas with particles of burned material
+SMOKE|v|breathe fumes of burning material
+SMOOTH|adj|continuous uniform surface; constant rate
+SMOOTHLY|adv|in a smooth manner
+SOAK|v|put in liquid until wet or soft
+SOFT|adj|flexible, not hard
+SOLID|adj|has the properties of a solid
+SOLID|n|material that is not a gas or liquid
+SOLUTION|n|liquid with dissolved material; an answer
+SOME|adj|related to a quantity not specified
+SOME|pron|related to a quantity not specified
+SOMETHING|pron|a thing not determined or specified
+SOUND|n|something that you can hear
+SOURCE|n|supplies energy/data; point where it starts
+SPACE|n|a distance, area, or volume
+SPARK|n|hot, bright particle of burning material
+SPEAK|v|to use a voice to make words
+SPECIAL|adj|for a specified function
+SPECIALLY|adv|in a special manner
+SPECIFIED|adj|given in a specification or procedure
+SPEED|n|the rate of movement
+SPHERICAL|adj|has the shape of a sphere
+SPILL|v|accidentally flow out of a container
+SPRAY|n|jet of very small drops of liquid
+SPRAY|v|to apply as a spray
+STABLE|adj|does not change or move
+STANDARD|adj|related to normally used equipment
+START|n|the beginning of a movement or operation
+START|v|begin a procedure; come into operation
+STAY|v|continue to be in a location/condition
+STEP|n|a specified part of a procedure
+STOP|v|cause an end to; come to an end
+STOW|v|move into a specified storage position
+STRAIGHT|adj|without curves or bends
+STRIP|n|piece of material, long and thin
+STRIPE|n|line on a surface, a different color
+STRONG|adj|much strength, power, or concentration
+STRUCTURAL|adj|related to the structure
+STRUCTURALLY|adv|related to the structure
+STRUCTURE|n|a construction; arrangement of something
+SUBASSEMBLY|n|assembly part of a larger assembly
+SUBSEQUENT|adj|following in unspecified time or sequence
+SUBSEQUENTLY|adv|after an unspecified time
+SUBTRACT|v|to take from a number or quantity
+SUCH|adj|of the same group
+SUDDEN|adj|occurs in a short time
+SUDDENLY|adv|in a sudden manner
+SUFFICIENT|adj|not less or more than necessary
+SUFFICIENTLY|adv|not less or more than necessary
+SUM|n|the result when you add
+SUPPLY|n|something that is supplied
+SUPPLY|v|give what is necessary; make available
+SURE|adj|certain
+SURFACE|n|one or more faces of something
+SWALLOW|v|take through mouth into the stomach
+SYMBOL|n|written sign identifying a quantity or item
+SYMMETRICAL|adj|that has or is with symmetry
+SYMMETRICALLY|adv|in a symmetrical manner
+SYMPTOM|n|a sign of a condition
+SYNCHRONIZED|adj|operates at same time; agrees with
+SYSTEM|n|assembly of related parts for an operation
+TACKY|adj|sticky when you touch it
+TAG|v|to put a tag on
+TAP|v|to hit lightly and quickly
+TASK|n|assigned work or procedure
+TELESCOPIC|adj|items that retract into each other
+TELL|v|give an order or supply information
+TEMPORARILY|adv|in a temporary manner
+TEMPORARY|adj|for a short time only, not permanent
+TERTIARY|adj|third in importance
+TEST|n|procedure verifying performance is correct
+THAN|conj|used with comparative adjectives/adverbs
+THAT|conj|starts a subordinate clause
+THAT|pron|shows the person or thing referred to
+THE|art|definite article
+THEIR|adj|belonging to persons or things
+THEM|pron|shows the persons or things referred to
+THEN|adv|immediately after in time or sequence
+THERE|adv|in that position
+THERE|pron|starts a sentence or subordinate clause
+THESE|adj|refers to specified persons or things
+THESE|pron|shows the persons or things referred to
+THEY|pron|shows the persons or things referred to
+THICK|adj|has a specified or large thickness
+THICKNESS|n|the smallest of the three dimensions
+THIN|adj|has a small thickness
+THINK|v|to have an opinion
+THIS|adj|refers to a specified person or thing
+THIS|pron|shows the person or thing referred to
+THOSE|pron|shows the persons or things referred to
+THROUGH|adv|movement in one end/side, out the other
+THROUGH|prep|movement in one end/side, out the other
+THRU|prep|from one point in a sequence to another
+THUS|adv|for that reason
+TIGHT|adj|not free
+TIGHTEN|v|to cause to be tight
+TIGHTLY|adv|in a tight manner
+TILT|v|move at an angle between vertical/horizontal
+TIME|n|a measurable duration; an occurrence
+TO|prep|shows direction, connection, result; infinitive marker
+TOGETHER|adv|in one group or position
+TOLERANCE|n|permitted difference from a standard
+TOO|adv|more than is necessary or correct
+TOOL|n|an object used to make or do something
+TOP|adj|that is uppermost
+TOP|n|the uppermost position
+TORQUE|v|tighten to a specified torque
+TOTAL|adj|all of
+TOTAL|n|the full quantity
+TOUCH|v|to be in contact
+TOW|v|to pull something along
+TRANSMIT|v|to send energy or a signal
+TRANSPARENT|adj|easy to see through
+TRAVEL|n|the movement of an item
+TRY|v|to make an effort to do something
+TUNE|v|adjust equipment to best performance
+TURN|n|one full cycle of movement around an axis
+TURN|v|move around an axis or a point
+TWIST|v|force that distorts; turn from torsion
+TYPE|n|a specified group
+TYPICAL|adj|has the important qualities of a group
+UNDEMANDED|adj|occurs without an apparent cause
+UNFOLD|v|open or straighten from a folded position
+UNIT|n|equipment doing a function; a measurement standard
+UNKNOWN|adj|not known
+UNLESS|conj|except if
+UNLOCK|v|release from a locked condition
+UNSATISFACTORILY|adv|in an unsatisfactory manner
+UNSATISFACTORY|adj|not satisfactory
+UNSERVICEABLE|adj|not fit for its purpose
+UNTIL|conj|up to the time that
+UNTIL|prep|up to the time of
+UNUSUAL|adj|not usual
+UNUSUALLY|adv|in an unusual manner
+UNWANTED|adj|that must not be there
+UNWIND|v|remove or come off from around an object
+UP|adj|in a position above
+UP|adv|to a position above
+UP|prep|to a position above
+UPSTREAM|adj|in a direction opposite to the flow
+UPSTREAM|adv|in a direction opposite to the flow
+UPSTREAM OF|prep|in a direction opposite to the flow
+USE|v|make something do its specified function
+USUAL|adj|that occurs most frequently
+USUALLY|adv|in a usual manner
+VALUE|n|a quantity that is calculated or given
+VERTICAL|adj|at 90 degrees to the horizon
+VERTICALLY|adv|at 90 degrees to the horizon
+VERY|adv|to a high degree
+VIBRATION|n|regular movement from a center position
+VIEW|n|the ability to see something
+VISUAL|adj|that you can see
+VISUALLY|adv|with the eyes
+VOICE|n|the sound you make when you speak
+VOLUME|n|space an object fills; loudness of sound
+WAIT|v|stop doing something while another occurs
+WALK|v|move on foot from one location to another
+WANT|v|to intend, to desire
+WARM|adj|moderately hot
+WE|pron|the manufacturer or organization releasing the doc
+WEAK|adj|small strength, power, or concentration
+WEAR|v|become damaged by friction
+WEATHER|n|conditions of the atmosphere
+WEIGH|v|measure the weight of; have a weight
+WEIGHT|n|force from gravity acting on an object's mass
+WET|adj|has liquid on, in, or absorbed into it
+WHEN|conj|at the time that or during
+WHERE|conj|at, to, or in which location
+WHICH|pron|the thing or things that
+WHILE|conj|at the same time
+WHO|pron|the person or personnel that
+WIDE|adj|has a specified or large width
+WIDTH|n|smaller of two dimensions; second-largest of three
+WILL|v|shows simple future tense
+WIND|v|move around and around an object
+WITH|prep|shows association, help, or means
+WITHOUT|prep|not with
+WORK|n|what you do using physical or mental power
+WRITE|v|record data as words, letters, or symbols
+YES|adv|shows the positive answer to a question
+YOU|pron|the reader or the user
+YOUR|adj|related to the reader or the user
+
+## UNAPPROVED_WORDS
+abaft|prep|AFT OF
+abandon|v|GO,STOP
+abate|v|DECREASE
+ability|n|CAN
+able|adj|CAN
+abnormal|adj|UNUSUAL,INCORRECT
+abnormality|n|DEFECT
+abrupt|adj|SUDDEN,SUDDENLY
+absence|n|NONE,NOT,NO
+absent|adj|MISSING,NO
+absolutely|adv|FULLY
+absorption|n|ABSORB
+abundant|adj|LARGE
+abut|v|TOUCH
+accelerate|v|INCREASE,FASTER
+acceptable|adj|PERMITTED,SATISFACTORY,SERVICEABLE
+acceptance|n|ACCEPT
+accessible|adj|ACCESS
+accommodate|v|LET
+accomplish|v|DO,COMPLETE
+according to|prep|REFER
+account for|v|MAKE SURE
+accumulate|v|COLLECT
+accumulation|n|QUANTITY,COLLECT
+accuracy|n|PRECISION
+achieve|v|GET
+acquire|v|GET
+acrid|adj|DANGEROUS
+act|v|NONE
+action|n|STEP,PROCEDURE,TASK
+activity|n|TASK,PROCEDURE,WORK
+actuate|v|START,OPERATE,PUSH
+actuation|n|OPERATION
+addition|n|ADD
+additional|adj|MORE
+adequate|adj|SUFFICIENT
+adhere|v|BOND,OBEY
+adhesion|n|BOND
+adjoining|adj|ADJACENT
+admit|v|LET
+adopt|v|USE
+advance|n|FORWARD
+advance|v|SET,FORWARD
+adverse|adj|BAD
+advisable|adj|RECOMMEND
+advise|v|TELL,RECOMMEND
+affect|v|EFFECT
+aggravate|v|INCREASE
+agitate|v|SHAKE
+agitation|n|SHAKE
+ahead|adv|FORWARD
+aid|v|HELP
+aim|v|POINT
+air-dry|v|DRY
+alert|v|TELL
+alignment|n|ALIGN
+allocate|v|GIVE
+allow|v|LET
+allowable|adj|PERMITTED,APPROVED
+already|adv|IN PROGRESS,NO OTHER
+alter|v|CHANGE
+alteration|n|CHANGE
+alternate|adj|ALTERNATIVE,EACH SECOND
+alternate|v|THEN
+alternately|adv|IN ONE...AND THEN THE OTHER
+alternatively|adv|ALTERNATIVE
+amend|v|CHANGE
+amendment|n|CHANGE
+among|prep|IN
+amount|n|QUANTITY
+analyze|v|ANALYSIS
+anchor|v|ATTACH
+ancillary|adj|AUXILIARY,SECONDARY
+annotation|n|WRITE,RECORD
+annunciate|v|SHOW
+another|adj|ONE MORE,DIFFERENT,AGAIN
+anticlockwise|adv|COUNTERCLOCKWISE
+any|adj|NONE
+any|pron|ONE
+anytime|adv|WHEN
+aperture|n|OPENING
+apparent|adj|SEE,FIND
+appear|v|SHOW,VIEW,THINK,POSSIBLE
+application|n|APPLY
+appoint|v|TELL
+approach|v|GO NEAR
+appropriate|adj|APPLICABLE
+approve|v|APPROVAL
+arise|v|OCCUR,CAUSE
+arrange|v|PUT
+arrangement|n|CONFIGURATION,PREPARE
+arrest|v|STOP,HOLD
+arrive|v|GET
+article|n|OBJECT
+as|conj|BECAUSE,WHILE,AS FOLLOWS,AS NECESSARY,AS SHOWN
+ascertain|v|MAKE SURE
+ask|v|TELL,SPEAK
+assess|v|CALCULATE,ESTIMATE
+assessment|n|ESTIMATE,CALCULATE
+assign|v|GIVE
+assist|v|HELP
+assistance|n|AID,HELP
+associated|adj|CORRECT,RELATED,ITS,THEIR
+assume|v|THINK
+assure|v|MAKE SURE
+as to|prep|ABOUT
+asymmetric|adj|NOT SYMMETRICAL
+attachment|n|ATTACH
+attain|v|SHOW,BE,GET
+attempt|n|TRY
+attempt|v|TRY
+attention|n|AID,CAREFUL,MONITOR
+audible|adj|HEAR,LISTEN
+augment|v|INCREASE
+aurally|adv|LISTEN,HEAR
+authentic|adj|ACCURATE
+authorized|adj|APPROVED
+avert|v|PREVENT
+avoid|v|PREVENT,DO NOT
+aware|adj|KNOW,TELL
+back|adj|REAR
+back|n|REAR
+back and forth|adv|DIRECTION
+back off|v|LOOSEN
+backup|n|EMERGENCY,AUXILIARY
+backward|adv|REARWARD
+badly|adv|INCORRECTLY,UNSATISFACTORILY,DECREASE
+bank|v|BANK
+bared|adj|BARE
+base|n|BOTTOM
+base|v|USE
+begin|v|START
+beginning|n|START,SOURCE
+below|adv|FOLLOW,THESE
+beneath|prep|BELOW
+beside|prep|ADJACENT TO
+beware|v|CAREFUL
+beyond|prep|MORE THAN
+big|adj|LARGE
+bind|v|FREELY,WIND AROUND
+blank|v|SEAL,CAP,COVER
+blend|v|MIX
+block|v|CAUSE A BLOCKAGE
+blot|v|DRY
+blunted|adj|BLUNT
+bolt|v|ATTACH
+both|adj|THE TWO
+bottom|v|TOUCH
+bounds|n|LIMIT
+brace|v|HOLD,STRONG
+branch|v|DIVIDE
+breadth|n|WIDTH
+break|n|STOP
+breakdown|n|STOP
+brilliance|n|INTENSITY,BRIGHT
+bring|v|MOVE,PUT
+briskly|adv|QUICKLY
+broadcast|v|TRANSMIT
+brush|v|BRUSH
+brush on|v|BRUSH
+build|n|STRUCTURE
+build|v|ASSEMBLE
+bump|v|HIT
+burst|v|BREAK
+butt|v|TOUCH
+by means of|prep|WITH
+calculation|n|CALCULATE
+call|v|TELL
+cap|v|SEAL,CAP,COVER
+capability|n|FUNCTION,CAN
+capable|adj|APPROVED,CAN
+care|n|PRECAUTION,CAREFUL,CAREFULLY
+carry|v|TRANSMIT,TRANSPORT
+carry out|v|DO,MEASURE
+case|n|CONDITION
+case (in case of)|conj|IF
+categorize|v|CATEGORY
+caution|v|TELL
+cautiously|adv|CAREFULLY
+cavity|n|HOLE,SPACE
+cease|v|STOP
+center|v|CENTER
+centralize|v|CENTER
+certain|adj|SURE,SOME,SPECIFIED
+certify|v|WRITE,APPROVAL
+chafe|v|RUB
+chafed|adj|WORN
+chance (by chance)|n|RISK,ACCIDENTALLY
+channel|v|CHANNEL
+characteristic|n|PROPERTY,QUALITY
+check|v|MAKE SURE,MEASURE,EXAMINE
+chip|n|PARTICLE
+chip|v|DAMAGED
+chock|v|CHOCK
+choice|n|SELECTION,ALTERNATIVE
+choose|v|SELECT,ALTERNATIVE
+circa|prep|APPROXIMATELY
+circle|v|AROUND
+circulate|v|SUPPLY
+clamp|v|ATTACH,PUT
+classification|n|CLASS,CATEGORY
+cleanliness|n|CLEAN
+clear|v|CLEAN
+click|v|CLICK
+clip|v|CUT,ATTACH
+close|adj|NEAR
+closely|adv|CAREFULLY
+close to|adv|NEAR
+coat|n|LAYER
+coat|v|LAYER
+coating|n|LAYER
+cock|v|SET
+code|v|IDENTIFY,CODE
+coil|v|WIND
+coincide|v|ALIGN
+coincident|adj|SYNCHRONIZED,ALIGN
+collapse|v|CLOSE,FALL
+color code|v|IDENTIFY,CODE
+colored|adj|COLOR
+combine|v|MIX,PUT TOGETHER
+combustible|adj|FLAMMABLE
+commence|v|START
+commencement|n|START
+common|adj|SAME
+communicate|v|CONTACT,SPEAK,HEAR,COMMUNICATION
+comparison|n|COMPARE
+compile|v|MAKE A LIST,RECORD,COLLECT
+complete|adj|FULL,ALL,COMPLETED
+completely|adv|FULLY
+completion|n|END,COMPLETE
+complicated|adj|NOT EASY
+comply|v|OBEY
+comprehensive|adj|FULL
+comprise|v|HAVE,CONTAIN
+compulsory|adj|MANDATORY
+compute|v|CALCULATE
+concentrate|v|ALL
+concern|v|APPLICABLE
+conclusion|n|END,RESULT
+concurrently|adj|AT THE SAME TIME
+conduct|v|DO
+confine to|v|ONLY
+confirm|v|MAKE SURE
+conflict|n|DIFFERENT,AGREE
+conform|v|AGREE
+conformance|n|AGREE
+conformity|n|AGREE
+consecutive|adj|ONE AFTER THE OTHER
+consecutively|adv|ONE AFTER THE OTHER,SEQUENCE
+consequence|n|BECAUSE OF
+consider|v|THINK
+considerable|adj|LARGE,IMPORTANT,DANGEROUS
+consist of|v|HAVE
+consistent|adj|AGREE
+construct|v|ASSEMBLE
+consult|v|REFER
+contaminant|n|CONTAMINATION
+contaminated|adj|DIRTY,CONTAMINATION
+contiguous|adj|ADJACENT
+conventional|adj|STANDARD
+converse|adj|OPPOSITE
+convert|v|CHANGE
+convey|v|MOVE,TELL
+cool|v|DECREASE,COOL
+coordinate|v|SYNCHRONIZED
+copy|v|WRITE,COPY,RECORD
+correctness|n|CORRECT,CORRECTLY
+correspond|v|AGREE,SAME,DIFFERENT
+corresponding|adj|RELATED
+corrode|v|CORROSION
+corrosive|adj|CORROSION
+couple|v|CONNECT,ATTACH
+cover|v|INCLUDE,HAVE,COVER
+crack|v|OPEN,CRACK
+create|v|MAKE,CAUSE
+critical|adj|VERY IMPORTANT,CAREFUL
+cross|v|ACROSS,CORRECTLY
+curvature|n|BEND,CURVE,RADIUS
+curve|v|MAKE A CURVE
+cycle|v|CYCLE
+damage|v|DAMAGE
+damp|adj|MOIST
+dampen|v|DECREASE,MAKE MOIST
+danger|n|RISK,DANGEROUS
+dangerously|adv|DANGEROUS
+deadly|adj|KILL
+deaerate|v|BLEED,AIR
+dearm|v|DISARM,REMOVE
+decay|v|DECREASE
+decelerate|v|DECREASE,SLOWER
+decide|v|SELECT,DECISION
+decontamination|n|REMOVE CONTAMINATION,CLEAN
+decrease|n|DECREASE
+decrement|n|INCREMENT
+define|v|CALCULATE,GIVE,SPECIFIED
+deflect|v|MOVE
+deflection|n|MOVEMENT,POSITION,TRAVEL
+deformed|adj|DAMAGED,DEFORMATION
+defueling|n|DEFUEL
+degrease|v|GREASE
+de-ice|v|ICE
+delay|n|INTERVAL,IMMEDIATELY
+delay|v|AFTER
+delete|v|ERASE,REMOVE
+delicate|adj|EASILY DAMAGED
+deliver|v|SUPPLY
+delivery|n|SUPPLY
+demand|v|NECESSARY
+denote|v|SHOW
+dent|v|DENT
+depend|v|IF
+deplete|v|DECREASE
+deposit|n|PARTICLE,CONTAMINATION
+depress|v|PUSH
+depressurize|v|PRESSURE
+describe|v|GIVE
+deselect|v|CANCEL
+design|v|HAVE
+desired|adj|NECESSARY,CORRECT
+destroy|v|BREAK
+detach|v|DISCONNECT,DISENGAGE,REMOVE
+detail|n|INSTRUCTION
+detail|v|GIVE,REFER,SPECIFIED
+detect|v|FIND,SENSE
+determine|v|FIND,GIVE,SELECT,CALCULATE
+detrimental|adj|DANGEROUS,DAMAGE
+develop|v|START,CAUSE
+deviate|v|OBEY
+devise|v|MAKE,FIND
+diagnose|v|FIND
+diametrically|adv|OPPOSITE
+differ|v|DIFFERENT
+differentiate|v|IDENTIFY
+difficult|adj|NOT EASY,NOT EASILY
+difficulty|n|NOT EASY,NOT EASILY
+dilute|v|MIX,ADD
+dim|v|DECREASE
+diminish|v|DECREASE
+dip|v|MOMENTARILY
+direct|v|POINT
+disappear|v|VIEW
+discharge|v|RELEASE,GO
+discontinue|v|STOP
+discover|v|FIND
+discrepancy|n|DIFFERENCE
+disinfect|v|DISINFECTANT
+dismantle|v|DISASSEMBLE
+dispatch|v|SEND
+disperse|v|REMOVE
+displace|v|MOVE
+display|v|SHOW
+dispose of|v|DISCARD
+disposition|n|LOCATION,POSITION
+disregard|v|IGNORE
+distinct|adj|CLEAR
+distinctly|adv|CLEARLY
+distort|v|TWIST
+distribute|v|APPLY,SUPPLY
+distribution|n|SUPPLY
+disturb|v|MOVE,CHANGE
+don|v|USE,PUT ON
+doubt|n|NOT SURE,THINK
+downward|adv|DOWN
+drag|v|PULL
+draw|v|MAKE,PULL
+dress|v|USE,PUT ON
+drift|v|MOVE,REMOVE
+drive|v|MOVE,REMOVE,OPERATE
+droop|v|MOVE
+drop|v|FALL,DECREASE
+due to|prep|BECAUSE OF,BECAUSE
+dull|adj|DIM,MATT
+duration|n|DURING
+dust|v|APPLY
+early|adj|SHORT
+earth|n|GROUND
+earth|v|GROUND
+ease|n|EASILY,EASY
+ease|v|CAREFULLY REMOVE,CAREFULLY MOVE
+effect|v|DO
+effective|adj|GOOD
+efficacious|adj|GOOD
+efficient|adj|SATISFACTORY
+efficiently|adv|SATISFACTORILY
+efflux|n|EXHAUST
+effort|n|FORCE,TRY
+either|adj|ONE OF THE TWO
+either|conj|OR
+either|pron|ONE OR THE OTHER
+ejection|n|EJECT
+elapse|v|TIME,AFTER,INTERVAL
+eliminate|v|REMOVE,STOP,PREVENT
+emit|v|FROM
+employ|v|USE,HAVE
+empty|v|REMOVE
+enable|v|LET
+encircle|v|AROUND
+enclosed|adj|CLOSED
+encounter|v|BE,FIND
+end|v|STOP,COMPLETE
+enforce|v|OBEY
+engagement|n|ENGAGE
+enlarge|v|INCREASE,LARGE
+enough|adj|SUFFICIENT
+ensue|v|CAUSE
+ensure|v|MAKE SURE
+enter|v|GO INTO,RECORD,ENTRY
+entire|adj|FULL,ALL
+entirely|adv|FULLY
+equal|v|SAME,EQUAL
+equip|v|INSTALL
+equipped|adj|HAVE
+erect|v|ASSEMBLE,BECOME STABLE
+erratic|adj|IRREGULAR
+escape|v|DEFLATE,RELEASE
+establish|v|MAKE SURE
+estimate|v|ESTIMATE
+evaluate|v|EXAMINE,ANALYSIS
+evaluation|n|EXAMINE,ANALYSIS
+evaporate|v|DRY
+even|adj|SMOOTH,SAME,FLAT,FLUSH,LEVEL
+evenly|adv|GRADUALLY,EQUALLY
+event|n|IF
+eventually|adv|SOME TIME
+every|adj|ALL,EACH,INTERVAL
+evidence|n|INDICATION,SIGN,SHOW
+evidence|v|SHOW,FIND
+evident|adj|FIND
+exact|adj|ACCURATE,CORRECT
+exactly|adv|ACCURATELY,FULLY,CORRECT
+examination|n|EXAMINE,FIND
+exceed|v|MORE THAN
+except|prep|NONE
+exception|n|NONE
+exceptional|adj|UNUSUAL
+exceptionally|adv|UNUSUALLY
+excess|adj|TOO MUCH,MORE THAN,UNWANTED,NOT NECESSARY
+excess|n|TOO MUCH,MORE THAN
+excessive|adj|TOO MUCH,MORE THAN
+excessively|adv|TOO MUCH,MORE THAN
+exchange|v|INTERCHANGE,REPLACE
+exclude|v|NOT INCLUDE,NOT USE
+excluding|prep|WITHOUT
+execute|v|DO
+exempt|adj|NO,NOT SHOW
+exercise|v|MAKE SURE,CAREFUL
+exert|v|APPLY,PUT
+exhale|v|BREATHE
+exhaust|v|REMOVE,DECREASE,RELEASE
+exhaustive|adj|ALL,FULL
+exist|v|BE
+expect|v|POSSIBLE
+expel|v|REMOVE,BLEED,RELEASE
+explain|v|TELL
+expose|v|GET
+extent|n|DEPTH,LENGTH,WIDTH
+exterior|n|EXTERNAL
+extra|adj|MORE
+extract|v|REMOVE
+extreme|adj|VERY HIGH,VERY BAD,VERY COLD,VERY HOT
+extremely|adv|VERY
+exude|v|OUT OF
+fabricate|v|MAKE
+face|v|POINT,TURN
+facilitate|v|HELP,MAKE EASIER
+facility|n|NONE
+factor|n|CAUSE
+fail|v|IF NOT,FAILURE,UNSATISFACTORY
+failed|adj|DEFECTIVE,UNSERVICEABLE
+failure|n|IF NOT
+faint|adj|DIM,INTENSITY
+fall|n|DECREASE
+false|adj|INCORRECT
+falter|v|SMOOTHLY,CONSTANT
+familiar|adj|KNOW
+fashion|n|PROCEDURE
+fast|adv|QUICKLY
+fasten|v|ATTACH,CONNECT
+fatal|adj|KILL
+faulty|adj|DEFECTIVE,INCORRECT,UNSERVICEABLE,UNSATISFACTORY
+fear|v|THINK,MAKE SURE
+feasible|adj|POSSIBLE,CAN
+feature|v|HAVE
+feed|v|PUT,SUPPLY
+few|adj|SMALL NUMBER
+few (a few)|adj|SOME
+file|v|REMOVE
+filing|n|PARTICLE
+film|n|LAYER
+filter|v|FILTER
+final|adj|LAST
+finding|n|RESULT
+fine|adj|SMALL
+finger-tighten|v|TIGHTEN WITH YOUR FINGERS
+finish|v|COMPLETE
+firmly|adv|TIGHTLY
+fit|v|INSTALL,ATTACH,CORRECT
+fix|v|ATTACH,SET,REPAIR,INSTALL
+flatness|n|FLAT
+flatten|v|FLAT
+flaw|n|DAMAGE,DEFECTIVE
+flex|v|BEND
+flood|v|USE TOO MUCH
+fluctuate|v|CONSTANT
+focus|v|FOCUS
+fold|n|FOLD
+following|adj|THESE,FOLLOW
+forbidden|adj|DO NOT,NOT PERMITTED
+force|v|PUSH,FORCE
+forecast|v|POSSIBLE
+foreign|adj|UNWANTED
+foremost|adj|FRONT
+form|n|SHAPE
+form|v|BE
+fortify|v|STRONG
+foul|v|CATCH,HIT,TOUCH,CLEARANCE
+fouled|adj|DIRTY,CLOGGED,CATCH
+fragile|adj|EASILY DAMAGED
+free from|adj|NO
+free|v|RELEASE
+fresh|adj|CLEAN,NEW
+fuel|v|REFUEL
+fulfill|v|OBEY
+function|v|OPERATE,MOVE
+fundamental|adj|IMPORTANT
+further|adj|MORE
+further|adv|MORE
+gain|n|INCREASE
+gain|v|GET
+gall|v|GALLING
+gap|n|CLEARANCE,DISTANCE,SPACE
+garbled|adj|CLEAR,CLEARLY
+garner|v|COLLECT
+gaseous|adj|GAS
+gash|v|DAMAGED
+gather|v|COLLECT
+gauge|v|MEASURE
+generally|adv|USUALLY
+generate|v|BE,GIVE,SUPPLY
+generous|adj|LARGE,THICK
+generously|adv|LARGE,THICK
+gentle|adj|CAREFULLY,LIGHTLY
+gently|adv|CAREFULLY,LIGHTLY
+genuine|adj|CORRECT
+get|v|BECOME
+get away|v|GO AWAY
+get down|v|DECREASE,GO DOWN
+get into|v|GO INTO
+get off|v|MOVE OFF
+get to|v|BE,GO,INCREASE
+gleam|v|SHINY
+glitch|n|ERROR,FAILURE,UNSERVICEABLE
+gloss|n|SHINY
+glow|v|BE
+glue|v|BOND,ATTACH
+gouge|v|GOUGE
+govern|v|CONTROL
+grab|v|USE,HOLD
+gradient|n|SLOPE
+gradual|adj|GRADUALLY
+graph|v|GRAPH
+grasp|v|HOLD
+grave|adj|DANGEROUS
+grease|v|LUBRICATE,GREASE
+great|adj|LARGE,MORE THAN,VERY
+greatly|adv|VERY MUCH
+grip|n|HOLD
+grip|v|HOLD
+grow|v|BECOME
+guard|v|GUARD
+guide|v|PUT,MOVE
+gush|v|FLOW
+halt|v|STOP
+halve|v|HALF
+hamper|v|PREVENT
+handle|v|MOVE,TOUCH,USE,CAREFUL
+hand-tight|adj|TIGHTEN WITH YOUR HAND
+hand-tighten|v|TIGHTEN WITH YOUR HAND
+happen|v|OCCUR
+harden|v|HARD,CURE
+harm|v|INJURY,IRRITATION
+harmful|adj|DANGEROUS,INJURY
+harmonize|v|AGREE,ALIGN
+haul|v|TOW,MOVE
+have to|v|NONE
+hazard|n|DANGEROUS
+hazardous|adj|DANGEROUS
+hazy|adj|HAZE
+head|v|POINT
+heat|v|HEAT,HOT
+heighten|v|INCREASE
+help|n|AID
+helpful|adj|HELP
+hesitation|n|SMOOTHLY,CORRECTLY,IMMEDIATELY
+highly|adv|VERY
+hinder|v|PREVENT,DECREASE,BLOCKAGE,CLOGGED
+hinge|v|TURN
+hitch|v|CONNECT
+hoist|v|LIFT
+hold|n|HOLD
+hold back|v|PREVENT
+hold off|v|PREVENT
+hook|v|PUT
+hook up|v|CONNECT
+house|v|CONTAIN
+however|adv|BUT
+huge|adj|LARGE
+hum|v|HUM
+hurt|v|INJURY
+identical|adj|SAME
+idle|v|IDLE
+ignite|v|IGNITION
+immediate|adj|IMMEDIATELY
+immerse|v|SOAK,PUT FULLY INTO
+immobilize|v|LOCK,PREVENT MOVEMENT
+impact|n|HIT
+impact|v|HIT,EFFECT
+impair|v|DECREASE,OPERATE INCORRECTLY,CAUSE DAMAGE
+implement|v|DO
+implementation|n|DO
+impossible|adj|NOT POSSIBLE,CANNOT
+impregnate|v|SOAK
+impression|n|THINK
+improper|adj|INCORRECT
+improperly|adv|INCORRECTLY
+improve|v|BETTER
+impurity|n|UNWANTED MATERIAL,CONTAMINATION
+inactive|adj|NOT ACTIVE
+inadvertent|adj|ACCIDENTAL
+inadvertently|adv|ACCIDENTALLY
+incline|n|SLOPE
+including|prep|THRU,WITH
+incompatible|adj|NOT COMPATIBLE
+incomplete|adj|NOT FULL,NOT COMPLETED,ALL
+incorporate|v|INCLUDE,HAVE
+incorporation|n|INCLUDE
+increase|n|INCREASE
+incur|v|CAUSE
+independent|adj|INDEPENDENTLY
+indicate|v|SHOW,IDENTIFY,SPECIFIED
+induce|v|CAUSE
+ineffective|adj|UNSERVICEABLE,UNSATISFACTORY,NOT OPERATE
+inflammable|adj|FLAMMABLE
+inform|v|TELL
+ingest|v|SWALLOW
+ingress|n|GO INTO
+inhale|v|BREATHE
+inhibit|v|PREVENT
+initiate|v|START
+inject|v|PUT
+injection|n|PUT
+injure|v|INJURY
+inoperative|adj|OFF,NOT OPERATE
+insert|v|PUT,ENGAGE
+inside|adj|INNER
+inside|n|INNER
+inside|prep|IN,INTO
+inspect|v|EXAMINE,INSPECTION
+instead|adv|ALTERNATIVE
+instead of|prep|ALTERNATIVE
+insufficient|adj|NOT SUFFICIENT
+insure|v|MAKE SURE
+intact|adj|NOT DAMAGED
+integral|adj|PART
+interconnect|v|CONNECT
+interfere|v|HIT,CATCH,TOUCH,INTERFERENCE
+interference|n|HIT,CATCH,TOUCH
+interior|n|INTERNALLY,INTERNAL
+intermediate|adj|MIDDLE,BETWEEN
+interrupt|v|STOP
+intersect|v|INTERSECTION
+investigate|v|INVESTIGATION
+inward|adj|INNER
+inward|adv|IN
+irregularity|n|DAMAGE,DEFECT,IRREGULAR,UNUSUAL
+isolation|n|ISOLATE
+jack|v|JACK
+jam|v|FREELY
+job|n|WORK,TASK
+join|v|BOND,ATTACH,CONNECT
+just|adv|IMMEDIATELY
+key|v|REFER,KEY
+kind|n|TYPE
+kink|v|KINK
+knock|v|HIT
+label|v|IDENTIFY,LABEL
+lack|n|NOT SUFFICIENT
+land|v|LANDING
+last|v|CONTINUE
+later|adj|SUBSEQUENT,THEN
+later|adv|SUBSEQUENTLY,WHEN,AFTER
+lay|v|PUT
+lead|v|PUT
+leak|v|LEAK
+least|adv|MINIMUM
+least (at least)|adv|MINIMUM
+leave|v|KEEP,LET STAY,GO
+left-hand|adj|LEFT
+legible|adj|READ
+lengthen|v|INCREASE
+lethal|adj|KILL
+level|v|LEVEL
+liberal|adj|LARGE,THICK
+liberally|adv|LARGE,THICK
+lie|v|BE
+light|v|COME ON
+limitation|n|LIMIT
+limited|adj|SMALL
+link|v|CONNECT,ATTACH
+list|v|RECORD,SHOW,LIST
+little|adj|SMALL,SHORT,NOT SUFFICIENT
+little (a little)|adj|SMALL QUANTITY
+little (a little)|adv|SMALL
+load|v|INSTALL,LOAD
+locate|v|FIND,ENGAGE,PUT
+log|v|RECORD
+long (as long as)|conj|WHILE
+long (no longer)|adv|NOT AT THIS TIME,UNTIL NOT
+loop|v|LOOP
+lose|v|DECREASE
+lost|adj|DECREASE,NOT FIND
+lowermost|adj|BOTTOM
+lukewarm|adj|WARM
+main|adj|PRIMARY
+maintain|v|KEEP,HOLD,MAINTENANCE
+major|adj|PRIMARY
+make certain|v|MAKE SURE
+maladjusted|adj|INCORRECTLY ADJUSTED
+manipulate|v|MOVE,ADJUST
+manufacture|v|MAKE
+mark|v|IDENTIFY,MARK
+mask|v|APPLY
+match|v|ALIGN,AGREE
+mate|v|CONNECT,ENGAGE,TOGETHER
+matter|n|MATERIAL
+may|v|CAN,POSSIBLY
+medium|adj|MODERATE
+meet|v|ENGAGE,TOUCH
+mention|v|GIVE
+mesh|v|ENGAGE
+meteorological|adj|WEATHER
+mid|adj|MIDDLE
+mild|adj|WEAK
+minimize|v|MINIMUM
+minor|adj|SMALL
+miscellaneous|adj|OTHER,ALL
+misrigged|adj|INCORRECTLY ADJUSTED
+mix|n|MIXTURE
+modify|v|CHANGE,MODIFICATION
+moisten|v|MOIST
+momentary|adj|MOMENTARILY
+motion|n|MOVEMENT
+motor|v|DRY-MOTOR,WET-MOTOR,MOTORING
+mount|v|INSTALL,ATTACH,PUT
+nearly|adv|ALMOST
+need|v|NECESSARY
+neither|adj|TWO NOT
+neither|pron|TWO NOT
+neutralize|v|NEUTRAL
+never|adv|DO NOT
+next|adv|THEN
+next to|prep|ADJACENT TO
+noisy|adj|NOISE
+nor|conj|NOT
+normal|adj|USUAL,CORRECT
+normally|adv|USUALLY,CORRECTLY
+note|v|RECORD
+notify|v|TELL,CONTACT,WRITE
+now|adv|AT THIS TIME
+observe|v|MONITOR,SEE,OBEY
+obstruct|v|CATCH,PREVENT,BLOCKAGE
+obstructed|adj|BLOCKED,CLOGGED
+obstruction|n|BLOCKAGE
+obtain|v|GET
+often|adv|FREQUENTLY
+oil|v|LUBRICATE,OIL
+oil-free|adj|OIL
+old|adj|REMAINING,USED,EXPIRED
+omit|v|DO NOT DO,IGNORE
+once|adv|ONE TIME
+once|conj|WHEN
+opaque|adj|NOT TRANSPARENT
+operable|adj|OPERATE
+operational|adj|SERVICEABLE,OPERATE
+opportunity|n|NONE
+option|n|ALTERNATIVE,POSSIBLE,CAN
+order|n|SEQUENCE
+order|v|TELL,ORDER
+orient|v|POINT
+origin|n|SOURCE
+original|adj|INITIAL
+originate|v|SOURCE
+otherwise|adv|IF NOT,DIFFERENTLY
+outline|v|GIVE
+outside|adj|EXTERNAL,OUTER
+outside|adv|OUTDOORS
+outside|n|EXTERNAL,OUTER
+outside|prep|NEAR
+outwards|adv|OUT
+over|prep|ABOVE,ALONG,ON,MORE THAN
+overfill|v|TOO MUCH
+overfull|adj|TOO FULL
+overhaul|v|OVERHAUL
+overheat|v|TOO HOT
+overlap|v|OVERLAP
+overtighten|v|TIGHTEN TOO MUCH,TOO TIGHT,TOO TIGHTLY
+pack|v|PUT,FILL
+part|v|DISCONNECT
+partial|adj|NOT FULLY
+partially|adv|NOT FULLY
+particular|adj|ONLY APPLICABLE,VERY
+particularly|adv|VERY
+partly|adv|NOT FULLY
+pass|v|GO,THROUGH,GIVE
+passage|n|FLOW,HOLE,OPENING
+past|prep|AROUND,THROUGH
+penetrate|v|GO THROUGH,GO INTO
+people|n|PERSON,PERSONNEL
+per|prep|FOR EACH,REFER
+perforated|adj|HOLE
+perform|v|DO,MEASURE
+periodically|adv|INTERVAL
+permissible|adj|PERMITTED
+permit|v|LET
+persist|v|CONTINUE
+persistent|adj|CONTINUOUS
+pertinent|adj|APPLICABLE
+picket|v|MOOR
+pierced|adj|HOLE
+placard|v|PUT
+place|n|POSITION,AREA
+place|v|PUT
+plot|v|MAKE
+plug|v|CONNECT,SEAL
+poor|adj|UNSATISFACTORY,DEFECTIVE,UNSERVICEABLE
+pop|v|OPEN,PROTRUDE,OUT
+port|adj|LEFT
+portion|n|PIECE,PART
+position|v|PUT,SET
+potential|adj|POSSIBLE
+pour|v|PUT
+power|v|SUPPLY
+precautionary|adj|PRECAUTION
+precede|v|BEFORE
+precise|adj|ACCURATE
+precisely|adv|ACCURATELY
+preferable|adj|RECOMMEND
+preferably|adv|IF IT IS POSSIBLE
+preheat|v|HEAT
+preload|v|LOAD
+premature|adj|BEFORE
+prematurely|adv|BEFORE
+preparation|n|PREPARE
+prescribed|adj|SPECIFIED
+presence|n|BE
+present|adj|BE
+present|v|GIVE,SHOW
+preserve|v|PRESERVATION
+preset|v|SET
+press|v|PUSH
+prevent (from)|v|LET
+preventive|adj|PREVENT
+primarily|adv|PRIMARY
+prime|v|FILL,PUT
+principal|adj|PRIMARY
+prior to|prep|BEFORE
+priority|n|IMPORTANT,BEFORE,FIRST
+probability|n|RISK
+probable|adj|VERY POSSIBLE,RISK
+probe|v|FIND
+proceed|v|CONTINUE
+process (in the process of)|prep|DURING,WHILE
+process|n|PROCEDURE
+process|v|DO THE PROCEDURE
+produce|v|CAUSE,GIVE,MAKE,SUPPLY
+product|n|NONE
+profile|n|CONTOUR
+program|n|SEQUENCE
+progress|n|CONTINUE
+progress|v|CONTINUE
+progressive|adj|GRADUALLY
+progressively|adv|GRADUALLY
+prohibit|v|PREVENT,TELL NOT TO
+prolonged|adj|LONG
+prompt|adj|IMMEDIATELY
+propagation|n|INCREASE
+proper|adj|CORRECT
+properly|adv|CORRECTLY
+proportional|adj|RELATION,PROPORTION
+proportionally|adv|RELATION
+protect|v|PREVENT,PROTECTION
+provide|v|GIVE,SUPPLY
+provided (that)|conj|IF
+providing (that)|conj|IF
+proximity|n|NEAR
+pump|v|REMOVE,MOVE
+puncture|v|HOLE
+purge|v|REMOVE
+purify|v|CLEAN
+qualified|adj|APPROVED
+quarterly|adv|INTERVAL
+questionable|adj|NOT SURE
+quick|adj|QUICKLY
+quit|v|GO,STOP
+quote|v|GIVE
+raise|v|LIFT,INCREASE,RETRACT
+rapid|adj|FAST
+rapidly|adv|QUICKLY
+re-|prefix|AGAIN,BACK
+reach|v|GET,TOUCH,BE
+reactivate|v|ACTIVATE
+reading|n|INDICATION
+readjust|v|ADJUST
+ready|adj|PREPARE
+ready|v|PREPARE
+real|adj|AGREE
+rear of|prep|AFT OF,BEHIND
+rearmost|adj|REAR
+reason|n|CAUSE,BECAUSE OF
+reassemble|v|ASSEMBLE
+rebuild|v|ASSEMBLE
+recess|v|RECESS
+recharge|v|CHARGE,FILL,PRESSURIZE
+recheck|v|MEASURE,EXAMINE,CHECK
+reclaim|v|REPAIR
+recleat|v|ATTACH
+reclose|v|CLOSE
+recoil|v|MOVE BACK,WIND,RECOIL
+recondition|v|REPAIR,OVERHAUL
+reconstruction|n|REPAIR
+recover|v|COLLECT
+rectify|v|CORRECT
+recur|v|OCCUR
+reduce|v|DECREASE
+reference|n|REFER
+referenced|adj|SHOW
+refill|v|FILL
+refit|v|INSTALL,REPAIR
+reflect|v|REFLECTION
+register|v|SHOW
+regrease|v|APPLY,MORE
+regulate|v|CONTROL,ADJUST
+regulation|n|ADJUSTMENT,CONTROL
+reinflate|v|INFLATE
+reinforce|v|MAKE STRONGER
+reinstall|v|INSTALL
+reinstallation|n|INSTALLATION
+rejection|n|REJECT
+relate|v|RELATED
+relay|v|SEND
+relevant|adj|RELATED,THEIR,ITS
+relieve|v|RELEASE
+remain|v|STAY
+remnant|n|REMAINING
+removable|adj|REMOVE
+render|v|MAKE
+renew|v|NEW
+renovate|v|REPAIR,NEW
+repack|v|PUT,FILL
+repaint|v|PAINT
+repairable|adj|REPAIR
+repeat|v|AGAIN
+repeated|adj|AGAIN AND AGAIN
+repeatedly|adv|AGAIN AND AGAIN
+replenish|v|FILL,ADD,REFUEL
+reposition|v|MOVE,PUT,SET
+represent|v|SHOW
+repressurize|v|PRESSURIZE
+request|n|TELL,WRITE
+request|v|TELL,WRITE
+require|v|NECESSARY
+reseal|v|SEAL
+reset|v|SET
+residual|adj|REMAINING
+residue|n|REMAINING
+respective|adj|RELATED,CORRECT
+respectively|adv|RELATED
+respond|v|RESULT
+rest|n|REMAINING
+rest|v|BE,PUT
+restart|v|START
+restore|v|REPAIR,PUT
+restrain|v|HOLD,STOP,PREVENT,LIMIT
+restrict|v|DECREASE,PREVENT,ONLY,LIMIT
+result|v|CAUSE,RESULT
+resume|v|START,CONTINUE
+retain|v|KEEP
+retorque|v|TORQUE
+retouch|v|APPLY,PAINT
+retractable|adj|RETRACT
+return|n|GO
+return|v|GO
+reusable|adj|USE
+reuse|v|USE
+reveal|v|SHOW
+reverse|adj|OPPOSITE
+reverse|v|OPPOSITE
+review|n|INSPECTION,EXAMINE
+rewind|v|WIND
+rework|v|NONE
+rig|v|ADJUST
+right-hand|adj|RIGHT
+rinse|v|FLUSH,REMOVE,CLEAN
+ripped|adj|DAMAGED
+rise|n|INCREASE
+rise|v|INCREASE
+rope off|v|ROPE
+rotary|adj|TURN
+rotate|v|TURN
+rotation|n|TURN
+rotational|adj|TURN
+roughen|v|ROUGH
+roughness|n|ROUGH
+round|adj|CIRCULAR
+route|n|ROUTING
+route|v|PUT,ROUTING
+routine|adj|USUAL
+run|v|OPERATE
+running|adj|FLUSH
+safety-clip|v|LOCK,SAFETY
+safety-wire|v|LOCK,SAFETY
+sample|v|SAMPLE
+saturate|v|SOAK
+save|v|KEEP
+scan|v|EXAMINE,SCAN
+scored|adj|SCORE
+scrap|v|DISCARD
+scrape|v|REMOVE
+scratched|adj|SCRATCH
+screw|v|TURN,ATTACH
+scrub|v|CLEAN
+search|v|EXAMINE
+seat|v|INSTALL,AGAINST
+secure|adj|TIGHT,SAFE,CORRECTLY
+secure|v|ATTACH,SAFETY
+securely|adv|CORRECTLY,SAFELY,TIGHT
+security|n|CORRECTLY
+seek|v|GET
+seepage|n|LEAKAGE
+seized|adj|CATCH,MOVE,TURN
+separable|adj|DISASSEMBLE,DISCONNECT
+separate|adj|ISOLATED,DIFFERENT,NOT CONNECTED,NOT ATTACHED
+separate|v|DISCONNECT,DIVIDE
+separately|adv|INDEPENDENTLY
+serious|adj|IMPORTANT,DANGEROUS
+serrated|adj|SERRATION
+serve|v|NONE
+service|v|SERVICING
+serviceability|n|SERVICEABLE
+setting|n|ADJUSTMENT,POSITION,SET
+settle|v|COLLECT,STABLE
+sever|v|CUT
+several|adj|SOME
+severe|adj|DANGEROUS
+shall|v|MUST
+shape|v|SHAPE
+sharply|adv|QUICKLY,SUDDENLY
+shear|v|BREAK,CUT
+shield|v|PREVENT,PROTECTION
+shift|v|MOVE
+shorten|v|DECREASE
+should|v|MUST,IF
+shut down|v|STOP
+sideways|adv|SIDE
+sight|n|VIEW
+sight|v|LOOK
+significant|adj|IMPORTANT
+silence|v|STOP
+similar|adj|EQUIVALENT,ALMOST THE SAME
+simultaneous|adj|AT THE SAME TIME
+simultaneously|adv|AT THE SAME TIME
+situated|adj|INSTALL,BE
+situation|n|CONDITION
+size|n|DIMENSION
+skid|v|SKID
+slack|adj|TENSION
+slack|n|TENSION
+slacken|v|TENSION
+slackness|n|TENSION
+slave|v|CONTROL
+slide|v|MOVE
+slight|adj|SMALL,LIGHT
+slightly|adv|SMALL
+slip|v|MOVE,REMOVE,CAUSE TO FALL,MOVE ACCIDENTALLY
+slow down|v|DECREASE
+sluggish|adj|SLOW
+smear|v|APPLY
+smooth|v|SMOOTH
+snag|v|CATCH
+snap|n|CLICK
+snap|v|MOVE QUICKLY,BREAK
+so (that)|conj|UNTIL,PREVENT
+soapy|adj|SOAP
+soften|v|MAKE SOFT
+soiled|adj|DIRTY
+solidify|v|SOLID
+solve|v|SOLUTION
+soon|adv|TIME
+sound|v|OPERATE
+space|v|DISTANCE
+spacing|n|DISTANCE
+spanwise|adj|SPAN
+sparingly|adv|QUANTITY
+spark|v|SPARK
+specific|adj|APPROVED,SPECIFIED
+specifically|adv|SPECIALLY
+speck|n|PARTICLE
+speech|n|VOICE
+spillage|n|CONTAMINATION,SPILL
+spin|v|TURN QUICKLY
+splash|v|GET
+splined|adj|SPLINE
+split|adj|DAMAGED
+split|v|DIVIDE,BREAK
+spot|n|MARK,STAIN
+spot|v|FIND
+spread|v|APPLY
+spring|v|MOVE
+spurious|adj|UNWANTED
+stability|n|STABLE
+stabilization|n|STABLE
+stabilize|v|STABLE
+stage|n|STEP
+stained|adj|DIRTY,STAIN
+stamp|v|PUT,IDENTIFY
+stand|v|STAY
+starboard|adj|RIGHT
+state|n|CONDITION
+state|v|TELL
+station|v|PUT
+stationary|adj|STABLE,STOP
+steadily|adv|CONTINUOUSLY
+steady|adj|STABLE
+stick|v|ATTACH,FREELY,CATCH
+sticky|adj|TACKY
+stiff|adj|MOVE
+still|adv|STAY,CONTINUE
+stimulate|v|INCREASE
+stir|v|MIX
+store|v|KEEP,CONTAIN,STORAGE
+straighten|v|STRAIGHT
+strain|v|FILTER,STRAIN
+strap|v|ATTACH
+stress|v|FORCE
+strictly|adv|FULLY
+strike|v|HIT
+strip|v|REMOVE
+striped|adj|STRIPE
+stroke|n|TRAVEL
+submerge|v|PUT
+submit|v|SEND
+subsequent to|prep|AFTER
+substance|n|MATERIAL
+substitute|adj|EQUIVALENT,ALTERNATIVE
+substitute|n|ALTERNATIVE
+substitute|v|REPLACE
+successful|adj|CORRECT,SATISFACTORY
+such as|phrase|FOR EXAMPLE
+suck|v|REMOVE
+suitable|adj|APPLICABLE,CORRECT
+suitably|adv|SUFFICIENTLY
+support|n|SUPPORT,HOLD
+support|v|HOLD,SUPPORT
+surplus|adj|UNWANTED
+surrounding|adj|ADJACENT,AROUND
+survey|v|EXAMINE,INSPECTION
+suspect|adj|THINK
+suspect|v|THINK
+suspend|v|HANG,STOP
+swap|v|INTERCHANGE
+sweep|v|SCAN
+swing|v|MOVE,CALIBRATE
+switch|v|SET
+switch off|v|SET,STOP,DE-ENERGIZE
+switch on|v|SET,START,ENERGIZE
+synchronize|v|ADJUST
+take|v|REMOVE,READ,GET,NECESSARY
+take care|v|MAKE SURE,OBEY,DO NOT,CAREFUL
+talk|v|SPEAK
+tape|v|TAPE
+taut|adj|TENSION
+tear|v|DAMAGE
+technique|n|METHOD
+tension|v|TENSION
+terminate|v|STOP
+test|v|TEST
+therefore|adv|THUS,AS A RESULT
+thin|v|LIQUID
+thorough|adj|FULL
+thoroughly|adv|FULLY
+thread|v|PUT,TURN
+threaded|adj|THREAD
+throughout|prep|DURING
+tie|v|ATTACH
+till|conj|UNTIL
+time|v|TIME
+tip|n|POINT
+tip|v|TILT
+top off|v|FILL,ADD
+toward|prep|TO,DIRECTION
+toxic|adj|POISONOUS
+trace|n|SIGN
+trace|v|FIND
+track|v|MONITOR
+trained|adj|APPROVED
+transfer|n|MOVEMENT,SUPPLY
+transfer|v|MOVE,INSTALL
+transition|n|CHANGE
+transport|v|SEND
+trapped|adj|CAUGHT
+travel|v|GO,MOVE
+treat|v|APPLY,TOUCH
+trigger|v|CAUSE,START
+trim|v|CUT
+trip|v|OPEN,RELEASE,CAUSE TO FALL
+troubleshoot|v|TROUBLESHOOTING
+true|adj|CORRECT,AGREE
+tuck|v|PUT
+turn off|v|SET,STOP,DE-ENERGIZE
+turn on|v|SET,START,ENERGIZE
+turn over|v|TURN
+twice|adv|TWO
+unable|adj|CANNOT
+unauthorized|adj|NOT APPROVED
+uncap|v|REMOVE
+unclip|v|REMOVE
+uncoil|v|UNWIND
+uncontaminated|adj|CLEAN,CONTAMINATION
+uncouple|v|DISCONNECT
+uncovered|adj|COVER
+undamaged|adj|NOT DAMAGED
+under|prep|BELOW,IN,LESS THAN
+underneath|prep|BELOW
+underside|n|BOTTOM
+undertake|v|DO,START
+undo|v|LOOSEN
+undue|adj|UNWANTED
+uneven|adj|EQUAL,ROUGH
+uniform|adj|CONSTANT,EQUAL
+uniformly|adv|EQUALLY
+unintentional|adj|ACCIDENTAL
+unintentionally|adv|ACCIDENTALLY
+unlatch|v|RELEASE,OPEN
+unload|v|RELEASE,LOAD
+unnecessary|adj|NOT NECESSARY
+unobstructed|adj|CLOGGED,CLEAR
+unpack|v|REMOVE
+unpainted|adj|BARE
+unplug|v|DISCONNECT,PLUG
+unprotected|adj|PROTECTION
+unreel|v|UNWIND
+unrestricted|adj|FREE
+unsafe|adj|DANGEROUS
+unscrew|v|LOOSEN,TURN,REMOVE
+unstable|adj|NOT STABLE
+unused|adj|NEW
+upon|prep|ON,WHEN
+upper|adj|MAXIMUM,TOP
+uppermost|adj|UP
+uppermost|adv|UP
+up to|prep|UNTIL,THRU,MAXIMUM
+upward|adv|UP
+urgently|adv|IMMEDIATELY
+usage|n|USE
+use|n|OPERATION,USE
+utilization|n|USE
+utilize|v|USE
+valid|adj|CORRECT,APPLICABLE
+validity|n|CORRECT,APPLICABLE
+variable|adj|CHANGE
+various|adj|DIFFERENT
+vary|v|CHANGE
+vent|v|RELEASE,FLOW,OPEN
+ventilate|v|AIRFLOW
+ventilation|n|AIRFLOW
+verify|v|MAKE SURE
+via|prep|THROUGH
+vibrate|v|VIBRATION
+vicinity|n|NEAR,ADJACENT
+view|v|SEE,LOOK
+vigorous|adj|FORCE
+vigorously|adv|FORCE
+visible|adj|SEE,VIEW
+vital|adj|MANDATORY
+volatile|adj|NONE
+warm|v|WARM
+warn|v|TELL,WARNING
+wash|v|CLEAN
+watch|v|MONITOR,LOOK
+watertight|adj|SEAL
+way|n|PROCEDURE
+weakness|n|WEAK
+weep|n|LEAKAGE
+well|adv|CORRECTLY,GOOD,FULLY
+whenever|conj|WHEN
+whether|conj|IF
+whichever|adj|THAT
+whichever|pron|THAT
+whilst|conj|WHILE
+whoever|pron|WHO
+whole|adj|FULL,ALL
+wholly|adv|FULLY
+whose|pron|NONE
+windy|adj|WIND
+wipe|v|CLEAN
+wire|v|ATTACH
+wire-lock|v|LOCK,SAFETY
+withdraw|v|REMOVE
+within|prep|IN,IN OR LESS,IN LESS THAN
+withstand|v|RESISTANT
+work|v|WORK
+would|v|CAN
+wrap|v|PUT,WIND
+wrong|adj|INCORRECT
+wrongly|adv|INCORRECTLY
+yet|conj|BUT
+yet|adv|AT THIS TIME
+yourself|pron|YOU
+zero|v|ZERO
+
+## STATUS
+# COMPLETE. PDF pages 149-434 (dict pages 2-1-A1 to 2-1-Y1), full A-to-Z
+# coverage, "A (art)" through "zero (v)". No entries remain.

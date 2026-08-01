@@ -1,0 +1,6 @@
+.claude/settings.local.json
+.claude/ste100-history.log
+.claude/ste100-memory.md
+.claude/ste100-integrity.json
+__pycache__/
+*.pyc

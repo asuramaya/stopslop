@@ -1,0 +1,23 @@
+Third-party content notice
+===========================
+
+This repository contains material extracted from ASD-STE100 Issue 9
+(2025-01-15), "Simplified Technical English", copyright (c) ASD 2025.
+
+That material lives in:
+
+  - docs/ASD-STE100-rules-extracted.md
+  - docs/incidents/2026-08-01-ste100-dictionary-extraction-gate-bypass.dat
+  - prototype/ste100_dictionary.json (built from the .dat file above)
+
+This is not the author's own work and is not covered by this repository's
+MIT license (see LICENSE). It is included under the ASD-STE100 usage
+rights that apply to this repository's owning entity. If you plan to
+reuse this content outside this project, check your own standing under
+the ASD-STE100 licensing terms first -- do not assume this repository's
+inclusion of the material extends any right to you.
+
+The extraction was verified against the source PDF before being trusted
+as enforcement data; see prototype/build_dictionary.py's docstring for
+the verification method, and docs/incidents/ for the incident this
+verification step responds to.

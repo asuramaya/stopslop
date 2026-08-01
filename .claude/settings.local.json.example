@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /absolute/path/to/stopslop/prototype/pretool_hook.py",
+            "timeout": 10,
+            "statusMessage": "STE100 gate: linting text before write..."
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /absolute/path/to/stopslop/prototype/sessionstart_hook.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
