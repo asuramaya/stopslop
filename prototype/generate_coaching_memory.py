@@ -74,10 +74,19 @@ def dedupe_consecutive(events):
     return out
 
 
-def main():
+def regenerate():
+    """Does the actual work, silently -- no stdout/stderr output. Returns a
+    short status string ('no-log', 'no-violations', or 'wrote:<path>') for
+    the caller to report however fits its own context. Split out from
+    main() so pretool_hook.py can call this inline after every log_event()
+    (see that module for why: PostToolUse never fires after a PreToolUse
+    denial, so this can't run as a separate hook without missing every
+    deny -- exactly the event this coaching loop most needs to learn from.
+    A print() here would corrupt pretool_hook.py's own stdout, which
+    Claude Code parses as the hook's JSON response -- silence is required,
+    not just tidy."""
     if not os.path.exists(HISTORY_LOG):
-        print("No history log yet -- nothing to summarize.", file=sys.stderr)
-        return
+        return "no-log"
 
     events = []
     with open(HISTORY_LOG) as f:
@@ -93,8 +102,7 @@ def main():
             kind_counts[k] += 1
 
     if not kind_counts:
-        print("History log has no violation events yet.", file=sys.stderr)
-        return
+        return "no-violations"
 
     ranked = kind_counts.most_common(5)  # keep it small -- ~200 token budget
 
@@ -113,7 +121,20 @@ def main():
     os.makedirs(os.path.dirname(MEMORY_FILE), exist_ok=True)
     with open(MEMORY_FILE, "w") as f:
         f.write(content)
-    print(f"Wrote {MEMORY_FILE} ({len(content.split())} words, ~{len(content)//4} tokens)")
+    return f"wrote:{MEMORY_FILE}"
+
+
+def main():
+    status = regenerate()
+    if status == "no-log":
+        print("No history log yet -- nothing to summarize.", file=sys.stderr)
+    elif status == "no-violations":
+        print("History log has no violation events yet.", file=sys.stderr)
+    else:
+        path = status.split(":", 1)[1]
+        with open(path) as f:
+            content = f.read()
+        print(f"Wrote {path} ({len(content.split())} words, ~{len(content)//4} tokens)")
 
 
 if __name__ == "__main__":

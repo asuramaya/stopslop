@@ -775,6 +775,35 @@ def lint_and_gate(text, context="procedure"):
     }
 
 
+# Vocabulary is deliberately held out of the deny decision for now, staged
+# rather than flipped on wholesale: unknown_vocabulary and
+# unapproved_no_replacement (a real dictionary word with no given
+# substitute, e.g. "product") would deny on ordinary software vocabulary
+# the aviation-scoped standard was never going to cover.
+# unapproved_synonym reaches semantic_flags at all now only because ALL
+# vocabulary auto-fix is disabled (see UNAPPROVED_NO_AUTOFIX above) -- it's
+# excluded here too, for the same staging reason, not because it's unsafe
+# to report. Re-enabling any of these as a denial reason needs a real
+# PROJECT_TERMS starter glossary (exists now, see ste100-project-terms.json)
+# plus a first-occurrence registration flow (register_term.py, but nothing
+# calls it automatically yet) to mature first.
+#
+# THE SINGLE SOURCE OF TRUTH for "does this flag actually block a write" --
+# pretool_hook.py (the live gate) and stopslop.py's `lint` command both call
+# blocking_semantic_flags() rather than each keeping their own copy of this
+# filter. They used to risk exactly that: a duplicated filter is a filter
+# that can silently drift, the same failure mode this project hit twice
+# already this session with detection/fixer logic pairs that started
+# identical and quietly diverged (see check_modals/fix_sentence and
+# check_vocabulary/_vocab_sub history in project memory).
+EXCLUDED_VOCAB_TYPES = {"unknown_vocabulary", "unapproved_no_replacement", "unapproved_synonym"}
+
+
+def blocking_semantic_flags(semantic_flags):
+    return [f for f in semantic_flags
+            if not (f["kind"] == "vocabulary" and f["detail"]["type"] in EXCLUDED_VOCAB_TYPES)]
+
+
 def fix_sentence(sentence):
     # Protect inline code spans before any substitution -- the "Untouchables"
     # principle (code, identifiers, CLI flags must never be rewritten) means

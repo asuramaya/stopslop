@@ -40,7 +40,9 @@ def log_event(event):
         pass
 
 
-def main():
+def main(argv=None):
+    """argv defaults to sys.argv[1:] (normal CLI use); an explicit list lets
+    stopslop.py's unified dispatcher delegate to this without a subprocess."""
     parser = argparse.ArgumentParser(description="Register a Tier 2 project vocabulary term.")
     parser.add_argument("word")
     parser.add_argument("note", nargs="?", default="")
@@ -49,7 +51,7 @@ def main():
                               "ASD-STE100 dictionary -- registering it anyway silently "
                               "overrides a real rule, not a coverage gap, so it needs an "
                               "explicit, on-the-record reason, not a casual default.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     word = args.word.strip().lower()
     if not word or " " in word:

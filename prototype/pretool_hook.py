@@ -16,6 +16,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ste100_lint as lint
 import bash_write_detect
+import generate_coaching_memory
 
 LINTED_EXTENSIONS = (".md", ".txt", ".rst")
 # Explicit, reviewed allowlist of non-linted extensions this project's own
@@ -56,6 +57,20 @@ def log_event(event):
             f.write(json.dumps(event) + "\n")
     except OSError:
         pass  # logging must never break the gate itself
+
+    # Regenerate the coaching memory right here, inline, after every event --
+    # not in a separate PostToolUse hook. PostToolUse only fires once a tool
+    # call actually succeeds; it never fires after a PreToolUse denial, which
+    # means it would silently miss every deny event -- exactly the signal
+    # this memory loop most needs. Broad except: memory regeneration must
+    # never break the gate itself, same principle as the log write above.
+    # regenerate() is silent by design (see generate_coaching_memory.py) --
+    # it must never print, since this whole process's stdout is Claude
+    # Code's hook-response channel.
+    try:
+        generate_coaching_memory.regenerate()
+    except Exception:
+        pass
 
 
 def dedupe_double_fire(events):
@@ -197,25 +212,10 @@ def main():
 
     result = lint.lint_and_gate(text, context="description")
 
-    # ste100_lint now loads the real, verified ASD-STE100 dictionary (see
-    # build_dictionary.py), so "unknown_vocabulary" is no longer noise from
-    # an undersized stand-in list -- but vocabulary is still held out of the
-    # gate decision on purpose, staged deliberately rather than flipped on
-    # wholesale: unknown_vocabulary and unapproved_no_replacement (a real
-    # dictionary word with no given substitute, e.g. "product") would still
-    # deny on ordinary software vocabulary the dictionary was never going to
-    # cover (aviation/technical text, not this project's own domain words).
-    # unapproved_synonym only reaches this list at all for the ~1/3 of
-    # unapproved words with more than one plausible replacement (auto_fix
-    # False specifically for those, see ste100_lint.UNAPPROVED_AMBIGUOUS) --
-    # unambiguous ones stay in mechanical_violations and auto-fix as before,
-    # never reaching this filter. Re-enabling any of these as a denial
-    # reason needs a real PROJECT_TERMS starter glossary plus a first-
-    # occurrence registration flow first, so a legitimate term gets resolved
-    # once, not re-denied every time.
-    EXCLUDED_VOCAB_TYPES = {"unknown_vocabulary", "unapproved_no_replacement", "unapproved_synonym"}
-    flags = [f for f in result["semantic_flags"]
-             if not (f["kind"] == "vocabulary" and f["detail"]["type"] in EXCLUDED_VOCAB_TYPES)]
+    # See ste100_lint.blocking_semantic_flags for what's excluded and why --
+    # this is the single source of truth for what counts as blocking,
+    # shared with stopslop.py's `lint` command so the two can't diverge.
+    flags = lint.blocking_semantic_flags(result["semantic_flags"])
 
     if flags:
         summary_lines = []
