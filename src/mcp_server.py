@@ -175,6 +175,39 @@ def list_project_terms(ruleset: str = "") -> dict:
 
 
 @mcp.tool()
+def list_glossary_packs(ruleset: str = "") -> dict:
+    """Every bulk vocabulary pack registered for a ruleset (name, source
+    URL, license, real term count, and whether it's enabled for this
+    project right now), if that ruleset supports packs at all. A pack
+    starts disabled -- enabling one is a project-level choice, made with
+    enable_glossary_packs, not automatic just because a pack exists in
+    code.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "list_glossary_packs"):
+        return _unsupported(active, "glossary-packs", "list vocabulary packs for")
+    return {"ruleset": active.RULESET_ID, "packs": active.list_glossary_packs()}
+
+
+@mcp.tool()
+def enable_glossary_packs(pack_ids: list[str], ruleset: str = "") -> dict:
+    """Set exactly this list of vocabulary packs as enabled for a ruleset
+    -- disables every other known pack for that ruleset. Pass an empty
+    list to disable all packs. Validated against the real pack registry
+    first: an unknown pack id refuses instead of silently doing nothing.
+    Takes effect on the next gate call immediately, no session restart.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "set_enabled_glossary_packs"):
+        return _unsupported(active, "glossary-packs", "enable vocabulary packs for")
+    try:
+        active.set_enabled_glossary_packs(pack_ids)
+    except Exception as exc:
+        return {"ok": False, "status": "refused", "message": str(exc)}
+    return {"ok": True, "status": "enabled", "message": f"enabled: {', '.join(pack_ids) or '(none)'}"}
+
+
+@mcp.tool()
 def list_rulesets() -> dict:
     """Every ruleset registered with this stopslop install: id, display
     name, and which capabilities it declares (glossary, word_lookup --

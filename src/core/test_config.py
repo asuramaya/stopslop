@@ -149,6 +149,23 @@ class SaveRulesTests(unittest.TestCase):
                 config.save_rules(tmp, rules, self._fake_registry(), config_file=path)
             self.assertFalse(os.path.exists(path))
 
+    def test_preserves_glossary_packs_key_already_in_the_file(self):
+        # Regression guard: save_rules used to blindly overwrite the whole
+        # file, which would have silently dropped "glossary_packs" the
+        # moment both config concerns lived in the same file.
+        import json
+        import tempfile
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"glossary_packs": {"ste100": ["microsoft-style-guide"]}}, f)
+            config.save_rules(tmp, [{"glob": "*.md", "ruleset": "ste100"}],
+                               self._fake_registry(), config_file=path)
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written["glossary_packs"], {"ste100": ["microsoft-style-guide"]})
+
     def test_malformed_rule_raises(self):
         import os
         import tempfile
@@ -166,6 +183,47 @@ class SaveRulesTests(unittest.TestCase):
             rules = [{"glob": "*.py", "ruleset": "ste100"}]
             config.save_rules(tmp, rules, self._fake_registry(), config_file=path)
             self.assertEqual(config.load_rules(tmp, config_file=path), rules)
+
+
+class GlossaryPacksConfigTests(unittest.TestCase):
+    def test_no_config_file_returns_empty(self):
+        self.assertEqual(
+            config.enabled_glossary_packs(PROJECT_ROOT, "ste100",
+                                           config_file="/nonexistent/stopslop.config.json"),
+            [])
+
+    def test_round_trips_through_save_and_load(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_glossary_packs(tmp, "ste100", ["microsoft-style-guide", "mdn-glossary"],
+                                        config_file=path)
+            self.assertEqual(
+                config.enabled_glossary_packs(tmp, "ste100", config_file=path),
+                ["microsoft-style-guide", "mdn-glossary"])
+
+    def test_ruleset_not_mentioned_returns_empty(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_glossary_packs(tmp, "ste100", ["microsoft-style-guide"], config_file=path)
+            self.assertEqual(
+                config.enabled_glossary_packs(tmp, "some_other_ruleset", config_file=path), [])
+
+    def test_preserves_rulesets_key_already_in_the_file(self):
+        import json
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [{"glob": "*.md", "ruleset": "ste100"}]}, f)
+            config.save_glossary_packs(tmp, "ste100", ["mdn-glossary"], config_file=path)
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
 
 
 class ResolveRulesetIdDefaultRulesTests(unittest.TestCase):

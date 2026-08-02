@@ -52,6 +52,40 @@ def load_rules(project_root, config_file=None):
     return data.get("rulesets", DEFAULT_RULES)
 
 
+def enabled_glossary_packs(project_root, ruleset_id, config_file=None):
+    """Which named vocabulary packs are active for `ruleset_id`, per
+    stopslop.config.json's "glossary_packs" key: {"<ruleset_id>":
+    ["<pack_id>", ...]}. Empty with no config file, and empty for a
+    ruleset_id the key doesn't mention -- a pack existing in code must
+    never change behavior for an unconfigured clone, the same invariant
+    DEFAULT_RULES already guarantees for ruleset routing. Lives in this
+    module, not in a ruleset package, so stopslop.config.json stays the
+    one file that knows the whole project's configuration shape."""
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        data = json.load(f)
+    return data.get("glossary_packs", {}).get(ruleset_id, [])
+
+
+def save_glossary_packs(project_root, ruleset_id, pack_ids, config_file=None):
+    """Write which packs are enabled for `ruleset_id`, preserving every
+    other top-level key already in the file (routing rules, another
+    ruleset's own pack list) -- a blind overwrite here would be the exact
+    settings.local.json-clobber bug this project already found and fixed
+    once in stopslop.py's own init --force."""
+    path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    data.setdefault("glossary_packs", {})[ruleset_id] = pack_ids
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
 def _relative_posix_path(file_path, project_root):
     """The path relative to project_root, using '/' regardless of platform
     (fnmatch patterns in config files are always written with '/'). Returns
@@ -105,15 +139,24 @@ def save_rules(project_root, rules, registry, config_file=None):
     resolve_ruleset() already gives a live gate call, applied at write time
     instead of read time so a bad id never reaches disk in the first place.
     The one caller today is the dashboard's config editor; a raw file write
-    from there would skip this check entirely."""
+    from there would skip this check entirely. Preserves every other top-
+    level key already in the file (e.g. "glossary_packs") -- a blind
+    overwrite here would be the exact settings.local.json-clobber bug this
+    project already found and fixed once in stopslop.py's own init
+    --force, now with a second config file it could happen to again."""
     for rule in rules:
         if "glob" not in rule or "ruleset" not in rule:
             raise ValueError(f"rule {rule!r} needs both 'glob' and 'ruleset' keys")
         if rule["ruleset"] is not None:
             registry.get_ruleset(rule["ruleset"])  # raises UnknownRulesetError on a typo
     path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    data["rulesets"] = rules
     with open(path, "w") as f:
-        json.dump({"rulesets": rules}, f, indent=2)
+        json.dump(data, f, indent=2)
         f.write("\n")
 
 

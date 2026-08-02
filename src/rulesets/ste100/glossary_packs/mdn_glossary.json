@@ -1,0 +1,796 @@
+{
+  "_meta": {
+    "name": "MDN Web Docs Glossary",
+    "source": "https://github.com/mdn/content",
+    "license": "CC-BY-SA-2.5",
+    "extracted": "2026-08-02"
+  },
+  "terms": {
+    "abstraction": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "accent": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "accessibility": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ajax": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "algorithm": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "alpha": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "api": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "argument": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "aria": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "array": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ascii": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "asynchronous": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "attribute": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "authentication": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "authenticator": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "bandwidth": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "baseline": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "beacon": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "bfcache": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "bidi": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "bigint": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "binding": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "blink": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "boolean": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "breadcrumb": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "browser": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "buffer": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "bun": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cache": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cacheable": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "canvas": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "caret": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cdn": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "certified": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "challenge": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "character": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "chrome": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cia": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cipher": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ciphertext": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "class": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "closure": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cloud": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cls": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cms": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "codec": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "conditional": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "constructor": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cookie": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "copyleft": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cors": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "crawler": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "credential": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "crlf": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "crud": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cryptanalysis": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "cryptography": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "csp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "csr": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "csrf": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "css": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "database": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "debounce": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "decryption": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "delta": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "deno": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "deserialization": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "dmz": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "dns": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "doctype": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "dom": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "domain": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "dsl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ecmascript": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "element": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "encapsulation": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "encryption": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "endianness": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "engine": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "entity": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "enumerated": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "exif": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "falsy": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "favicon": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "fingerprinting": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "firewall": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "flexbox": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "fork": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "fps": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ftp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "fuzzing": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "gamut": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "gecko": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "gif": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "git": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "glyph": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "gpl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "gpu": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "grid": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "gutters": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "hmac": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "hoisting": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "host": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "hotlink": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "hsts": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "html": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "http": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "https": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "hyperlink": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "hypertext": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ide": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "idempotent": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "identifier": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "iife": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "imap": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "immutable": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "indexeddb": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "inheritance": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "instance": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "internationalization": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "internet": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "interpolation": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "invariant": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "irc": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "iso": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "isp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "jank": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "java": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "javascript": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "jitter": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "jpeg": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "json": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "keyword": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "latency": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "leading": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "lgpl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ligature": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "literal": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "locale": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "localization": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ltr": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "markup": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "media": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "metadata": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "middleware": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "mime": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "minification": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "mitm": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "mixin": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "modem": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "modularity": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "mutable": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "mvc": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "namespace": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "nan": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "nat": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "native": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "node": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "nonce": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "null": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "nullish": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "oop": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "opengl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "openssl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "operand": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "operator": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ota": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "owasp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "packet": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "parameter": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "parse": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "parser": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "pdf": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "php": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "pixel": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "plaintext": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "plugin": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "png": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "polyfill": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "polymorphism": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "prefetch": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "prerender": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "primitive": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "privileged": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "promise": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "protocol": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "prototype": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "pseudocode": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "python": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "quic": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "recursion": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "reflow": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "repo": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "rgb": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "rng": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "router": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "rss": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "rsync": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "rtf": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "rtl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ruby": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "salt": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "scm": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "scope": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "sdk": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "semantics": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "seo": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "serialization": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "server": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "shim": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "signature": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "site": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "slug": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "smtp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "soap": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "spa": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "specification": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "sql": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "sri": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ssg": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ssl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ssr": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "statement": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "string": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "svg": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "svn": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "synchronous": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "syntax": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "tcp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "telnet": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "throttle": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "tld": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "tls": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "truthy": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ttl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "typescript": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "udp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ui": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "undefined": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "unicode": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "uri": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "url": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "uuid": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "ux": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "validator": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "viewport": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "voip": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "wcag": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webassembly": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webextensions": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webgl": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webkit": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webm": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webp": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webrtc": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "websockets": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "webvtt": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "whitespace": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "wrapper": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "xml": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "xmlhttprequest": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    },
+    "xpath": {
+      "note": "software/tooling vocabulary, from the MDN Web Docs Glossary (CC-BY-SA-2.5) -- ASD-STE100 has no coverage for it"
+    }
+  }
+}

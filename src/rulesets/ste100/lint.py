@@ -23,6 +23,8 @@ from core.blocks import (
     HEADER_RE as _HEADER_RE, LIST_ITEM_RE as _LIST_ITEM_RE, FENCE_RE as _FENCE_RE,
 )
 from core.flags import dedup_flags, default_label as _label
+from core import config as _core_config, paths as _paths
+from rulesets.ste100 import glossary_packs
 
 # --- Tier 1: base approved dictionary, loaded from the real ASD-STE100
 # extraction (dictionary.json, built by build_dictionary.py from
@@ -87,7 +89,13 @@ PROJECT_TERMS_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "project-terms.json")
 
 
-def _load_project_terms():
+def _load_manual_terms():
+    """Only the words a person (or an agent on their behalf) deliberately
+    registered via register_term -- never pack content. glossary.py's
+    list_terms()/register()/unregister() all operate on exactly this set,
+    so "what's registered" stays a small, deliberate list even when a
+    large vocabulary pack is enabled (see _load_project_terms below for
+    the merged view check_vocabulary() actually uses)."""
     if not os.path.exists(PROJECT_TERMS_PATH):
         return {}
     try:
@@ -95,6 +103,26 @@ def _load_project_terms():
             return json.load(f)
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+def _load_project_terms():
+    """The full effective Tier 2 glossary check_vocabulary() actually
+    checks against: every enabled vocabulary pack's terms, plus the
+    manual glossary layered on top (a manual registration always wins on
+    conflict -- it is the more deliberate, more recent act). Packs are a
+    convenience layer on top of a working gate, never a reason to break
+    it: any failure resolving project root or reading a pack file is
+    swallowed, same principle as history.log_event's own OSError
+    handling elsewhere in this project."""
+    merged = {}
+    try:
+        project_root = _paths.find_project_root(__file__)
+        for pack_id in _core_config.enabled_glossary_packs(project_root, "ste100"):
+            merged.update(glossary_packs.load_pack_terms(pack_id))
+    except Exception:
+        pass
+    merged.update(_load_manual_terms())
+    return merged
 
 
 PROJECT_TERMS = _load_project_terms()

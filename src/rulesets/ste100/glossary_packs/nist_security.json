@@ -1,0 +1,571 @@
+{
+  "_meta": {
+    "name": "NIST CSRC Glossary",
+    "source": "https://csrc.nist.gov/glossary",
+    "license": "public domain (US government work)",
+    "extracted": "2026-08-02"
+  },
+  "terms": {
+    "abstraction": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "account": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "accountability": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "adversary": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "advisory": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "algorithm": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "allowlist": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "anomaly": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "antivirus": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "architecture": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "archive": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "array": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "assertion": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "assessor": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "assurance": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "attacker": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "attestation": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "audit": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "auditor": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "authenticate": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "authenticator": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "authenticity": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "availability": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "backdoor": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "baseline": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "beacon": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "benchmark": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "binding": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "biometric": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "blocklist": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "bootstrapping": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "botnet": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "boundary": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "breach": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "byte": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "certificate": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "certification": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "checksum": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "cipher": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "ciphertext": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "claim": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "cleartext": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "cluster": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "codec": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "collision": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "compartmentalization": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "compromise": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "computer": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "concatenation": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "configuration": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "console": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "controller": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "cookie": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "countermeasures": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "coverage": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "credential": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "cryptanalysis": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "dashboard": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "ddos": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "decode": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "decrypt": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "decryption": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "deprecated": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "devops": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "directory": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "disallowed": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "domain": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "eavesdropper": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "encode": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "encrypt": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "encryption": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "endpoint": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "environment": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "exfiltration": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "exposure": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "filename": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "filesystem": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "fingerprint": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "firewall": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "flooding": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "forensics": {
+      "note": "forensics vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "forgery": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "fork": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "gateway": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "genai": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "geolocation": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "hacker": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "hardening": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "hardware": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "heap": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "honeypot": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "host": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "hostname": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "hyperparameter": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "iaas": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "identity": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "immutable": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "insider": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "interoperability": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "interpreter": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "iot": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "jailbreak": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "latency": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "ledger": {
+      "note": "crypto-asset vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "login": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "malware": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "metrics": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "microservice": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "middleware": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "mining": {
+      "note": "crypto-asset vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "misconfiguration": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "mitigation": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "mitm": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "module": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "monitoring": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "network": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "node": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "nonce": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "nosql": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "octet": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "onboarding": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "orchestration": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "orchestrator": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "outage": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "paas": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "parameter": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "partition": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "passphrase": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "patching": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "penetration": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "pharming": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "pivot": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "pivoting": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "plaintext": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "platform": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "provisioning": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "proxy": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "quarantining": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "registry": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "rekey": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "resolver": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "runtime": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "saas": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "safeguards": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "salt": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "sandbox": {
+      "note": "cloud vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "sanitization": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "scanning": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "script": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "server": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "signature": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "skimming": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "snapshot": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "software": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "spam": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "spoofing": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "spyware": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "stablecoin": {
+      "note": "crypto-asset vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "stakeholder": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "steganography": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "string": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "subdirectory": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "subscriber": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "subsystem": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "superuser": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "syntax": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "tampering": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "telemetry": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "token": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "traceability": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "trojan": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "trust": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "trustworthiness": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "tunneling": {
+      "note": "networking vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "update": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "usability": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "user": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "validation": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "vendor": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "verifier": {
+      "note": "identity vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "virtualization": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "wallet": {
+      "note": "crypto-asset vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "webmaster": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "website": {
+      "note": "software vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "whaling": {
+      "note": "security vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "zeroization": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    },
+    "zeroize": {
+      "note": "cryptography vocabulary, from the NIST CSRC Glossary (public domain), no ASD-STE100 coverage"
+    }
+  }
+}

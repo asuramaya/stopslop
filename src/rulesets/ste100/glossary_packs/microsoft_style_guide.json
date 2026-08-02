@@ -1,0 +1,1057 @@
+{
+  "_meta": {
+    "name": "Microsoft Writing Style Guide word list",
+    "source": "https://github.com/MicrosoftDocs/microsoft-style-guide",
+    "license": "CC-BY-4.0",
+    "extracted": "2026-08-02"
+  },
+  "terms": {
+    "abort": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "adapter": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "admin": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "administrator": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "ai": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "alarm": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "alias": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "alphanumeric": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "antialiasing": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "antimalware": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "antispyware": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "antivirus": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "app": {
+      "note": "data/storage vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "applet": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "argument": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "assistive": {
+      "note": "accessibility vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "attribute": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "avg": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "backbone": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "backlight": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "backspace": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "badge": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "baseline": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "beta": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bitmap": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "blog": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "blogger": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "blogroll": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bluescreen": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bluetooth": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bold": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bookmark": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "boolean": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "boot": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bot": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "box": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bps": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "breakpoint": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "browse": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "bulk": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "button": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "cable": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "cabling": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "cache": {
+      "note": "data/storage vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "calendar": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "callback": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "callout": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "canceling": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "cancellation": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "catalog": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "cellular": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "chart": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "chat": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "chatbot": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "clickstream": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "clickthrough": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "client": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "clipboard": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "cloud": {
+      "note": "cloud/infrastructure vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "codec": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "command": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "computer": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "console": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "controller": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "corrupted": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "crash": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "database": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "datacenter": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "datagram": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "datum": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "debug": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "default": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "defragment": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "deprecated": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "desktop": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "destination": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "devops": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "dialog": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "dialogue": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "directory": {
+      "note": "data/storage vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "disable": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "disabled": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "disc": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "disk": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "dns": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "document": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "domain": {
+      "note": "data/storage vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "downgrade": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "download": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "driver": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "dvd": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "email": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "embed": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "emoji": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "emoticons": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "endline": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "endpoint": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "enterprise": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "euro": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "executable": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "extranet": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "failback": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "failover": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "favorite": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "fax": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "field": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "finalize": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "flick": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "flyout": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "folder": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "font": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "foo": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "foobar": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "footer": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "format": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "formatted": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "formatting": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "frozen": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gallery": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gb": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gbit": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "ghz": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gigabit": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gigabyte": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gigahertz": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "global": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "glyph": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "graphic": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "graphical": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "graphics": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gray": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "greylist": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "gridline": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hack": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hacker": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "handheld": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "handshake": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hardwired": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hdmi": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "header": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hexadecimal": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hint": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "honeypot": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hotspot": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hovering": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "html": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "http": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "https": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "hyperlink": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "icon": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "im": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "imbed": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "inbound": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "incoming": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "indent": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "index": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "indexes": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "info": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "initialize": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "inline": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "insecure": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "instantiate": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "internet": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "intranet": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "invalid": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "invoke": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "issue": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "java": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "javascript": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "joystick": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "jump": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "kb": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "kbit": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "kbps": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "keypad": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "keypress": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "keystroke": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "khz": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "kilobit": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "kilobyte": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "kilohertz": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "labeling": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "laptop": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "launch": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "layout": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "leftmost": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "legacy": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "line": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "lowercase": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "machine": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "makefile": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "malware": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "marketplace": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "marquee": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "matrix": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "maximize": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "mb": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "mbit": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "mbps": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "media": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "megabit": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "megabyte": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "megahertz": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "memory": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "message": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "mhz": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "microprocessor": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "monospace": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "mouse": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "mpeg": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "multitask": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "multitasking": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "multithreaded": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "namespace": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "nanosecond": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "navigate": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "network": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "nonprintable": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "nonprinting": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "notification": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "null": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "numeric": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "obsolete": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "offline": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "onboarding": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "online": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "opcode": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "org": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "outdent": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "outgoing": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "overwrite": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "page": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "palette": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pan": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pane": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "parameter": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "passwordless": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "path": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pc": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pen": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "percent": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "percentage": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "peripheral": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "permissions": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "phone": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "photo": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pin": {
+      "note": "accessibility vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pinch": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "ping": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pipe": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "placeholder": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "plaintext": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "platform": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "playlist": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "pointer": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "preview": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "print": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "printout": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "privileges": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "ram": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "reboot": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "refresh": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "registry": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "reinitialize": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "remote": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "resize": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "rightmost": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "rom": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "runtime": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "screen": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "screenshot": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "script": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "scriptlet": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "scroll": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "server": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "setup": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "shaded": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "shell": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "ship": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "shortcut": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "shutdown": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "site": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "sleep": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "slider": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "slideshow": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "smartphone": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "spam": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "specification": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "spoofing": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "spreadsheet": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "spyware": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "sql": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "startup": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "storage": {
+      "note": "data/storage vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "stream": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "streaming": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "struct": {
+      "note": "data/storage vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "subclass": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "swipe": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "sync": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "tab": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "tablet": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "tb": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "terabyte": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "text": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "tile": {
+      "note": "UI/interaction vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "toast": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "toggle": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "toolkit": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "touchpad": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "touchscreen": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "trackball": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "trailing": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "trojan": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "turnkey": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "unavailable": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "uncheck": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "undelete": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "uninstall": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "unmark": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "unpin": {
+      "note": "accessibility vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "unregister": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "unselect": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "upgrade": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "upload": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "upnp": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "uppercase": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "upsize": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "url": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "usable": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "usb": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "user": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "utility": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "videoconference": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "virtual": {
+      "note": "cloud/infrastructure vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "virtualize": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "voicemail": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "vulnerability": {
+      "note": "security vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "wearable": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "web": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "window": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "wireframe": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "wireless": {
+      "note": "networking vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "wizard": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "wordwrap": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "workgroup": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "workspace": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "workstation": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    },
+    "www": {
+      "note": "software/tooling vocabulary, from the Microsoft Writing Style Guide (CC-BY-4.0) -- ASD-STE100 has no coverage for it"
+    }
+  }
+}

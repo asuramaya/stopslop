@@ -6,8 +6,8 @@ rulesets/__init__.py's registration check requires, plus the two pieces
 (context defaulting, history-log wiring) that are genuinely ste100's own
 policy rather than generic plumbing.
 """
-from rulesets.ste100 import lint, glossary
-from core import history, paths
+from rulesets.ste100 import lint, glossary, glossary_packs as _glossary_packs
+from core import config as _core_config, history, paths
 
 RULESET_ID = "ste100"
 # "STE100", not "ASD-STE100" -- matches the exact prefix the pre-refactor
@@ -18,9 +18,15 @@ RULESET_NAME = "STE100"
 CAPABILITIES = frozenset({"glossary", "word_lookup"})
 
 # Relative to this package's own directory -- integrity_check.py resolves
-# these against the ruleset's install location, not the repo root.
+# these against the ruleset's install location, not the repo root. Vocabulary
+# packs are enforcement data exactly like dictionary.json once a project
+# enables one (they suppress real flags), so they're tracked here too.
 TRACKED_FILES = ["dictionary.json", "project-terms.json", "lint.py",
-                  "glossary.py", "build_dictionary.py"]
+                  "glossary.py", "build_dictionary.py",
+                  "glossary_packs/__init__.py",
+                  "glossary_packs/microsoft_style_guide.json",
+                  "glossary_packs/mdn_glossary.json",
+                  "glossary_packs/nist_security.json"]
 
 # kind -> coaching prose for generate_coaching_memory.py's aggregator.
 # Formerly generate_coaching_memory.py's own PRINCIPLE_TEXT; moved here
@@ -130,3 +136,32 @@ def stats():
         "forbidden_words": str(len(lint.UNAPPROVED_MAP) + len(lint.UNAPPROVED_NO_REPLACEMENT)),
         "project_terms": str(len(lint.PROJECT_TERMS)),
     }
+
+
+def list_glossary_packs():
+    """Every registered vocabulary pack (name, source, license, term
+    count) plus whether it's enabled for this project right now --
+    ste100-specific today, not part of the generic plugin contract (see
+    glossary_packs/__init__.py's own docstring: revisit if a second
+    glossary-capable ruleset ever needs the same mechanism)."""
+    project_root = paths.find_project_root(__file__)
+    enabled = set(_core_config.enabled_glossary_packs(project_root, RULESET_ID))
+    return {
+        pack_id: dict(meta, enabled=pack_id in enabled)
+        for pack_id, meta in _glossary_packs.list_packs().items()
+    }
+
+
+def set_enabled_glossary_packs(pack_ids):
+    """Enable exactly this set of packs for this project (disables every
+    other known pack) -- validated against the real pack registry first,
+    the same loud-on-typo guarantee core.config.save_rules already gives
+    ruleset ids."""
+    for pack_id in pack_ids:
+        if pack_id not in _glossary_packs.AVAILABLE_PACKS:
+            raise _glossary_packs.UnknownPackError(
+                f"no glossary pack registered as {pack_id!r} -- "
+                f"known: {sorted(_glossary_packs.AVAILABLE_PACKS)}")
+    project_root = paths.find_project_root(__file__)
+    _core_config.save_glossary_packs(project_root, RULESET_ID, list(pack_ids))
+    lint.PROJECT_TERMS = lint._load_project_terms()  # refresh the checking-time global

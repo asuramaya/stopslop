@@ -226,6 +226,27 @@ def cmd_terms(args):
     return 0
 
 
+def cmd_glossary_packs(args):
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    if not hasattr(ruleset, "list_glossary_packs"):
+        print(f"'{ruleset.RULESET_ID}' ruleset has no vocabulary-pack support.", file=sys.stderr)
+        return 1
+
+    if args.enable is not None:
+        try:
+            ruleset.set_enabled_glossary_packs(args.enable)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Enabled: {', '.join(args.enable) or '(none)'}")
+
+    for pack_id, meta in ruleset.list_glossary_packs().items():
+        state = "ON " if meta["enabled"] else "off"
+        print(f"[{state}] {pack_id} -- {meta['name']} ({meta['license']}, "
+              f"{meta['term_count']} term(s)) -- {meta['source']}")
+    return 0
+
+
 def cmd_status(args):
     import status_report
     print(status_report.format_status_report(status_report.build_status_report()))
@@ -302,6 +323,13 @@ def main():
     p_terms = sub.add_parser("terms", help="list every registered glossary word for a ruleset")
     p_terms.add_argument("--ruleset", help="ruleset id (default: ste100)")
     p_terms.set_defaults(func=cmd_terms)
+
+    p_packs = sub.add_parser("glossary-packs", help="list/enable bulk vocabulary packs for a ruleset")
+    p_packs.add_argument("--ruleset", help="ruleset id (default: ste100)")
+    p_packs.add_argument("--enable", nargs="*", metavar="PACK_ID",
+                          help="set exactly this list of packs as enabled (disables every "
+                               "other known pack); pass with no ids to disable all")
+    p_packs.set_defaults(func=cmd_glossary_packs)
 
     p_status = sub.add_parser("status", help="per-ruleset stats and gate-activity summary")
     p_status.set_defaults(func=cmd_status)

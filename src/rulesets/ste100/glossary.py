@@ -56,7 +56,7 @@ def register(word, note="", override_unapproved=None, history_path=None):
                            f"override that rule, not fill a genuine coverage gap. If this is "
                            f"really intended, call again with override_unapproved set to a reason."}
 
-    terms = lint._load_project_terms()
+    terms = lint._load_manual_terms()
     if word in terms:
         return {"ok": True, "status": "no-op",
                 "message": f"'{word}' is already registered ({terms[word].get('note', 'no note')})"}
@@ -86,7 +86,7 @@ def unregister(word, history_path=None):
     register() -- {"ok", "status", "message"}, status one of "removed",
     "no-op" (was never registered)."""
     word = word.strip().lower()
-    terms = lint._load_project_terms()
+    terms = lint._load_manual_terms()
     if word not in terms:
         return {"ok": True, "status": "no-op", "message": f"'{word}' was not registered"}
 
@@ -102,11 +102,12 @@ def unregister(word, history_path=None):
 
 
 def list_terms():
-    """All registered terms as {"word": {"note", "overrides_unapproved"}, ...},
-    freshly re-read from disk (not the module-level lint.PROJECT_TERMS
+    """Every MANUALLY registered term (never a vocabulary pack's content --
+    see lint._load_manual_terms) as {"word": {"note", "overrides_unapproved"},
+    ...}, freshly re-read from disk (not the module-level lint.PROJECT_TERMS
     snapshot, which won't reflect a registration made later in the same
     process by another caller)."""
-    return lint._load_project_terms()
+    return lint._load_manual_terms()
 
 
 def main(argv=None, history_path=None):

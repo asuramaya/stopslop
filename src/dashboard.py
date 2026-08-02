@@ -162,8 +162,31 @@ def glossary_editor():
         return
     for ruleset in glossary_rulesets:
         st.subheader(f"{ruleset.RULESET_NAME} glossary")
+
+        if hasattr(ruleset, "list_glossary_packs"):
+            packs = ruleset.list_glossary_packs()
+            pack_labels = {
+                pid: f"{pid} -- {meta['name']} ({meta['license']}, {meta['term_count']} terms)"
+                for pid, meta in packs.items()
+            }
+            currently_enabled = [pid for pid, meta in packs.items() if meta["enabled"]]
+            selected = st.multiselect(
+                "Bulk vocabulary packs (off by default -- each is a real, "
+                "license-checked external source, see NOTICE)",
+                options=list(pack_labels), default=currently_enabled,
+                format_func=lambda pid: pack_labels[pid], key=f"packs_{ruleset.RULESET_ID}",
+            )
+            if st.button("Apply pack selection", key=f"apply_packs_{ruleset.RULESET_ID}"):
+                try:
+                    ruleset.set_enabled_glossary_packs(selected)
+                    st.toast(f"Enabled: {', '.join(selected) or '(none)'}", icon="✅")
+                    st.rerun()
+                except Exception as exc:
+                    st.error(f"Not saved: {exc}")
+
         terms = ruleset.list_terms()
-        st.caption(f"{len(terms)} registered term(s)")
+        st.caption(f"{len(terms)} manually registered term(s) "
+                   f"(vocabulary packs are listed separately above, not counted here)")
         if terms:
             st.dataframe(
                 [{"word": w, "note": t.get("note", ""),
