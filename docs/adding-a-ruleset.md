@@ -2,12 +2,12 @@
 
 This document is for anyone who wants to add a third ruleset to stopslop.
 `ste100` and `slopwatch` are the two reference examples. Read
-`prototype/rulesets/slopwatch/` first. It is small, and it has no glossary,
+`src/rulesets/slopwatch/` first. It is small, and it has no glossary,
 so it shows the minimum real ruleset.
 
 ## What a ruleset is
 
-A ruleset is a Python package at `prototype/rulesets/<id>/`. Its
+A ruleset is a Python package at `src/rulesets/<id>/`. Its
 `__init__.py` exposes a small, fixed set of names. Nothing outside that
 package knows anything about the rules or the vocabulary inside it. Not the
 hook, the CLI, the MCP server, `core/`, or another ruleset. Those callers
@@ -15,7 +15,7 @@ only ever call the names below.
 
 ## The required names
 
-Every `__init__.py` under `prototype/rulesets/` must define these six names,
+Every `__init__.py` under `src/rulesets/` must define these six names,
 or `rulesets._register()` refuses it at import time:
 
 ```python
@@ -100,7 +100,7 @@ the capability, both return a clean refusal instead of an error.
 
 ## How to register it
 
-Add two lines to `prototype/rulesets/__init__.py`:
+Add two lines to `src/rulesets/__init__.py`:
 
 ```python
 from rulesets import your_id as _your_id
@@ -125,8 +125,8 @@ default. See `stopslop.config.json.example` for the full default set.
 
 ## How to test it
 
-Give your ruleset its own `prototype/rulesets/<id>/test_lint.py`, in plain
+Give your ruleset its own `src/rulesets/<id>/test_lint.py`, in plain
 stdlib `unittest`. Use one class per check, one class for your deny
 policy, and one for `lint_and_gate` integration. Run `python3 -m unittest
-discover -s prototype -p 'test_*.py'` from the repository root. This
+discover -s src -p 'test_*.py'` from the repository root. This
 command picks up every ruleset's suite together.

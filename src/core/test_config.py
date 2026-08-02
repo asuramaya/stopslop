@@ -5,9 +5,9 @@ dependency on any real ruleset -- uses small fake modules so this suite
 stays meaningful even while ste100/slopwatch are mid-migration.
 
 Run with:
-    cd prototype && python3 -m unittest core.test_config -v
+    cd src && python3 -m unittest core.test_config -v
 or, once other ruleset suites exist:
-    python3 -m unittest discover -s prototype -p 'test_*.py'
+    python3 -m unittest discover -s src -p 'test_*.py'
 """
 import types
 import unittest
@@ -16,7 +16,7 @@ from core import config
 import rulesets
 
 
-PROJECT_ROOT = "/home/asuramaya/code/stopslop"
+PROJECT_ROOT = "/fake/project/root"
 
 
 def _fake_ruleset(ruleset_id, capabilities=frozenset()):

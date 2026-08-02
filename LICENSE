@@ -23,7 +23,7 @@ SOFTWARE.
 ---
 
 This license covers the code in this repository (everything under
-`prototype/`, `.claude/`, and this file's siblings) but NOT the extracted
+`src/`, `.claude/`, and this file's siblings) but NOT the extracted
 ASD-STE100 dictionary and rule text under `docs/` and
-`prototype/ste100_dictionary.json`. See NOTICE for that content's own
+`src/rulesets/ste100/dictionary.json`. See NOTICE for that content's own
 copyright and usage terms.

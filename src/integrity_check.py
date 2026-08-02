@@ -42,7 +42,7 @@ import rulesets
 _LEGACY_REGISTRY_NAME = "ste100-integrity.json"
 _REGISTRY_NAME = "stopslop-integrity.json"
 
-# Relative to prototype/ (this file's own directory). Matches the pre-
+# Relative to src/ (this file's own directory). Matches the pre-
 # refactor scope exactly (the live write-time enforcement path), plus the
 # core/ modules that used to be part of pretool_hook.py/ste100_lint.py
 # directly and were already tracked implicitly as part of those files.
@@ -68,11 +68,11 @@ def _hash_file(path):
 
 def _current_hashes(project_root):
     """{"_core": {relpath: hash}, "<ruleset_id>": {relpath: hash}, ...} for
-    every tracked file -- core files resolved against prototype/ (this
+    every tracked file -- core files resolved against src/ (this
     file's own directory), each ruleset's files resolved against that
     ruleset module's own package directory."""
-    prototype_dir = os.path.dirname(os.path.abspath(__file__))
-    current = {"_core": {f: _hash_file(os.path.join(prototype_dir, f))
+    src_dir = os.path.dirname(os.path.abspath(__file__))
+    current = {"_core": {f: _hash_file(os.path.join(src_dir, f))
                           for f in CORE_TRACKED_FILES}}
     for ruleset in rulesets.list_rulesets():
         ruleset_dir = os.path.dirname(os.path.abspath(ruleset.__file__))

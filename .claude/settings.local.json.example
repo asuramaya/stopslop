@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /absolute/path/to/stopslop/prototype/pretool_hook.py",
+            "command": "python3 /absolute/path/to/stopslop/src/pretool_hook.py",
             "timeout": 10,
             "statusMessage": "STE100 gate: linting text before write..."
           }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /absolute/path/to/stopslop/prototype/sessionstart_hook.py",
+            "command": "python3 /absolute/path/to/stopslop/src/sessionstart_hook.py",
             "timeout": 10
           }
         ]

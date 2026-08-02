@@ -13,9 +13,9 @@ dependent tests save and restore lint.PROJECT_TERMS so they don't depend on
 this project's own glossary staying a specific shape.
 
 Run with:
-    cd prototype && python3 -m unittest rulesets.ste100.test_lint -v
+    cd src && python3 -m unittest rulesets.ste100.test_lint -v
 or, to run every ruleset's suite together:
-    cd prototype && python3 -m unittest discover -s . -p 'test_*.py'
+    cd src && python3 -m unittest discover -s . -p 'test_*.py'
 """
 import unittest
 

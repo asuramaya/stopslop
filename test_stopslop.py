@@ -12,8 +12,14 @@ Run with:
     python3 -m unittest test_stopslop -v
 """
 import io
+import json
+import os
+import subprocess
+import sys
+import tempfile
 import unittest
 from contextlib import redirect_stderr
+from types import SimpleNamespace
 
 import stopslop
 
@@ -54,6 +60,41 @@ class RequireGlossaryTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 stopslop._require_glossary(ruleset, "register")
         self.assertIn("no glossary", err.getvalue())
+
+
+class CmdInitTests(unittest.TestCase):
+    def test_force_preserves_unknown_top_level_keys(self):
+        # Regression: found live while verifying the prototype->src rename.
+        # cmd_init used to overwrite SETTINGS_REAL wholesale from the
+        # template, silently dropping "enabledMcpjsonServers" -- a key
+        # Claude Code itself writes there the first time a user approves
+        # the MCP server, never present in the template at all.
+        with tempfile.TemporaryDirectory() as tmp:
+            real_path = os.path.join(tmp, "settings.local.json")
+            with open(real_path, "w") as f:
+                json.dump({"hooks": {"stale": True},
+                           "enabledMcpjsonServers": ["stopslop"]}, f)
+            original = stopslop.SETTINGS_REAL
+            stopslop.SETTINGS_REAL = real_path
+            try:
+                stopslop.cmd_init(SimpleNamespace(force=True))
+                with open(real_path) as f:
+                    written = json.load(f)
+            finally:
+                stopslop.SETTINGS_REAL = original
+        self.assertEqual(written["enabledMcpjsonServers"], ["stopslop"])
+        self.assertIn("PreToolUse", written["hooks"])
+
+
+class VersionTests(unittest.TestCase):
+    def test_version_string_is_importable(self):
+        self.assertRegex(stopslop.VERSION, r"^\d+\.\d+\.\d+$")
+
+    def test_version_flag_prints_it_and_exits_cleanly(self):
+        proc = subprocess.run([sys.executable, stopslop.__file__, "--version"],
+                               capture_output=True, text=True, timeout=10)
+        self.assertEqual(proc.returncode, 0)
+        self.assertIn(stopslop.VERSION, proc.stdout)
 
 
 if __name__ == "__main__":

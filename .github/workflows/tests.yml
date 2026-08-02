@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  stdlib-only:
+    # The gate itself (pretool_hook.py, sessionstart_hook.py) and stopslop.py
+    # are pure standard-library Python -- this job proves that stays true,
+    # with no pip install step at all. The 10 tests in src/test_mcp_server.py
+    # skip here on purpose (see that file's own docstring); they run for
+    # real in the mcp-layer job below.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run the stdlib-only test suite
+        run: |
+          python3 -m unittest discover -s src -p 'test_*.py' -v
+          python3 -m unittest test_stopslop -v
+
+  mcp-layer:
+    # Same suite, with the one real dependency (mcp) installed, so
+    # src/test_mcp_server.py's tests run for real instead of skipping.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install the mcp dependency
+        run: python3 -m pip install -r requirements.txt
+      - name: Run the full suite with mcp installed
+        run: python3 -m unittest discover -s src -p 'test_*.py' -v

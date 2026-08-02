@@ -2,7 +2,7 @@
   "mcpServers": {
     "stopslop": {
       "command": "python3",
-      "args": ["prototype/mcp_launch.py"]
+      "args": ["src/mcp_launch.py"]
     }
   }
 }

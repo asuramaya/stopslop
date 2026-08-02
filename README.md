@@ -1,5 +1,7 @@
 # stopslop
 
+[![tests](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml/badge.svg)](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml)
+
 stopslop is a prototype of a pluggable text-enforcement gate for Claude Code. It does not check your documentation after you write it. It blocks a bad write before it happens, inside a live Claude Code session. ASD-STE100 (Simplified Technical English) is the first ruleset it enforces, not the only ruleset the engine can run.
 
 Most AI output has a problem. It uses weak modals. It uses passive voice with no named actor. It uses jargon. It uses long sentences. ASD-STE100 exists to remove exactly this from human maintenance manuals. A linter that runs after the fact does not fix this well. By the time a reviewer reads the pull request, the bad text already shipped. Someone must notice it, flag it, and fix it. stopslop instead works at the point of the write. It intercepts most `Write`, `Edit`, and `Bash` file writes before they land on disk. It runs the text through the active ruleset's rule engine. Clean text passes through. A ruleset can auto-fix mechanical problems, like contractions and semicolons. A ruleset can deny text that needs real judgment, like an unnamed passive actor.
@@ -10,7 +12,7 @@ ASD-STE100 is the aerospace industry's own answer to this exact problem, but for
 
 ## Rulesets
 
-ASD-STE100 is one ruleset, not the whole system. A ruleset is a small Python package under `prototype/rulesets/`. It plugs into the same gate, the same CLI, and the same MCP server. It supplies its own rules, its own auto-fix logic, and its own decision about what actually blocks a write. The gate itself does not know anything about ASD-STE100's vocabulary or grammar. It only knows how to call four required functions every ruleset supplies.
+ASD-STE100 is one ruleset, not the whole system. A ruleset is a small Python package under `src/rulesets/`. It plugs into the same gate, the same CLI, and the same MCP server. It supplies its own rules, its own auto-fix logic, and its own decision about what actually blocks a write. The gate itself does not know anything about ASD-STE100's vocabulary or grammar. It only knows how to call four required functions every ruleset supplies.
 
 Two rulesets ship today:
 
@@ -24,8 +26,8 @@ Run `python3 stopslop.py list-rulesets` to see every registered ruleset, and whi
 ## What it actually does
 
 - **Real ASD-STE100 dictionary.** Not a hand-picked stand-in. The `ste100` ruleset loads the actual extracted dictionary: 787 approved words and 1204 forbidden words, most with an approved replacement. A team verified the extraction against the source PDF before it became enforcement data.
-- **A live PreToolUse gate.** `prototype/pretool_hook.py` intercepts `Write`, `Edit`, and detected `Bash` file writes. It resolves the target path to a ruleset, then hands the text to that ruleset. Clean text passes through with no change. A ruleset can auto-fix mechanical violations, like contractions and semicolons. A ruleset can deny text that needs judgment, like a bad verb tense or an unnamed passive actor. It lists the specific violations, so an agent or a human can resolve them before the write proceeds.
-- **A three-tier vocabulary model, for `ste100`.** Tier 1 is the real dictionary. Tier 2 is a project glossary (`prototype/rulesets/ste100/project-terms.json`). It covers domain words the standard does not have. Examples are "repository," "API," and "session." A user registers each word one at a time, with `stopslop.py register`, never in silence. Tier 3 is the forbidden-word-to-replacement map.
+- **A live PreToolUse gate.** `src/pretool_hook.py` intercepts `Write`, `Edit`, and detected `Bash` file writes. It resolves the target path to a ruleset, then hands the text to that ruleset. Clean text passes through with no change. A ruleset can auto-fix mechanical violations, like contractions and semicolons. A ruleset can deny text that needs judgment, like a bad verb tense or an unnamed passive actor. It lists the specific violations, so an agent or a human can resolve them before the write proceeds.
+- **A three-tier vocabulary model, for `ste100`.** Tier 1 is the real dictionary. Tier 2 is a project glossary (`src/rulesets/ste100/project-terms.json`). It covers domain words the standard does not have. Examples are "repository," "API," and "session." A user registers each word one at a time, with `stopslop.py register`, never in silence. Tier 3 is the forbidden-word-to-replacement map.
 - **A memory loop, per ruleset.** The gate logs each decision and updates a short summary right away, not on a delay. The next session gets this summary as context, so an agent starts already aware of its own recent mistakes. Each ruleset gets its own summary file, since two rulesets can disagree about what a good sentence looks like.
 - **Bash bypass detection.** The most obvious way around a `Write`/`Edit`-only gate is `cat > file.md <<EOF`. stopslop detects this. It detects a heredoc write through `cat` or `tee`, in either direction. It detects a quoted `echo`/`printf` write too. It also detects one piped through `tee`.
 - **Integrity checks.** At each session start, the gate hashes its own code and every registered ruleset's own enforcement data. It compares the hash against the last known value. This makes an unexpected change to any of it visible.
@@ -47,10 +49,11 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 - `python3 stopslop.py terms` lists every word in a ruleset's glossary, with its note.
 - `python3 stopslop.py status` shows per-ruleset stats, recent gate activity, and whether the hook is even wired up yet.
 - `python3 stopslop.py list-rulesets` lists every registered ruleset and the glob patterns routed to it.
+- `python3 stopslop.py --version` prints the installed version.
 
 ## MCP tools (optional)
 
-`prototype/mcp_server.py` exposes the same checks as MCP tools: `lint_text`, `check_word`, `register_project_term`, `unregister_project_term`, `list_project_terms`, `list_rulesets`, and `get_status`. A model can call these directly, with no Bash shell needed. Every tool takes an optional `ruleset` id, resolved the same way the CLI resolves one. A ruleset without a glossary or a word lookup returns a plain, structured refusal for the tools that need one, not an error.
+`src/mcp_server.py` exposes the same checks as MCP tools: `lint_text`, `check_word`, `register_project_term`, `unregister_project_term`, `list_project_terms`, `list_rulesets`, and `get_status`. A model can call these directly, with no Bash shell needed. Every tool takes an optional `ruleset` id, resolved the same way the CLI resolves one. A ruleset without a glossary or a word lookup returns a plain, structured refusal for the tools that need one, not an error.
 
 This is not a second gate. It is a different kind of tool, on purpose. The hook sits in front of `Write` and `Edit`. It can deny a call before the write happens. The model must choose to call an MCP tool, or it never runs. A model can still write a file directly instead. No rule stops that. The MCP layer exists to cut down on denied attempts, not to replace the hook.
 
@@ -67,7 +70,7 @@ This is a prototype, not a finished product. Here is the honest gap list:
 - Vocabulary enforcement is not a denial reason yet for `ste100`, on purpose. The real dictionary improves flag quality now. Unknown or forbidden words do not block a write yet. This waits until the project glossary is mature enough to avoid new friction on ordinary software vocabulary.
 - The `ste100` dictionary does not track part of speech. The standard approves about 70 words in one part of speech. It forbids the same words in another part of speech. For example, the standard approves "check" as a noun. It forbids "check" as a verb. The checker only looks at the word, not its role in the sentence.
 - Bash detection is deliberately conservative. It does not catch every write. `printf` with real format arguments, or a multi-line `cat >>` append with no heredoc, both pass through undetected.
-- Each ruleset ships its own test suite. Run `python3 -m unittest discover -s prototype -p 'test_*.py'` from the repository root to run every one of them together. `test_stopslop.py`, at the repository root, covers the CLI's own ruleset-resolution logic directly. The live hook and the MCP server still have no automated coverage. A person verified both by hand, live, through real writes and real tool calls.
+- Each ruleset ships its own test suite. Run `python3 -m unittest discover -s src -p 'test_*.py'` from the repository root to run every one of them together. `test_stopslop.py`, at the repository root, covers the CLI's own ruleset-resolution logic directly. The file `src/test_pretool_hook.py` runs the live hook as a real subprocess. It uses a throwaway copy of the project, so it never touches this project's own real gate history. The file `src/test_mcp_server.py` covers the MCP server's tool functions directly. It needs the venv. Without `mcp` installed, the file skips cleanly. It does not fail.
 - One file only ever routes to one ruleset. `stopslop.config.json` picks a single ruleset per glob pattern, first match wins. Two rulesets never both check the same write.
 - Vocabulary auto-fix is off, on purpose, for every unapproved `ste100` word, not just the hard ones. An early version fixed a word to its one listed replacement with no check of the replacement's own part of speech. That silently broke real sentences. A person found this by hand, in this project's own README, not through any automated check. Real replacement-aware auto-fix needs new data this project does not have yet.
 

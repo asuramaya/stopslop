@@ -7,7 +7,7 @@ from core import paths
 
 
 class FindProjectRootTests(unittest.TestCase):
-    def test_finds_root_from_prototype_top_level(self):
+    def test_finds_root_from_src_top_level(self):
         fake_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   "..", "pretool_hook.py")
         root = paths.find_project_root(fake_file)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-time (re-runnable) build step: parses the verified extraction at
-docs/ASD-STE100-dictionary-extracted.dat into prototype/ste100_dictionary.json,
-the structure ste100_lint.py actually loads at import time.
+docs/ASD-STE100-dictionary-extracted.dat into rulesets/ste100/dictionary.json,
+the structure lint.py actually loads at import time.
 
 Verification note (2026-08-01): before this script was trusted to produce
 enforcement data, the .dat file was checked two ways -- (1) structural: line
@@ -38,12 +38,12 @@ import hashlib
 import json
 import os
 
-# This file lives at prototype/rulesets/ste100/build_dictionary.py -- three
+# This file lives at src/rulesets/ste100/build_dictionary.py -- three
 # levels below the repo root, unlike most of this project's other scripts.
 # A one-off, rarely-run build step; not on the live gate's import path and
 # not going to move again soon, so a plain relative ".." chain (matching
 # this file's pre-refactor style) is fine here rather than depending on
-# core.paths (which itself needs prototype/ on sys.path to import, adding
+# core.paths (which itself needs src/ on sys.path to import, adding
 # the same kind of path-bootstrap fragility this script has never needed).
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(THIS_DIR, "..", "..", "..")

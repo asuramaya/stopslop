@@ -6,7 +6,7 @@ prove the plugin contract generalizes; these tests exist for the same
 reason ste100's do, not because slopwatch is meant to be a finished product.
 
 Run with:
-    cd prototype && python3 -m unittest rulesets.slopwatch.test_lint -v
+    cd src && python3 -m unittest rulesets.slopwatch.test_lint -v
 """
 import unittest
 

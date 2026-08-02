@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """stopslop: one entry point for everything a person actually does with
-this tool by hand. The gate itself (prototype/pretool_hook.py,
+this tool by hand. The gate itself (src/pretool_hook.py,
 sessionstart_hook.py) runs automatically once wired up via Claude Code
 hooks and never needs a person to invoke it directly -- this script is for
 the parts that do: first-time setup, an ad-hoc compliance check outside a
@@ -28,11 +28,12 @@ import os
 import sys
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-PROTOTYPE_DIR = os.path.join(REPO_ROOT, "prototype")
-sys.path.insert(0, PROTOTYPE_DIR)
+SRC_DIR = os.path.join(REPO_ROOT, "src")
+sys.path.insert(0, SRC_DIR)
 
 import rulesets
 from core import config as core_config
+from core.version import VERSION
 
 SETTINGS_EXAMPLE = os.path.join(REPO_ROOT, ".claude", "settings.local.json.example")
 SETTINGS_REAL = os.path.join(REPO_ROOT, ".claude", "settings.local.json")
@@ -73,10 +74,20 @@ def cmd_init(args):
 
     # The example ships with a placeholder path; substitute this actual
     # clone's location so nobody has to hand-edit JSON to get started.
-    pretool_path = os.path.join(PROTOTYPE_DIR, "pretool_hook.py")
-    sessionstart_path = os.path.join(PROTOTYPE_DIR, "sessionstart_hook.py")
+    pretool_path = os.path.join(SRC_DIR, "pretool_hook.py")
+    sessionstart_path = os.path.join(SRC_DIR, "sessionstart_hook.py")
     settings["hooks"]["PreToolUse"][0]["hooks"][0]["command"] = f"python3 {pretool_path}"
     settings["hooks"]["SessionStart"][0]["hooks"][0]["command"] = f"python3 {sessionstart_path}"
+
+    # Preserve any top-level key the real file already has that this
+    # template doesn't know about -- Claude Code itself writes
+    # "enabledMcpjsonServers" here the first time a user approves the MCP
+    # server, and a blind overwrite would silently drop it.
+    if os.path.exists(SETTINGS_REAL):
+        with open(SETTINGS_REAL) as f:
+            existing = json.load(f)
+        for key, value in existing.items():
+            settings.setdefault(key, value)
 
     os.makedirs(os.path.dirname(SETTINGS_REAL), exist_ok=True)
     with open(SETTINGS_REAL, "w") as f:
@@ -236,6 +247,7 @@ def main():
         description="stopslop: a pluggable writing-enforcement gate for Claude Code. "
                      "The gate runs automatically once `init` has wired it up; "
                      "these commands are for everything else a person does by hand.")
+    parser.add_argument("--version", action="version", version=f"stopslop {VERSION}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_init = sub.add_parser("init", help="wire up .claude/settings.local.json for this clone")

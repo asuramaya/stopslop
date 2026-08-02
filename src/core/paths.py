@@ -1,5 +1,5 @@
-"""Project-root discovery, robust to how deep inside prototype/ a module
-lives (prototype/, prototype/core/, prototype/rulesets/<id>/, ...).
+"""Project-root discovery, robust to how deep inside src/ a module
+lives (src/, src/core/, src/rulesets/<id>/, ...).
 
 Before the pluggable-ruleset refactor, every orchestrator script computed
 its own project root as a literal `os.path.dirname(os.path.abspath(__file__))`

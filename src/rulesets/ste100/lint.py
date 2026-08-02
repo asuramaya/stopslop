@@ -551,10 +551,11 @@ def check_inclusive_language(sentence):
     return hits
 
 
-# Ported from SimpleEnglish's ste_lint.py (MIT) -- condition-before-command
-# (rules 5.4/7.2): the "if"/"when" clause should open the sentence, not
-# trail after the command. Requires restructuring (move the clause), not a
-# substitution, so this is a semantic flag, not auto-fixable.
+# Ported from SimpleEnglish's evals/ste_lint.py (MIT) --
+# https://github.com/AminBlg/SimpleEnglish, see NOTICE -- condition-
+# before-command (rules 5.4/7.2): the "if"/"when" clause should open the
+# sentence, not trail after the command. Requires restructuring (move the
+# clause), not a substitution, so this is a semantic flag, not auto-fixable.
 TRAILING_COND = re.compile(r"\w[^.!?\n]{3,}\s\b(if|when)\b\s", re.IGNORECASE)
 
 
@@ -565,10 +566,11 @@ def check_trailing_condition(sentence):
     return None
 
 
-# Ported from SimpleEnglish's ste_lint.py (MIT) -- one term per concept
-# (rules 1.11/9.4), document-level: flags when 2+ members of the same
-# rotation set appear anywhere in the text. Which term to standardize on is
-# a judgment call (semantic, not auto-fixable) -- same category as glossary
+# Ported from SimpleEnglish's evals/ste_lint.py (MIT) --
+# https://github.com/AminBlg/SimpleEnglish, see NOTICE -- one term per
+# concept (rules 1.11/9.4), document-level: flags when 2+ members of the
+# same rotation set appear anywhere in the text. Which term to standardize
+# on is a judgment call (semantic, not auto-fixable) -- same category as glossary
 # registration.
 ROTATION_SETS = [
     ("check-verify", re.compile(r"\b(check|verify|confirm|validate|ensure)\w*\b", re.IGNORECASE)),

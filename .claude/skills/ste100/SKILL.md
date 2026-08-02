@@ -12,14 +12,14 @@ license: MIT
 compatibility: claude-code
 metadata:
   standard: ASD-STE100 Issue 9 (2025-01-15)
-  companion: stopslop prototype/pretool_hook.py -- this skill primes the
+  companion: stopslop src/pretool_hook.py -- this skill primes the
     draft; the hook is the actual gate. Priming reduces retries, it does
     not replace the gate.
 ---
 
 # STE100 priming for stopslop
 
-This is the priming layer, not the gate. The gate (`prototype/pretool_hook.py`)
+This is the priming layer, not the gate. The gate (`src/pretool_hook.py`)
 is what actually enforces anything -- it denies writes with real violations,
 full stop, regardless of whether this file was followed. This skill exists
 only to cut the retry rate: get closer to compliant on the first draft so the

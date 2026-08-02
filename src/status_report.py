@@ -22,6 +22,7 @@ from collections import Counter
 
 from core import config as core_config
 from core import history, paths
+from core.version import VERSION
 import rulesets
 
 
@@ -54,6 +55,7 @@ def build_status_report(project_root=None):
     config_path = core_config.config_path(project_root)
 
     return {
+        "version": VERSION,
         "rulesets": ruleset_reports,
         "gate_event_count": len(events),
         "gate_event_counts_by_action": action_counts,
@@ -64,7 +66,7 @@ def build_status_report(project_root=None):
 
 
 def format_status_report(report):
-    lines = ["stopslop status", ""]
+    lines = [f"stopslop status (v{report['version']})", ""]
 
     for rs in report["rulesets"]:
         lines.append(f"Ruleset: {rs['name']} ({rs['id']}) -- capabilities: "
