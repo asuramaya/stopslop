@@ -1,0 +1,10 @@
+{
+  "_comment": "Not activated automatically -- copy to stopslop.config.json at the repo root to use it. With no stopslop.config.json present, stopslop falls back to core/config.py's DEFAULT_RULES: ste100 on *.md/*.txt/*.rst, .claude/ out of scope entirely.",
+  "rulesets": [
+    {"glob": ".claude/*", "ruleset": null},
+    {"glob": "blog/*.md", "ruleset": "slopwatch"},
+    {"glob": "*.md", "ruleset": "ste100"},
+    {"glob": "*.txt", "ruleset": "ste100"},
+    {"glob": "*.rst", "ruleset": "ste100"}
+  ]
+}

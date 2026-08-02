@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """
-Throwaway Tier 1 prototype for SGS (STE100 Gatekeeper System).
+The ASD-STE100 rule engine. Formerly prototype/ste100_lint.py -- moved here
+during the pluggable-ruleset refactor so STE100 is one ruleset among
+potentially several, not baked into the gate/CLI/MCP layers directly. Only
+the ruleset-agnostic plumbing moved out: block/sentence tokenization
+(core/blocks.py) and flag dedup (core/flags.py). Everything below is
+ASD-STE100-specific rule logic; see rulesets/ste100/__init__.py for the
+thin contract surface (RULESET_ID, CAPABILITIES, etc.) that wraps this
+module for the core dispatcher.
 
-Implements the pipeline exactly as specified in the design doc, section 5.3:
-tokenize -> length check -> vocabulary scan -> verb form scan -> modal scan
--> punctuation scan.
-
-This is NOT the real ASD-STE100 dictionary (that's a licensed standard --
-see design doc section 12, Q8). APPROVED_WORDS below is a small
-representative "simple English" stand-in built for design validation only.
-Where the doc's own sections disagree with each other, this script follows
-whichever section is noted in a comment, and the disagreement itself is
-left visible rather than silently resolved.
+Implements the pipeline: tokenize -> length check -> vocabulary scan ->
+verb form scan -> modal scan -> punctuation scan.
 """
 
 import re
@@ -19,16 +18,22 @@ import sys
 import json
 import os
 
+from core.blocks import (
+    tokenize_sentences, words, split_into_blocks,
+    HEADER_RE as _HEADER_RE, LIST_ITEM_RE as _LIST_ITEM_RE, FENCE_RE as _FENCE_RE,
+)
+from core.flags import dedup_flags, default_label as _label
+
 # --- Tier 1: base approved dictionary, loaded from the real ASD-STE100
-# extraction (prototype/ste100_dictionary.json, built by build_dictionary.py
-# from docs/ASD-STE100-dictionary-extracted.dat -- see that file's docstring
+# extraction (dictionary.json, built by build_dictionary.py from
+# docs/ASD-STE100-dictionary-extracted.dat -- see that file's docstring
 # for how the extraction was verified before being trusted as enforcement
-# data). Replaces the earlier ~120-word "simple English" stand-in.
+# data).
 MODAL_WORDS = {"should", "would", "may", "might", "could"}
 
 
 def _load_dictionary():
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ste100_dictionary.json")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dictionary.json")
     with open(path) as f:
         data = json.load(f)
     approved = set(data["approved_words"])
@@ -48,7 +53,7 @@ def _load_dictionary():
 
 
 APPROVED_WORDS, UNAPPROVED_MAP, UNAPPROVED_NO_REPLACEMENT, UNAPPROVED_MULTI_ALTERNATIVE = _load_dictionary()
-# ALL unapproved_synonym auto-fix is disabled -- not just the 409 words in
+# ALL unapproved_synonym auto-fix is disabled -- not just the words in
 # UNAPPROVED_MULTI_ALTERNATIVE (kept above for reference/future use, no
 # longer read by check_vocabulary or _vocab_sub below). Originally only
 # multi-alternative words were held back -- "guide" -> PUT, MOVE auto-
@@ -74,15 +79,12 @@ UNAPPROVED_NO_AUTOFIX = set(UNAPPROVED_MAP)
 # Tier 2: project glossary -- domain-specific technical vocabulary the real
 # ASD-STE100 dictionary was never going to cover (an aviation-maintenance
 # standard, not a software one), e.g. "repository" or "endpoint". Persisted
-# to prototype/ste100-project-terms.json, alongside ste100_dictionary.json --
-# shipped seed data, not session-local runtime state (unlike
-# .claude/ste100-history.log), so it lives with the tool's other data files
-# and ships in version control -- so a registration survives past this
-# process. It used to be an in-memory {} that reset on every run, meaning
-# nothing registered "live" ever actually stuck. See register_term.py to
-# add a word.
+# to project-terms.json, alongside dictionary.json -- shipped seed data, not
+# session-local runtime state (unlike .claude/stopslop-history.log), so it
+# lives with the tool's other data files and ships in version control -- so
+# a registration survives past this process. See glossary.py to add a word.
 PROJECT_TERMS_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "ste100-project-terms.json")
+    os.path.dirname(os.path.abspath(__file__)), "project-terms.json")
 
 
 def _load_project_terms():
@@ -128,6 +130,31 @@ UNAPPROVED_MAP.update({
 # was a placeholder guess made before the real spec was extracted -- wrong.
 ING_NOUN_EXCEPTIONS = {"lighting", "opening", "routing", "servicing",
                         "mating", "missing", "remaining", "something", "during"}
+
+# NOT from the spec -- a separate, deliberately small, closed list of ordinary
+# English words that happen to end in "-ing" but have no plausible
+# verb-derived (gerund/present-participle) reading in normal usage at all, so
+# rule 3.5 (which targets verb-derived -ing misuse) cannot actually apply to
+# them. Found live: "The meeting starts in the morning. Check the wing and
+# the ceiling before flight." denied the write over "morning"/"wing"/
+# "ceiling" -- none of them a verb form of anything, just ordinary nouns the
+# aviation-scoped dictionary never had a reason to list. check_vocabulary
+# already resolves inflected forms of REAL verbs via _dictionary_base_form;
+# check_ing has no equivalent, and adding one on the same "does a base form
+# exist in the dictionary" basis was tried and rejected here -- it would
+# also silently un-flag genuine software-domain gerund misuse the dictionary
+# was never going to cover either (configuring, deploying, validating have
+# no dictionary entry, so "is configuring" would stop flagging too, exactly
+# the kind of violation this check exists to catch). A short, explicit,
+# human-reviewed list is the safer trade: it can only ever suppress a flag
+# on the exact words listed, never on a whole class of unknown words.
+# Deliberately excludes anything with a real, plausible verb-derived reading
+# in technical prose (building, meeting, feeling) -- those stay flagged,
+# same "over-flag when genuinely ambiguous" call this module makes
+# everywhere else.
+ING_NEVER_VERBAL = {"thing", "nothing", "anything", "everything",
+                     "morning", "evening", "ceiling", "king", "ring",
+                     "wing", "spring", "string"}
 
 # Irregular past-participle -> simple-past mapping, for perfect-tense
 # detection/fix. Needed because "has given", "has written", "has gone" don't
@@ -180,18 +207,6 @@ CONTRACTION_EXPANSIONS = {
     "there's": "there is", "here's": "here is", "what's": "what is",
     "who's": "who is", "let's": "let us", "she's": "she is", "he's": "he is",
 }
-
-
-def tokenize_sentences(text):
-    """Naive regex sentence splitter -- the FAST option from doc section 12
-    Q4, not the accurate-but-slow spaCy option. Deliberately naive so we can
-    see where it breaks on abbreviations."""
-    raw = re.split(r'(?<=[.!?])\s+(?=[A-Z])', text.strip())
-    return [s.strip() for s in raw if s.strip()]
-
-
-def words(sentence):
-    return re.findall(r"[A-Za-z']+", sentence)
 
 
 def check_length(sentence, context="procedure"):
@@ -289,9 +304,9 @@ def check_vocabulary(sentence):
             # substitute (source says "NONE") -- distinct from
             # unknown_vocabulary below: this isn't a dictionary-coverage gap,
             # it's a known rule with no safe auto-fix target. Currently held
-            # out of gate denial anyway (see pretool_hook.py) alongside
-            # unknown_vocabulary, pending a PROJECT_TERMS glossary and a real
-            # registration flow -- see project memory for why.
+            # out of gate denial anyway (see blocking_semantic_flags below)
+            # alongside unknown_vocabulary, pending a PROJECT_TERMS glossary
+            # and a real registration flow -- see project memory for why.
             violations.append({
                 "word": w, "rule": "1.1", "type": "unapproved_no_replacement",
                 "replacement": None, "auto_fix": False,
@@ -328,7 +343,7 @@ def check_ing(sentence):
     hits = []
     for m in re.finditer(r"\b(\w+ing)\b", sentence, re.IGNORECASE):
         w = m.group(1).lower()
-        if w in ING_NOUN_EXCEPTIONS:
+        if w in ING_NOUN_EXCEPTIONS or w in ING_NEVER_VERBAL:
             continue
         # If the word is independently approved in the general dictionary
         # (rule 1.1/1.5) -- e.g. "warning" as its own noun entry -- it
@@ -440,14 +455,8 @@ def _modal_resolution(modal, is_collocation, has_if, has_warning):
     """Single source of truth for how one should/would/may/might/could
     occurrence resolves -- used by BOTH check_modals (detection) and
     fix_sentence (the actual auto-fix), so the two can't silently diverge
-    the way they did before this was factored out: fix_sentence used to
-    substitute modal words straight off UNAPPROVED_MAP, with no knowledge of
-    the collocation exception or the if/warning heuristic below. Live-tested
-    live regression: "the operator may need to stop the test" auto-"fixed"
-    to "the operator can need to stop the test" via that blind substitution,
-    despite check_modals correctly flagging the very same word as non-auto-
-    fixable in the same call -- detection and fixing had just never agreed.
-    Returns (auto_fix, replacement, rule, note_or_basis)."""
+    the way they did before this was factored out. Returns (auto_fix,
+    replacement, rule, note_or_basis)."""
     if modal == "should":
         return False, None, "10.6", "critical severity -- always flagged, never auto-fixed"
     if is_collocation:
@@ -656,40 +665,13 @@ def lint_sentence(sentence, context="procedure"):
 _DEDUP_EXCLUDE_KINDS = {"length", "trailing_condition", "synonym_rotation"}
 
 
-def dedup_flags(flags):
-    """Collapse repeated occurrences of the exact same word/phrase/modal
-    into one flag with an 'occurrences' count, keeping the first instance's
-    'text' as the example. Only applies to word/phrase-level kinds -- see
-    _DEDUP_EXCLUDE_KINDS for what's deliberately never collapsed."""
-    groups = {}
-    order = []
-    for f in flags:
-        if f["kind"] in _DEDUP_EXCLUDE_KINDS:
-            key = ("__no_dedup__", id(f))
-        else:
-            d = f["detail"]
-            ident = d.get("word") or d.get("phrase") or d.get("modal")
-            key = (f["kind"], ident.lower()) if ident else ("__no_dedup__", id(f))
-        groups.setdefault(key, []).append(f)
-        if key not in order:
-            order.append(key)
-    result = []
-    for key in order:
-        group = groups[key]
-        first = dict(group[0])
-        if len(group) > 1:
-            first["detail"] = dict(first["detail"])
-            first["detail"]["occurrences"] = len(group)
-        result.append(first)
-    return result
-
-
 def lint_and_gate(text, context="procedure"):
-    # Block-aware via split_into_blocks (defined below, shared with
-    # apply_mechanical_fixes): code fences are never linted at all, and each
-    # header/list-item/paragraph is sentence-tokenized within its own bounds
-    # rather than the whole document being flattened into one blob -- see
-    # split_into_blocks's docstring for the false-positive this fixed.
+    # Block-aware via split_into_blocks (core.blocks, shared with
+    # apply_mechanical_fixes below): code fences are never linted at all,
+    # and each header/list-item/paragraph is sentence-tokenized within its
+    # own bounds rather than the whole document being flattened into one
+    # blob -- see split_into_blocks's docstring for the false-positive this
+    # fixed.
     sentences = []
     safety_hits = []
     for block_type, content in split_into_blocks(text):
@@ -714,18 +696,10 @@ def lint_and_gate(text, context="procedure"):
             safety_hits.extend((h, block_text) for h in check_safety_instruction(block_text))
         # A NUMBERED list item is structurally a procedure step (rule 6.x's
         # procedure register, 20-word limit) regardless of what context the
-        # caller passed for the surrounding document's prose. Found live
-        # while stress-testing: pretool_hook.py always calls this with
-        # context="description" (25-word limit), so a genuine 21-word
-        # numbered setup step passed cleanly even though it would fail the
-        # stricter procedure limit real ASD-STE100 writing actually uses
-        # for step-by-step instructions -- the exact content type the
-        # standard was built for was the one type never getting checked at
-        # its own real limit. A BULLETED item does NOT get this treatment --
-        # found live in the same pass: a bulleted item can be plain
+        # caller passed for the surrounding document's prose. A BULLETED
+        # item does NOT get this treatment -- a bulleted item can be plain
         # descriptive enumeration (a limitations list, a feature list), not
-        # a command to carry out, and the 20-word limit incorrectly
-        # penalized one of exactly that kind.
+        # a command to carry out.
         block_context = "procedure" if is_numbered_item else context
         sentences.extend((s, block_context) for s in tokenize_sentences(block_text))
     results = [lint_sentence(s, ctx) for s, ctx in sentences]
@@ -733,58 +707,58 @@ def lint_and_gate(text, context="procedure"):
     mechanical = []
     semantic = []
     for h, block_text in safety_hits:
-        semantic.append({"kind": "safety_instruction", "detail": h, "text": block_text})
+        semantic.append({"kind": "safety_instruction", "label": _label(h),
+                          "detail": h, "text": block_text})
     for r in results:
         if r["length"]:
-            (mechanical if "conjunction-splittable" in [] else semantic).append(
-                {"kind": "length", "detail": r["length"], "text": r["text"]})
+            # Always semantic: splitting an over-length sentence needs a
+            # judgment call about where the clause boundary is, never a
+            # safe mechanical rewrite.
+            semantic.append({"kind": "length", "label": _label(r["length"]),
+                              "detail": r["length"], "text": r["text"]})
         for v in r["vocabulary"]:
             (mechanical if v["auto_fix"] else semantic).append(
-                {"kind": "vocabulary", "detail": v, "text": r["text"]})
+                {"kind": "vocabulary", "label": _label(v), "detail": v, "text": r["text"]})
         for v in r["ing_forms"]:
-            semantic.append({"kind": "ing_form", "detail": v, "text": r["text"]})
+            semantic.append({"kind": "ing_form", "label": _label(v), "detail": v, "text": r["text"]})
         for v in r["perfect_tense"]:
-            mechanical.append({"kind": "perfect_tense", "detail": v, "text": r["text"]})
+            mechanical.append({"kind": "perfect_tense", "label": _label(v), "detail": v, "text": r["text"]})
         for v in r["progressive"]:
             # Past progressive with a table match is safely auto-fixable
             # (see PROGRESSIVE_ING_TO_PAST); present progressive and
             # untabled past progressive stay flag-only -- no safe fix
             # without subject-verb agreement or a wider verb table.
             (mechanical if v["auto_fix"] else semantic).append(
-                {"kind": "progressive", "detail": v, "text": r["text"]})
+                {"kind": "progressive", "label": _label(v), "detail": v, "text": r["text"]})
         for v in r["passive"]:
-            semantic.append({"kind": "passive", "detail": v, "text": r["text"]})
+            semantic.append({"kind": "passive", "label": _label(v), "detail": v, "text": r["text"]})
         for v in r["modals"]:
             (mechanical if v["auto_fix"] and v.get("replacement") else semantic).append(
-                {"kind": "modal", "detail": v, "text": r["text"]})
+                {"kind": "modal", "label": _label(v), "detail": v, "text": r["text"]})
         for v in r["punctuation"]:
-            mechanical.append({"kind": "punctuation", "detail": v, "text": r["text"]})
+            mechanical.append({"kind": "punctuation", "label": _label(v), "detail": v, "text": r["text"]})
         if r["trailing_condition"]:
-            semantic.append({"kind": "trailing_condition", "detail": r["trailing_condition"], "text": r["text"]})
+            semantic.append({"kind": "trailing_condition", "label": _label(r["trailing_condition"]),
+                              "detail": r["trailing_condition"], "text": r["text"]})
         for v in r["latin_abbrev"]:
-            mechanical.append({"kind": "latin_abbrev", "detail": v, "text": r["text"]})
+            mechanical.append({"kind": "latin_abbrev", "label": _label(v), "detail": v, "text": r["text"]})
         for v in r["inclusive_language"]:
-            semantic.append({"kind": "inclusive_language", "detail": v, "text": r["text"]})
+            semantic.append({"kind": "inclusive_language", "label": _label(v), "detail": v, "text": r["text"]})
 
     lintable_text = " ".join(s for s, _ctx in sentences)  # excludes fence content, matches what was actually linted
     for v in check_synonym_rotation(lintable_text):
-        semantic.append({"kind": "synonym_rotation", "detail": v, "text": None})
+        semantic.append({"kind": "synonym_rotation", "label": _label(v), "detail": v, "text": None})
 
-    mechanical = dedup_flags(mechanical)
-    semantic = dedup_flags(semantic)
+    mechanical = dedup_flags(mechanical, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
+    semantic = dedup_flags(semantic, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
 
     # "status" reports whether the ENGINE found any semantic flag at all --
     # it does NOT mean "would deny." Callers that make the actual gate
-    # decision (pretool_hook.py, stopslop.py) never read this field; they
-    # call blocking_semantic_flags(semantic_flags) instead, which excludes
-    # vocabulary flags staged out of denial for now. A sentence can
-    # legitimately report status="semantic_flags" here and still pass the
-    # live gate cleanly -- e.g. any unknown_vocabulary hit alone produces
-    # this status, even though it blocks nothing. Found via the test suite
-    # (test_ste100_lint.py): an example meant to demonstrate pure
-    # mechanical-only status turned out to also contain ordinary
-    # unapproved vocabulary, which doesn't affect denial but does affect
-    # this field.
+    # decision never read this field; they call blocking_semantic_flags()
+    # instead, which excludes vocabulary flags staged out of denial for now.
+    # A sentence can legitimately report status="semantic_flags" here and
+    # still pass the live gate cleanly -- e.g. any unknown_vocabulary hit
+    # alone produces this status, even though it blocks nothing.
     status = "clean" if not mechanical and not semantic else (
         "semantic_flags" if semantic else "mechanical_violations")
 
@@ -805,18 +779,13 @@ def lint_and_gate(text, context="procedure"):
 # vocabulary auto-fix is disabled (see UNAPPROVED_NO_AUTOFIX above) -- it's
 # excluded here too, for the same staging reason, not because it's unsafe
 # to report. Re-enabling any of these as a denial reason needs a real
-# PROJECT_TERMS starter glossary (exists now, see ste100-project-terms.json)
-# plus a first-occurrence registration flow (register_term.py, but nothing
-# calls it automatically yet) to mature first.
+# PROJECT_TERMS starter glossary (exists now, see project-terms.json) plus a
+# first-occurrence registration flow (glossary.py, but nothing calls it
+# automatically yet) to mature first.
 #
 # THE SINGLE SOURCE OF TRUTH for "does this flag actually block a write" --
-# pretool_hook.py (the live gate) and stopslop.py's `lint` command both call
-# blocking_semantic_flags() rather than each keeping their own copy of this
-# filter. They used to risk exactly that: a duplicated filter is a filter
-# that can silently drift, the same failure mode this project hit twice
-# already this session with detection/fixer logic pairs that started
-# identical and quietly diverged (see check_modals/fix_sentence and
-# check_vocabulary/_vocab_sub history in project memory).
+# every caller (the hook, the CLI, the MCP server) goes through
+# blocking_semantic_flags() rather than keeping its own copy of this filter.
 EXCLUDED_VOCAB_TYPES = {"unknown_vocabulary", "unapproved_no_replacement", "unapproved_synonym"}
 
 
@@ -924,69 +893,6 @@ def fix_sentence(sentence):
     s = re.sub(r"\x00(\d+)\x00", _restore, s)
 
     return s
-
-
-_HEADER_RE = re.compile(r"^#{1,6}\s")
-_LIST_ITEM_RE = re.compile(r"^(\s*(?:[-*+]|\d+[.)])\s+)(.*)$")
-_FENCE_RE = re.compile(r"^```")
-
-
-def split_into_blocks(text):
-    """Split a document into (block_type, content) pairs: 'fence', 'header',
-    'list_item', 'paragraph', or 'blank'. SHARED by lint_and_gate (skips
-    'fence' entirely, bounds sentence-tokenization to each other block
-    individually) and apply_mechanical_fixes (skips 'fence', fixes each
-    block independently). Sharing this is not incidental: an earlier version
-    had each function do its own ad hoc parsing, and detection wasn't
-    block-aware at all -- a real document with a header + list + code fence
-    got flattened into one 36-word "sentence" by the plain tokenizer and was
-    denied on a false length violation, discovered only by testing an actual
-    structured document live through the hook, not by the flat-paragraph
-    tests that had been passing until then. One parser, used by both sides,
-    is what actually closes that gap rather than re-opening it differently
-    each time either function changes."""
-    lines = text.split("\n")
-    blocks = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        stripped = line.strip()
-
-        if _FENCE_RE.match(stripped):
-            fence_lines = [line]
-            i += 1
-            while i < len(lines):
-                fence_lines.append(lines[i])
-                is_close = _FENCE_RE.match(lines[i].strip())
-                i += 1
-                if is_close:
-                    break
-            blocks.append(("fence", "\n".join(fence_lines)))
-            continue
-        if not stripped:
-            blocks.append(("blank", line))
-            i += 1
-            continue
-        if _HEADER_RE.match(stripped):
-            blocks.append(("header", line))
-            i += 1
-            continue
-        m = _LIST_ITEM_RE.match(line)
-        if m:
-            blocks.append(("list_item", line))
-            i += 1
-            continue
-
-        para_lines = []
-        while i < len(lines):
-            s2 = lines[i].strip()
-            if not s2 or _FENCE_RE.match(s2) or _HEADER_RE.match(s2) or _LIST_ITEM_RE.match(lines[i]):
-                break
-            para_lines.append(lines[i])
-            i += 1
-        blocks.append(("paragraph", " ".join(l.strip() for l in para_lines)))
-
-    return blocks
 
 
 def _fix_paragraph(text):

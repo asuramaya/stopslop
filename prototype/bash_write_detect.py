@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Best-effort extraction of (target_file, payload_text) from Bash commands
-that write to a linted file (.md/.txt/.rst) via a heredoc (cat/tee, either
-direction -- `cat <<EOF | tee file.md` or `tee file.md <<EOF`), a simple
-echo/printf redirect, or echo/printf piped into tee -- the bypass path
-identified early in this project: the Write/Edit gate does nothing against
-`cat > file.md <<EOF`.
+that write to a target file via a heredoc (cat/tee, either direction --
+`cat <<EOF | tee file.md` or `tee file.md <<EOF`), a simple echo/printf
+redirect, or echo/printf piped into tee -- the bypass path identified early
+in this project: the Write/Edit gate does nothing against `cat > file.md
+<<EOF`.
+
+The target extension set is a parameter, not a hardcoded constant --
+generalized during the pluggable-ruleset refactor so this detector isn't
+tied to STE100's .md/.txt/.rst scope. Callers pass whatever extensions
+core.config.known_extensions() resolves for the active config.
 
 Deliberately conservative. This is NOT a shell parser -- it's targeted
 regex matching for the highest-confidence write patterns. Anything ambiguous
@@ -21,8 +26,7 @@ quoting/escaping) is real additional risk not yet taken on.
 """
 import re
 
-_LINTED_EXT = r"(?:md|txt|rst)"
-_TARGET_RE = r"[^\s<>|;&]+\." + _LINTED_EXT
+DEFAULT_EXTENSIONS = (".md", ".txt", ".rst")
 
 # Guard against commands whose complexity makes extraction unreliable --
 # command substitution, multiple heredocs, or piping into something else
@@ -30,7 +34,12 @@ _TARGET_RE = r"[^\s<>|;&]+\." + _LINTED_EXT
 _TOO_COMPLEX_RE = re.compile(r"\$\(|`|<<.*<<")
 
 
-def extract_heredoc_write(command):
+def _target_re(extensions):
+    exts = "|".join(re.escape(e.lstrip(".")) for e in extensions)
+    return r"[^\s<>|;&]+\.(?:" + exts + r")"
+
+
+def extract_heredoc_write(command, extensions=DEFAULT_EXTENSIONS):
     if _TOO_COMPLEX_RE.search(command):
         return None
     heredoc_start = re.search(r"<<(-)?\s*(['\"]?)(\w+)\2", command)
@@ -44,7 +53,7 @@ def extract_heredoc_write(command):
     header_line = command[:line_end]
     if not re.search(r"\b(cat|tee)\b", header_line):
         return None
-    target_match = re.search(r"(" + _TARGET_RE + r")\b", header_line)
+    target_match = re.search(r"(" + _target_re(extensions) + r")\b", header_line)
     if not target_match:
         return None
     target = target_match.group(1)
@@ -70,13 +79,13 @@ def extract_heredoc_write(command):
     return target, body
 
 
-def extract_echo_write(command):
+def extract_echo_write(command, extensions=DEFAULT_EXTENSIONS):
     if _TOO_COMPLEX_RE.search(command):
         return None
     # Only a single quoted string argument -- multi-arg, unquoted, or
     # variable-containing echo/printf commands are not matched at all.
     m = re.match(
-        r"^\s*(echo|printf)\b\s+(?:-\w+\s+)?(['\"])(.*?)\2\s*(>>?)\s*(" + _TARGET_RE + r")\s*$",
+        r"^\s*(echo|printf)\b\s+(?:-\w+\s+)?(['\"])(.*?)\2\s*(>>?)\s*(" + _target_re(extensions) + r")\s*$",
         command)
     if not m:
         return None
@@ -90,7 +99,7 @@ def extract_echo_write(command):
     return target, text
 
 
-def extract_piped_tee_write(command):
+def extract_piped_tee_write(command, extensions=DEFAULT_EXTENSIONS):
     """echo/printf '...' | tee [-a] file.md -- confirmed gap: extract_echo_write
     only matches a >/>> redirect, not a pipe into tee, so this pattern reached
     extract_bash_write and returned None (silently undetected) even though
@@ -103,7 +112,7 @@ def extract_piped_tee_write(command):
         return None
     m = re.match(
         r"^\s*(echo|printf)\b\s+(?:-\w+\s+)?(['\"])(.*?)\2\s*\|\s*tee\b\s+(?:-\w+\s+)?("
-        + _TARGET_RE + r")\s*$",
+        + _target_re(extensions) + r")\s*$",
         command)
     if not m:
         return None
@@ -113,8 +122,8 @@ def extract_piped_tee_write(command):
     return target, text
 
 
-def extract_bash_write(command):
+def extract_bash_write(command, extensions=DEFAULT_EXTENSIONS):
     """Try all three patterns, return (target, payload) or None."""
-    return (extract_heredoc_write(command)
-            or extract_echo_write(command)
-            or extract_piped_tee_write(command))
+    return (extract_heredoc_write(command, extensions)
+            or extract_echo_write(command, extensions)
+            or extract_piped_tee_write(command, extensions))

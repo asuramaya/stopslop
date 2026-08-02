@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""Automated regression tests for ste100_lint.py, the actual rule engine.
-Pure stdlib unittest -- no new dependency, so the gate itself stays
-testable without the MCP venv (prototype/mcp_server.py is the only thing
-in this repo that needs one).
+"""Automated regression tests for rulesets/ste100/lint.py, the actual rule
+engine (formerly prototype/test_ste100_lint.py against
+prototype/ste100_lint.py). Pure stdlib unittest -- no new dependency, so the
+gate itself stays testable without the MCP venv (mcp_server.py is the only
+thing in this repo that needs one).
 
-Runs against the REAL loaded dictionary (ste100_dictionary.json), not a
-mock -- deliberately. Every regression test below encodes a bug that was
-only found by testing against real data; a mocked dictionary would have
-hidden every one of them the same way the old ~120-word stand-in did.
-Project-term-dependent tests save and restore ste100_lint.PROJECT_TERMS
-so they don't depend on this project's own glossary staying a specific
-shape.
+Runs against the REAL loaded dictionary (dictionary.json), not a mock --
+deliberately. Every regression test below encodes a bug that was only found
+by testing against real data; a mocked dictionary would have hidden every
+one of them the same way the old ~120-word stand-in did. Project-term-
+dependent tests save and restore lint.PROJECT_TERMS so they don't depend on
+this project's own glossary staying a specific shape.
 
 Run with:
-    cd prototype && python3 -m unittest test_ste100_lint -v
-or:
-    cd prototype && python3 test_ste100_lint.py
+    cd prototype && python3 -m unittest rulesets.ste100.test_lint -v
+or, to run every ruleset's suite together:
+    cd prototype && python3 -m unittest discover -s . -p 'test_*.py'
 """
 import unittest
 
-import ste100_lint as lint
+from rulesets.ste100 import lint
 
 
 class VocabularyTests(unittest.TestCase):
@@ -190,6 +190,28 @@ class IngFormTests(unittest.TestCase):
     def test_non_whitelisted_ing_flags(self):
         hits = lint.check_ing("The system is monitoring the sensor.")
         self.assertTrue(any(h["word"] == "monitoring" for h in hits))
+
+    def test_regression_ordinary_nouns_not_flagged(self):
+        # Live regression: check_ing only exempted words in the real
+        # dictionary or the ~9-word spec whitelist -- ordinary English
+        # nouns the aviation dictionary never had reason to list (not
+        # verb-derived at all) fell through and blocked the write.
+        # "The meeting starts in the morning. Check the wing and the
+        # ceiling before flight." denied over morning/wing/ceiling.
+        hits = lint.check_ing("The meeting starts in the morning. "
+                               "Check the wing and the ceiling before flight.")
+        flagged = {h["word"].lower() for h in hits}
+        self.assertNotIn("morning", flagged)
+        self.assertNotIn("wing", flagged)
+        self.assertNotIn("ceiling", flagged)
+
+    def test_regression_software_domain_gerund_still_flags(self):
+        # The fix above must not silently exempt real verb-derived misuse
+        # just because the aviation-scoped dictionary doesn't list the
+        # underlying verb -- "configure" has no dictionary entry at all,
+        # unlike "monitor".
+        hits = lint.check_ing("The system is configuring the network.")
+        self.assertTrue(any(h["word"] == "configuring" for h in hits))
 
 
 class LengthContextTests(unittest.TestCase):

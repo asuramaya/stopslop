@@ -1,7 +1,13 @@
 .claude/settings.local.json
-.claude/ste100-history.log
-.claude/ste100-memory.md
-.claude/ste100-integrity.json
+.claude/stopslop-history.log
+.claude/*-memory.md
+.claude/stopslop-integrity.json
 __pycache__/
 *.pyc
 .venv/
+
+# Pre-refactor filenames, kept ignored too: a clone that hasn't run the
+# one-time migration yet (see core/history.py, integrity_check.py) still
+# has these on disk until the first session start / gate event renames them.
+.claude/ste100-history.log
+.claude/ste100-integrity.json

@@ -38,10 +38,18 @@ import hashlib
 import json
 import os
 
-PROTOTYPE_DIR = os.path.dirname(os.path.abspath(__file__))
-DAT_PATH = os.path.join(PROTOTYPE_DIR, "..", "docs", "incidents",
+# This file lives at prototype/rulesets/ste100/build_dictionary.py -- three
+# levels below the repo root, unlike most of this project's other scripts.
+# A one-off, rarely-run build step; not on the live gate's import path and
+# not going to move again soon, so a plain relative ".." chain (matching
+# this file's pre-refactor style) is fine here rather than depending on
+# core.paths (which itself needs prototype/ on sys.path to import, adding
+# the same kind of path-bootstrap fragility this script has never needed).
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.join(THIS_DIR, "..", "..", "..")
+DAT_PATH = os.path.join(REPO_ROOT, "docs", "incidents",
                          "2026-08-01-ste100-dictionary-extraction-gate-bypass.dat")
-OUT_PATH = os.path.join(PROTOTYPE_DIR, "ste100_dictionary.json")
+OUT_PATH = os.path.join(THIS_DIR, "dictionary.json")
 
 
 def parse_dat(path):

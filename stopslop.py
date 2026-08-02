@@ -5,14 +5,22 @@ sessionstart_hook.py) runs automatically once wired up via Claude Code
 hooks and never needs a person to invoke it directly -- this script is for
 the parts that do: first-time setup, an ad-hoc compliance check outside a
 live write, registering project vocabulary, and checking the tool's own
-state. Before this existed, each of those was a separate script under
-prototype/ that a person could only find by reading source.
+state.
 
     stopslop.py init                 wire up .claude/settings.local.json
     stopslop.py lint TEXT            check text without writing it anywhere
     stopslop.py lint --file PATH     check an existing file the same way
     stopslop.py register WORD [NOTE] add a project-glossary term
     stopslop.py status               dictionary/glossary/gate-activity summary
+    stopslop.py list-rulesets        show every registered ruleset and what routes to it
+
+Every command that checks or registers text against a ruleset takes an
+optional --ruleset ID. Omit it and the target resolves through the same
+config-driven path resolution the live gate uses (core.config.resolve_ruleset):
+--file PATH resolves against PATH directly; free text/stdin resolves as if
+it were being written to a synthetic <repo_root>/__stdin__.md, so there's
+exactly one resolution mechanism shared by every entry point rather than a
+second, separately-maintained default that could quietly drift from it.
 """
 import argparse
 import json
@@ -23,8 +31,35 @@ REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 PROTOTYPE_DIR = os.path.join(REPO_ROOT, "prototype")
 sys.path.insert(0, PROTOTYPE_DIR)
 
+import rulesets
+from core import config as core_config
+
 SETTINGS_EXAMPLE = os.path.join(REPO_ROOT, ".claude", "settings.local.json.example")
 SETTINGS_REAL = os.path.join(REPO_ROOT, ".claude", "settings.local.json")
+
+# Free text and stdin have no real file path to resolve a ruleset from --
+# treated as if written to this synthetic path under the repo root so they
+# go through the exact same config-driven resolution a real write would,
+# instead of a second "default ruleset" concept that could drift from it.
+_SYNTHETIC_STDIN_PATH = os.path.join(REPO_ROOT, "__stdin__.md")
+
+
+def _resolve(ruleset_id, target_path):
+    """The one resolution mechanism every command below uses: an explicit
+    --ruleset always wins; otherwise resolve target_path through the same
+    config-driven path core.config.resolve_ruleset uses for a live write.
+    Exits with a clear message (not a traceback) if resolution fails --
+    both an unknown --ruleset id and a stopslop.config.json rule naming an
+    unregistered id raise loudly by design (see core/config.py)."""
+    if ruleset_id:
+        return rulesets.get_ruleset(ruleset_id)
+    resolved = core_config.resolve_ruleset(target_path, REPO_ROOT, rulesets)
+    if resolved is None:
+        print(f"{target_path!r} doesn't resolve to any ruleset under the current "
+              f"config -- pass --ruleset explicitly, or check stopslop.config.json.",
+              file=sys.stderr)
+        sys.exit(1)
+    return resolved
 
 
 def cmd_init(args):
@@ -59,39 +94,52 @@ def cmd_init(args):
               "the gate itself. To set one up:")
         print(f"  python3 -m venv {os.path.join(REPO_ROOT, '.venv')}")
         print(f"  {venv_python} -m pip install -r {os.path.join(REPO_ROOT, 'requirements.txt')}")
+
+    if not os.path.exists(core_config.config_path(REPO_ROOT)):
+        print(f"\nOptional: {core_config.config_path(REPO_ROOT)} controls which ruleset lints "
+              f"which files. Not required -- with no config file, .md/.txt/.rst under this "
+              f"project lint against ste100 (see stopslop.config.json.example).")
     return 0
 
 
 def cmd_lint(args):
-    import ste100_lint as lint
-
     if args.file:
         with open(args.file) as f:
             text = f.read()
+        target_path = os.path.abspath(args.file)
     elif args.text:
         text = " ".join(args.text)
+        target_path = _SYNTHETIC_STDIN_PATH
     else:
         text = sys.stdin.read()
+        target_path = _SYNTHETIC_STDIN_PATH
 
     if not text.strip():
         print("Nothing to check.", file=sys.stderr)
         return 1
 
-    result = lint.lint_and_gate(text, context=args.context)
+    ruleset = _resolve(args.ruleset, target_path)
+    result = ruleset.lint_and_gate(text, context=args.context)
     mechanical = result["mechanical_violations"]
-    # Same filter the live gate applies (lint.blocking_semantic_flags) --
+    # Same filter the live gate applies (ruleset.blocking_semantic_flags) --
     # this command reports what a real write would actually do, not every
-    # flag the engine can produce. The full, unfiltered set (including
-    # unknown/forbidden vocabulary staged out of denial for now) is
-    # available with --all.
-    blocking = lint.blocking_semantic_flags(result["semantic_flags"])
+    # flag the engine can produce. The full, unfiltered set is available
+    # with --all.
+    blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
     excluded_count = len(result["semantic_flags"]) - len(blocking)
     semantic = result["semantic_flags"] if args.all else blocking
 
+    print(f"[{ruleset.RULESET_NAME}]")
     if not mechanical and not semantic:
         if excluded_count and not args.all:
+            # Generic on purpose: what's hidden isn't always a "vocabulary"
+            # concept (ste100's is; slopwatch's below-threshold flags are a
+            # density judgment, not a vocabulary exclusion) -- an earlier
+            # version of this message hardcoded "vocabulary note(s)",
+            # copied straight from ste100's own wording, and was actively
+            # misleading the first time it printed for a different ruleset.
             print(f"PASS -- would go through the live gate unchanged "
-                  f"({excluded_count} vocabulary note(s) hidden, see --all).")
+                  f"({excluded_count} non-blocking note(s) hidden, see --all).")
         else:
             print("PASS -- clean, no violations.")
         return 0
@@ -100,7 +148,7 @@ def cmd_lint(args):
         print(f"FAIL -- {len(semantic)} issue(s) need a person's judgment:\n")
         for f in semantic:
             d = f["detail"]
-            label = d.get("word") or d.get("phrase") or d.get("modal") or d.get("rule", "?")
+            label = f.get("label") or d.get("rule", "?")
             rule = d.get("rule", "?")
             note = d.get("note") or d.get("basis") or ""
             extra = f" -- {note}" if note else ""
@@ -111,7 +159,7 @@ def cmd_lint(args):
         print(f"{len(mechanical)} mechanical fix(es) would be applied automatically on a real write:\n")
         for m in mechanical:
             d = m["detail"]
-            label = d.get("word") or d.get("phrase") or d.get("modal") or d.get("rule", "?")
+            label = m.get("label") or d.get("rule", "?")
             repl = d.get("replacement")
             arrow = f" -> {repl!r}" if repl else ""
             print(f"  [{m['kind']}] {label!r}{arrow}")
@@ -119,27 +167,48 @@ def cmd_lint(args):
     return 1 if semantic else 0
 
 
+def _require_glossary(ruleset, verb):
+    if "glossary" not in ruleset.CAPABILITIES:
+        print(f"'{ruleset.RULESET_ID}' ruleset has no glossary/vocabulary registry "
+              f"(capabilities: {sorted(ruleset.CAPABILITIES)}) -- nothing to {verb} here.",
+              file=sys.stderr)
+        sys.exit(1)
+
+
 def cmd_register(args):
-    import register_term
-    return register_term.main(args.rest)
+    parser = argparse.ArgumentParser(prog="stopslop.py register", add_help=False)
+    parser.add_argument("word")
+    parser.add_argument("note", nargs="?", default="")
+    parser.add_argument("--override-unapproved", metavar="REASON", default=None)
+    sub_args = parser.parse_args(args.rest)
+
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    _require_glossary(ruleset, "register")
+    result = ruleset.register_term(sub_args.word, sub_args.note, sub_args.override_unapproved)
+    stream = sys.stdout if result["status"] == "registered" else sys.stderr
+    prefix = "" if result["status"] == "registered" else f"{result['status']}: "
+    print(f"{prefix}{result['message']}", file=stream)
+    return 0 if result["ok"] else 1
 
 
 def cmd_unregister(args):
-    import register_term
-    result = register_term.unregister(args.word)
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    _require_glossary(ruleset, "unregister")
+    result = ruleset.unregister_term(args.word)
     print(result["message"])
     return 0 if result["ok"] else 1
 
 
 def cmd_terms(args):
-    import register_term
-    terms = register_term.list_terms()
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    _require_glossary(ruleset, "list")
+    terms = ruleset.list_terms()
     if not terms:
         print("No project terms registered yet. Add one with `stopslop.py register`.")
         return 0
     for word in sorted(terms):
         info = terms[word]
-        flag = " [overrides a real ASD-STE100 prohibition]" if info.get("overrides_unapproved") else ""
+        flag = " [overrides a real prohibition]" if info.get("overrides_unapproved") else ""
         note = info.get("note", "")
         print(f"{word}{flag}" + (f" -- {note}" if note else ""))
     return 0
@@ -151,10 +220,20 @@ def cmd_status(args):
     return 0
 
 
+def cmd_list_rulesets(args):
+    rules = core_config.load_rules(REPO_ROOT)
+    for ruleset in rulesets.list_rulesets():
+        globs = [r["glob"] for r in rules if r.get("ruleset") == ruleset.RULESET_ID]
+        print(f"{ruleset.RULESET_ID} -- {ruleset.RULESET_NAME} "
+              f"(capabilities: {', '.join(sorted(ruleset.CAPABILITIES)) or 'none'})")
+        print(f"  routed globs: {', '.join(globs) if globs else '(none in the current config)'}")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="stopslop.py",
-        description="stopslop: an STE100 Gatekeeper System prototype. "
+        description="stopslop: a pluggable writing-enforcement gate for Claude Code. "
                      "The gate runs automatically once `init` has wired it up; "
                      "these commands are for everything else a person does by hand.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -166,30 +245,38 @@ def main():
     p_lint = sub.add_parser("lint", help="check text or a file without writing it anywhere")
     p_lint.add_argument("text", nargs="*", help="text to check (omit to read a file or stdin instead)")
     p_lint.add_argument("--file", help="check an existing file's content instead of inline text")
-    p_lint.add_argument("--context", choices=["procedure", "description"], default="description",
-                         help="procedure = 20-word sentence limit (real ASD-STE100 step-by-step "
-                              "instructions); description = 25-word limit (default, matches what "
-                              "the live gate uses for whole documents)")
+    p_lint.add_argument("--ruleset", help="ruleset id to check against (default: resolved from "
+                                           "--file's path, or stopslop.config.json's default rule)")
+    p_lint.add_argument("--context", default="description",
+                         help="passed through to the resolved ruleset -- for ste100: "
+                              "procedure (20-word limit, step-by-step instructions) or "
+                              "description (25-word limit, default, whole documents)")
     p_lint.add_argument("--all", action="store_true",
-                         help="show every flag the engine produces, including vocabulary notes "
+                         help="show every flag the engine produces, including notes "
                               "the live gate doesn't currently act on (see README's gap list)")
     p_lint.set_defaults(func=cmd_lint)
 
-    p_register = sub.add_parser("register", help="add a word to the project glossary (Tier 2)",
+    p_register = sub.add_parser("register", help="add a word to a ruleset's glossary, if it has one",
                                  add_help=False)
+    p_register.add_argument("--ruleset", help="ruleset id to register against (default: ste100)")
     p_register.add_argument("rest", nargs=argparse.REMAINDER,
                              help="WORD [NOTE] [--override-unapproved REASON]")
     p_register.set_defaults(func=cmd_register)
 
-    p_unregister = sub.add_parser("unregister", help="remove a word from the project glossary")
+    p_unregister = sub.add_parser("unregister", help="remove a word from a ruleset's glossary")
+    p_unregister.add_argument("--ruleset", help="ruleset id (default: ste100)")
     p_unregister.add_argument("word")
     p_unregister.set_defaults(func=cmd_unregister)
 
-    p_terms = sub.add_parser("terms", help="list every registered project-glossary word")
+    p_terms = sub.add_parser("terms", help="list every registered glossary word for a ruleset")
+    p_terms.add_argument("--ruleset", help="ruleset id (default: ste100)")
     p_terms.set_defaults(func=cmd_terms)
 
-    p_status = sub.add_parser("status", help="dictionary, glossary, and gate-activity summary")
+    p_status = sub.add_parser("status", help="per-ruleset stats and gate-activity summary")
     p_status.set_defaults(func=cmd_status)
+
+    p_list_rulesets = sub.add_parser("list-rulesets", help="show every registered ruleset and what routes to it")
+    p_list_rulesets.set_defaults(func=cmd_list_rulesets)
 
     args = parser.parse_args()
     sys.exit(args.func(args))

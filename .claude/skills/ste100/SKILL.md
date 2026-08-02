@@ -25,6 +25,14 @@ full stop, regardless of whether this file was followed. This skill exists
 only to cut the retry rate: get closer to compliant on the first draft so the
 gate fires less.
 
+Scope: this skill primes the `ste100` ruleset only. stopslop's gate now runs
+more than one ruleset (see the README's "Rulesets" section) -- a second,
+much smaller demo ruleset, `slopwatch`, has no priming skill yet. Everything
+below applies only to a file that resolves to `ste100` under
+`stopslop.config.json` (or the built-in defaults: `.md`/`.txt`/`.rst`,
+excluding `.claude/`). Run `python3 stopslop.py list-rulesets` from the
+repository root to see which ruleset a given path actually resolves to.
+
 Rule text below is verified against the real ASD-STE100 Issue 9 spec
 (`docs/ASD-STE100-rules-extracted.md` in this repo has the full extraction
 with citations) -- not paraphrased secondhand.
@@ -68,12 +76,20 @@ and the gate passes clean.
    who/what did it, passive is legal -- but check that you really don't know,
    not that naming the actor is just inconvenient.
 
-4. **`-ing` forms: two narrow exceptions, ban everything else** (3.5).
-   Allowed: (a) one of the ~9 dictionary-approved -ing nouns/adjectives
-   (lighting, opening, routing, servicing, mating, missing, remaining), or
-   (b) an -ing word used as a modifier inside a technical noun compound
-   ("monitoring alerts", "operating temperature", "routing table" -- the
-   whole compound names one thing). Everything else -- "before initiating
+4. **`-ing` forms: one narrow exception, ban everything else** (3.5).
+   Allowed: one of the ~9 dictionary-approved -ing nouns/adjectives
+   (lighting, opening, routing, servicing, mating, missing, remaining), plus
+   a short closed list of ordinary English words with no verb-derived
+   reading at all (morning, ceiling, thing, and a few others -- not a
+   general rule, just those exact words). There is no noun-compound
+   exception: an -ing word used as a modifier inside a technical noun
+   compound ("monitoring alerts", "operating temperature", "routing table")
+   still gets flagged today -- a syntactic heuristic for that case was
+   tried and reverted because it silently exempted genuine misuse too
+   ("initiating failover" reads identically to "monitoring alerts" at the
+   regex level). Treat every -ing word as banned unless you know it is one
+   of the two lists above; the gate will over-flag legitimate compounds
+   rather than miss real misuse. Everything else -- "before initiating
    failover", "the file, ensuring integrity" -- gets rewritten: infinitive,
    simple tense, or a separate sentence.
 
@@ -99,8 +115,9 @@ and the gate passes clean.
   data, so be careful."
 - **One term per concept, all the way through** (1.11/9.4): pick one of
   check/verify/confirm/validate/ensure, one of config/settings/options, and
-  don't rotate. The gate does not check this yet (no cross-sentence memory
-  in v0.1) but it is a real STE100 rule and reviewers will notice.
+  don't rotate. The gate checks this document-wide today, not just per
+  sentence, and denies the write if two members of the same rotation set
+  both appear anywhere in the text.
 
 ## Untouchables
 
@@ -124,9 +141,12 @@ avoids the retry.
 
 ## What this skill does not do
 
-It does not enforce the ~875-word approved-vocabulary list (stopslop's
-dictionary is a small stand-in, project-expandable by design -- see
-`docs/ASD-STE100-rules-extracted.md`'s dictionary section). It does not
-guarantee compliance -- nothing does; see rule 9.1's own admission that some
-rewrites need real semantic judgment no checklist can give you. It is a
-priming aid to reduce gate retries, not a substitute for the gate.
+It does not enforce the real approved-vocabulary list as a denial reason yet
+(stopslop loads the actual extracted ASD-STE100 dictionary now, not a
+stand-in -- see the README) -- an unapproved or unknown word is reported,
+not blocked, until the project glossary matures enough to avoid new
+friction on ordinary software vocabulary. Registered project terms
+(`stopslop.py terms`) are exempt everywhere. It does not guarantee
+compliance -- nothing does; see rule 9.1's own admission that some rewrites
+need real semantic judgment no checklist can give you. It is a priming aid
+to reduce gate retries, not a substitute for the gate.
