@@ -208,6 +208,68 @@ def enable_glossary_packs(pack_ids: list[str], ruleset: str = "") -> dict:
 
 
 @mcp.tool()
+def list_checks(ruleset: str = "") -> dict:
+    """Every individual check a ruleset can run (id, coaching description,
+    whether it's currently enabled), if that ruleset supports per-check
+    toggles at all (see list_rulesets). Every check runs by default --
+    turning one off is a project-level choice, made with enable_checks.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "list_checks"):
+        return _unsupported(active, "checks", "list individual checks for")
+    return {"ruleset": active.RULESET_ID, "checks": active.list_checks()}
+
+
+@mcp.tool()
+def enable_checks(check_ids: list[str], ruleset: str = "") -> dict:
+    """Set exactly this list of checks as enabled for a ruleset -- disables
+    every other known check for that ruleset. Pass an empty list to
+    disable all of them. Validated against the real check registry first:
+    an unknown check id refuses instead of silently doing nothing. Takes
+    effect on the next gate call immediately, no session restart.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "set_enabled_checks"):
+        return _unsupported(active, "checks", "enable individual checks for")
+    try:
+        active.set_enabled_checks(check_ids)
+    except Exception as exc:
+        return {"ok": False, "status": "refused", "message": str(exc)}
+    return {"ok": True, "status": "enabled", "message": f"enabled: {', '.join(check_ids) or '(none)'}"}
+
+
+@mcp.tool()
+def list_options(ruleset: str = "") -> dict:
+    """Every tunable option a ruleset exposes (e.g. slopwatch's block-flag-
+    count threshold), its current effective value, and its built-in
+    default, if that ruleset has any tunable options at all.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "list_options"):
+        return _unsupported(active, "options", "list tunable options for")
+    return {"ruleset": active.RULESET_ID, "options": active.list_options()}
+
+
+@mcp.tool()
+def set_ruleset_options(options: dict, ruleset: str = "") -> dict:
+    """Set one or more tunable options for a ruleset. An option this call
+    doesn't mention keeps its current value -- this merges, it does not
+    replace the whole set. Validated against the known option names and
+    each one's real type first: an unknown option or a wrong type refuses
+    instead of silently doing nothing.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "set_options"):
+        return _unsupported(active, "options", "set tunable options for")
+    try:
+        active.set_options(options)
+    except Exception as exc:
+        return {"ok": False, "status": "refused", "message": str(exc)}
+    return {"ok": True, "status": "set",
+            "message": f"set: {', '.join(f'{k}={v}' for k, v in options.items()) or '(none)'}"}
+
+
+@mcp.tool()
 def list_rulesets() -> dict:
     """Every ruleset registered with this stopslop install: id, display
     name, and which capabilities it declares (glossary, word_lookup --

@@ -6,6 +6,7 @@ CAPABILITIES is deliberately empty, the same reason slopwatch's is: no
 closed vocabulary, no glossary concept.
 """
 from rulesets.codewatch import lint
+from core import config as _core_config, paths
 
 RULESET_ID = "codewatch"
 RULESET_NAME = "codewatch"
@@ -57,3 +58,48 @@ def stats():
                        "swallowed_exception, mutable_default_arg, print_debug, "
                        "todo_stub, generic_naming, tautological_assert, "
                        "constant_condition)"}
+
+
+def list_checks():
+    """See rulesets/slopwatch/__init__.py's list_checks() -- identical
+    shape and rationale, just against codewatch's own 10 checks."""
+    project_root = paths.find_project_root(__file__)
+    disabled = set(_core_config.disabled_checks(project_root, RULESET_ID))
+    return {
+        check_id: {"description": PRINCIPLE_TEXT.get(check_id, ""),
+                   "enabled": check_id not in disabled}
+        for check_id in sorted(lint.ALL_CHECK_IDS)
+    }
+
+
+def set_enabled_checks(check_ids):
+    unknown = set(check_ids) - lint.ALL_CHECK_IDS
+    if unknown:
+        raise ValueError(f"unknown check id(s): {sorted(unknown)} -- "
+                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
+    disabled = sorted(lint.ALL_CHECK_IDS - set(check_ids))
+    project_root = paths.find_project_root(__file__)
+    _core_config.save_disabled_checks(project_root, RULESET_ID, disabled)
+
+
+def list_options():
+    current = lint._options()
+    return {name: {"value": current[name], "default": default}
+            for name, default in lint.DEFAULT_OPTIONS.items()}
+
+
+def set_options(options):
+    """See rulesets/slopwatch/__init__.py's set_options() -- identical
+    merge-not-replace semantics and rationale."""
+    unknown = set(options) - set(lint.DEFAULT_OPTIONS)
+    if unknown:
+        raise ValueError(f"unknown option(s): {sorted(unknown)} -- "
+                          f"known: {sorted(lint.DEFAULT_OPTIONS)}")
+    for key, value in options.items():
+        expected = type(lint.DEFAULT_OPTIONS[key])
+        if not isinstance(value, expected):
+            raise ValueError(f"option {key!r} must be a {expected.__name__}, got {value!r}")
+    project_root = paths.find_project_root(__file__)
+    merged = dict(_core_config.ruleset_options(project_root, RULESET_ID))
+    merged.update(options)
+    _core_config.save_ruleset_options(project_root, RULESET_ID, merged)

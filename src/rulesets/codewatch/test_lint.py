@@ -6,8 +6,11 @@ blocking-policy and integration tests.
 Run with:
     cd src && python3 -m unittest rulesets.codewatch.test_lint -v
 """
+import os
+import tempfile
 import unittest
 
+from rulesets import codewatch
 from rulesets.codewatch import lint
 
 
@@ -214,6 +217,71 @@ class LintAndGateIntegrationTests(unittest.TestCase):
     def test_apply_mechanical_fixes_is_a_no_op(self):
         code = "print('debug')\n"
         self.assertEqual(lint.apply_mechanical_fixes(code), code)
+
+
+class CheckToggleAndOptionsTests(unittest.TestCase):
+    """Same isolation technique as slopwatch's own CheckToggleAndOptionsTests
+    and ste100's PackEnableDisableTests -- a temp project root so this
+    never touches the real repo's own stopslop.config.json."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        self._orig_find_root = lint._paths.find_project_root
+        lint._paths.find_project_root = lambda _file: self._tmp.name
+
+    def tearDown(self):
+        lint._paths.find_project_root = self._orig_find_root
+        self._tmp.cleanup()
+
+    def test_every_check_enabled_by_default(self):
+        checks = codewatch.list_checks()
+        self.assertEqual(set(checks), lint.ALL_CHECK_IDS)
+        self.assertTrue(all(c["enabled"] for c in checks.values()))
+
+    def test_disabling_a_check_removes_its_flags_from_lint_and_gate(self):
+        code = "print('debug')\n"
+        self.assertTrue(any(f["kind"] == "print_debug"
+                             for f in lint.lint_and_gate(code)["semantic_flags"]))
+        codewatch.set_enabled_checks(lint.ALL_CHECK_IDS - {"print_debug"})
+        self.assertFalse(any(f["kind"] == "print_debug"
+                              for f in lint.lint_and_gate(code)["semantic_flags"]))
+
+    def test_disabling_swallowed_exception_check_lets_it_stop_always_blocking(self):
+        # swallowed_exception "always blocks" only applies to flags that
+        # actually reach blocking_semantic_flags -- disabling the check
+        # removes it from semantic_flags entirely, upstream of that policy.
+        code = "except ValueError:\n    pass\n"
+        r = lint.lint_and_gate(code)
+        self.assertTrue(lint.blocking_semantic_flags(r["semantic_flags"]))
+        codewatch.set_enabled_checks(lint.ALL_CHECK_IDS - {"swallowed_exception"})
+        r2 = lint.lint_and_gate(code)
+        self.assertEqual(lint.blocking_semantic_flags(r2["semantic_flags"]), [])
+
+    def test_unknown_check_id_raises_and_does_not_write(self):
+        with self.assertRaises(ValueError):
+            codewatch.set_enabled_checks(["__not_a_real_check__"])
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+    def test_default_options_before_any_override(self):
+        opts = codewatch.list_options()
+        self.assertEqual(opts["block_flag_count_threshold"], {"value": 4, "default": 4})
+
+    def test_block_flag_count_threshold_override_changes_blocking_semantic_flags(self):
+        flags = [{"kind": "generic_naming", "label": f"w{i}", "detail": {}, "text": ""}
+                  for i in range(4)]
+        self.assertEqual(len(lint.blocking_semantic_flags(flags)), 4)  # default threshold=4
+        codewatch.set_options({"block_flag_count_threshold": 10})
+        self.assertEqual(lint.blocking_semantic_flags(flags), [])
+
+    def test_unknown_option_raises_and_does_not_write(self):
+        with self.assertRaises(ValueError):
+            codewatch.set_options({"__not_a_real_option__": 1})
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+    def test_wrong_type_option_raises(self):
+        with self.assertRaises(ValueError):
+            codewatch.set_options({"block_flag_count_threshold": "ten"})
 
 
 if __name__ == "__main__":

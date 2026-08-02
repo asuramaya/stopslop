@@ -8,8 +8,11 @@ reason ste100's do, not because slopwatch is meant to be a finished product.
 Run with:
     cd src && python3 -m unittest rulesets.slopwatch.test_lint -v
 """
+import os
+import tempfile
 import unittest
 
+from rulesets import slopwatch
 from rulesets.slopwatch import lint
 
 
@@ -354,6 +357,86 @@ class LintAndGateIntegrationTests(unittest.TestCase):
         doc = "- R-1. The system must start within five seconds."
         r = lint.lint_and_gate(doc)
         self.assertTrue(any(f["kind"] == "id_label_lead" for f in r["semantic_flags"]))
+
+
+class CheckToggleAndOptionsTests(unittest.TestCase):
+    """Isolated against a temp project root (same technique
+    rulesets/ste100/test_glossary_packs.py's PackEnableDisableTests uses)
+    so this never touches the real repo's own stopslop.config.json."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        self._orig_find_root = lint._paths.find_project_root
+        lint._paths.find_project_root = lambda _file: self._tmp.name
+
+    def tearDown(self):
+        lint._paths.find_project_root = self._orig_find_root
+        self._tmp.cleanup()
+
+    def test_every_check_enabled_by_default(self):
+        checks = slopwatch.list_checks()
+        self.assertEqual(set(checks), lint.ALL_CHECK_IDS)
+        self.assertTrue(all(c["enabled"] for c in checks.values()))
+
+    def test_disabling_a_check_removes_its_flags_from_lint_and_gate(self):
+        text = "Undoubtedly, this is great."
+        self.assertTrue(any(f["kind"] == "stock_adverb"
+                             for f in lint.lint_and_gate(text)["mechanical_violations"]))
+        slopwatch.set_enabled_checks(lint.ALL_CHECK_IDS - {"stock_adverb"})
+        self.assertFalse(any(f["kind"] == "stock_adverb"
+                              for f in lint.lint_and_gate(text)["mechanical_violations"]))
+
+    def test_disabling_a_mechanical_check_stops_its_own_autofix(self):
+        # Regression guard: a disabled check's fix must not silently keep
+        # rewriting text its own flag no longer appears for -- verified
+        # live before this test existed, see the slopwatch modularity work.
+        text = "Undoubtedly, this is great."
+        self.assertEqual(lint.apply_mechanical_fixes(text), "This is great.")
+        slopwatch.set_enabled_checks(lint.ALL_CHECK_IDS - {"stock_adverb"})
+        self.assertEqual(lint.apply_mechanical_fixes(text), text)
+
+    def test_unknown_check_id_raises_and_does_not_write(self):
+        with self.assertRaises(ValueError):
+            slopwatch.set_enabled_checks(["__not_a_real_check__"])
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+    def test_default_options_before_any_override(self):
+        opts = slopwatch.list_options()
+        self.assertEqual(opts["em_dash_threshold"], {"value": 3, "default": 3})
+        self.assertEqual(opts["block_flag_count_threshold"], {"value": 4, "default": 4})
+
+    def test_em_dash_threshold_override_changes_check_em_dash_cluster(self):
+        two_dashes = "a—b—c."
+        self.assertEqual(lint.check_em_dash_cluster(two_dashes), [])  # default threshold=3, 2 <= 3
+        slopwatch.set_options({"em_dash_threshold": 1})
+        self.assertEqual(len(lint.check_em_dash_cluster(two_dashes)), 1)  # now 2 > 1
+
+    def test_block_flag_count_threshold_override_changes_blocking_semantic_flags(self):
+        flags = [{"kind": "vague_intensifier", "label": f"w{i}", "detail": {}, "text": ""}
+                  for i in range(4)]
+        self.assertEqual(len(lint.blocking_semantic_flags(flags)), 4)  # default threshold=4
+        slopwatch.set_options({"block_flag_count_threshold": 10})
+        self.assertEqual(lint.blocking_semantic_flags(flags), [])
+
+    def test_unknown_option_raises_and_does_not_write(self):
+        with self.assertRaises(ValueError):
+            slopwatch.set_options({"__not_a_real_option__": 1})
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+    def test_wrong_type_option_raises(self):
+        with self.assertRaises(ValueError):
+            slopwatch.set_options({"em_dash_threshold": "three"})
+
+    def test_set_options_merges_rather_than_replaces(self):
+        # Regression guard: a CLI `--set KEY=VALUE` naturally sets one
+        # option at a time -- a second set_options() call for a different
+        # key must not silently reset the first key back to its default.
+        slopwatch.set_options({"em_dash_threshold": 7})
+        slopwatch.set_options({"block_flag_count_threshold": 8})
+        opts = slopwatch.list_options()
+        self.assertEqual(opts["em_dash_threshold"]["value"], 7)
+        self.assertEqual(opts["block_flag_count_threshold"]["value"], 8)
 
 
 if __name__ == "__main__":

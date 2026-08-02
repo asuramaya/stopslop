@@ -226,6 +226,89 @@ class GlossaryPacksConfigTests(unittest.TestCase):
             self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
 
 
+class DisabledChecksConfigTests(unittest.TestCase):
+    def test_no_config_file_returns_empty(self):
+        # Opposite default from glossary packs: an empty list here means
+        # "nothing disabled, every check runs" -- an unconfigured clone
+        # must see the exact same checks as before this feature existed.
+        self.assertEqual(
+            config.disabled_checks(PROJECT_ROOT, "slopwatch",
+                                    config_file="/nonexistent/stopslop.config.json"),
+            [])
+
+    def test_round_trips_through_save_and_load(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_disabled_checks(tmp, "slopwatch", ["stock_adverb", "colon_reveal"],
+                                         config_file=path)
+            self.assertEqual(
+                config.disabled_checks(tmp, "slopwatch", config_file=path),
+                ["stock_adverb", "colon_reveal"])
+
+    def test_ruleset_not_mentioned_returns_empty(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_disabled_checks(tmp, "slopwatch", ["stock_adverb"], config_file=path)
+            self.assertEqual(
+                config.disabled_checks(tmp, "codewatch", config_file=path), [])
+
+    def test_preserves_glossary_packs_key_already_in_the_file(self):
+        import json
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"glossary_packs": {"ste100": ["nist-security"]}}, f)
+            config.save_disabled_checks(tmp, "slopwatch", ["stock_adverb"], config_file=path)
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written["glossary_packs"], {"ste100": ["nist-security"]})
+
+
+class RulesetOptionsConfigTests(unittest.TestCase):
+    def test_no_config_file_returns_empty_dict(self):
+        self.assertEqual(
+            config.ruleset_options(PROJECT_ROOT, "slopwatch",
+                                    config_file="/nonexistent/stopslop.config.json"),
+            {})
+
+    def test_round_trips_through_save_and_load(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_ruleset_options(tmp, "slopwatch", {"em_dash_threshold": 5}, config_file=path)
+            self.assertEqual(
+                config.ruleset_options(tmp, "slopwatch", config_file=path),
+                {"em_dash_threshold": 5})
+
+    def test_ruleset_not_mentioned_returns_empty_dict(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_ruleset_options(tmp, "slopwatch", {"em_dash_threshold": 5}, config_file=path)
+            self.assertEqual(config.ruleset_options(tmp, "codewatch", config_file=path), {})
+
+    def test_preserves_rulesets_key_already_in_the_file(self):
+        import json
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [{"glob": "*.md", "ruleset": "ste100"}]}, f)
+            config.save_ruleset_options(tmp, "slopwatch", {"em_dash_threshold": 5}, config_file=path)
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
+
+
 class ResolveRulesetIdDefaultRulesTests(unittest.TestCase):
     """Required invariant: resolve_ruleset_id() against DEFAULT_RULES (no
     config file) must reproduce exactly what pretool_hook.py's old,

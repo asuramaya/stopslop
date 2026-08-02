@@ -225,9 +225,59 @@ def glossary_editor():
                 st.json(ruleset.check_word(check))
 
 
+def tuning_editor():
+    st.caption("Turn individual checks on or off, and adjust each ruleset's own "
+               "tunable thresholds -- separate from Configuration's file routing, "
+               "this is about what a ruleset actually looks for once it runs.")
+    tuning_rulesets = [m for m in rulesets.list_rulesets()
+                        if hasattr(m, "list_checks") or hasattr(m, "list_options")]
+    if not tuning_rulesets:
+        st.info("No registered ruleset declares individually-toggleable checks "
+                 "or tunable options.")
+        return
+
+    for ruleset in tuning_rulesets:
+        st.subheader(ruleset.RULESET_NAME)
+
+        if hasattr(ruleset, "list_checks"):
+            checks = ruleset.list_checks()
+            check_labels = {cid: f"{cid} -- {meta['description']}" for cid, meta in checks.items()}
+            currently_enabled = [cid for cid, meta in checks.items() if meta["enabled"]]
+            selected = st.multiselect(
+                "Checks", options=list(check_labels), default=currently_enabled,
+                format_func=lambda cid: check_labels[cid], key=f"checks_{ruleset.RULESET_ID}",
+            )
+            if st.button("Apply check selection", key=f"apply_checks_{ruleset.RULESET_ID}"):
+                try:
+                    ruleset.set_enabled_checks(selected)
+                    st.toast(f"Enabled: {', '.join(sorted(selected)) or '(none)'}", icon="✅")
+                    st.rerun()
+                except Exception as exc:
+                    st.error(f"Not saved: {exc}")
+
+        if hasattr(ruleset, "list_options"):
+            options = ruleset.list_options()
+            with st.form(key=f"options_{ruleset.RULESET_ID}"):
+                new_values = {}
+                for name, info in sorted(options.items()):
+                    new_values[name] = st.number_input(
+                        name, value=info["value"], step=1,
+                        help=f"default: {info['default']}",
+                        key=f"opt_{ruleset.RULESET_ID}_{name}")
+                if st.form_submit_button("Save options"):
+                    try:
+                        ruleset.set_options(new_values)
+                        # toast + rerun, not st.success -- same reasoning as
+                        # glossary_editor's register form below.
+                        st.toast("Options saved", icon="✅")
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Not saved: {exc}")
+
+
 st.title("🛑 stopslop")
-tab_activity, tab_playground, tab_config, tab_glossary = st.tabs(
-    ["Activity", "Lint playground", "Configuration", "Glossary"])
+tab_activity, tab_playground, tab_config, tab_glossary, tab_tuning = st.tabs(
+    ["Activity", "Lint playground", "Configuration", "Glossary", "Tuning"])
 
 with tab_activity:
     activity_and_status()
@@ -237,3 +287,5 @@ with tab_config:
     config_editor()
 with tab_glossary:
     glossary_editor()
+with tab_tuning:
+    tuning_editor()

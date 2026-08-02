@@ -247,6 +247,65 @@ def cmd_glossary_packs(args):
     return 0
 
 
+def cmd_checks(args):
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    if not hasattr(ruleset, "list_checks"):
+        print(f"'{ruleset.RULESET_ID}' ruleset has no individually-toggleable checks.",
+              file=sys.stderr)
+        return 1
+
+    if args.enable is not None:
+        try:
+            ruleset.set_enabled_checks(args.enable)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Enabled: {', '.join(sorted(args.enable)) or '(none)'}")
+
+    for check_id, meta in sorted(ruleset.list_checks().items()):
+        state = "ON " if meta["enabled"] else "off"
+        print(f"[{state}] {check_id} -- {meta['description']}")
+    return 0
+
+
+def cmd_options(args):
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    if not hasattr(ruleset, "list_options"):
+        print(f"'{ruleset.RULESET_ID}' ruleset has no tunable options.", file=sys.stderr)
+        return 1
+
+    if args.set is not None:
+        current = ruleset.list_options()
+        overrides = {}
+        for item in args.set:
+            if "=" not in item:
+                print(f"Not saved: {item!r} isn't in KEY=VALUE form.", file=sys.stderr)
+                return 1
+            key, raw_value = item.split("=", 1)
+            if key not in current:
+                print(f"Not saved: unknown option {key!r} -- known: "
+                      f"{sorted(current)}", file=sys.stderr)
+                return 1
+            expected_type = type(current[key]["default"])
+            try:
+                overrides[key] = expected_type(raw_value)
+            except ValueError:
+                print(f"Not saved: {raw_value!r} isn't a valid {expected_type.__name__} "
+                      f"for {key!r}", file=sys.stderr)
+                return 1
+        try:
+            ruleset.set_options(overrides)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Set: {', '.join(f'{k}={v}' for k, v in overrides.items())}")
+
+    for name, info in sorted(ruleset.list_options().items()):
+        marker = "" if info["value"] == info["default"] else f" (default: {info['default']})"
+        print(f"{name} = {info['value']}{marker}")
+    return 0
+
+
 def cmd_status(args):
     import status_report
     print(status_report.format_status_report(status_report.build_status_report()))
@@ -330,6 +389,20 @@ def main():
                           help="set exactly this list of packs as enabled (disables every "
                                "other known pack); pass with no ids to disable all")
     p_packs.set_defaults(func=cmd_glossary_packs)
+
+    p_checks = sub.add_parser("checks", help="list/enable individual checks for a ruleset")
+    p_checks.add_argument("--ruleset", help="ruleset id (default: ste100)")
+    p_checks.add_argument("--enable", nargs="*", metavar="CHECK_ID",
+                           help="set exactly this list of checks as enabled (disables every "
+                                "other known check); pass with no ids to disable all")
+    p_checks.set_defaults(func=cmd_checks)
+
+    p_options = sub.add_parser("options", help="list/set tunable options for a ruleset")
+    p_options.add_argument("--ruleset", help="ruleset id (default: ste100)")
+    p_options.add_argument("--set", nargs="*", metavar="KEY=VALUE",
+                            help="set one or more options; an option not mentioned keeps "
+                                 "its current value")
+    p_options.set_defaults(func=cmd_options)
 
     p_status = sub.add_parser("status", help="per-ruleset stats and gate-activity summary")
     p_status.set_defaults(func=cmd_status)

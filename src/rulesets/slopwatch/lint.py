@@ -65,6 +65,60 @@ from core.blocks import (
     HEADER_RE, LIST_ITEM_RE,
 )
 from core.flags import dedup_flags, default_label as _label
+from core import config as _core_config, paths as _paths
+
+# Every "kind" string this ruleset's checks can produce -- the modularity
+# surface rulesets/slopwatch/__init__.py's list_checks()/set_enabled_checks()
+# expose. A user can turn any of these off individually via
+# stopslop.config.json's "disabled_checks" key; everything runs by default.
+ALL_CHECK_IDS = frozenset({
+    "filler_opener", "stock_adverb", "colon_reveal", "weasel_attribution",
+    "entity_encoded_punctuation", "not_just_x_but_y", "vague_intensifier",
+    "emoji_in_prose", "marketing_adjective", "filler_verb", "marketing_cliche",
+    "solicit_criticism", "unearned_profundity", "dramatic_fragmentation",
+    "bold_bullet_lead", "id_label_lead", "binary_contrast",
+    "canned_question_answer", "negative_listing", "em_dash_cluster",
+})
+
+
+def _enabled_check_ids():
+    """Every check that should actually run right now: ALL_CHECK_IDS minus
+    whatever stopslop.config.json's "disabled_checks" names for this
+    ruleset. Read fresh every call, not cached -- these are a handful of
+    short strings, cheap enough that a stale in-memory copy (the exact bug
+    class PROJECT_TERMS caching required an explicit-invalidation dance to
+    avoid, see rulesets/ste100/lint.py) buys nothing here."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+        disabled = set(_core_config.disabled_checks(project_root, "slopwatch"))
+    except Exception:
+        return set(ALL_CHECK_IDS)
+    return ALL_CHECK_IDS - disabled
+
+
+DEFAULT_OPTIONS = {
+    "em_dash_threshold": 3,
+    "block_flag_count_threshold": 4,
+}
+
+
+def _options():
+    """DEFAULT_OPTIONS with any valid override from stopslop.config.json's
+    "options" key layered on top. An override with the wrong type, or an
+    unresolvable project root (e.g. a lint call against free text with no
+    real project on disk), silently falls back to the default rather than
+    breaking the gate -- same never-break-the-gate posture as
+    _enabled_check_ids()."""
+    opts = dict(DEFAULT_OPTIONS)
+    try:
+        project_root = _paths.find_project_root(__file__)
+        overrides = _core_config.ruleset_options(project_root, "slopwatch")
+    except Exception:
+        return opts
+    for key, value in overrides.items():
+        if key in opts and isinstance(value, type(opts[key])):
+            opts[key] = value
+    return opts
 
 # --- filler_opener (semantic) ------------------------------------------
 FILLER_OPENERS = [
@@ -158,8 +212,6 @@ def check_binary_contrast(sentences):
 
 
 # --- em_dash_cluster (semantic, document-level) ---------------------------
-EM_DASH_THRESHOLD = 3
-
 # The three entity forms below also count toward the em-dash cluster total --
 # an em dash written as `&mdash;` is still an em dash, and counting only the
 # plain character would let entity-encoding sidestep the threshold entirely.
@@ -167,11 +219,12 @@ _ENTITY_EM_DASH_RE = re.compile(r"&mdash;|&#0*8212;|&#[xX]0*2014;")
 
 
 def check_em_dash_cluster(text):
+    threshold = _options()["em_dash_threshold"]
     count = text.count("—") + len(_ENTITY_EM_DASH_RE.findall(text))
-    if count > EM_DASH_THRESHOLD:
+    if count > threshold:
         return [{"count": count, "rule": "slopwatch.em_dash_cluster", "auto_fix": False,
                   "note": f"{count} em dashes in this document -- most drafts need "
-                          f"0-2; use commas, periods, or parentheses for the rest"}]
+                          f"{threshold} or fewer; use commas, periods, or parentheses for the rest"}]
     return []
 
 
@@ -487,6 +540,13 @@ def lint_and_gate(text, context=None):
     for v in check_em_dash_cluster(text):
         semantic.append({"kind": "em_dash_cluster", "label": None, "detail": v, "text": None})
 
+    # Every check above runs unconditionally (they're cheap regex/string
+    # ops); a disabled check's own flags are dropped here in one place
+    # rather than guarding all 20 call sites individually.
+    enabled = _enabled_check_ids()
+    mechanical = [f for f in mechanical if f["kind"] in enabled]
+    semantic = [f for f in semantic if f["kind"] in enabled]
+
     mechanical = dedup_flags(mechanical, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
     semantic = dedup_flags(semantic, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
 
@@ -501,34 +561,39 @@ def lint_and_gate(text, context=None):
     }
 
 
-BLOCK_FLAG_COUNT_THRESHOLD = 4
-
-
 def blocking_semantic_flags(semantic_flags):
     """A different POLICY from ste100's exclusion-list approach -- see the
     module docstring. Individual flags never block alone; a write is
     denied only when the text reads as densely formulaic: an em-dash
-    cluster fires on its own, or four or more flags of any kind appear
-    across the whole document."""
+    cluster fires on its own, or the configured flag-count threshold is
+    reached (4 by default, see DEFAULT_OPTIONS)."""
     if any(f["kind"] == "em_dash_cluster" for f in semantic_flags):
         return semantic_flags
-    if len(semantic_flags) >= BLOCK_FLAG_COUNT_THRESHOLD:
+    if len(semantic_flags) >= _options()["block_flag_count_threshold"]:
         return semantic_flags
     return []
 
 
-def fix_sentence(sentence):
+def fix_sentence(sentence, enabled=None):
+    if enabled is None:
+        enabled = _enabled_check_ids()
     protected = []
     def _protect(m):
         protected.append(m.group(0))
         return f"\x00{len(protected) - 1}\x00"
     s = re.sub(r"`[^`\n]+`", _protect, sentence)
 
-    s = _STOCK_ADVERB_RE.sub(" ", s)
-    s = _ENTITY_EM_DASH_RE.sub("—", s)
-    s = _ENTITY_SECTION_RE.sub("section", s)
-    s = _ENTITY_MIDDOT_RE.sub(",", s)
-    s = _EMOJI_RE.sub("", s)
+    # Each substitution below belongs to a specific, individually-toggleable
+    # check -- a disabled check must not silently keep rewriting text its
+    # own flag no longer appears for.
+    if "stock_adverb" in enabled:
+        s = _STOCK_ADVERB_RE.sub(" ", s)
+    if "entity_encoded_punctuation" in enabled:
+        s = _ENTITY_EM_DASH_RE.sub("—", s)
+        s = _ENTITY_SECTION_RE.sub("section", s)
+        s = _ENTITY_MIDDOT_RE.sub(",", s)
+    if "emoji_in_prose" in enabled:
+        s = _EMOJI_RE.sub("", s)
     s = re.sub(r"\s{2,}", " ", s).strip()
     s = re.sub(r"\s+([.,!?])", r"\1", s)
     if s:
@@ -540,23 +605,24 @@ def fix_sentence(sentence):
     return s
 
 
-def _fix_paragraph(text):
-    return " ".join(fix_sentence(s) for s in tokenize_sentences(text))
+def _fix_paragraph(text, enabled):
+    return " ".join(fix_sentence(s, enabled) for s in tokenize_sentences(text))
 
 
 def apply_mechanical_fixes(text):
     """Only call this when status == 'mechanical_violations' (no semantic
     flags) -- same rule as every other ruleset's fixer. Block-aware via
     split_into_blocks, mirroring rulesets/ste100/lint.py's approach."""
+    enabled = _enabled_check_ids()  # read once per call, not once per sentence
     out = []
     for block_type, content in split_into_blocks(text):
         if block_type in ("fence", "blank"):
             out.append(content)
         elif block_type == "header":
-            out.append(fix_sentence(content))
+            out.append(fix_sentence(content, enabled))
         elif block_type == "list_item":
             marker, item_text = LIST_ITEM_RE.match(content).groups()
-            out.append(marker + (_fix_paragraph(item_text) if item_text.strip() else item_text))
+            out.append(marker + (_fix_paragraph(item_text, enabled) if item_text.strip() else item_text))
         else:
-            out.append(_fix_paragraph(content))
+            out.append(_fix_paragraph(content, enabled))
     return "\n".join(out)

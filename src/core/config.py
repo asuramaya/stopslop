@@ -86,6 +86,67 @@ def save_glossary_packs(project_root, ruleset_id, pack_ids, config_file=None):
         f.write("\n")
 
 
+def disabled_checks(project_root, ruleset_id, config_file=None):
+    """Which individual checks are turned off for `ruleset_id`, per
+    stopslop.config.json's "disabled_checks" key: {"<ruleset_id>":
+    ["<check_id>", ...]}. Opposite default from glossary packs on purpose:
+    a check exists to catch something by default, so this key is an
+    opt-OUT list, not an opt-in one -- empty (nothing disabled, every
+    check runs) with no config file, matching the DEFAULT_RULES/no-config
+    invariant every other knob in this file already gives."""
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        data = json.load(f)
+    return data.get("disabled_checks", {}).get(ruleset_id, [])
+
+
+def save_disabled_checks(project_root, ruleset_id, check_ids, config_file=None):
+    """Write which checks are disabled for `ruleset_id`, preserving every
+    other top-level key already in the file -- same clobber-avoidance
+    shape as save_glossary_packs/save_rules."""
+    path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    data.setdefault("disabled_checks", {})[ruleset_id] = check_ids
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
+def ruleset_options(project_root, ruleset_id, config_file=None):
+    """Per-ruleset tunable option overrides (e.g. slopwatch's block-flag-
+    count threshold), per stopslop.config.json's "options" key:
+    {"<ruleset_id>": {"<option_name>": <value>}}. Empty with no config
+    file, or no entry for this ruleset -- a ruleset's own hardcoded
+    defaults keep governing an unconfigured clone, the same invariant
+    every other knob in this file gives."""
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        return {}
+    with open(path) as f:
+        data = json.load(f)
+    return data.get("options", {}).get(ruleset_id, {})
+
+
+def save_ruleset_options(project_root, ruleset_id, options, config_file=None):
+    """Write tunable option overrides for `ruleset_id`, preserving every
+    other top-level key already in the file -- same clobber-avoidance
+    shape as the other save_* helpers here."""
+    path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    data.setdefault("options", {})[ruleset_id] = options
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
 def _relative_posix_path(file_path, project_root):
     """The path relative to project_root, using '/' regardless of platform
     (fnmatch patterns in config files are always written with '/'). Returns

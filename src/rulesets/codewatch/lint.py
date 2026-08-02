@@ -42,7 +42,46 @@ slopwatch already established.
 """
 import re
 
+from core import config as _core_config, paths as _paths
+
 TRACKED_EXTENSIONS = (".py",)
+
+# Every "kind" string this ruleset's checks can produce -- see
+# rulesets/slopwatch/lint.py's ALL_CHECK_IDS for the identical pattern and
+# rationale. rulesets/codewatch/__init__.py's list_checks()/
+# set_enabled_checks() expose this as the modularity surface.
+ALL_CHECK_IDS = frozenset({
+    "trivial_comment", "narrative_comment", "meta_comment", "swallowed_exception",
+    "mutable_default_arg", "print_debug", "todo_stub", "generic_naming",
+    "tautological_assert", "constant_condition",
+})
+
+
+def _enabled_check_ids():
+    try:
+        project_root = _paths.find_project_root(__file__)
+        disabled = set(_core_config.disabled_checks(project_root, "codewatch"))
+    except Exception:
+        return set(ALL_CHECK_IDS)
+    return ALL_CHECK_IDS - disabled
+
+
+DEFAULT_OPTIONS = {
+    "block_flag_count_threshold": 4,
+}
+
+
+def _options():
+    opts = dict(DEFAULT_OPTIONS)
+    try:
+        project_root = _paths.find_project_root(__file__)
+        overrides = _core_config.ruleset_options(project_root, "codewatch")
+    except Exception:
+        return opts
+    for key, value in overrides.items():
+        if key in opts and isinstance(value, type(opts[key])):
+            opts[key] = value
+    return opts
 
 # --- trivial_comment (semantic) -- ported from scanaislop/aislop (MIT) -----
 _TRIVIAL_VERB_STEMS = (
@@ -308,6 +347,11 @@ def lint_and_gate(text, context=None):
         for v in check_constant_condition(line):
             semantic.append({"kind": "constant_condition", "label": v["word"], "detail": v, "text": line})
 
+    # Every check above runs unconditionally; a disabled check's own flags
+    # are dropped here in one place rather than guarding all 10 call sites.
+    enabled = _enabled_check_ids()
+    semantic = [f for f in semantic if f["kind"] in enabled]
+
     status = "clean" if not semantic else "semantic_flags"
     return {
         "status": status,
@@ -317,18 +361,16 @@ def lint_and_gate(text, context=None):
     }
 
 
-BLOCK_FLAG_COUNT_THRESHOLD = 4
-
-
 def blocking_semantic_flags(semantic_flags):
     """A third distinct policy, alongside ste100's exclusion list and
     slopwatch's pure count threshold: swallowed_exception always blocks
     (a real correctness risk, not a style preference); everything else
-    blocks only past the same density threshold slopwatch uses."""
+    blocks only past the configured density threshold (4 by default, see
+    DEFAULT_OPTIONS)."""
     always_blocking = [f for f in semantic_flags if f["kind"] == "swallowed_exception"]
     if always_blocking:
         return semantic_flags
-    if len(semantic_flags) >= BLOCK_FLAG_COUNT_THRESHOLD:
+    if len(semantic_flags) >= _options()["block_flag_count_threshold"]:
         return semantic_flags
     return []
 
