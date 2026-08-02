@@ -76,3 +76,6 @@ _register(_ste100)
 
 from rulesets import slopwatch as _slopwatch
 _register(_slopwatch)
+
+from rulesets import codewatch as _codewatch
+_register(_codewatch)

@@ -5,6 +5,7 @@
     {"glob": "blog/*.md", "ruleset": "slopwatch"},
     {"glob": "*.md", "ruleset": "ste100"},
     {"glob": "*.txt", "ruleset": "ste100"},
-    {"glob": "*.rst", "ruleset": "ste100"}
+    {"glob": "*.rst", "ruleset": "ste100"},
+    {"glob": "*.py", "ruleset": "codewatch"}
   ]
 }

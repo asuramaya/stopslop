@@ -1,8 +1,8 @@
 # How to add a ruleset
 
-This document is for anyone who wants to add a third ruleset to stopslop.
-`ste100` and `slopwatch` are the two reference examples. Read
-`src/rulesets/slopwatch/` first. It is small, and it has no glossary,
+This document is for anyone who wants to add a fourth ruleset to stopslop.
+`ste100`, `slopwatch`, and `codewatch` are the three reference examples.
+Read `src/rulesets/codewatch/` first. It is small, and it has no glossary,
 so it shows the minimum real ruleset.
 
 ## What a ruleset is

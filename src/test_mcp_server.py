@@ -62,10 +62,10 @@ class CheckWordTests(unittest.TestCase):
 
 @unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
 class ListRulesetsAndStatusTests(unittest.TestCase):
-    def test_list_rulesets_includes_both_shipped_rulesets(self):
+    def test_list_rulesets_includes_every_shipped_ruleset(self):
         result = mcp_server.list_rulesets()
         ids = {r["id"] for r in result["rulesets"]}
-        self.assertEqual(ids, {"ste100", "slopwatch"})
+        self.assertEqual(ids, {"ste100", "slopwatch", "codewatch"})
 
     def test_get_status_returns_a_dict_with_rulesets_key(self):
         result = mcp_server.get_status()

@@ -14,10 +14,11 @@ ASD-STE100 is the aerospace industry's own answer to this exact problem, but for
 
 ASD-STE100 is one ruleset, not the whole system. A ruleset is a small Python package under `src/rulesets/`. It plugs into the same gate, the same CLI, and the same MCP server. It supplies its own rules, its own auto-fix logic, and its own decision about what actually blocks a write. The gate itself does not know anything about ASD-STE100's vocabulary or grammar. It only knows how to call four required functions every ruleset supplies.
 
-Two rulesets ship today:
+Three rulesets ship today:
 
 - **`ste100`.** The ASD-STE100 rule engine described above. It also has a project glossary, so a user can register domain words the standard does not cover.
-- **`slopwatch`.** A small, original demo ruleset. It targets ordinary AI prose habits: an opener that stalls before the point, a dramatic colon reveal, an unnamed authority claim. It exists to prove the plugin contract works for a ruleset with a completely different shape. ASD-STE100 erases individual voice on purpose, for one uniform result. `slopwatch` protects individual voice on purpose, against generic AI polish. The two rulesets aim in nearly opposite directions. The same gate runs both.
+- **`slopwatch`.** Targets ordinary AI prose habits: an opener that stalls before the point, a dramatic colon reveal, an unnamed authority claim. It started as a small, original demo ruleset. It now also consolidates checks ported from several MIT-licensed prose linters, each one credited in NOTICE. ASD-STE100 erases individual voice on purpose, for one uniform result. `slopwatch` protects individual voice on purpose, against generic AI polish. The two rulesets aim in nearly opposite directions. The same gate runs both.
+- **`codewatch`.** Targets the tells an AI agent leaves in Python source while it writes code. Examples: a comment that only restates the next line, a bare `except: pass`, a mutable default argument. It proves the plugin contract works past prose entirely. It ports checks from an MIT-licensed code-quality linter, credited in NOTICE.
 
 A config file, `stopslop.config.json`, at the repository root, picks which ruleset applies to which file. Each rule is a glob pattern and a ruleset name, checked in order. The first match wins. Without this file, the gate falls back to the original defaults: `ste100` on `.md`, `.txt`, and `.rst` files, `.claude/` out of scope. See `stopslop.config.json.example` for the exact format.
 

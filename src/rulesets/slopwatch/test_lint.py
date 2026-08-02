@@ -123,6 +123,181 @@ class EmDashClusterTests(unittest.TestCase):
         self.assertEqual(lint.check_em_dash_cluster("one — two"), [])
 
 
+class EntityEncodedPunctuationTests(unittest.TestCase):
+    def test_entity_em_dash_flags_and_autofixes(self):
+        hits = lint.check_entity_encoded_punctuation("The system starts&mdash;then stops.")
+        self.assertEqual(len(hits), 1)
+        self.assertTrue(hits[0]["auto_fix"])
+        self.assertEqual(lint.fix_sentence("The system starts&mdash;then stops."),
+                          "The system starts—then stops.")
+
+    def test_numeric_entity_forms_also_flag(self):
+        self.assertEqual(len(lint.check_entity_encoded_punctuation("a&#8212;b")), 1)
+        self.assertEqual(len(lint.check_entity_encoded_punctuation("a&#x2014;b")), 1)
+
+    def test_entity_middot_autofixes_to_comma(self):
+        self.assertEqual(lint.fix_sentence("cats&middot;dogs&middot;birds"), "Cats,dogs,birds")
+
+    def test_plain_dash_not_flagged(self):
+        self.assertEqual(lint.check_entity_encoded_punctuation("The system—then stops."), [])
+
+
+class BoldBulletLeadTests(unittest.TestCase):
+    def test_bold_word_tag_with_no_terminal_punctuation_flags(self):
+        hits = lint.check_bold_bullet_lead("- **Fast** the service starts in under a second.")
+        self.assertEqual(len(hits), 1)
+
+    def test_bold_label_ending_in_colon_not_flagged(self):
+        # Deslopper's own distinction: a bold run that CLOSES on the label
+        # ("**Latency:**") names a real inline term, not a per-item tag.
+        self.assertEqual(
+            lint.check_bold_bullet_lead("- **Latency:** stays low under load."), [])
+
+    def test_non_list_item_not_flagged(self):
+        self.assertEqual(lint.check_bold_bullet_lead("**Fast** is not a list item."), [])
+
+
+class IdLabelLeadTests(unittest.TestCase):
+    def test_id_tag_followed_by_capitalized_text_flags(self):
+        hits = lint.check_id_label_lead("- R-1. The system must start within five seconds.")
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]["phrase"], "R-1")
+
+    def test_plain_numbered_item_not_flagged(self):
+        self.assertEqual(lint.check_id_label_lead("1. The system starts."), [])
+
+
+class NotJustXButYTests(unittest.TestCase):
+    def test_pattern_flags(self):
+        hits = lint.check_not_just_but("This is not just fast but also reliable.")
+        self.assertEqual(len(hits), 1)
+
+    def test_ordinary_sentence_not_flagged(self):
+        self.assertEqual(lint.check_not_just_but("This is fast and reliable."), [])
+
+
+class VagueIntensifierTests(unittest.TestCase):
+    def test_known_word_flags(self):
+        hits = lint.check_vague_intensifier("The system is very fast at startup.")
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]["word"], "very")
+
+    def test_intensifier_with_a_number_still_flags(self):
+        # The check targets the word itself, not whether a number is
+        # present elsewhere -- "significantly, by 40%" still reads as
+        # padding since "significantly" adds nothing the number doesn't.
+        hits = lint.check_vague_intensifier("Latency dropped significantly, by 40%.")
+        self.assertEqual(len(hits), 1)
+
+    def test_ordinary_sentence_not_flagged(self):
+        self.assertEqual(lint.check_vague_intensifier("The system is fast."), [])
+
+
+class EmojiInProseTests(unittest.TestCase):
+    def test_emoji_flags_and_autofixes(self):
+        hits = lint.check_emoji("The system starts \U0001F680 and runs fine.")
+        self.assertEqual(len(hits), 1)
+        self.assertTrue(hits[0]["auto_fix"])
+        self.assertEqual(lint.fix_sentence("The system starts \U0001F680 and runs fine."),
+                          "The system starts and runs fine.")
+
+    def test_checkmark_flags(self):
+        self.assertEqual(len(lint.check_emoji("Done ✅")), 1)
+
+    def test_plain_text_not_flagged(self):
+        self.assertEqual(lint.check_emoji("The system starts and runs fine."), [])
+
+
+class MarketingAdjectiveTests(unittest.TestCase):
+    def test_known_word_flags(self):
+        hits = lint.check_marketing_adjective("Our seamless integration handles everything.")
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]["word"], "seamless")
+
+    def test_ordinary_sentence_not_flagged(self):
+        self.assertEqual(lint.check_marketing_adjective("The integration handles retries."), [])
+
+
+class FillerVerbTests(unittest.TestCase):
+    def test_known_verb_flags(self):
+        hits = lint.check_filler_verb("This feature leverages the existing cache layer.")
+        self.assertEqual(len(hits), 1)
+
+    def test_delve_alone_not_flagged(self):
+        # "delve" the plain approved verb, no "into"/"deeper" collocation.
+        self.assertEqual(lint.check_filler_verb("The archivist chose to delve no further today."), [])
+
+    def test_delve_into_flags(self):
+        hits = lint.check_filler_verb("Let's delve into the configuration options available.")
+        self.assertEqual(len(hits), 1)
+
+
+class MarketingClicheTests(unittest.TestCase):
+    def test_known_phrase_flags(self):
+        hits = lint.check_marketing_cliche("Without further ado, the system starts now.")
+        self.assertEqual(len(hits), 1)
+
+    def test_ordinary_sentence_not_flagged(self):
+        self.assertEqual(lint.check_marketing_cliche("The system starts now."), [])
+
+
+class SolicitCriticismTests(unittest.TestCase):
+    def test_known_phrase_flags(self):
+        hits = lint.check_solicit_criticism("Would love your feedback on this proposal.")
+        self.assertEqual(len(hits), 1)
+
+    def test_ordinary_sentence_not_flagged(self):
+        self.assertEqual(lint.check_solicit_criticism("Send feedback to the team channel."), [])
+
+
+class UnearnedProfundityTests(unittest.TestCase):
+    def test_known_phrase_flags(self):
+        hits = lint.check_unearned_profundity("Everything changed.")
+        self.assertEqual(len(hits), 1)
+
+    def test_concrete_sentence_not_flagged(self):
+        self.assertEqual(
+            lint.check_unearned_profundity("We switched from REST to gRPC."), [])
+
+
+class DramaticFragmentationTests(unittest.TestCase):
+    def test_known_fragment_flags(self):
+        hits = lint.check_dramatic_fragmentation("That's it.")
+        self.assertEqual(len(hits), 1)
+
+    def test_ordinary_short_sentence_not_flagged(self):
+        self.assertEqual(lint.check_dramatic_fragmentation("The cache cleared."), [])
+
+
+class CannedQuestionAnswerTests(unittest.TestCase):
+    def test_short_question_then_canned_answer_flags(self):
+        hits = lint.check_canned_question_answer(
+            ["The solution?", "It is simpler than you might think."])
+        self.assertEqual(len(hits), 1)
+
+    def test_long_question_not_flagged(self):
+        hits = lint.check_canned_question_answer(
+            ["What is the actual root cause of this particular failure?",
+             "It is a race condition."])
+        self.assertEqual(hits, [])
+
+    def test_question_without_canned_answer_opener_not_flagged(self):
+        hits = lint.check_canned_question_answer(
+            ["Is it fast?", "Benchmarks show sub-millisecond latency."])
+        self.assertEqual(hits, [])
+
+
+class NegativeListingTests(unittest.TestCase):
+    def test_two_consecutive_negatives_flag(self):
+        hits = lint.check_negative_listing(
+            ["Not a bug.", "Not a feature.", "A genuine surprise."])
+        self.assertEqual(len(hits), 1)
+
+    def test_single_negative_not_flagged(self):
+        hits = lint.check_negative_listing(["Not a bug.", "A feature request."])
+        self.assertEqual(hits, [])
+
+
 class BlockingFlagsTests(unittest.TestCase):
     """slopwatch's blocking policy is a count/density threshold, a
     genuinely different shape from ste100's exclusion-list approach -- the
@@ -169,6 +344,16 @@ class LintAndGateIntegrationTests(unittest.TestCase):
         r = lint.lint_and_gate(doc)
         opener_flags = [f for f in r["semantic_flags"] if f["kind"] == "filler_opener"]
         self.assertEqual(opener_flags, [])
+
+    def test_bold_bullet_lead_reachable_through_lint_and_gate(self):
+        doc = "- **Fast** the service starts in under a second."
+        r = lint.lint_and_gate(doc)
+        self.assertTrue(any(f["kind"] == "bold_bullet_lead" for f in r["semantic_flags"]))
+
+    def test_id_label_lead_reachable_through_lint_and_gate(self):
+        doc = "- R-1. The system must start within five seconds."
+        r = lint.lint_and_gate(doc)
+        self.assertTrue(any(f["kind"] == "id_label_lead" for f in r["semantic_flags"]))
 
 
 if __name__ == "__main__":
