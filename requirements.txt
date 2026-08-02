@@ -1,4 +1,5 @@
-# Only needed for src/mcp_server.py -- the gate itself
+# Only needed for src/mcp_server.py and src/dashboard.py -- the gate itself
 # (pretool_hook.py, sessionstart_hook.py) and stopslop.py are pure
 # standard-library Python. They require no install at all.
 mcp
+streamlit

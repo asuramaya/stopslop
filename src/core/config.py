@@ -98,6 +98,25 @@ def resolve_ruleset(file_path, project_root, registry, config_file=None):
     return registry.get_ruleset(ruleset_id)
 
 
+def save_rules(project_root, rules, registry, config_file=None):
+    """Write `rules` (a list of {"glob", "ruleset"} dicts, the same shape
+    DEFAULT_RULES uses) to the config file, after validating every non-null
+    ruleset id against `registry` -- the same loud-on-typo guarantee
+    resolve_ruleset() already gives a live gate call, applied at write time
+    instead of read time so a bad id never reaches disk in the first place.
+    The one caller today is the dashboard's config editor; a raw file write
+    from there would skip this check entirely."""
+    for rule in rules:
+        if "glob" not in rule or "ruleset" not in rule:
+            raise ValueError(f"rule {rule!r} needs both 'glob' and 'ruleset' keys")
+        if rule["ruleset"] is not None:
+            registry.get_ruleset(rule["ruleset"])  # raises UnknownRulesetError on a typo
+    path = config_file or config_path(project_root)
+    with open(path, "w") as f:
+        json.dump({"rulesets": rules}, f, indent=2)
+        f.write("\n")
+
+
 def known_extensions(project_root, config_file=None):
     """Literal '*.ext' suffixes named in the resolved rules -- feeds
     bash_write_detect.py's target-extension scope, generalized from the

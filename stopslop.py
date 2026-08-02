@@ -98,11 +98,12 @@ def cmd_init(args):
 
     # The gate itself needs nothing beyond the above -- it's stdlib-only.
     # The optional MCP tools (.mcp.json, already checked into this repo)
-    # need their own venv, since that's a real dependency, not stdlib.
+    # and `stopslop.py dashboard` share one venv, since that's a real
+    # dependency, not stdlib.
     venv_python = os.path.join(REPO_ROOT, ".venv", "bin", "python3")
     if not os.path.exists(venv_python):
-        print("\nOptional: the MCP convenience tools (.mcp.json) need a venv. Not required for "
-              "the gate itself. To set one up:")
+        print("\nOptional: the MCP convenience tools (.mcp.json) and `stopslop.py dashboard` "
+              "need a venv. Not required for the gate itself. To set one up:")
         print(f"  python3 -m venv {os.path.join(REPO_ROOT, '.venv')}")
         print(f"  {venv_python} -m pip install -r {os.path.join(REPO_ROOT, 'requirements.txt')}")
 
@@ -241,6 +242,24 @@ def cmd_list_rulesets(args):
     return 0
 
 
+def cmd_dashboard(args):
+    # Same "clear stderr message instead of an opaque exec failure" pattern
+    # mcp_launch.py already established -- see that file's own docstring.
+    venv_streamlit = os.path.join(REPO_ROOT, ".venv", "bin", "streamlit")
+    if not os.path.exists(venv_streamlit):
+        venv_python = os.path.join(REPO_ROOT, ".venv", "bin", "python3")
+        print(
+            "stopslop dashboard: no virtual environment at .venv -- it needs one, "
+            "the same as the MCP tools. Set it up, then re-run this command:\n"
+            f"  python3 -m venv {os.path.join(REPO_ROOT, '.venv')}\n"
+            f"  {venv_python} -m pip install -r {os.path.join(REPO_ROOT, 'requirements.txt')}",
+            file=sys.stderr,
+        )
+        return 1
+    dashboard_path = os.path.join(SRC_DIR, "dashboard.py")
+    os.execv(venv_streamlit, [venv_streamlit, "run", dashboard_path])
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="stopslop.py",
@@ -289,6 +308,9 @@ def main():
 
     p_list_rulesets = sub.add_parser("list-rulesets", help="show every registered ruleset and what routes to it")
     p_list_rulesets.set_defaults(func=cmd_list_rulesets)
+
+    p_dashboard = sub.add_parser("dashboard", help="open the live web dashboard (needs the venv)")
+    p_dashboard.set_defaults(func=cmd_dashboard)
 
     args = parser.parse_args()
     sys.exit(args.func(args))

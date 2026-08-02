@@ -51,6 +51,17 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 - `python3 stopslop.py status` shows per-ruleset stats, recent gate activity, and whether the hook is even wired up yet.
 - `python3 stopslop.py list-rulesets` lists every registered ruleset and the glob patterns routed to it.
 - `python3 stopslop.py --version` prints the installed version.
+- `python3 stopslop.py dashboard` opens the live web dashboard. Needs the venv.
+
+## Dashboard (optional)
+
+`python3 stopslop.py dashboard` opens a local page at `http://localhost:8501`, built with Streamlit. It shows live gate activity and per-ruleset stats. It has a lint playground that checks text against any ruleset without a real write. It has a routing-config editor and a glossary editor. It reads and writes the exact files the hook, the CLI, and an agent already use: `.claude/stopslop-history.log`, `stopslop.config.json`, each ruleset's own glossary file. One shared source of truth, not a second config store. A change here reaches the next gate call right away, with no session restart.
+
+Setup shares the MCP tools' own venv (`requirements.txt` lists both dependencies):
+
+1. If you have not already set one up for the MCP tools, run `python3 -m venv .venv`.
+2. Run `.venv/bin/pip install -r requirements.txt`.
+3. Run `python3 stopslop.py dashboard`.
 
 ## MCP tools (optional)
 

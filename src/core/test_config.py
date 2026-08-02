@@ -120,6 +120,54 @@ class LoadRulesTests(unittest.TestCase):
             os.unlink(path)
 
 
+class SaveRulesTests(unittest.TestCase):
+    def _fake_registry(self, known_ids=("ste100",)):
+        return types.SimpleNamespace(
+            get_ruleset=lambda rid: rid if rid in known_ids else (_ for _ in ()).throw(
+                rulesets.UnknownRulesetError(rid)),
+        )
+
+    def test_writes_valid_rules(self):
+        import json
+        import tempfile
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            rules = [{"glob": "*.md", "ruleset": "ste100"}, {"glob": ".claude/*", "ruleset": None}]
+            config.save_rules(tmp, rules, self._fake_registry(), config_file=path)
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written["rulesets"], rules)
+
+    def test_unknown_ruleset_id_raises_before_writing(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            rules = [{"glob": "*.md", "ruleset": "typo-name"}]
+            with self.assertRaises(rulesets.UnknownRulesetError):
+                config.save_rules(tmp, rules, self._fake_registry(), config_file=path)
+            self.assertFalse(os.path.exists(path))
+
+    def test_malformed_rule_raises(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with self.assertRaises(ValueError):
+                config.save_rules(tmp, [{"glob": "*.md"}], self._fake_registry(), config_file=path)
+            self.assertFalse(os.path.exists(path))
+
+    def test_round_trips_through_load_rules(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            rules = [{"glob": "*.py", "ruleset": "ste100"}]
+            config.save_rules(tmp, rules, self._fake_registry(), config_file=path)
+            self.assertEqual(config.load_rules(tmp, config_file=path), rules)
+
+
 class ResolveRulesetIdDefaultRulesTests(unittest.TestCase):
     """Required invariant: resolve_ruleset_id() against DEFAULT_RULES (no
     config file) must reproduce exactly what pretool_hook.py's old,
