@@ -905,7 +905,11 @@ def lint_sentence(sentence, context="procedure", project_terms=None, suppressed=
 # a document into one reported flag -- losing exactly the information
 # needed to actually go fix each one. "synonym_rotation" is already
 # document-level (one flag per rotation-set, not per occurrence).
-_DEDUP_EXCLUDE_KINDS = {"length", "trailing_condition", "synonym_rotation"}
+# "safety_instruction"'s label is the severity WORD (WARNING/CAUTION/...),
+# a category many distinct blocks share -- two unrelated malformed WARNING
+# blocks in the same document would otherwise collapse into one flag.
+_DEDUP_EXCLUDE_KINDS = {"length", "trailing_condition", "synonym_rotation",
+                         "safety_instruction"}
 
 
 def lint_and_gate(text, context="procedure", file_path=None):
@@ -958,7 +962,10 @@ def lint_and_gate(text, context="procedure", file_path=None):
     mechanical = []
     semantic = []
     for h, block_text in safety_hits:
-        semantic.append({"kind": "safety_instruction", "label": _label(h),
+        # h["label"] is the severity word (WARNING/CAUTION/...) the hit
+        # already computed -- _label(h) would miss it, since default_label
+        # only ever looks for "word"/"phrase"/"modal".
+        semantic.append({"kind": "safety_instruction", "label": h.get("label"),
                           "detail": h, "text": block_text})
     for r in results:
         if r["length"]:

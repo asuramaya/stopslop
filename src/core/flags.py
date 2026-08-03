@@ -19,6 +19,35 @@ def default_label(detail):
     return detail.get("word") or detail.get("phrase") or detail.get("modal")
 
 
+def display_label(flag):
+    """What identifies THIS flag to whoever reads a deny -- never the
+    internal rule id, which names the CHECK that fired, not what was
+    actually found. A check with no natural per-occurrence label (a
+    sentence-length count, a document-wide synonym-rotation scan) still has
+    either matched text or the terms it found; the rule id is the one thing
+    that is never a substitute for either.
+
+    This was the bug: two call sites (the hook's deny summary, the MCP
+    flag summary) each carried their own `label or detail["rule"]` fallback,
+    so a flag with no label surfaced as "7.2" or "1.11" instead of the
+    sentence that tripped it. One home for the fallback chain, so a third
+    call site can reach for it instead of writing a fourth copy."""
+    label = flag.get("label")
+    if label:
+        return label
+    text = flag.get("text")
+    if text:
+        return text if len(text) <= 80 else text[:77] + "..."
+    detail = flag.get("detail", {})
+    terms = detail.get("terms_used")
+    if terms:
+        return ", ".join(terms)
+    note = detail.get("note")
+    if note:
+        return note if len(note) <= 80 else note[:77] + "..."
+    return flag["kind"]
+
+
 def dedup_flags(flags, exclude_kinds=frozenset()):
     """Collapse repeated occurrences of the exact same (kind, label) into
     one flag with an 'occurrences' count added to its detail dict, keeping

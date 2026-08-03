@@ -83,8 +83,7 @@ def _flag_summary(flags):
     out = []
     for f in flags:
         d = f["detail"]
-        label = f.get("label") or d.get("rule", "?")
-        entry = {"kind": f["kind"], "rule": d.get("rule"), "text": label}
+        entry = {"kind": f["kind"], "rule": d.get("rule"), "text": core_flags.display_label(f)}
         note = d.get("note") or d.get("basis")
         if note:
             entry["note"] = note

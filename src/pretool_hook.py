@@ -168,8 +168,7 @@ def main():
     if flags:
         summary_lines = []
         for f in flags[:8]:
-            label = f.get("label") or f["detail"].get("rule", "?")
-            summary_lines.append(f"- [{f['kind']}] {label}")
+            summary_lines.append(f"- [{f['kind']}] {flags_mod.display_label(f)}")
         more = f"\n...and {len(flags) - 8} more" if len(flags) > 8 else ""
         attempt_number = count_consecutive_denials(file_path) + 1
         reason = (

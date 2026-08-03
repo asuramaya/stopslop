@@ -255,6 +255,32 @@ class PunctuationTests(unittest.TestCase):
         self.assertEqual(hits, [])
 
 
+class SafetyInstructionTests(unittest.TestCase):
+    """check_safety_instruction's own hit dict already computes the
+    severity word under "label" -- the bug was that the flag built from it
+    routed through default_label(), which only ever looks for
+    "word"/"phrase"/"modal" and never found it, so the flag's top-level
+    "label" came back None and every safety flag displayed as its rule id
+    ("7.2"/"7.3") instead of WARNING/CAUTION/DANGER."""
+
+    def test_flag_label_is_the_severity_word_not_the_rule_id(self):
+        r = lint.lint_and_gate("WARNING: But this can cause damage.")
+        flags = [f for f in r["semantic_flags"] if f["kind"] == "safety_instruction"]
+        self.assertTrue(flags)
+        for f in flags:
+            self.assertEqual(f["label"], "WARNING")
+
+    def test_distinct_malformed_blocks_are_not_deduped_together(self):
+        # Two different WARNING blocks share the same label ("WARNING"),
+        # which is a severity CATEGORY, not a per-occurrence identity --
+        # collapsing them would hide that two separate blocks need fixing.
+        text = ("WARNING: But this can cause damage.\n\n"
+                "WARNING: However this may cause injury.")
+        r = lint.lint_and_gate(text)
+        flags = [f for f in r["semantic_flags"] if f["kind"] == "safety_instruction"]
+        self.assertEqual(len(flags), 2)
+
+
 class BlockingFlagsTests(unittest.TestCase):
     """The single source of truth for what the live gate actually acts
     on -- see pretool_hook.py and stopslop.py, both of which call this
