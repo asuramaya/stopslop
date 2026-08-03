@@ -33,44 +33,49 @@ CAPABILITIES = frozenset({"terms", "word_lookup", "checks"})
 # register a word."
 TRACKED_FILES = ["dictionary.json", "lint.py", "glossary.py", "build_dictionary.py"]
 
-# kind -> coaching prose for generate_coaching_memory.py's aggregator.
-# Formerly generate_coaching_memory.py's own PRINCIPLE_TEXT; moved here
-# since it's ste100-specific (a different ruleset's flag kinds need their
-# own text, not this one).
-PRINCIPLE_TEXT = {
-    "modal": "Hedging modals (should/would/may/might/could) keep showing up -- "
-             "resolve intent before drafting: must for requirements, delete or "
-             "state as fact for recommendations, can for real possibility.",
-    "passive": "Passive voice with an unclear actor keeps showing up -- name the "
-               "actor, or restructure to active voice.",
-    "ing_form": "-ing misuse keeps showing up -- infinitive or simple tense "
-               "unless it's one of the ~9 whitelisted -ing nouns/adjectives.",
-    "progressive": "Progressive tense (is/are/was/were + -ing) keeps showing up -- "
-                   "use simple tense instead.",
-    "length": "Sentences keep running long -- split at the clause boundary "
-              "before drafting, don't write long then split after.",
-    "punctuation": "Contractions or semicolons keep showing up -- write "
-                   "contractions in full; use two sentences instead of a semicolon.",
-    "perfect_tense": "Present-perfect / present-perfect-passive constructions "
-                     "(has/have/had (been) + V-ed) keep showing up -- use simple "
-                     "past instead.",
-    "vocabulary": "Unapproved synonyms (utilize, leverage, seamlessly, etc.) "
-                  "keep showing up -- use the plain equivalent from the start.",
-    "trailing_condition": "Conditions keep trailing after the command -- put "
-                          "'if'/'when' clauses at the start of the sentence.",
-    "synonym_rotation": "The same concept keeps getting named with rotating "
-                        "synonyms (check/verify/confirm...) -- pick one term "
-                        "per concept before drafting and stay with it.",
-    "latin_abbrev": "Latin abbreviations (e.g., i.e., etc., vs.) keep showing "
-                    "up -- ASD-STE100 forbids them; write the plain English "
-                    "equivalent instead.",
-    "inclusive_language": "Gendered pronouns or terms keep showing up -- name "
-                          "the actor, use 'they', or use the standard's "
-                          "gender-neutral term instead.",
-    "safety_instruction": "A WARNING/CAUTION/NOTE safety label keeps showing "
-                          "up malformed (rule 7.1-7.3) -- format-only check, "
-                          "doesn't detect a missing label, only a badly-formed "
-                          "one.",
+# flag kind -> (what the check catches, what to do instead). ste100-specific:
+# a different ruleset's flag kinds need their own text, not this one. See
+# rulesets/slopwatch/__init__.py's CHECKS for why the two facts stay apart
+# instead of being stored as one prewritten coaching sentence.
+CHECKS = {
+    "modal": ("Hedging modals: should, would, may, might, could",
+              "must for requirements, can for real possibility; delete or "
+              "state as fact for recommendations"),
+    "passive": ("Passive voice with no clear actor",
+                "name the actor, or restructure to active voice"),
+    "ing_form": ("-ing misuse",
+                 "infinitive or simple tense, unless it is one of the ~9 "
+                 "whitelisted -ing nouns and adjectives"),
+    "progressive": ("Progressive tense: is/are/was/were + -ing",
+                    "use simple tense instead"),
+    "length": ("Sentences over the context's word limit",
+               "split at the clause boundary while drafting, rather than "
+               "writing long and splitting after"),
+    "punctuation": ("Contractions and semicolons",
+                    "write contractions in full; use two sentences instead "
+                    "of a semicolon"),
+    "perfect_tense": ("Present perfect and present perfect passive: "
+                      "has/have/had (been) + V-ed",
+                      "use simple past instead"),
+    "vocabulary": ("Words outside the approved dictionary: utilize, "
+                   "leverage, seamlessly",
+                   "use the plain approved equivalent"),
+    "trailing_condition": ("A condition trailing after the command",
+                           "put 'if' and 'when' clauses at the start of "
+                           "the sentence"),
+    "synonym_rotation": ("One concept named with rotating synonyms: "
+                         "check, verify, confirm",
+                         "pick one term per concept and stay with it"),
+    "latin_abbrev": ("Latin abbreviations: e.g., i.e., etc., vs.",
+                     "ASD-STE100 forbids them; write the plain English "
+                     "equivalent"),
+    "inclusive_language": ("Gendered pronouns and terms",
+                           "name the actor, use 'they', or use the "
+                           "standard's gender-neutral term"),
+    "safety_instruction": ("A malformed WARNING/CAUTION/NOTE label "
+                           "(rules 7.1-7.3)",
+                           "format only: this cannot detect a MISSING "
+                           "label, only a badly-formed one"),
 }
 
 
@@ -202,7 +207,8 @@ def list_checks():
     project_root = paths.find_project_root(__file__)
     disabled = set(_core_config.disabled_checks(project_root, RULESET_ID))
     return {
-        check_id: {"description": PRINCIPLE_TEXT.get(check_id, ""),
+        check_id: {"catches": CHECKS.get(check_id, ("", ""))[0],
+                   "instead": CHECKS.get(check_id, ("", ""))[1],
                    "enabled": check_id not in disabled}
         for check_id in sorted(lint.ALL_CHECK_IDS)
     }
@@ -216,6 +222,21 @@ def set_enabled_checks(check_ids):
     disabled = sorted(lint.ALL_CHECK_IDS - set(check_ids))
     project_root = paths.find_project_root(__file__)
     _core_config.save_disabled_checks(project_root, RULESET_ID, disabled)
+
+
+def set_checks_enabled(states):
+    """Turn the named checks on or off, leaving every other check alone --
+    {check_id: bool}. Merge semantics, the same shape set_options has, and
+    the counterpart to set_enabled_checks's replace semantics: see
+    core.config.merge_disabled_checks for which callers need which, and for
+    the silent-mass-disable bug that made the distinction worth a second
+    method rather than a comment."""
+    unknown = set(states) - lint.ALL_CHECK_IDS
+    if unknown:
+        raise ValueError(f"unknown check id(s): {sorted(unknown)} -- "
+                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
+    project_root = paths.find_project_root(__file__)
+    _core_config.merge_disabled_checks(project_root, RULESET_ID, states)
 
 
 # list_glossary_packs()/set_enabled_glossary_packs() USED to live here: two

@@ -43,6 +43,7 @@ def _fake_ruleset(ruleset_id, capabilities=frozenset()):
     if "checks" in capabilities:
         mod.list_checks = lambda: {}
         mod.set_enabled_checks = lambda check_ids: None
+        mod.set_checks_enabled = lambda states: None
     if "options" in capabilities:
         mod.list_options = lambda: {}
         mod.set_options = lambda options: None
@@ -113,6 +114,16 @@ class RegistryConformanceTests(unittest.TestCase):
     def test_checks_capability_without_set_enabled_checks_rejected(self):
         mod = _fake_ruleset("demo", capabilities=frozenset({"checks"}))
         del mod.set_enabled_checks
+        reg = types.SimpleNamespace(_REGISTRY={})
+        with self.assertRaises(rulesets.InvalidRulesetError):
+            self._register_into(reg, mod)
+
+    def test_checks_capability_without_the_merge_shape_rejected(self):
+        # Declaring "checks" obligates BOTH write shapes. A ruleset offering
+        # only the replace form invites the bug the dashboard shipped: a
+        # partial list saved through a call that reads it as the total one.
+        mod = _fake_ruleset("demo", capabilities=frozenset({"checks"}))
+        del mod.set_checks_enabled
         reg = types.SimpleNamespace(_REGISTRY={})
         with self.assertRaises(rulesets.InvalidRulesetError):
             self._register_into(reg, mod)
@@ -589,6 +600,125 @@ class ResolveRulesetTests(unittest.TestCase):
                                         rulesets, config_file=path)
         finally:
             os.unlink(path)
+
+
+class MatchingRuleTests(unittest.TestCase):
+    """The one rule that decides a path -- the shared answer to
+    first-match-wins that resolve_ruleset_id and packs_for_path both go
+    through now, and that the dashboard used to approximate with a loop of
+    its own asking a subtly different question."""
+
+    RULES = [
+        {"glob": ".claude/*", "ruleset": None},
+        {"glob": "README.md", "ruleset": "slopwatch"},
+        {"glob": "*.md", "ruleset": "ste100",
+         "packs": {"project_terms": ["mdn-glossary"]}},
+    ]
+
+    def setUp(self):
+        tmp = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
+        json.dump({"rulesets": self.RULES}, tmp)
+        tmp.close()
+        self.cfg = tmp.name
+
+    def tearDown(self):
+        os.unlink(self.cfg)
+
+    def _rule(self, rel):
+        return config.matching_rule(os.path.join(PROJECT_ROOT, rel),
+                                     PROJECT_ROOT, config_file=self.cfg)
+
+    def test_returns_the_first_matching_rule_whole(self):
+        rule = self._rule("guide.md")
+        self.assertEqual(rule["glob"], "*.md")
+        self.assertEqual(rule["packs"], {"project_terms": ["mdn-glossary"]})
+
+    def test_an_earlier_rule_wins_even_though_a_later_one_also_matches(self):
+        # The bug this function exists to prevent. README.md matches BOTH
+        # the slopwatch rule and the ste100 `*.md` rule. Asking "the first
+        # rule matching this path AND ste100" -- which is what the
+        # dashboard's own loop asked when hanging a pack somewhere --
+        # answers `*.md`, a rule the gate never reaches for this file, so
+        # the pack binding it wrote could never fire.
+        self.assertEqual(self._rule("README.md")["glob"], "README.md")
+        self.assertEqual(self._rule("README.md")["ruleset"], "slopwatch")
+
+    def test_an_explicitly_unscoped_path_returns_its_rule_not_none(self):
+        # "no rule matched" and "a rule deliberately put this out of scope"
+        # are different facts; resolve_ruleset_id flattens both to None, so
+        # a caller that needs to tell them apart (the dashboard says which
+        # of the two it is) asks here instead.
+        rule = self._rule(".claude/settings.json")
+        self.assertIsNotNone(rule)
+        self.assertIsNone(rule["ruleset"])
+        self.assertIsNone(self._rule("notes.org"))
+
+    def test_resolve_ruleset_id_agrees_with_it_on_every_path(self):
+        for rel in ("guide.md", "README.md", ".claude/settings.json", "notes.org"):
+            with self.subTest(path=rel):
+                rule = self._rule(rel)
+                self.assertEqual(
+                    config.resolve_ruleset_id(os.path.join(PROJECT_ROOT, rel),
+                                               PROJECT_ROOT, config_file=self.cfg),
+                    rule["ruleset"] if rule else None)
+
+    def test_a_path_outside_the_project_matches_nothing(self):
+        self.assertIsNone(config.matching_rule("/elsewhere/guide.md",
+                                                PROJECT_ROOT, config_file=self.cfg))
+
+
+class MergeDisabledChecksTests(unittest.TestCase):
+    """Merge semantics for checks, the counterpart to save_disabled_checks's
+    replace. The dashboard's Checks table saved a FILTERED view through the
+    replace call, so typing "filler" in its search box and pressing Save
+    disabled every check the search had hidden -- 18 of slopwatch's 20."""
+
+    def setUp(self):
+        self._dir = tempfile.TemporaryDirectory()
+        self.cfg = os.path.join(self._dir.name, "stopslop.config.json")
+
+    def tearDown(self):
+        self._dir.cleanup()
+
+    def _disabled(self):
+        return config.disabled_checks(self._dir.name, "slopwatch", config_file=self.cfg)
+
+    def test_naming_two_checks_leaves_every_other_alone(self):
+        config.save_disabled_checks(self._dir.name, "slopwatch",
+                                     ["emoji_in_prose"], config_file=self.cfg)
+        config.merge_disabled_checks(self._dir.name, "slopwatch",
+                                      {"filler_verb": False, "filler_opener": True},
+                                      config_file=self.cfg)
+        # emoji_in_prose was never named, so it stays exactly as it was --
+        # this is the whole point, and the assertion that fails under the
+        # replace-shaped call the dashboard was using.
+        self.assertEqual(self._disabled(), ["emoji_in_prose", "filler_verb"])
+
+    def test_re_enabling_lifts_a_disable(self):
+        config.save_disabled_checks(self._dir.name, "slopwatch",
+                                     ["filler_verb"], config_file=self.cfg)
+        config.merge_disabled_checks(self._dir.name, "slopwatch",
+                                      {"filler_verb": True}, config_file=self.cfg)
+        self.assertEqual(self._disabled(), [])
+
+    def test_it_does_not_disturb_another_ruleset(self):
+        config.save_disabled_checks(self._dir.name, "ste100", ["modal"],
+                                     config_file=self.cfg)
+        config.merge_disabled_checks(self._dir.name, "slopwatch",
+                                      {"filler_verb": False}, config_file=self.cfg)
+        self.assertEqual(config.disabled_checks(self._dir.name, "ste100",
+                                                 config_file=self.cfg), ["modal"])
+
+    def test_the_replace_shape_still_replaces(self):
+        # Both shapes stay available and mean different things: the CLI's
+        # `checks --enable a b c` means "these and only these" and depends
+        # on replace. Merge is not a fix applied to replace, it is the
+        # other legitimate half.
+        config.save_disabled_checks(self._dir.name, "slopwatch",
+                                     ["filler_verb"], config_file=self.cfg)
+        config.save_disabled_checks(self._dir.name, "slopwatch",
+                                     ["emoji_in_prose"], config_file=self.cfg)
+        self.assertEqual(self._disabled(), ["emoji_in_prose"])
 
 
 class KnownExtensionsTests(unittest.TestCase):

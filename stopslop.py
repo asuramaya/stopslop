@@ -387,7 +387,9 @@ def cmd_checks(args):
 
     for check_id, meta in sorted(ruleset.list_checks().items()):
         state = "ON " if meta["enabled"] else "off"
-        print(f"[{state}] {check_id} -- {meta['description']}")
+        print(f"[{state}] {check_id} -- {meta['catches']}")
+        if meta["instead"]:
+            print(f"{'':<7} instead: {meta['instead']}")
     return 0
 
 

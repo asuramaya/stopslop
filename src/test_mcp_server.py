@@ -200,7 +200,8 @@ class _FakeChecksAndOptions:
         self._options = {"threshold": 4}
 
     def list_checks(self):
-        return {c: {"description": f"{c} desc", "enabled": c not in self._disabled}
+        return {c: {"catches": f"{c} catches", "instead": f"{c} instead",
+                     "enabled": c not in self._disabled}
                 for c in sorted(self.ALL_CHECKS)}
 
     def set_enabled_checks(self, check_ids):

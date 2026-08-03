@@ -240,8 +240,9 @@ def set_path_packs(glob: str = "", list_id: str = "",
 
 @mcp.tool()
 def list_checks(ruleset: str = "") -> dict:
-    """Every individual check a ruleset can run (id, coaching description,
-    whether it's currently enabled), if that ruleset supports per-check
+    """Every individual check a ruleset can run (id, what it catches, what
+    to do instead, whether it's currently enabled), if that ruleset supports
+    per-check
     toggles at all (see list_rulesets). Every check runs by default --
     turning one off is a project-level choice, made with enable_checks.
     """

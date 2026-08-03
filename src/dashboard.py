@@ -8,12 +8,12 @@ happen to be laid out on disk:
 - Watch is passive: what did the gate just do, and why. Denials pulled
   out into their own callout, since a deny is the one event a human
   actually wants explained -- everything else is routine.
-- Configure is deliberate: routing (which files a ruleset even sees),
-  then one ruleset's checks/thresholds/glossary together in one place,
-  plus a "try it" playground scoped to whichever ruleset you're already
-  looking at. Previously these lived on three separate tabs, organized
-  around which config-file key backed them rather than around "I want to
-  tune slopwatch."
+- Configure is deliberate, and answers ONE question: what happens to this
+  file? A path at the top, then routing, checks, thresholds, vocabulary
+  and a playground, each answering its own part of that question for that
+  path. Sections do not re-ask it -- there is one path box on the page
+  and no ruleset dropdown anywhere, because a path already implies its
+  ruleset and two controls for one idea can disagree.
 
 A live-status pulse sits in the sidebar, outside both pages, so it stays
 visible regardless of which one you're on -- the whole point of a *live*
@@ -42,7 +42,6 @@ Run with:
 or directly:
     .venv/bin/streamlit run src/dashboard.py
 """
-import fnmatch
 import os
 import sys
 import time
@@ -151,17 +150,26 @@ def _watch_activity():
 # --- Configure ------------------------------------------------------------
 
 def configure_page():
-    """Everything a project configures, in one page of flat, project-wide
-    tables. There is no separate Vocabulary page and no ruleset radio.
+    """Everything a project configures, in one page of flat tables, under
+    ONE context control: a path.
 
-    Both were duplication. The radio picked a ruleset for the checks and
-    thresholds blocks while the terms table carried its own ruleset filter
-    -- two selectors for one idea. And a Sources block edited pack
-    bindings while the Routing editor edited the very same `rulesets[]`
-    array, so one config lived behind two controls. Checks, thresholds and
-    terms are now each ONE table covering every ruleset, tagged and
-    filterable, the same shape as each other."""
-    rulesets_with_terms = [m for m in rulesets.list_rulesets() if "terms" in m.CAPABILITIES]
+    The page answers a single question -- what happens to this file? --
+    and every section answers its own part of it: which ruleset gates it,
+    which checks run, at what thresholds, with what vocabulary, and (Try
+    it) what that combination actually decides. Sections do not each
+    re-ask the question. There was a path box inside Terms and a separate
+    ruleset dropdown inside Try it, so the page had two answers to "what
+    am I looking at" and they could disagree: you could read the
+    vocabulary for `docs/guide.md` and then lint against a ruleset that
+    file never routes to. Try it also never passed the path down, so it
+    silently resolved packs for the synthetic free-text path -- 187 terms
+    adrift from what the real gate would use, and no way to tell from the
+    screen.
+
+    Checks and thresholds stay project-wide, because they genuinely are:
+    they are per-ruleset settings, not per-path ones. The path narrows
+    what is worth looking at, it does not hide the rest."""
+    probe, full, ruleset_id = _page_scope()
 
     with st.container(border=True):
         st.subheader("Routing")
@@ -169,20 +177,48 @@ def configure_page():
 
     with st.container(border=True):
         st.subheader("Checks")
-        _checks_table()
+        _checks_table(ruleset_id)
 
     with st.container(border=True):
         st.subheader("Thresholds")
-        _thresholds_table()
+        _thresholds_table(ruleset_id)
 
     with st.container(border=True):
         st.subheader("Terms")
-        _terms_table()
-        _add_term_form(rulesets_with_terms)
+        _terms_table(probe, full, ruleset_id)
+        _add_term_form()
         _suppressed_section()
 
     with st.container(border=True):
-        _playground_section()
+        _playground_section(probe, full, ruleset_id)
+
+
+def _page_scope():
+    """The page's one context control. Returns (probe, full path, ruleset id).
+
+    Stated once, in one sentence, naming the rule that matched -- so the
+    Routing table below reads as the explanation of this line rather than
+    as an unrelated grid the reader has to resolve in their head."""
+    cols = st.columns([2, 5])
+    default = core_config.SYNTHETIC_TEXT_NAME
+    probe = cols[0].text_input(
+        "Configuring for path", value=default, key="scope_path",
+        help="Any path in this repo. Routing decides the rest; the default "
+             "is the synthetic name free text is treated as.").strip() or default
+    full = os.path.join(REPO_ROOT, probe)
+    rule = core_config.matching_rule(full, REPO_ROOT)
+    ruleset_id = rule["ruleset"] if rule else None
+    with cols[1]:
+        st.caption("")
+        if ruleset_id:
+            st.markdown(f"`{probe}` → gated by **{ruleset_id}**, "
+                        f"by the rule `{rule['glob']}`")
+        elif rule:
+            st.markdown(f"`{probe}` → **not gated**: the rule `{rule['glob']}` "
+                        f"puts it out of scope on purpose")
+        else:
+            st.markdown(f"`{probe}` → **not gated**: no routing rule matches it")
+    return probe, full, ruleset_id
 
 
 def _routing_editor():
@@ -205,14 +241,26 @@ def _routing_editor():
                 help="Empty means out of scope entirely (like .claude/*)."),
         })
     if st.button("Save routing"):
+        incoming = [{"glob": r["glob"], "ruleset": r["ruleset"] or None}
+                    for r in edited if r.get("glob")]
+        # save_rules carries packs forward by GLOB, so editing a glob in
+        # place ("*.md" -> "docs/*.md") reads as deleting one rule and
+        # adding another, and that rule's packs go with it. That is the
+        # right merge rule -- a glob is the rule's identity -- but it must
+        # not happen quietly, so say which packs a save is about to drop.
+        kept = {r["glob"] for r in incoming}
+        orphaned = {g: sum(len(v) for v in packs.values())
+                    for g, _, packs in core_config.rule_packs(REPO_ROOT)
+                    if packs and g not in kept}
         try:
-            core_config.save_rules(
-                REPO_ROOT,
-                [{"glob": r["glob"], "ruleset": r["ruleset"] or None}
-                 for r in edited if r.get("glob")],
-                rulesets)
-            st.toast("Routing saved", icon="✅")
-            st.rerun()
+            core_config.save_rules(REPO_ROOT, incoming, rulesets)
+            for glob, count in orphaned.items():
+                st.warning(f"Rule `{glob}` is gone, and the {count} pack "
+                           f"binding(s) on it went with it. Re-attach them "
+                           f"under Terms if the new rule needs them.")
+            if not orphaned:
+                st.toast("Routing saved", icon="✅")
+                st.rerun()
         except Exception as exc:
             st.error(f"Not saved: {exc}")
 
@@ -240,10 +288,12 @@ def _filter_row(rows, text_fields, facets, key):
     return out
 
 
-def _checks_table():
-    """Every check every ruleset ships, in one table -- the same shape the
-    terms table uses, rather than a wall of checkboxes behind a ruleset
-    radio."""
+def _checks_table(scope_ruleset=None):
+    """Every check every ruleset ships, in one table.
+
+    Two columns, not one sentence: a check is "what it catches" and "what
+    to do instead", and gluing them into prose is what produced 37 of 43
+    rows opening with the same words. See a ruleset's own CHECKS."""
     rows = []
     for module in rulesets.list_rulesets():
         if "checks" not in module.CAPABILITIES:
@@ -251,14 +301,17 @@ def _checks_table():
         for cid, meta in sorted(module.list_checks().items()):
             rows.append({"enabled": meta["enabled"], "check": cid,
                           "ruleset": module.RULESET_ID,
-                          "what it catches": meta["description"] or ""})
+                          "catches": meta["catches"], "instead": meta["instead"]})
     if not rows:
         st.caption("No ruleset exposes individually-toggleable checks.")
         return
 
     off = sum(1 for r in rows if not r["enabled"])
-    st.caption(f"{len(rows)} checks · {off} off" if off else f"{len(rows)} checks, all on")
-    shown = _filter_row(rows, ("check", "what it catches"), ("ruleset",), "chk")
+    here = sum(1 for r in rows if r["ruleset"] == scope_ruleset and r["enabled"])
+    st.caption(f"{len(rows)} checks across every ruleset, {off} off. "
+               + (f"**{here}** of them run on this path."
+                  if scope_ruleset else "None run on this path."))
+    shown = _filter_row(rows, ("check", "catches", "instead"), ("ruleset",), "chk")
     if not shown:
         st.caption("Nothing matches.")
         return
@@ -268,46 +321,73 @@ def _checks_table():
             "enabled": st.column_config.CheckboxColumn("on", width="small"),
             "check": st.column_config.TextColumn("check", disabled=True),
             "ruleset": st.column_config.TextColumn("ruleset", disabled=True, width="small"),
-            "what it catches": st.column_config.TextColumn(
+            "catches": st.column_config.TextColumn(
                 "what it catches", disabled=True, width="large"),
+            "instead": st.column_config.TextColumn(
+                "do this instead", disabled=True, width="large"),
         })
     if st.button("Save checks"):
+        # set_checks_enabled MERGES, which is the only correct shape here:
+        # this editor holds whatever rows survived the filter, never the
+        # whole set. It used to call set_enabled_checks, which REPLACES --
+        # so typing "filler" in the search box and pressing Save read as
+        # "enable exactly these two" and turned off 18 of slopwatch's 20
+        # checks, with a success toast and nothing on screen to notice.
         by_ruleset = {}
         for row in edited:
-            by_ruleset.setdefault(row["ruleset"], []).append(row)
+            by_ruleset.setdefault(row["ruleset"], {})[row["check"]] = row["enabled"]
         try:
-            for ruleset_id, group in by_ruleset.items():
-                rulesets.get_ruleset(ruleset_id).set_enabled_checks(
-                    [r["check"] for r in group if r["enabled"]])
+            for ruleset_id, states in by_ruleset.items():
+                rulesets.get_ruleset(ruleset_id).set_checks_enabled(states)
             st.toast("Checks saved", icon="✅")
             st.rerun()
         except Exception as exc:
             st.error(f"Not saved: {exc}")
 
 
-def _thresholds_table():
-    rows = []
+def _thresholds_table(scope_ruleset=None):
+    """One qualified name per row, not a bare name plus a ruleset column.
+
+    `block_flag_count_threshold` appeared twice, identical, distinguishable
+    only by reading sideways into a second column -- the reader had to join
+    two fields to know which row was which. `codewatch.block_flag_count_
+    threshold` is the name of the thing."""
+    rows, rulesets_of = [], {}
     for module in rulesets.list_rulesets():
         if "options" not in module.CAPABILITIES:
             continue
         for name, info in sorted(module.list_options().items()):
-            rows.append({"option": name, "ruleset": module.RULESET_ID,
-                          "value": info["value"], "default": info["default"]})
+            qualified = f"{module.RULESET_ID}.{name}"
+            rulesets_of[qualified] = (module.RULESET_ID, name)
+            rows.append({"threshold": qualified, "value": info["value"],
+                          "default": info["default"]})
     if not rows:
         st.caption("No ruleset exposes tunable thresholds.")
         return
+    changed = [r["threshold"] for r in rows if r["value"] != r["default"]]
+    here = [r["threshold"] for r in rows
+            if r["threshold"].startswith(f"{scope_ruleset}.")] if scope_ruleset else []
+    # Say "none apply here" when none do. ste100 ships no tunable
+    # thresholds at all, so a line inviting the reader to look for
+    # `ste100.` ones sends them hunting for something that cannot exist.
+    scope_note = (f" {len(here)} of them apply to this path." if here else
+                   " None of them apply to this path.")
+    st.caption((", ".join(changed) + " differ from their shipped defaults."
+                if changed else "All at their shipped defaults.") + scope_note)
     edited = st.data_editor(
         rows, width="stretch", hide_index=True, key="options_table",
         column_config={
-            "option": st.column_config.TextColumn("option", disabled=True),
-            "ruleset": st.column_config.TextColumn("ruleset", disabled=True, width="small"),
-            "value": st.column_config.NumberColumn("value", step=1),
-            "default": st.column_config.NumberColumn("default", disabled=True),
+            "threshold": st.column_config.TextColumn("threshold", disabled=True,
+                                                      width="large"),
+            "value": st.column_config.NumberColumn("value", step=1, width="small"),
+            "default": st.column_config.NumberColumn("shipped default",
+                                                      disabled=True, width="small"),
         })
     if st.button("Save thresholds"):
         by_ruleset = {}
         for row in edited:
-            by_ruleset.setdefault(row["ruleset"], {})[row["option"]] = int(row["value"])
+            ruleset_id, name = rulesets_of[row["threshold"]]
+            by_ruleset.setdefault(ruleset_id, {})[name] = int(row["value"])
         try:
             for ruleset_id, values in by_ruleset.items():
                 rulesets.get_ruleset(ruleset_id).set_options(values)
@@ -317,28 +397,21 @@ def _thresholds_table():
             st.error(f"Not saved: {exc}")
 
 
-def _terms_table():
-    """Every term, for one resolved path, with the sources that supply them.
+def _terms_table(probe, full, scope_ruleset=None):
+    """Every term the scoped path resolves to, and the sources supplying them.
 
-    The path input is not a convenience. Packs attach to the routing rule
-    that matches a file, so two files handled by the same ruleset genuinely
-    have different vocabularies -- and this table used to resolve silently
-    against the synthetic free-text path, showing what a `.md` file happens
-    to get while presenting it as the project's vocabulary."""
-    head = st.columns([2, 5])
-    default = core_config.SYNTHETIC_TEXT_NAME
-    probe = head[0].text_input("Resolve for path", value=default,
-                                key="terms_path").strip() or default
-    full = os.path.join(REPO_ROOT, probe)
-    matched = core_config.resolve_ruleset_id(full, REPO_ROOT)
+    Four columns, because the other two were derivable from these. `ruleset`
+    and `list` were separate columns that only ever read as one name, and
+    `polarity` is a property of the LIST -- every row of an allow list said
+    "allow", 2830 times. Both survive as filter facets, where a derived
+    value is useful; neither earns a column of its own."""
     rows = core_terms.term_index(rulesets, REPO_ROOT, file_path=full)
-    with head[1]:
-        st.caption("")
-        st.caption(f"`{probe}` is gated by **{matched or 'nothing (out of scope)'}** · "
-                   f"**{len(rows)}** terms from **{len({r['source'] for r in rows})}** "
-                   f"sources. Every ruleset is listed; filter to narrow.")
+    for row in rows:
+        row["list"] = f"{row['ruleset']}.{row['list']}"
+    st.caption(f"**{len(rows)}** terms reach `{probe}`. Every ruleset's lists "
+               f"are here; filter to narrow.")
 
-    _sources_table(rows, probe, full)
+    _sources_block(rows, full, scope_ruleset)
 
     shown = _filter_row(rows, ("term", "note"),
                          ("ruleset", "list", "source", "polarity"), "trm")
@@ -347,30 +420,30 @@ def _terms_table():
         return
 
     event = st.dataframe(
-        shown, width="stretch", hide_index=True, height=380,
+        [{k: r[k] for k in ("term", "list", "source", "note")} for r in shown],
+        width="stretch", hide_index=True, height=380,
         on_select="rerun", selection_mode="multi-row", key="terms_table",
         column_config={
             "term": st.column_config.TextColumn("term", width="medium"),
-            "ruleset": st.column_config.TextColumn("ruleset", width="small"),
-            "list": st.column_config.TextColumn("list", width="small"),
-            "source": st.column_config.TextColumn("source", width="small"),
-            "polarity": st.column_config.TextColumn("polarity", width="small"),
+            "list": st.column_config.TextColumn("list", width="medium"),
+            "source": st.column_config.TextColumn("source", width="medium"),
             "note": st.column_config.TextColumn("note", width="large"),
         })
 
     picked = [shown[i] for i in event.selection.rows]
     if not picked:
-        st.caption("Select rows to remove them. A shipped term -- a built-in or "
-                   "a pack word -- is suppressed rather than deleted, since the "
-                   "word lives in a ruleset's source or a shipped pack, and can "
-                   "be restored below.")
+        st.caption("Select rows to remove them. A shipped word -- a built-in or "
+                   "one from a pack -- is suppressed rather than deleted, since "
+                   "it lives in a ruleset's source or a shipped pack. Suppressed "
+                   "words are restorable below.")
         return
     if st.button(f"Remove {len(picked)} selected", type="primary", key="rm_sel"):
         results = []
         for row in picked:
             module = rulesets.get_ruleset(row["ruleset"])
             try:
-                results.append(module.remove_term(row["list"], row["term"]))
+                results.append(module.remove_term(row["list"].split(".", 1)[1],
+                                                   row["term"]))
             except Exception as exc:
                 results.append({"ok": False, "message": str(exc)})
         failed = [r for r in results if not r.get("ok")]
@@ -381,92 +454,149 @@ def _terms_table():
         st.rerun()
 
 
-def _sources_table(rows, probe, full_path):
+def _sources_block(rows, full_path, scope_ruleset=None):
     """Where this path's terms come from, and the one control that changes
-    it. Counted from the same rows the table below renders, so the summary
-    can never disagree with the detail."""
-    counts = {}
-    for row in rows:
-        counts[(row["source"], row["ruleset"], row["list"])] = \
-            counts.get((row["source"], row["ruleset"], row["list"]), 0) + 1
+    it -- counted off the same rows the table renders, so the summary can
+    never disagree with the detail.
+
+    One row per source, not one per source-and-list. Two adjacent lines used
+    to state the source count differently ("from 5 sources" over "Sources --
+    12 feeding"), both correct, because one counted names and the other
+    counted bindings. A source that feeds two lists is still one source; the
+    lists it feeds belong in a column.
+
+    Not an expander any more. The attach control is the only way to change
+    what vocabulary a path gets, and it was folded inside a collapsed
+    disclosure titled "Sources"."""
     packs = set(glossary_packs.AVAILABLE_PACKS)
-    kind = lambda src: "pack" if src in packs else ("yours" if src == "yours" else "shipped")
+    by_source = {}
+    for row in rows:
+        entry = by_source.setdefault(row["source"], {"terms": 0, "feeds": set()})
+        entry["terms"] += 1
+        entry["feeds"].add(row["list"])
 
-    with st.expander(f"Sources — {len(counts)} feeding `{probe}`"):
-        st.dataframe(
-            [{"kind": kind(src), "source": src, "feeds": f"{rs}.{lid}", "terms": n}
-             for (src, rs, lid), n in sorted(counts.items(),
-                                              key=lambda kv: (-kv[1], kv[0]))],
-            width="stretch", hide_index=True)
+    st.dataframe(
+        [{"source": src,
+          "kind": "pack" if src in packs else ("yours" if src == "yours" else "shipped"),
+          "terms": e["terms"], "feeds": ", ".join(sorted(e["feeds"]))}
+         for src, e in sorted(by_source.items(), key=lambda kv: (-kv[1]["terms"], kv[0]))],
+        width="stretch", hide_index=True)
 
-        attached = [(src, rs, lid) for (src, rs, lid) in counts if src in packs]
-        cols = st.columns([2, 2, 1])
-        pack = cols[0].selectbox("Pack", sorted(packs), key="attach_pack",
-                                  format_func=lambda p: f"{p} "
-                                      f"({glossary_packs.pack_meta(p)['term_count']})")
-        targets = [(m.RULESET_ID, lid) for m in rulesets.list_rulesets()
-                    if "terms" in m.CAPABILITIES
-                    for lid, spec in sorted(m.TERM_LISTS.items())
-                    if spec.get("accepts_packs")]
-        target = cols[1].selectbox("Feeds", targets, key="attach_list",
-                                    format_func=lambda t: f"{t[0]}.{t[1]}")
-        on = (pack, target[0], target[1]) in attached
-        with cols[2]:
-            st.caption("")
-            label = "Detach" if on else "Attach"
-            if st.button(label, key="attach_btn"):
-                _set_pack(full_path, pack, target, attach=not on)
+    attached = {(src, lid) for src, e in by_source.items() if src in packs
+                for lid in e["feeds"]}
+    cols = st.columns([2, 2, 1])
+    pack = cols[0].selectbox(
+        "Pack", sorted(packs), key="attach_pack",
+        format_func=lambda p: f"{p} ({glossary_packs.pack_meta(p)['term_count']} terms)")
+    targets = [(m.RULESET_ID, lid) for m in rulesets.list_rulesets()
+                if "terms" in m.CAPABILITIES
+                for lid, spec in sorted(m.TERM_LISTS.items())
+                if spec.get("accepts_packs")]
+    # Lists belonging to the ruleset that actually gates this path come
+    # first, so the default selection is one that can fire. Left in plain
+    # alphabetical order, the default was codewatch.generic_naming -- a
+    # deny list -- which meant the "every word in this pack would become
+    # something the gate flags" warning greeted everyone on arrival,
+    # attached to a choice nobody had made.
+    targets.sort(key=lambda t: (t[0] != scope_ruleset, t[0], t[1]))
+    target = cols[1].selectbox("Feeds which list", targets, key="attach_list",
+                                format_func=lambda t: f"{t[0]}.{t[1]}")
+    on = (pack, f"{target[0]}.{target[1]}") in attached
+    with cols[2]:
+        st.caption("")
+        if st.button("Detach" if on else "Attach", key="attach_btn"):
+            _set_pack(full_path, pack, target, attach=not on)
 
-        polarity = rulesets.get_ruleset(target[0]).TERM_LISTS[target[1]]["polarity"]
-        if polarity == "deny" and not on:
-            st.caption("⚠️ That is a deny list — every word in the pack would "
-                       "become something the gate flags.")
+    if not on and rulesets.get_ruleset(target[0]).TERM_LISTS[target[1]]["polarity"] == "deny":
+        st.caption("⚠️ That is a deny list — every word in the pack would "
+                   "become something the gate flags.")
 
 
 def _set_pack(full_path, pack, target, attach):
-    """Attach or detach one pack on the rule that matches the current path,
-    so the control acts on exactly the resolution shown above it."""
+    """Attach or detach one pack on the rule that ACTUALLY gates this path.
+
+    Resolved through core_config.matching_rule, the same first-match-wins
+    call the gate makes. This used to scan for the first rule matching both
+    the path and the chosen ruleset, which is a different question and could
+    answer with a rule the gate never reaches -- writing a binding that
+    silently could not fire."""
     ruleset_id, list_id = target
-    for glob, rs, by_list in core_config.rule_packs(REPO_ROOT):
-        if rs != ruleset_id or not fnmatch.fnmatch(
-                os.path.relpath(full_path, REPO_ROOT).replace(os.sep, "/"), glob):
-            continue
-        current = list(by_list.get(list_id, []))
-        new = current + [pack] if attach else [p for p in current if p != pack]
-        try:
-            core_config.set_rule_packs(REPO_ROOT, glob, list_id, new,
-                                        known_packs=glossary_packs.AVAILABLE_PACKS)
-            st.toast(f"{glob} → {list_id}: {', '.join(new) or '(none)'}", icon="✅")
-            st.rerun()
-        except Exception as exc:
-            st.error(f"Not saved: {exc}")
+    rule = core_config.matching_rule(full_path, REPO_ROOT)
+    if rule is None or rule["ruleset"] != ruleset_id:
+        gated_by = (rule or {}).get("ruleset") or "nothing"
+        st.warning(f"This path is gated by {gated_by}, not {ruleset_id}, so a "
+                   f"{ruleset_id} pack attached here could never fire. Point "
+                   f"the path box at a file {ruleset_id} actually gates, or "
+                   f"change the rule in Routing.")
         return
-    st.warning(f"No routing rule sends this path to {ruleset_id}, so there is "
-               f"nothing to attach the pack to. Add a rule in Routing first.")
+    current = list((rule.get("packs") or {}).get(list_id, []))
+    new = current + [pack] if attach else [p for p in current if p != pack]
+    try:
+        core_config.set_rule_packs(REPO_ROOT, rule["glob"], list_id, new,
+                                    known_packs=glossary_packs.AVAILABLE_PACKS)
+        st.toast(f"{rule['glob']} → {list_id}: {', '.join(new) or '(none)'}", icon="✅")
+        st.rerun()
+    except Exception as exc:
+        st.error(f"Not saved: {exc}")
 
 
-def _add_term_form(term_rulesets):
-    targets = [(m.RULESET_ID, lid) for m in term_rulesets
-                for lid in sorted(m.TERM_LISTS)]
+def _add_term_form():
+    """Add one word. Three fields, and a fourth only when it means something.
+
+    "Override reason" used to sit here permanently, dead for eight of the
+    nine lists: only ste100's project vocabulary has a real external
+    standard that can refuse a word in the first place. So the form now
+    just tries, and if the ruleset refuses, the refusal itself appears with
+    the override box under it -- asked at the moment it applies, quoting
+    what is actually being overridden, instead of standing by empty."""
+    targets = [(m.RULESET_ID, lid) for m in rulesets.list_rulesets()
+                if "terms" in m.CAPABILITIES for lid in sorted(m.TERM_LISTS)]
     with st.form("addterm", clear_on_submit=True):
-        cols = st.columns([2, 2, 3, 2, 1])
-        target = cols[0].selectbox("List", targets,
+        cols = st.columns([3, 3, 4, 1])
+        target = cols[0].selectbox("Add to list", targets,
                                     format_func=lambda t: f"{t[0]}.{t[1]}")
         term = cols[1].text_input("Term")
-        note = cols[2].text_input("Note")
-        force = cols[3].text_input(
-            "Override reason",
-            help="Only needed when the ruleset's own standard already forbids "
-                  "the word. Goes on the record.")
-        if cols[4].form_submit_button("Add") and term:
-            module = rulesets.get_ruleset(target[0])
-            try:
-                result = module.add_term(target[1], term, note, force=force or False)
-            except Exception as exc:
-                st.error(f"Not saved: {exc}")
-                return
-            st.toast(result.get("message", ""), icon="✅" if result.get("ok") else "🚫")
+        note = cols[2].text_input("Note", placeholder="why this project uses it")
+        with cols[3]:
+            st.caption("")
+            submitted = st.form_submit_button("Add")
+    if submitted and term.strip():
+        _submit_term(target, term.strip(), note)
+
+    pending = st.session_state.get("term_refused")
+    if not pending:
+        return
+    st.warning(pending["message"])
+    cols = st.columns([4, 1, 1])
+    reason = cols[0].text_input("Override reason", key="override_reason",
+                                 placeholder="goes on the record beside the term")
+    with cols[1]:
+        st.caption("")
+        if st.button("Override", key="override_go") and reason.strip():
+            _submit_term(pending["target"], pending["term"], pending["note"],
+                          force=reason.strip())
+    with cols[2]:
+        st.caption("")
+        if st.button("Cancel", key="override_cancel"):
+            del st.session_state["term_refused"]
             st.rerun()
+
+
+def _submit_term(target, term, note, force=False):
+    module = rulesets.get_ruleset(target[0])
+    try:
+        result = module.add_term(target[1], term, note, force=force)
+    except Exception as exc:
+        st.error(f"Not saved: {exc}")
+        return
+    if not result.get("ok") and not force:
+        st.session_state["term_refused"] = {
+            "target": target, "term": term, "note": note,
+            "message": result.get("message", "")}
+        st.rerun()
+    st.session_state.pop("term_refused", None)
+    st.toast(result.get("message", ""), icon="✅" if result.get("ok") else "🚫")
+    st.rerun()
 
 
 def _suppressed_section():
@@ -487,21 +617,30 @@ def _suppressed_section():
             st.rerun()
 
 
-def _playground_section():
-    """Free text against a chosen ruleset. This is the one place a ruleset
-    picker genuinely belongs -- it names what to run, rather than scoping a
-    page that is otherwise project-wide."""
+def _playground_section(probe, full, ruleset_id):
+    """Text as if written to the scoped path -- the real gate call.
+
+    Two bugs lived in the ruleset dropdown this used to carry. It could name
+    a ruleset the path never routes to, so the answer described a gate call
+    that cannot happen. And it never passed a path down, so vocabulary
+    resolved against the synthetic free-text name: with a pack bound to
+    `docs/*.md` this returned a verdict computed from 0 project terms where
+    the gate would have used 187. A playground that can disagree with the
+    gate is worse than none -- it is the screen people trust to check."""
     st.subheader("Try it")
-    ids = [m.RULESET_ID for m in rulesets.list_rulesets()]
-    cols = st.columns([1, 4])
-    ruleset_id = cols[0].selectbox("Ruleset", ids, key="playground_ruleset")
-    text = cols[1].text_area("Text", height=120, key="playground_text",
-                              placeholder="Paste a sentence or a snippet...")
+    if not ruleset_id:
+        st.caption(f"`{probe}` is out of scope, so the gate would not run at "
+                   f"all. Point the path box at a file a rule matches.")
+        return
+    st.caption(f"Linted exactly as the gate would lint `{probe}`: "
+               f"**{ruleset_id}**, with that path's own vocabulary.")
+    text = st.text_area("Text", height=120, key="playground_text",
+                         placeholder="Paste a sentence or a snippet...")
     if not (st.button("Lint it", type="primary", key="lint_btn") and text.strip()):
         return
 
     ruleset = rulesets.get_ruleset(ruleset_id)
-    result = ruleset.lint_and_gate(text)
+    result = ruleset.lint_and_gate(text, file_path=full)
     blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
     if blocking:
         st.error(f"Would DENY -- {len(blocking)} flag(s) need a person's judgment")
@@ -511,7 +650,7 @@ def _playground_section():
     elif result["mechanical_violations"]:
         st.warning(f"Would AUTO-FIX -- {len(result['mechanical_violations'])} "
                    f"mechanical violation(s)")
-        st.code(ruleset.apply_mechanical_fixes(text))
+        st.code(ruleset.apply_mechanical_fixes(text, file_path=full))
     else:
         st.success("Would PASS unchanged")
     non_blocking = [f for f in result["semantic_flags"] if f not in blocking]

@@ -110,13 +110,8 @@ def packs_for_path(project_root, file_path=None, list_id=None, config_file=None)
     `list_id` None returns every pack the rule names, across all lists."""
     if file_path is None:
         file_path = os.path.join(project_root, SYNTHETIC_TEXT_NAME)
-    rel = _relative_posix_path(file_path, project_root)
-    if rel is None:
-        return []
-    for rule in load_rules(project_root, config_file):
-        if fnmatch.fnmatch(rel, rule["glob"]):
-            return _packs_of(rule, list_id)
-    return []
+    rule = matching_rule(file_path, project_root, config_file)
+    return _packs_of(rule, list_id) if rule else []
 
 
 def _packs_of(rule, list_id=None):
@@ -230,6 +225,32 @@ def save_disabled_checks(project_root, ruleset_id, check_ids, config_file=None):
         f.write("\n")
 
 
+def merge_disabled_checks(project_root, ruleset_id, states, config_file=None):
+    """Turn the named checks on or off, leaving every check not named alone.
+    `states` is {check_id: bool}. Returns the resulting disabled list.
+
+    The sibling of save_disabled_checks, which REPLACES. Both shapes are
+    legitimate and the choice is not cosmetic: a caller that holds the whole
+    picture (the CLI's `checks --enable a b c`, which means "these and only
+    these") wants replace, and a caller holding a PARTIAL view wants merge.
+
+    This exists because the dashboard was the second kind using the first
+    kind's call. Its Checks table has a search box, and it saved whatever
+    rows survived the filter -- so typing "filler" and pressing Save read as
+    "enable exactly filler_opener and filler_verb" and turned off the other
+    18 slopwatch checks, with a success toast and no way to notice. The
+    caller was wrong, but a call that quietly interprets a partial list as a
+    total one will keep being got wrong; a merge-shaped call cannot be.
+    Validation of the ids stays with the ruleset, which is the only layer
+    that knows what checks it has."""
+    disabled = set(disabled_checks(project_root, ruleset_id, config_file))
+    for check_id, enabled in states.items():
+        disabled.discard(check_id) if enabled else disabled.add(check_id)
+    ordered = sorted(disabled)
+    save_disabled_checks(project_root, ruleset_id, ordered, config_file)
+    return ordered
+
+
 def ruleset_options(project_root, ruleset_id, config_file=None):
     """Per-ruleset tunable option overrides (e.g. slopwatch's block-flag-
     count threshold), per stopslop.config.json's "options" key:
@@ -274,6 +295,29 @@ def _relative_posix_path(file_path, project_root):
     return rel.replace(os.sep, "/")
 
 
+def matching_rule(file_path, project_root, config_file=None):
+    """The ONE rule that decides this path -- the whole rule dict, or None
+    if nothing matched.
+
+    First-match-wins is this project's central promise: exactly one rule
+    explains a file's ruleset, its packs, and therefore why a given word
+    passed in it. The promise only holds if every caller asks the question
+    the way the gate asks it. The dashboard used to run its own fnmatch loop
+    to find a rule to hang a pack on -- the first rule matching both the
+    path AND a chosen ruleset, which can select a rule the gate never
+    reaches: `README.md` routes to slopwatch in this repo's own config, so
+    attaching an ste100 pack "for README.md" found the later `*.md` rule and
+    wrote a binding that could not ever fire. One resolver, used by
+    everyone, makes that unrepresentable rather than merely unlikely."""
+    rel = _relative_posix_path(file_path, project_root)
+    if rel is None:
+        return None
+    for rule in load_rules(project_root, config_file):
+        if fnmatch.fnmatch(rel, rule["glob"]):
+            return rule
+    return None
+
+
 def resolve_ruleset_id(file_path, project_root, config_file=None):
     """The bare ruleset id a path resolves to, or None if out of scope
     (either no rule matched, or the matching rule's ruleset is explicitly
@@ -281,13 +325,8 @@ def resolve_ruleset_id(file_path, project_root, config_file=None):
     resolve_ruleset() so callers that only need the id (e.g.
     bash_write_detect's scope check) don't need a live registry, and so this
     half stays testable with zero rulesets registered anywhere."""
-    rel = _relative_posix_path(file_path, project_root)
-    if rel is None:
-        return None
-    for rule in load_rules(project_root, config_file):
-        if fnmatch.fnmatch(rel, rule["glob"]):
-            return rule["ruleset"]
-    return None
+    rule = matching_rule(file_path, project_root, config_file)
+    return rule["ruleset"] if rule else None
 
 
 def resolve_ruleset(file_path, project_root, registry, config_file=None):

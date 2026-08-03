@@ -27,55 +27,77 @@ CAPABILITIES = frozenset({"terms", "checks", "options"})
 
 TRACKED_FILES = ["lint.py"]
 
-PRINCIPLE_TEXT = {
-    "filler_opener": "Throat-clearing openers (\"needless to say\", \"at the end of "
-                     "the day\"...) keep showing up -- cut them and state the point "
-                     "directly from the first sentence.",
-    "stock_adverb": "Standalone filler adverbs (undoubtedly, arguably, notably, "
-                    "importantly, ultimately) keep showing up -- most add nothing; "
-                    "cut them unless one is carrying real emphasis.",
-    "colon_reveal": "The short-buildup-then-reveal construction (\"The best part: "
-                    "it learns.\") keeps showing up -- state it as a plain sentence.",
-    "binary_contrast": "The \"it's not X, it's Y\" construction keeps showing up -- "
-                       "just state Y.",
-    "em_dash_cluster": "Em dashes keep clustering in a single document -- most "
-                       "drafts need 0-2; use commas, periods, or parentheses for "
-                       "the rest.",
-    "weasel_attribution": "Unnamed-authority phrasing (\"studies show\", \"experts "
-                          "agree\"...) keeps showing up -- name the actual source, "
-                          "or cut the claim.",
-    "entity_encoded_punctuation": "An em dash, section sign, or middle dot keeps "
-                          "showing up written as an HTML entity -- write the "
-                          "plain character instead.",
-    "bold_bullet_lead": "A bolded word or short phrase keeps opening list items "
-                          "as a per-item tag -- reserve bold for a rare callout.",
-    "id_label_lead": "Fake ID tags (\"R-1.\", \"US-01\") keep opening list items "
-                          "-- number the list plainly instead.",
-    "not_just_x_but_y": "The \"not just X but Y\" construction keeps showing up "
-                          "-- make the point once.",
-    "vague_intensifier": "Vague intensifiers (very, really, quite, significantly) "
-                          "keep showing up with no number behind them -- say how "
-                          "much, or cut the word.",
-    "emoji_in_prose": "Emoji or decorative checkmarks keep showing up in body "
-                          "text -- cut them.",
-    "marketing_adjective": "Marketing adjectives (seamless, robust, cutting-edge...) "
-                          "keep showing up -- say what is actually true.",
-    "filler_verb": "Filler verbs (leverages, facilitates, unlocks...) keep "
-                          "showing up -- use a plain verb, or cut the sentence.",
-    "marketing_cliche": "Marketing cliches (\"hidden gem\", \"let's dive in\"...) "
-                          "keep showing up -- say the specific thing instead.",
-    "solicit_criticism": "Fake-humility feedback requests (\"would love your "
-                          "feedback on this\") keep showing up -- cut them.",
-    "unearned_profundity": "Dramatic turning-point sentences (\"Everything "
-                          "changed.\") keep showing up with nothing concrete "
-                          "behind them -- name the actual event, or cut it.",
-    "dramatic_fragmentation": "One-line dramatic fragments (\"That's it. "
-                          "That's the whole thing.\") keep showing up -- cut "
-                          "them, the preceding sentence already made the point.",
-    "canned_question_answer": "Short rhetorical questions with a canned answer "
-                          "keep showing up -- collapse into one direct statement.",
-    "negative_listing": "The \"Not X. Not Y.\" listing construction keeps "
-                          "showing up -- state the point once.",
+# Each check is TWO facts: what it catches, and what to do instead. They used
+# to be one prewritten sentence per check, in the coaching voice the
+# .claude/<ruleset>-memory.md primer wants ("X keeps showing up -- do Y"),
+# because the coaching primer was the only consumer when they were written.
+#
+# The dashboard's Checks table then reused the same strings under a "what it
+# catches" heading, and 37 of the fleet's 43 checks rendered as one sentence
+# template repeating down a column -- a slop detector whose own configuration
+# screen was templated filler. The coaching frame is right where it came from
+# and wrong here: the primer prefixes each line with a real count ("(12x) ..."),
+# which is what makes "keeps showing up" a claim rather than boilerplate.
+#
+# So the sentence is not stored; each consumer composes its own from the two
+# facts. Note what did NOT happen: no second string was added beside the first.
+# One string carrying two facts became two fields carrying one each.
+CHECKS = {
+    "filler_opener": ("Throat-clearing openers: \"needless to say\", "
+                      "\"at the end of the day\"",
+                      "state the point directly from the first sentence"),
+    "stock_adverb": ("Standalone filler adverbs: undoubtedly, arguably, "
+                     "notably, importantly, ultimately",
+                     "most add nothing; cut them unless one is carrying "
+                     "real emphasis"),
+    "colon_reveal": ("Short buildup, then a reveal: \"The best part: "
+                     "it learns.\"",
+                     "state it as a plain sentence"),
+    "binary_contrast": ("The \"it's not X, it's Y\" construction",
+                        "just state Y"),
+    "em_dash_cluster": ("Em dashes clustering in one document",
+                        "most drafts need 0-2; use commas, periods or "
+                        "parentheses for the rest"),
+    "weasel_attribution": ("Unnamed authority: \"studies show\", "
+                           "\"experts agree\"",
+                           "name the actual source, or cut the claim"),
+    "entity_encoded_punctuation": ("An em dash, section sign or middle dot "
+                                   "written as an HTML entity",
+                                   "write the plain character instead"),
+    "bold_bullet_lead": ("A bolded word opening a list item as a per-item tag",
+                         "reserve bold for a rare callout"),
+    "id_label_lead": ("Fake ID tags opening list items: \"R-1.\", \"US-01\"",
+                      "number the list plainly instead"),
+    "not_just_x_but_y": ("The \"not just X but Y\" construction",
+                         "make the point once"),
+    "vague_intensifier": ("Vague intensifiers with no number behind them: "
+                          "very, really, quite, significantly",
+                          "say how much, or cut the word"),
+    "emoji_in_prose": ("Emoji or decorative checkmarks in body text",
+                       "cut them"),
+    "marketing_adjective": ("Marketing adjectives: seamless, robust, "
+                            "cutting-edge",
+                            "say what is actually true"),
+    "filler_verb": ("Filler verbs: leverages, facilitates, unlocks",
+                    "use a plain verb, or cut the sentence"),
+    "marketing_cliche": ("Marketing cliches: \"hidden gem\", "
+                         "\"let's dive in\"",
+                         "say the specific thing instead"),
+    "solicit_criticism": ("Fake-humility feedback requests: \"would love "
+                          "your feedback on this\"",
+                          "cut them"),
+    "unearned_profundity": ("Dramatic turning points with nothing concrete "
+                            "behind them: \"Everything changed.\"",
+                            "name the actual event, or cut it"),
+    "dramatic_fragmentation": ("One-line dramatic fragments: \"That's it. "
+                               "That's the whole thing.\"",
+                               "cut them, the preceding sentence already "
+                               "made the point"),
+    "canned_question_answer": ("A short rhetorical question with a canned "
+                               "answer",
+                               "collapse into one direct statement"),
+    "negative_listing": ("The \"Not X. Not Y.\" listing construction",
+                         "state the point once"),
 }
 
 
@@ -103,16 +125,19 @@ def stats():
 
 
 def list_checks():
-    """Every check this ruleset can run (id, coaching description, whether
-    it's currently enabled) -- the modularity surface the dashboard's
-    Tuning tab and `stopslop.py checks` both read. Not part of the generic
-    plugin contract (like list_glossary_packs, this is opt-in per ruleset:
-    revisit as a required contract method only if a third ruleset needs
-    the same mechanism)."""
+    """Every check this ruleset can run: what it catches, what to do
+    instead, and whether it's currently enabled -- the modularity surface
+    the dashboard's Checks table and `stopslop.py checks` both read.
+
+    `catches` and `instead` are returned as separate fields, never
+    pre-joined into a sentence, so each caller writes prose in its own
+    voice: the dashboard is describing a setting, the coaching primer is
+    reporting a repeat offence with a count attached. See CHECKS above."""
     project_root = paths.find_project_root(__file__)
     disabled = set(_core_config.disabled_checks(project_root, RULESET_ID))
     return {
-        check_id: {"description": PRINCIPLE_TEXT.get(check_id, ""),
+        check_id: {"catches": CHECKS.get(check_id, ("", ""))[0],
+                   "instead": CHECKS.get(check_id, ("", ""))[1],
                    "enabled": check_id not in disabled}
         for check_id in sorted(lint.ALL_CHECK_IDS)
     }
@@ -130,6 +155,21 @@ def set_enabled_checks(check_ids):
     disabled = sorted(lint.ALL_CHECK_IDS - set(check_ids))
     project_root = paths.find_project_root(__file__)
     _core_config.save_disabled_checks(project_root, RULESET_ID, disabled)
+
+
+def set_checks_enabled(states):
+    """Turn the named checks on or off, leaving every other check alone --
+    {check_id: bool}. Merge semantics, the same shape set_options has, and
+    the counterpart to set_enabled_checks's replace semantics: see
+    core.config.merge_disabled_checks for which callers need which, and for
+    the silent-mass-disable bug that made the distinction worth a second
+    method rather than a comment."""
+    unknown = set(states) - lint.ALL_CHECK_IDS
+    if unknown:
+        raise ValueError(f"unknown check id(s): {sorted(unknown)} -- "
+                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
+    project_root = paths.find_project_root(__file__)
+    _core_config.merge_disabled_checks(project_root, RULESET_ID, states)
 
 
 def list_options():

@@ -8,7 +8,7 @@ lists, kept small enough to be cheap to inject at session start).
 Generalized during the pluggable-ruleset refactor from a single ste100-only
 script: the history log is now shared across rulesets (see core/history.py),
 so events are filtered by the "ruleset" field before counting, and each
-ruleset's own PRINCIPLE_TEXT supplies the coaching prose. Kept as SEPARATE
+ruleset's own CHECKS supplies the facts this file writes prose from. Kept as SEPARATE
 files per ruleset rather than one merged memory, on purpose: two rulesets
 with opposite writing philosophies (STE100 erases individual voice on
 purpose; rulesets/slopwatch protects it) would produce contradictory-sounding
@@ -56,7 +56,7 @@ def regenerate(ruleset_id, project_root=None):
         return "no-violations"
 
     ruleset = rulesets.get_ruleset(ruleset_id)
-    principle_text = getattr(ruleset, "PRINCIPLE_TEXT", {})
+    checks = getattr(ruleset, "CHECKS", {})
 
     ranked = kind_counts.most_common(5)  # keep it small -- ~200 token budget
 
@@ -67,9 +67,14 @@ def regenerate(ruleset_id, project_root=None):
         "## Recurring patterns (highest frequency first)",
         "",
     ]
+    # This file is the one place the coaching voice belongs, and the "(12x)"
+    # prefix is what earns it: a real count is the evidence that something
+    # keeps recurring. The ruleset stores the two bare facts (what the check
+    # catches, what to do instead) and each consumer writes its own sentence
+    # -- the dashboard's Checks table is describing a setting, not scolding.
     for kind, count in ranked:
-        text = principle_text.get(kind, f"'{kind}' violations keep showing up.")
-        lines.append(f"- ({count}x) {text}")
+        catches, instead = checks.get(kind, (f"'{kind}' violations", ""))
+        lines.append(f"- ({count}x) {catches}" + (f" -- {instead}." if instead else "."))
 
     content = "\n".join(lines) + "\n"
     memory_path = _memory_path(project_root, ruleset_id)

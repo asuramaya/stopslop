@@ -52,10 +52,17 @@ REQUIRED_ATTRS = (
 # set_enabled_glossary_packs pair managed to sit on ste100 unregistered,
 # with three separate callers hasattr()-guessing for them, for as long as
 # it did.
+# "checks" obligates BOTH write shapes, on purpose. set_enabled_checks
+# replaces a ruleset's whole enabled set ("these and only these"), which is
+# what a caller holding the full picture means; set_checks_enabled merges
+# ("turn these ones on/off, leave the rest"), which is what a caller holding
+# a partial view means. A ruleset offering only the replace form invites the
+# bug the dashboard actually shipped -- a filtered table saved as if it were
+# the whole list, disabling 18 of 20 checks silently. Both or neither.
 CAPABILITY_ATTRS = {
     "terms": ("list_term_lists", "add_term", "remove_term"),
     "word_lookup": ("check_word",),
-    "checks": ("list_checks", "set_enabled_checks"),
+    "checks": ("list_checks", "set_enabled_checks", "set_checks_enabled"),
     "options": ("list_options", "set_options"),
 }
 

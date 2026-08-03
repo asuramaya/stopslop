@@ -333,7 +333,7 @@ class CheckToggleTests(unittest.TestCase):
         checks = ste100.list_checks()
         self.assertEqual(set(checks), lint.ALL_CHECK_IDS)
         self.assertTrue(all(c["enabled"] for c in checks.values()))
-        self.assertTrue(all(c["description"] for c in checks.values()))
+        self.assertTrue(all(c["catches"] and c["instead"] for c in checks.values()))
 
     def test_disabling_modal_check_removes_its_flags_from_lint_and_gate(self):
         text = "He should not touch the panel."
