@@ -103,10 +103,34 @@ class PackIsInertContentTests(unittest.TestCase):
                 self.assertNotIn(ruleset_id, json.dumps(meta),
                                   f"{pack_id} metadata mentions {ruleset_id}")
 
-    def test_pack_metadata_is_only_source_facts(self):
+    def test_pack_metadata_is_only_facts_about_the_pack_itself(self):
+        """The line is SELF-DESCRIPTION vs NAMING A CONSUMER, not field
+        count. This assertion originally pinned the exact three source
+        fields -- the right guard at the time, in the wrong shape. It fired
+        when `content_kind` was added, and content_kind is the opposite of
+        the thing being guarded against: "I am a bag of single words" is a
+        fact about the pack, true whoever reads it, where "I am for
+        ste100.project_terms" was a claim about someone else. A pack may say
+        what it IS. It may never say who it is FOR."""
+        allowed = {"name", "source", "license", "content_kind"}
         for pack_id, meta in glossary_packs.AVAILABLE_PACKS.items():
-            self.assertEqual(set(meta), {"name", "source", "license"},
-                              f"{pack_id} carries fields beyond source facts")
+            extra = set(meta) - allowed
+            self.assertEqual(extra, set(),
+                              f"{pack_id} carries {sorted(extra)}. Add a field "
+                              f"here only if it describes the PACK; anything "
+                              f"naming a reader belongs on the routing rule.")
+
+    def test_content_kind_describes_the_pack_and_names_no_reader(self):
+        for pack_id, meta in glossary_packs.AVAILABLE_PACKS.items():
+            with self.subTest(pack=pack_id):
+                self.assertIn("content_kind", meta,
+                               "without a kind, this pack can be bound to a "
+                               "list that cannot read its content")
+                # A kind is a property of the words themselves. If one ever
+                # reads like a list id or a ruleset id, the coupling that
+                # `target` used to carry has crept back in a new spelling.
+                self.assertNotIn(".", meta["content_kind"])
+                self.assertNotIn("_", meta["content_kind"])
 
     def test_the_registry_offers_every_pack_to_every_list(self):
         # There is no packs_for_list() filter any more: which packs may
