@@ -400,15 +400,19 @@ def _by_check(repo_root, probe, full, ruleset_id):
         st.caption("Nothing matches.")
         return
 
+    # Three columns, not five. `on` rendered a "✓" that looked like a
+    # checkbox, sat directly beside Streamlit's real selection checkbox, and
+    # did nothing when clicked -- two checkbox-shaped things, one inert. And
+    # `here` was `ruleset == scoped`, a second column encoding a comparison
+    # the first already contains. State is a prefix on the check name now:
+    # visible at a glance, impossible to mistake for a control.
     event = st.dataframe(
-        [{"on": "✓" if r["enabled"] else "", "runs here": "✓" if r["ruleset"] == ruleset_id else "",
-          "check": r["check"], "ruleset": r["ruleset"], "what it catches": r["catches"],
+        [{"check": _row_label(r, ruleset_id), "ruleset": r["ruleset"],
+          "what it catches": r["catches"],
           "tuning": _tuning_summary(repo_root, r, full)} for r in shown],
         width="stretch", hide_index=True, height=380,
         on_select="rerun", selection_mode="single-row", key="checks_grid",
         column_config={
-            "on": st.column_config.TextColumn("on", width="small"),
-            "runs here": st.column_config.TextColumn("here", width="small"),
             "check": st.column_config.TextColumn("check", width="medium"),
             "ruleset": st.column_config.TextColumn("ruleset", width="small"),
             "what it catches": st.column_config.TextColumn("what it catches", width="large"),
@@ -416,9 +420,16 @@ def _by_check(repo_root, probe, full, ruleset_id):
         })
     chosen = event.selection.rows
     if not chosen:
-        st.caption("Nothing selected.")
         return
     _check_detail(repo_root, full, shown[chosen[0]], ruleset_id)
+
+
+def _row_label(row, ruleset_id):
+    """`check` carries its own state. "off" is the exceptional case and the
+    only one worth marking; a check that does not run on this path is dimmed
+    with a leading dot rather than given a column of its own."""
+    prefix = "" if row["ruleset"] == ruleset_id else "· "
+    return f"{prefix}{row['check']}" + ("" if row["enabled"] else "   (off)")
 
 
 def _tuning_summary(repo_root, row, full):

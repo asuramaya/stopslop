@@ -235,6 +235,37 @@ def save_disabled_checks(project_root, ruleset_id, check_ids, config_file=None):
         f.write("\n")
 
 
+def disabled_checks_for_path(project_root, ruleset_id, file_path=None,
+                              config_file=None):
+    """Checks turned off for `ruleset_id`, project-wide PLUS whatever the
+    routing rule matching `file_path` names in its own "disable" list.
+
+    Symmetric with packs, and for the same reason. A ruleset's checks are a
+    project-wide setting, but "not this one, not in this directory" is a
+    real need that whole-file exemption answers too bluntly: routing a path
+    to `"ruleset": null` already exempts a file, and that turns off ALL
+    checking rather than the one check that misfires. codewatch denying its
+    own test file (a fixture full of deliberately bad code) is the standing
+    example -- the fix should be "swallowed_exception does not apply to
+    fixtures", not "stop checking this file at all".
+
+        {"glob": "tests/**", "ruleset": "codewatch",
+         "disable": ["swallowed_exception"]}
+
+    Union, never subtraction: a rule can turn a check OFF for its paths, and
+    cannot turn one back on that the project disabled globally. One
+    direction keeps "why did this not fire here?" answerable from two
+    places at most, and keeps the rule from silently re-enabling something
+    a project deliberately switched off."""
+    disabled = set(disabled_checks(project_root, ruleset_id, config_file))
+    rule = matching_rule(file_path, project_root, config_file) if file_path else None
+    if rule and rule.get("ruleset") == ruleset_id:
+        extra = rule.get("disable") or []
+        if isinstance(extra, list):
+            disabled |= set(extra)
+    return sorted(disabled)
+
+
 def merge_disabled_checks(project_root, ruleset_id, states, config_file=None):
     """Turn the named checks on or off, leaving every check not named alone.
     `states` is {check_id: bool}. Returns the resulting disabled list.

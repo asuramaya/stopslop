@@ -81,7 +81,7 @@ ALL_CHECK_IDS = frozenset({
 })
 
 
-def _enabled_check_ids():
+def _enabled_check_ids(file_path=None):
     """Every check that should actually run right now: ALL_CHECK_IDS minus
     whatever stopslop.config.json's "disabled_checks" names for this
     ruleset. Read fresh every call, not cached -- these are a handful of
@@ -90,7 +90,8 @@ def _enabled_check_ids():
     avoid, see rulesets/ste100/lint.py) buys nothing here."""
     try:
         project_root = _paths.find_project_root(__file__)
-        disabled = set(_core_config.disabled_checks(project_root, "slopwatch"))
+        disabled = set(_core_config.disabled_checks_for_path(
+            project_root, "slopwatch", file_path))
     except Exception:
         return set(ALL_CHECK_IDS)
     return ALL_CHECK_IDS - disabled
@@ -665,7 +666,7 @@ def lint_and_gate(text, context=None, file_path=None):
     # Every check above runs unconditionally (they're cheap regex/string
     # ops); a disabled check's own flags are dropped here in one place
     # rather than guarding all 20 call sites individually.
-    enabled = _enabled_check_ids()
+    enabled = _enabled_check_ids(file_path)
     mechanical = [f for f in mechanical if f["kind"] in enabled]
     semantic = [f for f in semantic if f["kind"] in enabled]
 
@@ -739,7 +740,7 @@ def apply_mechanical_fixes(text, file_path=None):
     """Only call this when status == 'mechanical_violations' (no semantic
     flags) -- same rule as every other ruleset's fixer. Block-aware via
     split_into_blocks, mirroring rulesets/ste100/lint.py's approach."""
-    enabled = _enabled_check_ids()  # read once per call, not once per sentence
+    enabled = _enabled_check_ids(file_path)  # once per call, not per sentence
     extra_stock_adverbs = _custom_terms("stock_adverb", file_path)  # same: once per call
     out = []
     for block_type, content in split_into_blocks(text):

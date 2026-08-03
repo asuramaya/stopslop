@@ -868,12 +868,13 @@ ALL_CHECK_IDS = frozenset({
 })
 
 
-def _enabled_check_ids():
+def _enabled_check_ids(file_path=None):
     """Same never-cache-it, read-fresh-every-call shape as slopwatch's/
     codewatch's own _enabled_check_ids()."""
     try:
         project_root = _paths.find_project_root(__file__)
-        disabled = set(_core_config.disabled_checks(project_root, "ste100"))
+        disabled = set(_core_config.disabled_checks_for_path(
+            project_root, "ste100", file_path))
     except Exception:
         return set(ALL_CHECK_IDS)
     return ALL_CHECK_IDS - disabled
@@ -1002,7 +1003,7 @@ def lint_and_gate(text, context="procedure", file_path=None):
     # Every check above runs unconditionally (they're cheap regex/string
     # ops); a disabled check's own flags are dropped here in one place,
     # same shape slopwatch's/codewatch's own lint_and_gate already use.
-    enabled = _enabled_check_ids()
+    enabled = _enabled_check_ids(file_path)
     mechanical = [f for f in mechanical if f["kind"] in enabled]
     semantic = [f for f in semantic if f["kind"] in enabled]
 

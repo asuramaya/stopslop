@@ -728,5 +728,77 @@ class KnownExtensionsTests(unittest.TestCase):
                           {".md", ".txt", ".rst", ".py"})
 
 
+class PerPathDisabledChecksTests(unittest.TestCase):
+    """A routing rule can turn a check off for the paths it matches.
+
+    Whole-file exemption already existed -- routing a path to
+    `"ruleset": null` -- but that is too blunt for the real case: codewatch
+    denying its OWN test file, a fixture deliberately full of bad code. The
+    fix wanted is "swallowed_exception does not apply to fixtures", not
+    "stop checking this file at all". Symmetric with packs, which are
+    already bound per routing rule for the same reason."""
+
+    def setUp(self):
+        self._dir = tempfile.TemporaryDirectory()
+        self.root = self._dir.name
+        self.cfg = os.path.join(self.root, "stopslop.config.json")
+
+    def tearDown(self):
+        self._dir.cleanup()
+
+    def _write(self, rules, disabled=None):
+        data = {"rulesets": rules}
+        if disabled:
+            data["disabled_checks"] = disabled
+        with open(self.cfg, "w") as f:
+            json.dump(data, f)
+
+    def _for(self, rel, ruleset="codewatch"):
+        return config.disabled_checks_for_path(
+            self.root, ruleset, os.path.join(self.root, rel), config_file=self.cfg)
+
+    def test_a_rule_disables_a_check_only_on_its_own_paths(self):
+        self._write([
+            {"glob": "tests/*.py", "ruleset": "codewatch",
+             "disable": ["swallowed_exception"]},
+            {"glob": "*.py", "ruleset": "codewatch"},
+        ])
+        self.assertEqual(self._for("tests/a.py"), ["swallowed_exception"])
+        self.assertEqual(self._for("src/a.py"), [])
+
+    def test_it_unions_with_the_project_wide_list(self):
+        self._write([{"glob": "*.py", "ruleset": "codewatch",
+                       "disable": ["print_debug"]}],
+                     disabled={"codewatch": ["todo_stub"]})
+        self.assertEqual(self._for("a.py"), ["print_debug", "todo_stub"])
+
+    def test_a_rule_cannot_re_enable_what_the_project_disabled(self):
+        """Union, never subtraction. One direction keeps 'why did this not
+        fire here?' answerable, and stops a rule silently switching back on
+        something the project deliberately switched off."""
+        self._write([{"glob": "*.py", "ruleset": "codewatch", "disable": []}],
+                     disabled={"codewatch": ["todo_stub"]})
+        self.assertEqual(self._for("a.py"), ["todo_stub"])
+
+    def test_a_rule_for_a_different_ruleset_is_ignored(self):
+        self._write([{"glob": "*.md", "ruleset": "ste100",
+                       "disable": ["modal"]}])
+        self.assertEqual(self._for("a.md", ruleset="codewatch"), [])
+
+    def test_no_file_path_means_the_project_wide_list_only(self):
+        self._write([{"glob": "*.py", "ruleset": "codewatch",
+                       "disable": ["print_debug"]}],
+                     disabled={"codewatch": ["todo_stub"]})
+        self.assertEqual(
+            config.disabled_checks_for_path(self.root, "codewatch",
+                                             config_file=self.cfg), ["todo_stub"])
+
+    def test_a_malformed_disable_value_contributes_nothing(self):
+        # Same posture as _packs_of: a bad value in a hand-edited config
+        # must never raise inside a live gate call.
+        self._write([{"glob": "*.py", "ruleset": "codewatch", "disable": "oops"}])
+        self.assertEqual(self._for("a.py"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

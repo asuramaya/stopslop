@@ -59,10 +59,11 @@ ALL_CHECK_IDS = frozenset({
 })
 
 
-def _enabled_check_ids():
+def _enabled_check_ids(file_path=None):
     try:
         project_root = _paths.find_project_root(__file__)
-        disabled = set(_core_config.disabled_checks(project_root, "codewatch"))
+        disabled = set(_core_config.disabled_checks_for_path(
+            project_root, "codewatch", file_path))
     except Exception:
         return set(ALL_CHECK_IDS)
     return ALL_CHECK_IDS - disabled
@@ -423,7 +424,7 @@ def lint_and_gate(text, context=None, file_path=None):
 
     # Every check above runs unconditionally; a disabled check's own flags
     # are dropped here in one place rather than guarding all 10 call sites.
-    enabled = _enabled_check_ids()
+    enabled = _enabled_check_ids(file_path)
     semantic = [f for f in semantic if f["kind"] in enabled]
 
     status = "clean" if not semantic else "semantic_flags"

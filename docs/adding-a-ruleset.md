@@ -75,6 +75,19 @@ Add these names only for a ruleset that needs them:
 - `CHECKS = {"kind": (catches, instead), ...}` -- two facts per check: what
   it catches, and what to do instead. A `kind` with no entry still shows up
   everywhere, with generic text.
+- `DENY_POLICY = {"text": ..., "always_blocking": (...)}` -- what actually
+  denies a write, in your own words.
+
+  The `text` is format()ed with your live option values. A placeholder
+  prints the number in force. The `always_blocking` tuple names the checks
+  that deny ON THEIR OWN, whatever the count.
+
+  Tests hold both to what `blocking_semantic_flags` does. A policy sentence
+  that nothing verifies still carries the authority of one that does. That
+  makes it worse than no sentence. See `src/test_check_text.py`.
+- `CHECK_OPTIONS = {"check_id": ("option_name", ...)}` -- which tunable
+  option belongs to which check. Declare it. Never let a caller infer the
+  link from a shared name prefix.
 - `stats()` -- a dict of short strings. `stopslop.py status` and the
   `get_status` MCP tool show these under your ruleset's own name.
 
@@ -111,10 +124,29 @@ def remove_term(list_id, term): ...
 
 Delegate all three to `core/terms.py`. That module owns the layered
 `built_in -> packs -> project` resolution. It also owns the tombstone
-subtraction that lets a project remove a shipped word. Each list declares a
-`polarity` of `"allow"` or `"deny"`. That one field is the whole difference
-between two capabilities this project used to have: `"glossary"` (ste100)
-and `"wordlists"` (slopwatch, codewatch). They were never two concepts.
+subtraction that lets a project remove a shipped word.
+
+Each list declares what it holds and what may be done to it:
+
+- `built_ins`, the words your ruleset ships for this list. Pass a dict to
+  give each entry metadata, or any iterable of strings for bare words.
+- `accepts_packs`, default false. Set it true to let a project feed this
+  list from a shared vocabulary pack.
+
+- `polarity`, `"allow"` or `"deny"`. That one field is the whole difference
+  between two capabilities this project used to have: `"glossary"` (ste100)
+  and `"wordlists"` (slopwatch, codewatch). They were never two concepts.
+- `feeds`, the check this list supplies. Declare it. Do not depend on a
+  shared id between the list and the check. ste100 maps three lists onto
+  one check. A UI that paired them by name showed that check with no
+  words at all.
+- `content_kind`, one of `word`, `phrase`, `pattern`. A pack declares the
+  same fact about itself. If your list cannot read a pack's kind, the bind
+  fails where it happens. This keeps a bag of nouns out of a list of
+  regular expressions.
+- `accepts_additions`, default true. For shipped reference data a project
+  must not add to, set it false. Removal and restore stay open. A closed
+  list is not a frozen list.
 
 **`"word_lookup"`** -- define `check_word(word)`. It returns a dict with at
 least a `"status"` key. Declare this capability only for a ruleset with a
