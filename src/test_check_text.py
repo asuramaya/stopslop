@@ -189,5 +189,68 @@ class CheckToConfigLinksTests(unittest.TestCase):
                                      f"Configure page would ever show it")
 
 
+
+class DenyPolicyMatchesBehaviourTests(unittest.TestCase):
+    """DENY_POLICY is prose describing what blocking_semantic_flags does.
+    Two statements of one fact, kept in step by hand -- exactly the shape
+    that produced every other drift in this project. So the prose is not
+    trusted: it is checked against the function.
+
+    This does not remove the duplication, it makes it falsifiable. A policy
+    sentence is worth having (it is the only place the page can state what
+    blocks a write), and a policy sentence nobody verifies is worse than
+    none, because it reads as authoritative."""
+
+    def _flags(self, n, kind="filler_verb"):
+        return [{"kind": kind, "label": f"w{i}", "detail": {}, "text": ""}
+                for i in range(n)]
+
+    def test_a_declared_count_threshold_is_the_real_threshold(self):
+        for module in rulesets.list_rulesets():
+            policy = module.DENY_POLICY
+            if "{block_flag_count_threshold}" not in policy["text"]:
+                continue
+            threshold = module.list_options()["block_flag_count_threshold"]["value"]
+            neutral = next((c for c in module.list_checks()
+                            if c not in policy["always_blocking"]), None)
+            self.assertIsNotNone(neutral)
+            with self.subTest(ruleset=module.RULESET_ID):
+                below = module.blocking_semantic_flags(
+                    self._flags(threshold - 1, neutral))
+                at = module.blocking_semantic_flags(self._flags(threshold, neutral))
+                self.assertEqual(below, [],
+                                  f"policy says it denies AT {threshold}, but "
+                                  f"{threshold - 1} flags already blocked")
+                self.assertTrue(at,
+                                 f"policy says it denies at {threshold}, but "
+                                 f"{threshold} flags did not block")
+
+    def test_every_always_blocking_check_really_blocks_alone(self):
+        for module in rulesets.list_rulesets():
+            for check_id in module.DENY_POLICY["always_blocking"]:
+                with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
+                    self.assertTrue(
+                        module.blocking_semantic_flags(self._flags(1, check_id)),
+                        f"{check_id} is declared always-blocking and the page "
+                        f"warns a user about it, but one of them did not block")
+
+    def test_no_undeclared_check_blocks_alone(self):
+        """The inverse, and the one that catches drift in the direction
+        nobody looks: a check that gained always-block behaviour in code
+        without being declared would show on the page as an ordinary row."""
+        for module in rulesets.list_rulesets():
+            declared = set(module.DENY_POLICY["always_blocking"])
+            threshold_based = "{block_flag_count_threshold}" in module.DENY_POLICY["text"]
+            if not threshold_based:
+                continue          # ste100 blocks on any non-excluded flag by design
+            for check_id in module.list_checks():
+                if check_id in declared:
+                    continue
+                with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
+                    self.assertEqual(
+                        module.blocking_semantic_flags(self._flags(1, check_id)), [],
+                        f"{check_id} blocks on its own but is not in "
+                        f"DENY_POLICY['always_blocking'], so the page shows it "
+                        f"as an ordinary row and the warning never appears")
 if __name__ == "__main__":
     unittest.main()

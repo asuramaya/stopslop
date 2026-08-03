@@ -236,6 +236,7 @@ UNAPPROVED_MAP.update({
 # would silently miss the corporate-jargon entries added just above.
 TERM_LISTS = {
     "approved_words": {
+        "content_kind": "word",
         # Which CHECK this list feeds. Declared, not inferred from the
         # id: ste100's three lists all feed one check, so any UI that
         # paired them by name would show that check as having no
@@ -257,6 +258,7 @@ TERM_LISTS = {
         "built_ins": APPROVED_WORDS,
     },
     "unapproved_words": {
+        "content_kind": "word",
         "feeds": "vocabulary",
         "label": "Forbidden vocabulary",
         "description": "Words the real ASD-STE100 dictionary forbids, most with "
@@ -276,6 +278,7 @@ TERM_LISTS = {
         ),
     },
     "project_terms": {
+        "content_kind": "word",
         "feeds": "vocabulary",
         "label": "Project vocabulary",
         "description": "Domain words the real ASD-STE100 dictionary was never "

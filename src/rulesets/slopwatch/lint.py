@@ -439,6 +439,7 @@ MARKETING_CLICHES = ["amazing", "breathtaking", "stunning", "must-visit", "must 
 # between a real abstraction and one shaped around its first user.
 TERM_LISTS = {
     "weasel_attribution": {
+        "content_kind": "phrase",
         # Which CHECK this list feeds. Declared, not inferred from the
         # id: ste100's three lists all feed one check, so any UI that
         # paired them by name would show that check as having no
@@ -452,6 +453,7 @@ TERM_LISTS = {
         "built_ins": WEASEL_PHRASES,
     },
     "marketing_adjective": {
+        "content_kind": "word",
         "feeds": "marketing_adjective",
         "label": "Marketing adjectives",
         "description": "Promotional adjectives that assert quality instead of showing it.",
@@ -459,6 +461,7 @@ TERM_LISTS = {
         "built_ins": MARKETING_ADJECTIVES,
     },
     "filler_verb": {
+        "content_kind": "pattern",
         "feeds": "filler_verb",
         "label": "Filler verbs",
         "description": "Verb phrases that add length without adding meaning.",
@@ -466,6 +469,7 @@ TERM_LISTS = {
         "built_ins": FILLER_VERB_PATTERNS,
     },
     "marketing_cliche": {
+        "content_kind": "phrase",
         "feeds": "marketing_cliche",
         "label": "Marketing cliches",
         "description": "Stock phrases that signal generated copy.",
@@ -473,6 +477,7 @@ TERM_LISTS = {
         "built_ins": MARKETING_CLICHES,
     },
     "stock_adverb": {
+        "content_kind": "word",
         "feeds": "stock_adverb",
         "label": "Stock adverbs",
         "description": "Filler adverbs safe to delete outright (auto-fixed).",

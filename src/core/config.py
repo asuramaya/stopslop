@@ -146,7 +146,7 @@ def rule_packs(project_root, config_file=None):
 
 
 def set_rule_packs(project_root, glob, list_id, pack_ids, known_packs=None,
-                    config_file=None):
+                    config_file=None, admissible=None):
     """Point a set of packs at one term list, on the routing rule with this
     exact glob. Validates every pack id against `known_packs` when given --
     the same loud-on-typo guarantee save_rules already applies to ruleset
@@ -165,6 +165,16 @@ def set_rule_packs(project_root, glob, list_id, pack_ids, known_packs=None,
                 raise ValueError(
                     f"no glossary pack registered as {pack_id!r} -- "
                     f"known: {sorted(known_packs)}")
+    # Loud at WRITE time, for the same reason a typo'd ruleset id is: a
+    # binding that can never usefully fire is a gate quietly not doing what
+    # its owner believes. `admissible` is passed in by the caller that has a
+    # registry (this module deliberately has none), and is called with each
+    # pack id -- returning (ok, reason).
+    if admissible is not None:
+        for pack_id in pack_ids:
+            ok, why = admissible(pack_id)
+            if not ok:
+                raise ValueError(f"{pack_id!r} cannot feed {list_id!r}: {why}")
     path = config_file or config_path(project_root)
     data = {}
     if os.path.exists(path):

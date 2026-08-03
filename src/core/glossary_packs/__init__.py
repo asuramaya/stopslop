@@ -59,18 +59,31 @@ _PACKS_DIR = os.path.dirname(os.path.abspath(__file__))
 # beside the glob and the ruleset -- see core.config.packs_for_path. A pack
 # is inert content; aiming it at a list is a project decision, made where
 # every other path-scoped decision is already made.
+# Each pack declares its CONTENT KIND, and each term list declares what kind
+# it can read (core/terms.py's pack_kind_admissible). This is the structural
+# half of the promise made when a pack's `target` field was removed: killing
+# "this pack is FOR ste100" was right, because a pack is a body of words with
+# no opinion about who reads it -- but it replaced nominal coupling with
+# nothing, and the attach control would happily offer MDN's 262 domain nouns
+# to slopwatch.filler_verb, whose entries are REGEX PATTERNS ("enables?",
+# "leverages?"). A warning is not a type system. A kind says what the content
+# IS, without naming a consumer, so one pack still feeds many rulesets, at
+# either polarity, while the nonsense becomes unrepresentable.
 AVAILABLE_PACKS = {
     "microsoft-style-guide": {
+        "content_kind": "word",
         "name": "Microsoft Writing Style Guide word list",
         "source": "https://github.com/MicrosoftDocs/microsoft-style-guide",
         "license": "CC-BY-4.0",
     },
     "mdn-glossary": {
+        "content_kind": "word",
         "name": "MDN Web Docs Glossary",
         "source": "https://github.com/mdn/content",
         "license": "CC-BY-SA-2.5",
     },
     "nist-security": {
+        "content_kind": "word",
         "name": "NIST CSRC Glossary",
         "source": "https://csrc.nist.gov/glossary",
         "license": "public domain (US government work)",

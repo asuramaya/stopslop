@@ -600,8 +600,19 @@ def _add_vocabulary(repo_root, module, list_id, full, spec, packs):
     Adding a word and attaching a pack are the same verb at different
     scale, and they sat far apart on the page. This takes either: pick a
     pack from the list, or type a word that is not one."""
-    attachable = sorted(packs) if spec.get("accepts_packs") else []
+    # Only packs this list can actually READ. A pack of plain words has no
+    # business in a list of regex patterns, and the control used to offer it
+    # anyway with a warning underneath. See core.terms.pack_kind_admissible.
+    attachable = sorted(
+        p for p in packs
+        if core_terms.pack_kind_admissible(spec, glossary_packs.AVAILABLE_PACKS[p])[0]
+    ) if spec.get("accepts_packs") else []
+    incompatible = sorted(set(packs) - set(attachable)) if spec.get("accepts_packs") else []
     open_to_words = spec.get("accepts_additions", True)
+    if incompatible:
+        why = core_terms.pack_kind_admissible(
+            spec, glossary_packs.AVAILABLE_PACKS[incompatible[0]])[1]
+        st.caption(f"{len(incompatible)} pack(s) are not offered here: {why}.")
     if not open_to_words and not attachable:
         # Offering a control that always refuses is worse than offering
         # none. ste100's two dictionary lists are published reference data;
@@ -686,8 +697,12 @@ def _set_pack(repo_root, full_path, pack, ruleset_id, list_id, attach):
     _snapshot(repo_root, f"{'attached' if attach else 'detached'} {pack} "
                           f"on {rule['glob']}")
     try:
-        core_config.set_rule_packs(repo_root, rule["glob"], list_id, new,
-                                    known_packs=glossary_packs.AVAILABLE_PACKS)
+        spec = rulesets.get_ruleset(ruleset_id).TERM_LISTS[list_id]
+        core_config.set_rule_packs(
+            repo_root, rule["glob"], list_id, new,
+            known_packs=glossary_packs.AVAILABLE_PACKS,
+            admissible=lambda pid: core_terms.pack_kind_admissible(
+                spec, glossary_packs.AVAILABLE_PACKS.get(pid, {})))
         st.rerun()
     except Exception as exc:
         st.error(f"Not saved: {exc}")

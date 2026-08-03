@@ -346,6 +346,7 @@ GENERIC_NAME_STEMS = {"helper", "data", "temp", "tmp", "value", "item",
 # polarity="allow", not a new mechanism.
 TERM_LISTS = {
     "generic_naming": {
+        "content_kind": "word",
         # Which CHECK this list feeds. Declared, not inferred from the
         # id: ste100's three lists all feed one check, so any UI that
         # paired them by name would show that check as having no

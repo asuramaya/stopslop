@@ -710,5 +710,74 @@ class EveryDeclaredListIsUsableTests(unittest.TestCase):
                                                  root, list_id, "zzprobezz",
                                                  config_file=cfg)
                     self.assertIn("status", removed)
+class PackContentKindTests(unittest.TestCase):
+    """The source-kind hole, closed structurally.
+
+    Removing a pack's `target` field was right -- a pack is a body of words
+    with no opinion about who reads it, and naming its consumer stopped one
+    pack feeding two rulesets or being read at the opposite polarity. But it
+    replaced nominal coupling with NOTHING, and the attach control would
+    offer MDN's 262 domain nouns to slopwatch.filler_verb, whose entries are
+    regex patterns ("enables?", "leverages?"). The guard was a UI warning,
+    which is not a type system.
+
+    A kind says what the content IS without naming a consumer, so every gain
+    survives and the nonsense stops being representable."""
+
+    WORD_PACK = {"content_kind": "word"}
+
+    def test_a_pattern_list_refuses_a_word_pack(self):
+        ok, why = terms.pack_kind_admissible({"content_kind": "pattern"}, self.WORD_PACK)
+        self.assertFalse(ok)
+        self.assertIn("pattern", why)
+        self.assertIn("word", why)
+
+    def test_a_word_list_accepts_a_word_pack(self):
+        self.assertTrue(terms.pack_kind_admissible({"content_kind": "word"},
+                                                    self.WORD_PACK)[0])
+
+    def test_a_list_may_widen_itself(self):
+        spec = {"content_kind": "phrase", "accepts_kinds": ("phrase", "word")}
+        self.assertTrue(terms.pack_kind_admissible(spec, self.WORD_PACK)[0])
+
+    def test_undeclared_on_either_side_is_allowed_and_says_so(self):
+        # Refusing here would break every pack and list written before kinds
+        # existed, including anything a user wrote against the old contract.
+        ok, why = terms.pack_kind_admissible({}, self.WORD_PACK)
+        self.assertTrue(ok)
+        self.assertIn("undeclared", why)
+        self.assertTrue(terms.pack_kind_admissible({"content_kind": "word"}, {})[0])
+
+    def test_the_real_fleet_refuses_the_mismatch_that_prompted_this(self):
+        import rulesets as registry
+        from core import glossary_packs
+        spec = registry.get_ruleset("slopwatch").TERM_LISTS["filler_verb"]
+        for pack_id, meta in glossary_packs.AVAILABLE_PACKS.items():
+            with self.subTest(pack=pack_id):
+                self.assertFalse(terms.pack_kind_admissible(spec, meta)[0])
+        # ...while the intended use still works.
+        ste = registry.get_ruleset("ste100").TERM_LISTS["project_terms"]
+        for pack_id, meta in glossary_packs.AVAILABLE_PACKS.items():
+            with self.subTest(pack=pack_id, into="ste100.project_terms"):
+                self.assertTrue(terms.pack_kind_admissible(ste, meta)[0])
+
+    def test_an_incompatible_binding_already_on_disk_resolves_to_nothing(self):
+        """A config hand-edited before kinds existed still resolves through
+        _pack_layer. Drop the pack rather than feed a list content it cannot
+        read, and record why in `rejected` rather than swallowing it."""
+        import rulesets as registry
+        root = tempfile.mkdtemp()
+        cfg = os.path.join(root, "stopslop.config.json")
+        with open(cfg, "w") as f:
+            json.dump({"rulesets": [{"glob": "*.md", "ruleset": "slopwatch",
+                                      "packs": {"filler_verb": ["mdn-glossary"]}}]}, f)
+        spec = registry.get_ruleset("slopwatch").TERM_LISTS["filler_verb"]
+        layers = terms.resolve(spec, root, "slopwatch", "filler_verb",
+                                file_path=os.path.join(root, "x.md"), config_file=cfg)
+        self.assertEqual(layers["packs"], {})
+        self.assertTrue(any("mdn-glossary" in k for k in layers["rejected"]))
+
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -283,6 +283,30 @@ def suppressed_terms(project_root, ruleset_id, list_id, config_file=None):
     return frozenset(t for t, m in stored.items() if m.get("removed"))
 
 
+def pack_kind_admissible(list_spec, pack_meta):
+    """Can this list read this pack's content? (bool, reason).
+
+    A list holding REGEX PATTERNS cannot read a bag of plain words as if
+    they were patterns, and a list matched as multi-word PHRASES gets
+    nothing useful from single nouns. Neither side names the other: the
+    pack says what it is, the list says what it reads, and the mismatch
+    becomes unrepresentable rather than merely discouraged.
+
+    A list may widen itself with `accepts_kinds`; the default is exactly
+    its own content_kind, which is the conservative reading."""
+    wanted = tuple(list_spec.get("accepts_kinds")
+                   or (list_spec.get("content_kind"),))
+    kind = pack_meta.get("content_kind")
+    if kind is None or None in wanted:
+        # Undeclared on either side: allow, and say so. Refusing here would
+        # break every pack and list written before kinds existed.
+        return True, "content kind undeclared on one side -- not checked"
+    if kind in wanted:
+        return True, ""
+    return False, (f"this list holds {'/'.join(wanted)} entries and the pack "
+                   f"holds {kind} entries")
+
+
 def _pack_layer(spec, project_root, ruleset_id, list_id, file_path, config_file):
     """Pack content for one list, scoped to the routing rule that matches
     `file_path`, with the list's own `pack_admissible` guard applied.
@@ -308,8 +332,16 @@ def _pack_layer(spec, project_root, ruleset_id, list_id, file_path, config_file)
     for pack_id in pack_ids:
         try:
             terms = glossary_packs.load_pack_terms(pack_id)
+            meta = glossary_packs.AVAILABLE_PACKS.get(pack_id, {})
         except Exception:
             continue        # an unknown or unbuilt pack contributes nothing
+        # A binding written before kinds existed, or by hand-editing the
+        # config, still resolves through here. Drop it rather than feed a
+        # list content it cannot read, and record why.
+        ok, why = pack_kind_admissible(spec, meta)
+        if not ok:
+            rejected[f"(whole pack {pack_id})"] = why
+            continue
         for term, entry in terms.items():
             if admissible is not None and not admissible(term):
                 rejected[term] = pack_id
