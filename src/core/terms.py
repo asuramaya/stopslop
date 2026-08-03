@@ -424,22 +424,48 @@ def add_term(ruleset_id, term_lists, project_root, list_id, term, note="",
     if not term:
         return {"ok": False, "status": "refused", "message": "term cannot be empty"}
 
-    extra = {}
-    if validator is not None:
-        verdict, extra = validator(term, force)
-        if verdict is not None:
-            return verdict
-
     terms = project_terms(project_root, ruleset_id, list_id, config_file=config_file)
     if terms.get(term, {}).get("removed"):
         # Adding back something previously suppressed just lifts the
         # tombstone -- it does not create a project term that shadows the
         # built-in or pack the word actually came from.
+        #
+        # This runs BEFORE the accepts_additions gate and before the
+        # validator, on purpose. A restore is not an addition: the word was
+        # already in the list and this project took it out. Gating it as an
+        # addition made a closed list a one-way door -- suppress a
+        # dictionary word and it could never come back -- which quietly
+        # broke the restorability the whole subtraction model promises.
         del terms[term]
         save_project_terms(project_root, ruleset_id, list_id, terms,
                             config_file=config_file)
         return {"ok": True, "status": "restored",
                 "message": f"restored '{term}' to {list_id}"}
+
+    # A list may be CLOSED to genuinely NEW words while staying open to
+    # suppression and restore. ste100's approved_words and unapproved_words
+    # are the published ASD-STE100 dictionary: "the standard also approves
+    # X" is a claim a project cannot make, and project_terms exists to say
+    # it locally instead. Removing stays legal -- "we do not accept this
+    # dictionary word here" is real curation.
+    #
+    # Refused, not raised: an unopenable list is a normal answer to a normal
+    # request, and every other refusal on this path returns the same shape.
+    # ste100 previously enforced this by raising UnknownTermListError from
+    # its own wrapper, which was two untruths at once -- the list is
+    # perfectly known, and the caller had done nothing wrong.
+    if not term_lists[list_id].get("accepts_additions", True):
+        return {"ok": False, "status": "refused",
+                "message": f"'{list_id}' does not take new words -- it is "
+                            f"shipped reference data, not a project list. "
+                            f"Words can still be removed from it, and "
+                            f"anything removed can be restored."}
+
+    extra = {}
+    if validator is not None:
+        verdict, extra = validator(term, force)
+        if verdict is not None:
+            return verdict
     if term in terms:
         return {"ok": True, "status": "no-op",
                 "message": f"'{term}' is already registered in {list_id} "

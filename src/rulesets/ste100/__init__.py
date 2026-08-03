@@ -15,11 +15,11 @@ RULESET_ID = "ste100"
 # byte-for-byte to satisfy this refactor's own backward-compatibility bar
 # (see docs/incidents/ and the hook-output diff run during migration).
 RULESET_NAME = "STE100"
-# No "options": unlike slopwatch/codewatch, ste100 has no tunable numeric
-# thresholds today (its checks are the real ASD-STE100 standard's own
-# fixed rules, not density judgments) -- "checks" (per-rule on/off) is a
-# separate, real capability it does have now, see list_checks() below.
-CAPABILITIES = frozenset({"terms", "word_lookup", "checks"})
+# "options" arrived late. The claim that ste100 had no tunable numbers was
+# never true -- rule 5.1's sentence limits (20 words in a procedure, 25 in a
+# description) were hardcoded inside check_length the whole time. See
+# lint.DEFAULT_OPTIONS.
+CAPABILITIES = frozenset({"terms", "word_lookup", "checks", "options"})
 
 # Relative to this package's own directory -- integrity_check.py resolves
 # these against the ruleset's install location, not the repo root.
@@ -118,6 +118,36 @@ def apply_mechanical_fixes(text, file_path=None):
 TERM_LISTS = lint.TERM_LISTS
 
 
+# Which tunable option belongs to which check. Declared, never inferred:
+# see rulesets/slopwatch/__init__.py's CHECK_OPTIONS.
+CHECK_OPTIONS = {
+    "length": ("procedure_word_limit", "description_word_limit"),
+}
+
+
+def list_options():
+    current = lint._options()
+    return {name: {"value": current[name], "default": default}
+            for name, default in lint.DEFAULT_OPTIONS.items()}
+
+
+def set_options(options):
+    """See rulesets/slopwatch/__init__.py's set_options() -- identical
+    merge-not-replace semantics and rationale."""
+    unknown = set(options) - set(lint.DEFAULT_OPTIONS)
+    if unknown:
+        raise ValueError(f"unknown option(s): {sorted(unknown)} -- "
+                          f"known: {sorted(lint.DEFAULT_OPTIONS)}")
+    for key, value in options.items():
+        expected = type(lint.DEFAULT_OPTIONS[key])
+        if not isinstance(value, expected):
+            raise ValueError(f"option {key!r} must be a {expected.__name__}, got {value!r}")
+    project_root = paths.find_project_root(__file__)
+    merged = dict(_core_config.ruleset_options(project_root, RULESET_ID))
+    merged.update(options)
+    _core_config.save_ruleset_options(project_root, RULESET_ID, merged)
+
+
 def list_term_lists(file_path=None):
     """ste100's one term list (project vocabulary), in the same shape
     slopwatch's five and codewatch's one report -- see core/terms.py.
@@ -129,41 +159,43 @@ def list_term_lists(file_path=None):
 
 
 def add_term(list_id, term, note="", force=False):
-    """Uniform contract entry point. Delegates to glossary.register, which
-    adds ste100's own validation against the real ASD-STE100 dictionary --
-    the one genuine difference between this ruleset's list and the others',
-    now a validator callback rather than a whole parallel API."""
-    if list_id != "project_terms":
-        raise _terms.UnknownTermListError(
-            f"unknown term list {list_id!r} -- known: ['project_terms']")
-    # `force` is a bool in the uniform contract but a REASON string in
-    # ste100's own register(): overriding a real prohibition has to go on
-    # the record with why. A bare force=True falls back to the note.
-    reason = force if isinstance(force, str) else (note or "forced via add_term") if force else None
-    return glossary.register(term, note, reason, history_path=_history_path())
+    """Uniform contract entry point, for EVERY list this ruleset declares.
+
+    It used to raise UnknownTermListError for anything but project_terms,
+    which was two untruths at once: the list is declared right here in
+    TERM_LISTS, and the caller had done nothing wrong. It also opted this
+    ruleset out of the shared primitive it is supposed to be built on.
+    approved_words and unapproved_words are the published dictionary, so
+    they carry accepts_additions=False and core.terms refuses an addition
+    with a reason -- the same refusal shape every other path returns.
+
+    project_terms keeps the validator, which is ste100's one genuine
+    difference: a real external standard exists to check a word against."""
+    if list_id == "project_terms":
+        # `force` is a bool in the uniform contract but a REASON string in
+        # ste100's own register(): overriding a real prohibition has to go
+        # on the record with why. A bare force=True falls back to the note.
+        reason = (force if isinstance(force, str)
+                  else (note or "forced via add_term") if force else None)
+        return glossary.register(term, note, reason, history_path=_history_path())
+    return _terms.add_term(RULESET_ID, TERM_LISTS,
+                            paths.find_project_root(__file__),
+                            list_id, term, note=note, force=force)
 
 
 def remove_term(list_id, term):
-    if list_id != "project_terms":
-        raise _terms.UnknownTermListError(
-            f"unknown term list {list_id!r} -- known: ['project_terms']")
-    return glossary.unregister(term, history_path=_history_path())
+    """Removal works on every list, including the shipped dictionary.
 
+    Removing a dictionary word cannot delete it -- the word lives in
+    dictionary.json -- so core.terms records a tombstone the resolver
+    subtracts. "This project does not accept this approved word" is exactly
+    the curation the subtraction model was added for, and ste100 was the
+    one ruleset that could not do it."""
+    if list_id == "project_terms":
+        return glossary.unregister(term, history_path=_history_path())
+    return _terms.remove_term(RULESET_ID, TERM_LISTS,
+                               paths.find_project_root(__file__), list_id, term)
 
-def register_term(word, note="", override_unapproved=None):
-    """ste100's own richer registration entry point, kept because
-    override_unapproved carries a REASON string, not just a boolean -- a
-    prohibition override has to go on the record with why. add_term above is
-    the uniform contract wrapper over this."""
-    return glossary.register(word, note, override_unapproved, history_path=_history_path())
-
-
-def unregister_term(word):
-    return glossary.unregister(word, history_path=_history_path())
-
-
-def list_terms():
-    return glossary.list_terms()
 
 
 def check_word(word):

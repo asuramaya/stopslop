@@ -248,6 +248,12 @@ TERM_LISTS = {
                         "here is never flagged as unknown or unapproved.",
         "polarity": "allow",
         "accepts_packs": False,
+                # The published ASD-STE100 dictionary. A project cannot ADD to
+        # it -- "the standard also approves X" is not this project's
+        # claim to make, and project_terms exists to say it locally.
+        # Removal stays open: refusing a dictionary word here is real
+        # curation, recorded as a tombstone (see core/terms.py).
+        "accepts_additions": False,
         "built_ins": APPROVED_WORDS,
     },
     "unapproved_words": {
@@ -257,6 +263,12 @@ TERM_LISTS = {
                         "an approved replacement.",
         "polarity": "deny",
         "accepts_packs": False,
+                # The published ASD-STE100 dictionary. A project cannot ADD to
+        # it -- "the standard also approves X" is not this project's
+        # claim to make, and project_terms exists to say it locally.
+        # Removal stays open: refusing a dictionary word here is real
+        # curation, recorded as a tombstone (see core/terms.py).
+        "accepts_additions": False,
         "built_ins": dict(
             {w: {"note": f"use \u201c{r}\u201d instead"} for w, r in UNAPPROVED_MAP.items() if r},
             **{w: {"note": "no replacement given"} for w in UNAPPROVED_MAP if not UNAPPROVED_MAP[w]},
@@ -365,8 +377,45 @@ CONTRACTION_EXPANSIONS = {
 }
 
 
+# The two numbers ASD-STE100 rule 5.1 fixes, exposed as options like every
+# other ruleset's thresholds. They were hardcoded inside check_length, which
+# left ste100 the only ruleset declaring no "options" capability at all --
+# an asymmetry with no reason behind it, and one the folded Configure page
+# made visible: em_dash_cluster showed a tunable number and `length` showed
+# none, side by side, as though one check were more configurable in kind.
+#
+# The defaults ARE the standard. A project lowering them is tightening its
+# own house style; raising them is departing from ASD-STE100 knowingly,
+# which is a choice the tool should let a project make and record in its
+# config, not one it should silently prevent.
+DEFAULT_OPTIONS = {
+    "procedure_word_limit": 20,
+    "description_word_limit": 25,
+}
+
+
+def _options():
+    """DEFAULT_OPTIONS with any valid override from stopslop.config.json's
+    "options" key layered on top. Same never-break-the-gate posture as
+    slopwatch's: a bad type or an unresolvable project root falls back to
+    the default rather than raising inside a live gate call."""
+    opts = dict(DEFAULT_OPTIONS)
+    try:
+        project_root = _paths.find_project_root(__file__)
+        overrides = _core_config.ruleset_options(project_root, "ste100")
+    except Exception as unresolvable:  # no project on disk: use the standard
+        del unresolvable
+        return opts
+    for key, value in overrides.items():
+        if key in opts and isinstance(value, type(opts[key])):
+            opts[key] = value
+    return opts
+
+
 def check_length(sentence, context="procedure"):
-    limit = 25 if context == "description" else 20
+    opts = _options()
+    limit = (opts["description_word_limit"] if context == "description"
+             else opts["procedure_word_limit"])
     n = len(sentence.split())
     if n > limit:
         return {"rule": "5.1", "word_count": n, "limit": limit}

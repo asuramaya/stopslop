@@ -619,5 +619,96 @@ class ListTermListsViewTests(unittest.TestCase):
             self.assertEqual(view["project_terms"], {"mine": {"note": ""}})
 
 
+
+class ClosedListTests(unittest.TestCase):
+    """A list can be closed to NEW words while staying open to suppression
+    and restore.
+
+    ste100 used to enforce this by raising UnknownTermListError from its own
+    add_term/remove_term for anything but project_terms -- two untruths at
+    once (the list is declared right there in TERM_LISTS, and the caller had
+    done nothing wrong), and it opted the one ruleset with a real external
+    standard out of the shared primitive. Once the Configure page began
+    rendering every declared list, that raise became a live crash on a
+    visible button. Nothing in the suite covered it."""
+
+    LISTS = {
+        "shipped": {"polarity": "allow", "accepts_additions": False,
+                     "built_ins": {"alpha": {}, "bravo": {}}},
+        "mine": {"polarity": "allow", "built_ins": {}},
+    }
+
+    def setUp(self):
+        self._dir = tempfile.TemporaryDirectory()
+        self.root = self._dir.name
+        self.cfg = os.path.join(self.root, "stopslop.config.json")
+
+    def tearDown(self):
+        self._dir.cleanup()
+
+    def _effective(self, list_id):
+        return terms.resolve(self.LISTS[list_id], self.root, "demo", list_id,
+                              config_file=self.cfg)
+
+    def _add(self, list_id, term):
+        return terms.add_term("demo", self.LISTS, self.root, list_id, term,
+                               config_file=self.cfg)
+
+    def _remove(self, list_id, term):
+        return terms.remove_term("demo", self.LISTS, self.root, list_id, term,
+                                  config_file=self.cfg)
+
+    def test_a_closed_list_refuses_a_new_word_without_raising(self):
+        result = self._add("shipped", "charlie")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "refused")
+        self.assertIn("shipped reference data", result["message"])
+        self.assertNotIn("charlie", self._effective("shipped")["effective"])
+
+    def test_a_closed_list_still_allows_suppression(self):
+        self.assertEqual(self._remove("shipped", "alpha")["status"], "suppressed")
+        layers = self._effective("shipped")
+        self.assertNotIn("alpha", layers["effective"])
+        self.assertIn("alpha", layers["suppressed"])
+
+    def test_a_suppressed_word_can_be_restored_on_a_closed_list(self):
+        """The bug this ordering exists to prevent. Gating restore behind
+        the accepts_additions check made a closed list a one-way door:
+        suppress a dictionary word and it could never come back, silently
+        breaking the restorability the subtraction model promises."""
+        self._remove("shipped", "alpha")
+        result = self._add("shipped", "alpha")
+        self.assertTrue(result["ok"], result.get("message"))
+        self.assertEqual(result["status"], "restored")
+        self.assertIn("alpha", self._effective("shipped")["effective"])
+
+    def test_an_open_list_is_unaffected(self):
+        self.assertEqual(self._add("mine", "delta")["status"], "registered")
+        self.assertIn("delta", self._effective("mine")["effective"])
+
+
+class EveryDeclaredListIsUsableTests(unittest.TestCase):
+    """Whatever a ruleset declares in TERM_LISTS, the Configure page renders
+    -- so every declared list must answer add and remove with a STATUS
+    rather than an exception. A ruleset may refuse; it may not crash."""
+
+    def test_no_declared_list_raises_on_add_or_remove(self):
+        import rulesets as registry
+        root = tempfile.mkdtemp()
+        open(os.path.join(root, "stopslop.py"), "w").close()
+        cfg = os.path.join(root, "stopslop.config.json")
+        for module in registry.list_rulesets():
+            if "terms" not in module.CAPABILITIES:
+                continue
+            for list_id in module.TERM_LISTS:
+                with self.subTest(list=f"{module.RULESET_ID}.{list_id}"):
+                    added = terms.add_term(module.RULESET_ID, module.TERM_LISTS,
+                                            root, list_id, "zzprobezz",
+                                            config_file=cfg)
+                    self.assertIn("status", added)
+                    removed = terms.remove_term(module.RULESET_ID, module.TERM_LISTS,
+                                                 root, list_id, "zzprobezz",
+                                                 config_file=cfg)
+                    self.assertIn("status", removed)
 if __name__ == "__main__":
     unittest.main()

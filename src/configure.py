@@ -601,10 +601,20 @@ def _add_vocabulary(repo_root, module, list_id, full, spec, packs):
     scale, and they sat far apart on the page. This takes either: pick a
     pack from the list, or type a word that is not one."""
     attachable = sorted(packs) if spec.get("accepts_packs") else []
+    open_to_words = spec.get("accepts_additions", True)
+    if not open_to_words and not attachable:
+        # Offering a control that always refuses is worse than offering
+        # none. ste100's two dictionary lists are published reference data;
+        # removal and restore stay available on the rows above.
+        st.caption("This list takes no new words — it is shipped reference "
+                   "data. Remove a word above to stop using it here, or add "
+                   "your own to the project list.")
+        return
     cols = st.columns([3, 3, 1])
     entry = cols[0].selectbox(
-        "Add a word, or pick a pack", [""] + attachable,
-        accept_new_options=True, key=f"add_{module.RULESET_ID}_{list_id}",
+        "Add a word, or pick a pack" if open_to_words else "Attach a pack",
+        [""] + attachable,
+        accept_new_options=open_to_words, key=f"add_{module.RULESET_ID}_{list_id}",
         help=("Type a single word to register it here. Pick a pack to bind "
               "its whole vocabulary to this list, for files matching this "
               "path's routing rule.") if attachable else
