@@ -252,5 +252,52 @@ class DenyPolicyMatchesBehaviourTests(unittest.TestCase):
                         f"{check_id} blocks on its own but is not in "
                         f"DENY_POLICY['always_blocking'], so the page shows it "
                         f"as an ordinary row and the warning never appears")
+
+
+class RemedyDerivationTests(unittest.TestCase):
+    """Every blockable check must be able to say how to resolve a false
+    positive. The gate used to list its flags and stop, so an agent blocked
+    on a legitimate domain word never learned add_term existed."""
+
+    def test_every_check_offers_at_least_one_remedy(self):
+        from core import flags
+        for module in rulesets.list_rulesets():
+            if "checks" not in module.CAPABILITIES:
+                continue
+            for check_id in module.list_checks():
+                with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
+                    self.assertTrue(flags.remedies_for(module, check_id))
+
+    def test_polarity_decides_which_verb_is_offered(self):
+        """An allow list is widened with add_term; a deny list is narrowed
+        with remove_term. Offering the wrong one sends a blocked caller in
+        the opposite direction to the fix."""
+        from core import flags
+        ste = rulesets.get_ruleset("ste100")
+        text = " ".join(flags.remedies_for(ste, "vocabulary"))
+        self.assertIn("add_term('project_terms'", text)       # allow
+        self.assertIn("remove_term('unapproved_words'", text)  # deny
+
+        sw = rulesets.get_ruleset("slopwatch")
+        deny_only = " ".join(flags.remedies_for(sw, "filler_verb"))
+        self.assertIn("remove_term('filler_verb'", deny_only)
+        self.assertNotIn("add_term", deny_only)
+
+    def test_a_closed_list_is_never_offered_for_addition(self):
+        from core import flags
+        ste = rulesets.get_ruleset("ste100")
+        text = " ".join(flags.remedies_for(ste, "vocabulary"))
+        self.assertNotIn("add_term('approved_words'", text)
+        self.assertNotIn("add_term('unapproved_words'", text)
+
+    def test_the_deny_message_carries_them(self):
+        """The hook composes its reason from the same derivation, so a new
+        check or list is covered without touching pretool_hook.py."""
+        source = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "pretool_hook.py")).read()
+        self.assertIn("remedies_for", source)
+        self.assertIn("If a flag is a false positive here", source)
+
+
 if __name__ == "__main__":
     unittest.main()

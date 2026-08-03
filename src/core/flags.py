@@ -48,3 +48,34 @@ def dedup_flags(flags, exclude_kinds=frozenset()):
             first["detail"]["occurrences"] = len(group)
         result.append(first)
     return result
+
+
+def remedies_for(module, check_id):
+    """Which actions resolve a flag of this kind, derived from the ruleset's
+    own declarations rather than a hardcoded table.
+
+    A term list names the check it feeds and its polarity, which is enough
+    to say whether a false positive is fixed by ALLOWING a word or by
+    un-flagging one. Every check can also be switched off, project-wide or
+    for one path.
+
+    This exists because the gate told an agent what was wrong and never what
+    to do about it: a deny listed its flags, and at the retry cap said "ask
+    the user". An agent blocked on a legitimate domain word had add_term
+    sitting right there with no pointer to it. The surface where you learn
+    you are blocked was disconnected from the surface that unblocks you."""
+    out = []
+    ruleset_id = getattr(module, "RULESET_ID", "?")
+    for list_id, spec in sorted(getattr(module, "TERM_LISTS", {}).items()):
+        if spec.get("feeds") != check_id:
+            continue
+        if spec.get("polarity") == "allow":
+            if spec.get("accepts_additions", True):
+                out.append(f"add_term('{list_id}', '<word>') on {ruleset_id} "
+                            f"-- an allow list: stops a legitimate word being flagged")
+        else:
+            out.append(f"remove_term('{list_id}', '<word>') on {ruleset_id} "
+                        f"-- a deny list: stops one word being flagged")
+    out.append(f"set_checks({{'{check_id}': false}}) on {ruleset_id}, or "
+               f"\"disable\": [\"{check_id}\"] on this path's routing rule")
+    return out

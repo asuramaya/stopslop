@@ -210,6 +210,13 @@ class _FakeChecksAndOptions:
             raise ValueError(f"unknown check id(s): {sorted(unknown)}")
         self._disabled = self.ALL_CHECKS - set(check_ids)
 
+    def set_checks_enabled(self, states):
+        unknown = set(states) - self.ALL_CHECKS
+        if unknown:
+            raise ValueError(f"unknown check id(s): {sorted(unknown)}")
+        for check_id, on in states.items():
+            self._disabled.discard(check_id) if on else self._disabled.add(check_id)
+
     def list_options(self):
         return {"threshold": {"value": self._options["threshold"], "default": 4}}
 
@@ -234,15 +241,24 @@ class ChecksAndOptionsToolsTests(unittest.TestCase):
         result = mcp_server.list_checks()
         self.assertTrue(all(c["enabled"] for c in result["checks"].values()))
 
-    def test_enable_checks_then_list_reflects_it(self):
-        enable = mcp_server.enable_checks(["foo_check"])
-        self.assertTrue(enable["ok"])
+    def test_set_checks_turns_one_off_and_leaves_the_rest(self):
+        """The whole reason this tool replaced enable_checks. Naming one
+        check must not be read as "and disable everything else" -- the
+        caller almost never holds the full list, and the old shape turned
+        'quieten this one check' into a silent mass disable."""
+        result = mcp_server.set_checks({"foo_check": False})
+        self.assertTrue(result["ok"])
         checks = mcp_server.list_checks()["checks"]
-        self.assertTrue(checks["foo_check"]["enabled"])
-        self.assertFalse(checks["bar_check"]["enabled"])
+        self.assertFalse(checks["foo_check"]["enabled"])
+        self.assertTrue(checks["bar_check"]["enabled"])
 
-    def test_enable_checks_refuses_unknown_id(self):
-        result = mcp_server.enable_checks(["__not_real__"])
+    def test_set_checks_turns_one_back_on(self):
+        mcp_server.set_checks({"foo_check": False})
+        mcp_server.set_checks({"foo_check": True})
+        self.assertTrue(mcp_server.list_checks()["checks"]["foo_check"]["enabled"])
+
+    def test_set_checks_refuses_unknown_id(self):
+        result = mcp_server.set_checks({"__not_real__": False})
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "refused")
 
@@ -260,7 +276,7 @@ class ChecksAndOptionsToolsTests(unittest.TestCase):
         mcp_server._resolve = lambda ruleset_id=None: types.SimpleNamespace(
             RULESET_ID="no_checks", CAPABILITIES=frozenset())
         self.assertEqual(mcp_server.list_checks()["status"], "unsupported")
-        self.assertEqual(mcp_server.enable_checks([])["status"], "unsupported")
+        self.assertEqual(mcp_server.set_checks({})["status"], "unsupported")
         self.assertEqual(mcp_server.list_options()["status"], "unsupported")
         self.assertEqual(mcp_server.set_ruleset_options({})["status"], "unsupported")
 

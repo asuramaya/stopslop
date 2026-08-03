@@ -149,11 +149,13 @@ def _scope(repo_root):
     disclosure, for adding and REORDERING (first match wins, so order is
     the one thing the folded view genuinely cannot express)."""
     cols = st.columns([2, 5])
-    default = core_config.SYNTHETIC_TEXT_NAME
+    default = _opening_path(repo_root)
     probe = cols[0].text_input(
         "Configuring for path", value=default, key="scope_path",
-        help="Any path in this repo. Routing decides the rest; the default "
-             "is the synthetic name free text is treated as.").strip() or default
+        help="Any path in this repo, real or not -- routing decides the rest. "
+             f"`{core_config.SYNTHETIC_TEXT_NAME}` is the synthetic name every "
+             "free-text entry point (the CLI, an MCP lint_text call, Try it "
+             "below) is treated as.").strip() or default
     full = os.path.join(repo_root, probe)
     rule = core_config.matching_rule(full, repo_root)
 
@@ -186,6 +188,20 @@ def _scope(repo_root):
     with st.expander(f"All routing rules — first match wins"):
         _routing_table(repo_root)
     return probe, full, rule
+
+
+def _opening_path(repo_root):
+    """A REAL file to open on, when one is obvious.
+
+    The page used to greet a first-time reader with `__stdin__.md`, a
+    synthetic name that means something to this codebase and nothing to a
+    person: the whole screen was configured for a file that does not exist.
+    The synthetic name is still reachable by typing it, and the help text
+    now says what it is for."""
+    for candidate in ("README.md", "readme.md"):
+        if os.path.exists(os.path.join(repo_root, candidate)):
+            return candidate
+    return core_config.SYNTHETIC_TEXT_NAME
 
 
 def _pack_count(rule):

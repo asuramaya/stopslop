@@ -28,6 +28,7 @@ import bash_write_detect
 import generate_coaching_memory
 import rulesets
 from core import config as core_config
+from core import flags as flags_mod
 from core import history, paths
 
 PROJECT_ROOT = paths.find_project_root(__file__)
@@ -176,6 +177,19 @@ def main():
             f"requiring human/model resolution before this can be written.\n"
             + "\n".join(summary_lines) + more
         )
+        # Say what can be DONE, not only what is wrong. A deny used to list
+        # its flags and stop there, so an agent blocked on a legitimate
+        # domain word never learned that add_term exists. Derived from the
+        # ruleset's own declarations (core.flags.remedies_for), so a new
+        # check or list is covered without anyone updating a table here.
+        remedy_lines = []
+        for kind in dict.fromkeys(f["kind"] for f in flags[:8]):
+            for line in flags_mod.remedies_for(ruleset, kind):
+                remedy_lines.append(f"- {kind}: {line}")
+        if remedy_lines:
+            reason += ("\n\nIf a flag is a false positive here, these resolve it "
+                       "(MCP tools, or the same names in the dashboard):\n"
+                       + "\n".join(remedy_lines[:10]))
         if attempt_number >= RETRY_CAP:
             reason += (
                 f"\n\nThis is denial #{attempt_number} in a row on this file. Stop "

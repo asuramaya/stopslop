@@ -39,8 +39,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rulesets
 import status_report
 from core import config as core_config
+from core import flags as core_flags
 from core import paths
 from core import scan as core_scan
+from core import terms as core_terms
 
 from mcp.server.mcpserver import MCPServer
 
@@ -228,9 +230,22 @@ def set_path_packs(glob: str = "", list_id: str = "",
                      message="list_id is required: a pack feeds a named term list, "
                              "and the pack itself does not say which one. Call "
                              "list_term_lists to see the ids.")
+    # The same kind guard the dashboard applies. Without it this entry point
+    # walks straight past a rule enforced at three other layers: a pack of
+    # plain words could be bound to a list of regex patterns from here.
+    spec = None
+    for module in rulesets.list_rulesets():
+        if list_id in getattr(module, "TERM_LISTS", {}):
+            spec = module.TERM_LISTS[list_id]
+            break
+    admissible = None
+    if spec is not None:
+        admissible = lambda pid: core_terms.pack_kind_admissible(
+            spec, glossary_packs.AVAILABLE_PACKS.get(pid, {}))
     try:
         core_config.set_rule_packs(REPO_ROOT, glob, list_id, pack_ids or [],
-                                    known_packs=glossary_packs.AVAILABLE_PACKS)
+                                    known_packs=glossary_packs.AVAILABLE_PACKS,
+                                    admissible=admissible)
     except Exception as exc:
         return dict(result, ok=False, status="refused", message=str(exc))
     result["enabled_by_rule"] = _snapshot()
@@ -244,7 +259,7 @@ def list_checks(ruleset: str = "") -> dict:
     to do instead, whether it's currently enabled), if that ruleset supports
     per-check
     toggles at all (see list_rulesets). Every check runs by default --
-    turning one off is a project-level choice, made with enable_checks.
+    turning one off is a project-level choice, made with set_checks.
     """
     active = _resolve(ruleset or None)
     if not hasattr(active, "list_checks"):
@@ -253,21 +268,33 @@ def list_checks(ruleset: str = "") -> dict:
 
 
 @mcp.tool()
-def enable_checks(check_ids: list[str], ruleset: str = "") -> dict:
-    """Set exactly this list of checks as enabled for a ruleset -- disables
-    every other known check for that ruleset. Pass an empty list to
-    disable all of them. Validated against the real check registry first:
-    an unknown check id refuses instead of silently doing nothing. Takes
-    effect on the next gate call immediately, no session restart.
+def set_checks(states: dict[str, bool], ruleset: str = "") -> dict:
+    """Turn individual checks on or off, leaving every check you do not
+    name alone: {"swallowed_exception": false}.
+
+    MERGE semantics, deliberately. This tool replaced an enable_checks that
+    set exactly the list it was given and disabled everything else -- so
+    "turn off this one noisy check" was expressed as "enable the other 19",
+    and getting that list slightly wrong silently disabled real checks. A
+    caller here almost never holds the full picture; the CLI's
+    `stopslop.py checks --enable a b c` does, and keeps replace semantics
+    for that reason. See core.config.merge_disabled_checks.
+
+    An unknown check id refuses rather than silently doing nothing. Takes
+    effect on the next gate call, with no session restart.
     """
     active = _resolve(ruleset or None)
-    if not hasattr(active, "set_enabled_checks"):
-        return _unsupported(active, "checks", "enable individual checks for")
+    if not hasattr(active, "set_checks_enabled"):
+        return _unsupported(active, "checks", "toggle individual checks for")
     try:
-        active.set_enabled_checks(check_ids)
+        active.set_checks_enabled(states)
     except Exception as exc:
         return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "enabled", "message": f"enabled: {', '.join(check_ids) or '(none)'}"}
+    on = sorted(k for k, v in states.items() if v)
+    off = sorted(k for k, v in states.items() if not v)
+    return {"ok": True, "status": "saved",
+            "message": f"on: {', '.join(on) or '(none)'} · off: {', '.join(off) or '(none)'}",
+            "checks": active.list_checks()}
 
 
 @mcp.tool()
@@ -344,6 +371,69 @@ def scan_codebase(paths: list[str] = None, ruleset: str = "", glob: str = "*") -
             }
             for r in report["results"] if r["blocking_flags"] or r["mechanical_flags"]
         ],
+    }
+
+
+@mcp.tool()
+def explain(file_path: str) -> dict:
+    """Everything that will happen to one file, in one call.
+
+    The rest of this surface is organised by CONFIG KEY -- list_checks,
+    list_options, list_term_lists, set_path_packs -- which is the shape of
+    the storage, not the shape of the question. An agent about to write a
+    file wants one answer: what gates this, what would block me, and what
+    can I do about it. Getting that from the other tools meant knowing to
+    call list_rulesets, guessing which ruleset applies, then four more
+    calls; and only one of those tools even took a file path.
+
+    Returns the matched routing rule, the ruleset, its deny policy in
+    words, the checks that actually run on this path (with the ones that
+    deny on their own marked), the vocabulary reaching it, and the tools
+    that resolve each kind of flag.
+    """
+    full = file_path if os.path.isabs(file_path) else os.path.join(REPO_ROOT, file_path)
+    rule = core_config.matching_rule(full, REPO_ROOT)
+    if rule is None:
+        return {"ok": True, "status": "unrouted", "file": file_path,
+                "message": "No routing rule matches this path, so the gate "
+                            "never runs on it. Add a rule to "
+                            "stopslop.config.json to bring it into scope."}
+    if rule["ruleset"] is None:
+        return {"ok": True, "status": "out_of_scope", "file": file_path,
+                "rule": rule["glob"],
+                "message": f"The rule {rule['glob']!r} puts this path out of "
+                            f"scope deliberately. Nothing is checked here."}
+
+    module = rulesets.get_ruleset(rule["ruleset"])
+    options = ({n: i["value"] for n, i in module.list_options().items()}
+               if "options" in module.CAPABILITIES else {})
+    policy = getattr(module, "DENY_POLICY", {})
+    try:
+        policy_text = policy.get("text", "").format(**options)
+    except KeyError:
+        policy_text = policy.get("text", "")
+
+    disabled = set(core_config.disabled_checks_for_path(
+        REPO_ROOT, module.RULESET_ID, full))
+    always = set(policy.get("always_blocking", ()))
+    checks = {}
+    if "checks" in module.CAPABILITIES:
+        for check_id, meta in sorted(module.list_checks().items()):
+            if check_id in disabled:
+                continue
+            checks[check_id] = {"catches": meta["catches"],
+                                 "instead": meta["instead"],
+                                 "denies_alone": check_id in always,
+                                 "remedies": core_flags.remedies_for(module, check_id)}
+    return {
+        "ok": True, "status": "gated", "file": file_path,
+        "rule": rule["glob"], "ruleset": module.RULESET_ID,
+        "denies_when": policy_text,
+        "checks_that_run": checks,
+        "checks_disabled_here": sorted(disabled),
+        "options": options,
+        "vocabulary": (module.list_term_lists(file_path=full)
+                       if "terms" in module.CAPABILITIES else {}),
     }
 
 

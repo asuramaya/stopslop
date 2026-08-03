@@ -98,6 +98,24 @@ ACTION_ICON = {"deny": "🚫", "auto_fix": "🔧", "clean": "✅",
                "unscoped_write": "❔", "register_term": "➕", "unregister_term": "➖"}
 
 
+def _first_run_notice():
+    """Say the one thing a new install needs to hear.
+
+    Nothing on either page told a first-time reader what to do. The footer
+    showed `hook: 🔴` and left it there -- a red light with no instruction
+    is worse than no light, because it reads as a fault rather than a step
+    not taken yet. Shown only while the gate is genuinely not wired up, so
+    it disappears the moment it stops being true."""
+    report = status_report.build_status_report(REPO_ROOT)
+    if report["hook_configured"]:
+        return
+    st.warning(
+        "**The gate is not installed yet.** Everything here reads and edits "
+        "config, but no write is being checked. Run `python3 stopslop.py "
+        "init` in this repo, then restart Claude Code to pick up the hook. "
+        "Until then, use `Try it` on Configure to see what the gate would do.")
+
+
 def _status_footer():
     # Deliberately no per-event detail here (ruleset/action/file) -- that's
     # already what Watch's own Full activity table shows, in full, one
@@ -116,8 +134,18 @@ def _status_footer():
 # --- Watch --------------------------------------------------------------
 
 def watch_page():
+    """Configure answers "what happens to this file?". Watch answers the
+    same question in the past tense, so it filters the same way.
+
+    It carried only a ruleset dropdown -- the exact control deleted from
+    Configure -- and could not answer "what happened to MY file", which is
+    the question anyone opens this page with."""
+    _first_run_notice()
+    cols = st.columns([3, 2])
+    cols[0].text_input("Filter by path", key="watch_path",
+                        placeholder="any part of a path, e.g. docs/ or README")
     ids = ["All"] + [m.RULESET_ID for m in rulesets.list_rulesets()]
-    st.selectbox("Filter by ruleset", ids, key="watch_filter")
+    cols[1].selectbox("Filter by ruleset", ids, key="watch_filter")
     _watch_activity()
 
 
@@ -127,6 +155,9 @@ def _watch_activity():
     chosen = st.session_state.get("watch_filter", "All")
     if chosen != "All":
         events = [e for e in events if e.get("ruleset") == chosen]
+    needle = (st.session_state.get("watch_path") or "").strip().lower()
+    if needle:
+        events = [e for e in events if needle in (e.get("file") or "").lower()]
 
     denials = [e for e in events if e.get("action") == "deny"][:5]
     with st.container(border=True):
@@ -142,7 +173,7 @@ def _watch_activity():
     events = events[:50]
     if not events:
         st.info("No matching activity yet -- write something through the hook, "
-                 "or try a ruleset's playground on Configure.")
+                 "or use `Try it` on Configure to see what it would do.")
         return
     st.dataframe(
         [{
@@ -164,6 +195,7 @@ def _watch_activity():
 
 
 def configure_page():
+    _first_run_notice()
     _configure.configure_page(REPO_ROOT)
 
 
