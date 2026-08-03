@@ -404,8 +404,7 @@ def explain(file_path: str) -> dict:
                             f"scope deliberately. Nothing is checked here."}
 
     module = rulesets.get_ruleset(rule["ruleset"])
-    options = ({n: i["value"] for n, i in module.list_options().items()}
-               if "options" in module.CAPABILITIES else {})
+    options = core_flags.display_options(module)
     policy = getattr(module, "DENY_POLICY", {})
     try:
         policy_text = policy.get("text", "").format(**options)

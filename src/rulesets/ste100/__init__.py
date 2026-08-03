@@ -90,10 +90,14 @@ def _history_path():
 # `text` is format()ed with this ruleset's live option values, so a tunable
 # number in the sentence shows what it is right now, not its default.
 DENY_POLICY = {
-    "text": "Denies on every semantic flag EXCEPT unapproved vocabulary "
-            "(unknown words, unapproved synonyms, words with no approved "
-            "replacement). Those are reported and let through, because the "
-            "dictionary cannot know a project's own domain words.",
+    # {excluded_vocab_types} is filled in from the LIVE option value, not
+    # hardcoded prose -- excluded_vocab_types is a tunable set now, and a
+    # project that narrows or widens it deserves a policy sentence that
+    # still describes what the gate actually does.
+    "text": "Denies on every semantic flag EXCEPT vocabulary flagged as one "
+            "of: {excluded_vocab_types}. Those are reported and let "
+            "through, because the dictionary cannot know a project's own "
+            "domain words.",
     "always_blocking": (),
 }
 
@@ -122,13 +126,31 @@ TERM_LISTS = lint.TERM_LISTS
 # see rulesets/slopwatch/__init__.py's CHECK_OPTIONS.
 CHECK_OPTIONS = {
     "length": ("procedure_word_limit", "description_word_limit"),
+    "vocabulary": ("excluded_vocab_types",),
+}
+
+# Options whose value is a closed set of choices rather than a free scalar.
+# isinstance(value, list) alone (set_options's base type check) accepts a
+# list of ANYTHING; a typo'd type name would silently stop being excluded
+# with no error anywhere, one drift-goes-off-in-the-quiet-direction bug
+# away from a project that thinks it widened blocking and did nothing.
+# check_vocabulary is the only source of "type" values on a vocabulary
+# flag's detail dict -- these three are the whole domain, not a sample.
+_OPTION_CHOICES = {
+    "excluded_vocab_types": {"unknown_vocabulary", "unapproved_no_replacement",
+                              "unapproved_synonym"},
 }
 
 
 def list_options():
     current = lint._options()
-    return {name: {"value": current[name], "default": default}
-            for name, default in lint.DEFAULT_OPTIONS.items()}
+    out = {}
+    for name, default in lint.DEFAULT_OPTIONS.items():
+        entry = {"value": current[name], "default": default}
+        if name in _OPTION_CHOICES:
+            entry["choices"] = sorted(_OPTION_CHOICES[name])
+        out[name] = entry
+    return out
 
 
 def set_options(options):
@@ -142,6 +164,12 @@ def set_options(options):
         expected = type(lint.DEFAULT_OPTIONS[key])
         if not isinstance(value, expected):
             raise ValueError(f"option {key!r} must be a {expected.__name__}, got {value!r}")
+        choices = _OPTION_CHOICES.get(key)
+        if choices is not None:
+            bad = sorted(set(value) - choices)
+            if bad:
+                raise ValueError(f"option {key!r} has unknown value(s) {bad} -- "
+                                  f"known: {sorted(choices)}")
     project_root = paths.find_project_root(__file__)
     merged = dict(_core_config.ruleset_options(project_root, RULESET_ID))
     merged.update(options)

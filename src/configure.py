@@ -48,6 +48,7 @@ import streamlit as st
 
 import rulesets
 from core import config as core_config
+from core import flags as core_flags
 from core import glossary_packs, terms as core_terms
 
 
@@ -249,7 +250,10 @@ def _check_toggled(repo_root, module, check_id, key):
 
 
 def _option_changed(repo_root, module, name, key):
-    value = int(st.session_state[key])
+    raw = st.session_state[key]
+    # number_input's own value can arrive as a float even with step=1;
+    # multiselect already returns the list a choice-option needs untouched.
+    value = int(raw) if isinstance(raw, (int, float)) else raw
     _snapshot(repo_root, f"set {module.RULESET_ID}.{name} to {value}")
     try:
         module.set_options({name: value})
@@ -338,8 +342,7 @@ def _deny_policy(ruleset_id):
     policy = getattr(module, "DENY_POLICY", None)
     if not policy:
         return
-    options = ({name: info["value"] for name, info in module.list_options().items()}
-               if "options" in module.CAPABILITIES else {})
+    options = core_flags.display_options(module)
     try:
         text = policy["text"].format(**options)
     except KeyError as missing:
@@ -484,9 +487,17 @@ def _check_detail(repo_root, full, row, ruleset_id):
 def _option_control(repo_root, row, name, info):
     cols = st.columns([2, 6])
     key = f"opt::{row['ruleset']}::{name}"
-    cols[0].number_input(name, value=int(info["value"]), step=1, key=key,
-                          on_change=_option_changed,
-                          args=(repo_root, row["module"], name, key))
+    args = (repo_root, row["module"], name, key)
+    # "choices" marks a closed-set option (e.g. ste100's
+    # excluded_vocab_types) -- a multiselect over the ruleset's own
+    # declared domain, not a number. Declared, not inferred from the
+    # value's type: see rulesets/ste100/__init__.py's _OPTION_CHOICES.
+    if "choices" in info:
+        cols[0].multiselect(name, options=info["choices"], default=info["value"],
+                             key=key, on_change=_option_changed, args=args)
+    else:
+        cols[0].number_input(name, value=int(info["value"]), step=1, key=key,
+                              on_change=_option_changed, args=args)
     with cols[1]:
         st.caption("")
         st.caption(f"shipped default {info['default']}")

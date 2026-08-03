@@ -394,6 +394,14 @@ CONTRACTION_EXPANSIONS = {
 DEFAULT_OPTIONS = {
     "procedure_word_limit": 20,
     "description_word_limit": 25,
+    # Which vocabulary "type"s (see check_vocabulary's "type" field --
+    # unknown_vocabulary/unapproved_no_replacement/unapproved_synonym are
+    # the only three that ever occur) are reported but never block a
+    # write. See blocking_semantic_flags below for why this exists at all;
+    # this used to be a fixed module constant (EXCLUDED_VOCAB_TYPES) --
+    # a project narrowing or widening the staged set had no way to say so.
+    "excluded_vocab_types": ["unknown_vocabulary", "unapproved_no_replacement",
+                              "unapproved_synonym"],
 }
 
 
@@ -1048,15 +1056,17 @@ def lint_and_gate(text, context="procedure", file_path=None):
 # plus a first-occurrence registration flow (glossary.py, but nothing calls
 # it automatically yet) to mature first.
 #
+# Which types are actually staged out is DEFAULT_OPTIONS["excluded_vocab_types"],
+# not a fixed set -- a project can narrow it (start blocking on genuinely
+# unknown words) or widen it, the same as any other tunable option.
+#
 # THE SINGLE SOURCE OF TRUTH for "does this flag actually block a write" --
 # every caller (the hook, the CLI, the MCP server) goes through
 # blocking_semantic_flags() rather than keeping its own copy of this filter.
-EXCLUDED_VOCAB_TYPES = {"unknown_vocabulary", "unapproved_no_replacement", "unapproved_synonym"}
-
-
 def blocking_semantic_flags(semantic_flags):
+    excluded = _options()["excluded_vocab_types"]
     return [f for f in semantic_flags
-            if not (f["kind"] == "vocabulary" and f["detail"]["type"] in EXCLUDED_VOCAB_TYPES)]
+            if not (f["kind"] == "vocabulary" and f["detail"]["type"] in excluded)]
 
 
 def fix_sentence(sentence, project_terms=None, suppressed=None):

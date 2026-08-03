@@ -385,6 +385,52 @@ class CheckToggleTests(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
 
 
+class VocabExclusionOptionTests(unittest.TestCase):
+    """excluded_vocab_types used to be a fixed module constant
+    (EXCLUDED_VOCAB_TYPES) -- a project had no way to say "actually, start
+    blocking on genuinely unknown words" without editing lint.py itself.
+    Same isolation technique as CheckToggleTests: a throwaway project root,
+    never the real repo's stopslop.config.json."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        self._orig_find_root = ste100.paths.find_project_root
+        ste100.paths.find_project_root = lambda _file: self._tmp.name
+
+    def tearDown(self):
+        ste100.paths.find_project_root = self._orig_find_root
+        self._tmp.cleanup()
+
+    def test_narrowing_the_set_makes_a_previously_staged_type_block(self):
+        r = lint.lint_and_gate("kubernetes", context="description")
+        self.assertEqual(ste100.blocking_semantic_flags(r["semantic_flags"]), [],
+                          "unknown_vocabulary is excluded by default")
+        ste100.set_options({"excluded_vocab_types": ["unapproved_no_replacement",
+                                                       "unapproved_synonym"]})
+        r = lint.lint_and_gate("kubernetes", context="description")
+        blocking = ste100.blocking_semantic_flags(r["semantic_flags"])
+        self.assertTrue(any(f["kind"] == "vocabulary" for f in blocking))
+
+    def test_list_options_exposes_the_closed_choice_set(self):
+        info = ste100.list_options()["excluded_vocab_types"]
+        self.assertEqual(set(info["choices"]),
+                          {"unknown_vocabulary", "unapproved_no_replacement",
+                           "unapproved_synonym"})
+
+    def test_an_unknown_choice_raises_and_does_not_write(self):
+        with self.assertRaises(ValueError):
+            ste100.set_options({"excluded_vocab_types": ["not_a_real_vocab_type"]})
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+    def test_deny_policy_text_reflects_the_live_set(self):
+        from core import flags as core_flags
+        ste100.set_options({"excluded_vocab_types": ["unapproved_synonym"]})
+        text = ste100.DENY_POLICY["text"].format(**core_flags.display_options(ste100))
+        self.assertIn("unapproved_synonym", text)
+        self.assertNotIn("unknown_vocabulary", text)
+
+
 class DictionaryAsTermListsTests(unittest.TestCase):
     """The real ASD-STE100 dictionary is now two term lists rather than two
     module globals nothing else could see.

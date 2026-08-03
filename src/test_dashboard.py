@@ -124,7 +124,7 @@ READ_ONLY_WIDGET_KEYS = ("scope_path", "rules_q", "rules_rs", "aw_q", "aw_list",
                           "watch_filter", "rules_mode")
 
 MUTATING_WIDGETS = ("selectbox", "toggle", "number_input", "checkbox", "radio",
-                     "segmented_control")
+                     "segmented_control", "multiselect")
 
 
 def _key_literal(call):

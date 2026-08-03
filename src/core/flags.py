@@ -79,6 +79,27 @@ def dedup_flags(flags, exclude_kinds=frozenset()):
     return result
 
 
+def display_options(module):
+    """A ruleset's live option values, ready to format() into DENY_POLICY's
+    text. A list-valued option (e.g. ste100's excluded_vocab_types) is
+    joined into a plain string first -- str.format() happily renders an
+    unjoined list as its Python repr ("['a', 'b']"), which is correct but
+    not the kind of "live" a policy sentence exists to show a human. {} for
+    a ruleset with no "options" capability.
+
+    Was two copies of the same options dict-comprehension (the dashboard's
+    deny-policy panel, the MCP server's explain()), both missing this join
+    -- neither showed it because neither ruleset had a list-valued option
+    until now."""
+    if "options" not in module.CAPABILITIES:
+        return {}
+    out = {}
+    for name, info in module.list_options().items():
+        value = info["value"]
+        out[name] = ", ".join(value) if isinstance(value, list) else value
+    return out
+
+
 def remedies_for(module, check_id):
     """Which actions resolve a flag of this kind, derived from the ruleset's
     own declarations rather than a hardcoded table.

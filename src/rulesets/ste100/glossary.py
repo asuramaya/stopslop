@@ -9,10 +9,11 @@ one-time move off the old bespoke project-terms.json file.
 This is the human-facing half of the "model suggests, user confirms" flow
 the design doc describes: when a live session hits a vocabulary denial (or,
 today, an unknown_vocabulary/unapproved_no_replacement/ambiguous flag it
-would otherwise just silently pass through -- see EXCLUDED_VOCAB_TYPES in
-lint.py), the agent judges whether the word is genuine project/domain
-vocabulary the real ASD-STE100 dictionary was never going to cover, asks the
-user to confirm (AskUserQuestion), and only on explicit approval calls
+would otherwise just silently pass through -- see lint.py's
+DEFAULT_OPTIONS["excluded_vocab_types"]), the agent judges whether the word
+is genuine project/domain vocabulary the real ASD-STE100 dictionary was
+never going to cover, asks the user to confirm (AskUserQuestion), and only
+on explicit approval calls
 register(). Nothing in this codebase calls it automatically -- registration
 is a deliberate, logged, one-word-at-a-time act.
 

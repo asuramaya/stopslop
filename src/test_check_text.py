@@ -30,6 +30,7 @@ from collections import Counter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rulesets
+from core import flags as core_flags
 
 
 def _all_checks():
@@ -167,9 +168,7 @@ class CheckToConfigLinksTests(unittest.TestCase):
                 # The text is format()ed with live option values, so a
                 # placeholder with no option behind it renders as a stray
                 # brace or raises, depending on the caller.
-                options = ({n: i["value"] for n, i in module.list_options().items()}
-                           if "options" in module.CAPABILITIES else {})
-                policy["text"].format(**options)
+                policy["text"].format(**core_flags.display_options(module))
 
     def test_every_option_is_owned_by_a_check_or_is_the_deny_threshold(self):
         """No option may be orphaned. Configure shows an option either
