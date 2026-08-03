@@ -65,6 +65,27 @@ class ResolveTests(unittest.TestCase):
             stopslop._resolve("__not_a_real_ruleset__", stopslop.REPO_ROOT + "/README.md")
 
 
+class OwnDocsPassTheGateTests(unittest.TestCase):
+    """The project's own root README, gated live through whatever ruleset
+    it actually resolves to. Guards a regression that shipped and sat
+    unnoticed: the README carried two colon-reveal constructions, a filler-
+    verb false trigger, and a textbook "X. Not X. It is Y." binary-contrast
+    opener -- four blocking flags against the project's own gate, on the
+    file every new reader opens first. Nothing ran this check, so nobody
+    noticed until someone actually fed the file through the linter."""
+
+    def test_readme_is_clean_against_its_own_resolved_ruleset(self):
+        ruleset = stopslop._resolve(None, stopslop.REPO_ROOT + "/README.md")
+        with open(stopslop.REPO_ROOT + "/README.md") as f:
+            text = f.read()
+        result = ruleset.lint_and_gate(text)
+        blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
+        self.assertEqual(
+            blocking, [],
+            f"README.md fails its own {ruleset.RULESET_ID} gate: "
+            + ", ".join(f"{f['kind']}({f.get('label')!r})" for f in blocking))
+
+
 class RequireTermsTests(unittest.TestCase):
     """Every ruleset has term lists now -- "glossary" (ste100's allow list)
     and "wordlists" (slopwatch's/codewatch's deny lists) were one concept
