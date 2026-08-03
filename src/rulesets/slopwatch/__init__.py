@@ -115,9 +115,13 @@ CHECK_OPTIONS = {
 }
 
 DENY_POLICY = {
+    # The rationale for the threshold (why density, not any single flag,
+    # is what should block a write) belongs in blocking_semantic_flags's
+    # own docstring below -- this is the UI-facing text, rendered as-is on
+    # the Configure page and in MCP's explain(), so it states the policy
+    # and stops there.
     "text": "No single flag denies on its own. A write is denied when "
-            "semantic flags reach {block_flag_count_threshold}, so the text "
-            "reads as densely formulaic rather than merely imperfect.",
+            "semantic flags reach {block_flag_count_threshold}.",
     "always_blocking": ("em_dash_cluster",),
 }
 

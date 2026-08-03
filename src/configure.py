@@ -186,7 +186,7 @@ def _scope(repo_root):
                 st.caption(f"{'out of scope' if not current else current} · "
                             f"{_pack_count(rule)} pack binding(s)")
 
-    with st.expander(f"All routing rules — first match wins"):
+    with st.expander("All routing rules — first match wins", expanded=True):
         _routing_table(repo_root)
     return probe, full, rule
 
@@ -762,8 +762,15 @@ def _all_words(repo_root, probe, full, ruleset_id):
         rows.append({"term": row["term"], "ruleset": row["ruleset"],
                       "list": f"{row['ruleset']}.{row['list']}",
                       "source": "suppressed", "polarity": "", "note": ""})
-    st.caption(f"**{len(rows)}** words reach `{probe}`, including any this "
-               f"project suppressed. Every ruleset's lists are here.")
+    # Same idiom as _by_check's caption: state the global total, then call
+    # out how much of it is actually scoped to this path -- not "2124
+    # words reach README.md", which reads as if all 2124 apply here when
+    # this table is deliberately every ruleset's lists, project-wide.
+    here = sum(1 for r in rows if r["ruleset"] == ruleset_id)
+    scope_note = (f"**{here}** belong to {ruleset_id}, the ruleset gating `{probe}`."
+                  if ruleset_id else f"`{probe}` is out of scope, so none of these gate it.")
+    st.caption(f"{len(rows)} words across every ruleset's lists, project-wide, "
+               f"including any suppressed. {scope_note}")
 
     cols = st.columns([3, 2, 2])
     needle = cols[0].text_input("Search", key="aw_q").strip().lower()
