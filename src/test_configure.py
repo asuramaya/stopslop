@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""Direct-function tests for configure.py's pure logic -- previously
+untested entirely (no test file for this module existed). configure.py
+imports streamlit at module level, so this whole file is skipped (not
+failed) when it's not installed -- the stdlib-only core suite must stay
+runnable without the venv (see test_mcp_server.py for the same pattern).
+
+Most of configure.py is Streamlit rendering, not unit-testable without a
+full AppTest harness -- these are the pieces that are plain functions
+first and Streamlit calls second.
+
+Run with (needs the venv -- see README's MCP setup section):
+    cd src && ../.venv/bin/python3 -m unittest test_configure -v
+"""
+import unittest
+
+try:
+    import configure
+    _STREAMLIT_AVAILABLE = True
+except ImportError:
+    _STREAMLIT_AVAILABLE = False
+
+
+@unittest.skipUnless(_STREAMLIT_AVAILABLE, "streamlit not installed -- see README's MCP setup section")
+class SyntheticPathForGlobTests(unittest.TestCase):
+    """Feeds "Try it" and any pack/context resolution downstream, which
+    need a concrete path to fnmatch against, not a pattern -- see
+    core.config.matching_rule and core.config.packs_for_path, both keyed
+    on a real relative path."""
+
+    def test_literal_glob_passes_through_unchanged(self):
+        self.assertEqual(configure._synthetic_path_for_glob("README.md"), "README.md")
+
+    def test_suffix_wildcard_gets_a_stand_in_stem(self):
+        result = configure._synthetic_path_for_glob("*.md")
+        self.assertEqual(result, "__probe__.md")
+
+    def test_wildcard_inside_a_directory_segment(self):
+        result = configure._synthetic_path_for_glob("docs/security/*.md")
+        self.assertEqual(result, "docs/security/__probe__.md")
+
+    def test_bare_wildcard_directory_segment(self):
+        result = configure._synthetic_path_for_glob(".claude/*")
+        self.assertEqual(result, ".claude/__probe__")
+
+    def test_result_actually_matches_the_source_glob(self):
+        import fnmatch
+        for glob in ("README.md", "*.md", "*.txt", "docs/security/*.md", ".claude/*"):
+            with self.subTest(glob=glob):
+                self.assertTrue(fnmatch.fnmatch(
+                    configure._synthetic_path_for_glob(glob), glob))
+
+
+@unittest.skipUnless(_STREAMLIT_AVAILABLE, "streamlit not installed -- see README's MCP setup section")
+class PackCountTests(unittest.TestCase):
+
+    def test_no_packs_key_counts_as_zero(self):
+        self.assertEqual(configure._pack_count({"glob": "*.py"}), 0)
+
+    def test_sums_across_every_list(self):
+        rule = {"packs": {"project_terms": ["a", "b"], "other_list": ["c"]}}
+        self.assertEqual(configure._pack_count(rule), 3)
+
+
+if __name__ == "__main__":
+    unittest.main()

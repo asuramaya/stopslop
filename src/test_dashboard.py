@@ -119,9 +119,9 @@ class DashboardStructureTests(unittest.TestCase):
 # Widgets whose value is only ever READ during a render -- a search box, a
 # filter, the path being inspected, the pending entry in an add form. These
 # never write to the config file, so a stale session value is harmless.
-READ_ONLY_WIDGET_KEYS = ("scope_path", "rules_q", "rules_rs", "aw_q", "aw_list",
+READ_ONLY_WIDGET_KEYS = ("rules_q", "rules_rs", "aw_q", "aw_list",
                           "aw_src", "add_", "note_", "attach_", "override_reason",
-                          "watch_filter", "rules_mode")
+                          "watch_filter", "rules_mode", "packlist::")
 
 MUTATING_WIDGETS = ("selectbox", "toggle", "number_input", "checkbox", "radio",
                      "segmented_control", "multiselect")
@@ -210,6 +210,34 @@ class ApplyOnChangeTests(unittest.TestCase):
                           if isinstance(d, ast.Attribute) and d.attr == "rerun"]
                 with self.subTest(callback=node.name):
                     self.assertEqual(reruns, [], "st.rerun() inside a callback raises")
+
+
+class UndoBarOrderingTests(unittest.TestCase):
+    """_undo_bar's key-clearing must run before anything on the page draws
+    a widget that mirrors config state, or an Undo click's own rerun
+    redraws that widget with the STALE pre-undo session-state value
+    before the clearing ever takes effect. Proven live: when
+    _routing_section (which draws the pack-editing multiselect) ran
+    before _undo_bar, clicking Undo correctly reverted the FILE
+    immediately, but the multiselect kept showing the just-detached pack
+    until an unrelated page reload cleared it -- the write was right,
+    the redraw was one rerun behind it."""
+
+    def test_undo_bar_runs_before_routing_section_in_configure_page(self):
+        path = os.path.join(SRC_DIR, "configure.py")
+        with open(path) as f:
+            tree = ast.parse(f.read())
+        func = next(n for n in ast.walk(tree)
+                    if isinstance(n, ast.FunctionDef) and n.name == "configure_page")
+        calls = sorted(
+            (node.lineno, node.func.id) for node in ast.walk(func)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            and node.func.id in ("_undo_bar", "_routing_section"))
+        self.assertEqual(
+            [name for _lineno, name in calls], ["_undo_bar", "_routing_section"],
+            "_undo_bar must run before _routing_section in configure_page, "
+            "or a widget mirroring config state (see _rule_packs_editor) "
+            "draws stale on the very rerun that was supposed to fix it")
 
 
 if __name__ == "__main__":

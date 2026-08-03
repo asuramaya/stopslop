@@ -24,15 +24,20 @@ swallowed_exception) deny on their own while rendering identically to
 every other row. Each ruleset now states its own policy (DENY_POLICY) and
 the rows that deny alone say so.
 
-Packs stopped being a concept here. A pack is a source of words, words
-belong to a list, a list belongs to a check -- so attaching one is a
-control inside that check, acting on the rule the scope line names. Nothing
-called "packs" needs its own place.
+Packs attach to a ROUTING RULE, not to a check. That used to mean a
+control buried inside whichever check happened to read the list a pack
+feeds -- a remnant of ste100 being the only ruleset, with exactly one
+pack-eligible list, when that placement was still one hop from "the rule
+this pack is actually bound to." Once other rulesets and other lists
+existed the hop stopped being obvious. A pack is bulk vocabulary bound to
+a PATH (which text it covers), and the routing table is where paths and
+their rules live -- so packs are edited where the rule is focused, not
+inside whichever check happens to consume the words.
 
 Two things are deliberately NOT folded. `by check / all words` keeps the
 flat 2830-row vocabulary view, because "show me every word this path
 knows" is a real question that a check-keyed layout cannot answer. And the
-full routing table stays reachable behind the scope line, because rule
+full routing table stays reachable below the focused rule, because rule
 ORDER is load-bearing (first match wins) and order is invisible in a view
 that only shows the winner.
 
@@ -93,7 +98,7 @@ def _undo_bar():
         # file alone would leave the toggles and numbers displaying what was
         # just undone -- and the next interaction would write THAT back.
         for key in [k for k in st.session_state
-                    if k.startswith(("chk::", "opt::"))]:
+                    if k.startswith(("chk::", "opt::", "pack::"))]:
             del st.session_state[key]
         st.toast("Reverted", icon="↩️")
         st.rerun()
@@ -128,9 +133,17 @@ def _confirm(key, question, detail=""):
 # --- the page -------------------------------------------------------------
 
 def configure_page(repo_root):
-    probe, full, rule = _scope(repo_root)
-    ruleset_id = rule["ruleset"] if rule else None
+    # Runs BEFORE anything that mirrors config state -- an Undo click's own
+    # rerun clears stale widget keys inline, inside this call. When a
+    # pack-editing multiselect lived in _routing_section (called first,
+    # before this moved), it drew with the pre-undo session-state value
+    # before the clearing ever ran, so the click undid the FILE correctly
+    # but the widget kept showing the old selection until the next,
+    # unrelated rerun. Anything below this line is safe to mirror config;
+    # anything that would need to run before it is not.
     _undo_bar()
+    probe, full, rule = _routing_section(repo_root)
+    ruleset_id = rule["ruleset"] if rule else None
 
     with st.container(border=True):
         _rules_section(repo_root, probe, full, ruleset_id)
@@ -139,45 +152,123 @@ def configure_page(repo_root):
         _playground(repo_root, probe, full, ruleset_id)
 
 
-def _scope(repo_root):
-    """The path, and the rule that governs it. Returns (probe, full path,
-    rule dict or None).
+def _synthetic_path_for_glob(glob):
+    """A literal path fnmatch would actually match against `glob` -- for
+    "Try it" and any pack/context resolution downstream, which need a
+    concrete path, not a pattern. Every wildcard segment becomes a fixed
+    stand-in; a literal glob (no "*") is already a real path and passes
+    through untouched. The same role core.config.SYNTHETIC_TEXT_NAME
+    plays for free text with no file at all, generalized to any glob
+    instead of hardcoding "*.md"."""
+    return glob.replace("*", "__probe__") if "*" in glob else glob
 
-    Used to carry its own "Gated by" selectbox, editing the matched
-    rule's ruleset right where it was named -- but the table directly
-    below already edits that exact same cell, inline, via its own
-    SelectboxColumn (see _routing_table). Two widgets that wrote the same
-    fact is not two zoom levels, it's the same edit offered twice, and
-    the top one's write path (a key scoped to the glob, a dedicated
-    callback) was strictly more code for a control the table already had.
-    This is read-only now: it says what the probe resolves to, and points
-    at the table for the one place that changes it."""
+
+def _routing_section(repo_root):
+    """The routing rules, and the one currently focused. Returns (probe,
+    full path, rule dict or None).
+
+    Used to be a free-text "Configuring for path" box, resolved against
+    the table below to find out anything -- but the table already names
+    every real rule directly; typing a path that might not even exist
+    was a detour to a fact already on screen. Click a row instead: the
+    CLICK is the probe. st.dataframe supports selection but not editing,
+    so add/remove/reorder still needs the data_editor below -- same
+    Streamlit gap the checks section works around, same fix (master
+    view here, mutation moved to a disclosure)."""
     with st.container(border=True):
-        cols = st.columns([2, 5])
-        default = _opening_path(repo_root)
-        probe = cols[0].text_input(
-            "Configuring for path", value=default, key="scope_path",
-            help="Any path in this repo, real or not -- routing decides the rest. "
-                 f"`{core_config.SYNTHETIC_TEXT_NAME}` is the synthetic name every "
-                 "free-text entry point (the CLI, an MCP lint_text call, Try it "
-                 "below) is treated as.").strip() or default
+        stored = core_config.rule_packs(repo_root)
+        if not stored:
+            st.caption("No routing rules yet. Add one below.")
+            with st.expander("Add, remove, or reorder rules", expanded=True):
+                _routing_table(repo_root)
+            probe = core_config.SYNTHETIC_TEXT_NAME
+            return probe, os.path.join(repo_root, probe), None
+
+        # Same default a fresh page used to open on: whichever rule
+        # governs a real file in this repo, not the first row alphabetically.
+        default_rule = core_config.matching_rule(
+            os.path.join(repo_root, _opening_path(repo_root)), repo_root)
+        default_idx = next((i for i, (g, _r, _p) in enumerate(stored)
+                             if default_rule and g == default_rule["glob"]), 0)
+
+        event = st.dataframe(
+            [{"glob": g, "ruleset": r or "out of scope",
+              "packs": _pack_count({"packs": p})} for g, r, p in stored],
+            width="stretch", hide_index=True,
+            on_select="rerun", selection_mode="single-row", key="routing_focus",
+            column_config={
+                "glob": st.column_config.TextColumn("glob", width="medium"),
+                "ruleset": st.column_config.TextColumn("ruleset", width="small"),
+                "packs": st.column_config.NumberColumn("packs", width="small"),
+            })
+        idx = event.selection.rows[0] if event.selection.rows else default_idx
+        glob, ruleset_id, packs = stored[idx]
+        rule = {"glob": glob, "ruleset": ruleset_id, "packs": packs}
+        probe = _synthetic_path_for_glob(glob)
         full = os.path.join(repo_root, probe)
-        rule = core_config.matching_rule(full, repo_root)
 
-        with cols[1]:
-            st.caption("")
-            if rule is None:
-                st.markdown(f"`{probe}` → **no routing rule matches it**, so the "
-                            f"gate never runs. Add a rule below.")
-            else:
-                current = rule["ruleset"] or "out of scope"
-                st.markdown(f"`{probe}` → rule `{rule['glob']}` → **{current}** · "
-                            f"{_pack_count(rule)} pack binding(s) — change it in "
-                            f"the table below.")
+        if ruleset_id:
+            st.markdown(f"`{glob}` → **{ruleset_id}** · "
+                        f"{_pack_count(rule)} pack binding(s)")
+            _rule_packs_editor(repo_root, rule)
+        else:
+            st.caption(f"`{glob}` is out of scope — nothing is checked here.")
 
-        with st.expander("All routing rules — first match wins", expanded=True):
+        with st.expander("Add, remove, or reorder rules", expanded=False):
             _routing_table(repo_root)
     return probe, full, rule
+
+
+def _rule_packs_editor(repo_root, rule):
+    """Which vocabulary packs feed the focused rule's term lists.
+
+    Select the list first, only if the ruleset has more than one that
+    takes packs -- most rulesets do (ste100's project_terms, codewatch's
+    generic_naming, all five of slopwatch's deny lists), which is exactly
+    why this reads TERM_LISTS rather than naming a list: a control that
+    only knew about ste100's one would already be wrong for the other
+    two. Then the packs actually bound to the chosen list. See the module
+    docstring for why this moved here from inside a check's detail view."""
+    module = rulesets.get_ruleset(rule["ruleset"])
+    lists = getattr(module, "TERM_LISTS", {})
+    pack_lists = sorted(lid for lid, spec in lists.items() if spec.get("accepts_packs"))
+    if not pack_lists:
+        st.caption(f"{rule['ruleset']} has no term list that accepts packs.")
+        return
+
+    if len(pack_lists) == 1:
+        list_id = pack_lists[0]
+    else:
+        list_id = st.selectbox("Which list", pack_lists,
+                                key=f"packlist::{rule['glob']}")
+
+    spec = lists[list_id]
+    attachable = sorted(
+        p for p in glossary_packs.AVAILABLE_PACKS
+        if core_terms.pack_kind_admissible(spec, glossary_packs.AVAILABLE_PACKS[p])[0])
+    current = list((rule.get("packs") or {}).get(list_id, []))
+    key = f"pack::{rule['glob']}::{list_id}"
+    st.multiselect(
+        f"Packs feeding `{list_id}`", attachable, default=current, key=key,
+        on_change=_rule_packs_changed,
+        args=(repo_root, rule["glob"], rule["ruleset"], list_id, key),
+        help="Bulk, license-checked vocabulary from a real outside source "
+             "-- see NOTICE for each pack's source and license.")
+
+
+def _rule_packs_changed(repo_root, glob, ruleset_id, list_id, key):
+    chosen = st.session_state[key]
+    _snapshot(repo_root, f"set {list_id} packs on {glob} to "
+                          f"{', '.join(chosen) or '(none)'}")
+    try:
+        spec = rulesets.get_ruleset(ruleset_id).TERM_LISTS[list_id]
+        core_config.set_rule_packs(
+            repo_root, glob, list_id, chosen,
+            known_packs=glossary_packs.AVAILABLE_PACKS,
+            admissible=lambda pid: core_terms.pack_kind_admissible(
+                spec, glossary_packs.AVAILABLE_PACKS.get(pid, {})))
+    except Exception as exc:
+        st.session_state["write_error"] = str(exc)
 
 
 def _opening_path(repo_root):
@@ -515,11 +606,14 @@ def _resolve_counts(repo_root, module, list_id, full):
 def _term_list_block(repo_root, row, list_id, full):
     """A check's words: where they come from, what they are, how to add.
 
-    The sources summary, the detach control, the source filter and the
-    suppressed list were four separate views of one idea, spread across a
-    section. Here the summary IS the filter (click a source), the row IS
-    the detach control, and a suppressed word is a word with a state
-    rather than a collection of its own."""
+    The sources summary, the source filter and the suppressed list were
+    three separate views of one idea, spread across a section. Here the
+    summary IS the filter (click a source), and a suppressed word is a
+    word with a state rather than a collection of its own. Attaching or
+    detaching a whole PACK is not here -- see _rule_packs_editor and the
+    module docstring for why that moved to the routing rule itself; a
+    source labelled "pack" below is still informational, naming where a
+    word came from even though this is no longer where you'd change it."""
     module = row["module"]
     spec = module.TERM_LISTS[list_id]
     layers = core_terms.resolve(spec, repo_root, module.RULESET_ID, list_id,
@@ -539,7 +633,7 @@ def _term_list_block(repo_root, row, list_id, full):
     key = f"{module.RULESET_ID}.{list_id}"
     active = st.session_state.get(f"srcfilter_{key}")
     for source, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
-        cols = st.columns([3, 1, 2])
+        cols = st.columns([3, 1])
         selected = active == source
         if cols[0].button(f"{'▸ ' if selected else ''}{source}  ({n})",
                            key=f"src_{key}_{source}", width="stretch"):
@@ -547,15 +641,10 @@ def _term_list_block(repo_root, row, list_id, full):
             st.rerun()
         cols[1].caption("pack" if source in packs else
                          ("yours" if source == "yours" else "shipped"))
-        if source in packs:
-            with cols[2]:
-                if st.button("Detach", key=f"det_{key}_{source}"):
-                    _set_pack(repo_root, full, source, module.RULESET_ID, list_id,
-                               attach=False)
 
     suppressed = core_terms.suppressed_terms(repo_root, module.RULESET_ID, list_id)
     if suppressed:
-        cols = st.columns([3, 1, 2])
+        cols = st.columns([3, 1])
         selected = active == "suppressed"
         if cols[0].button(f"{'▸ ' if selected else ''}suppressed  ({len(suppressed)})",
                            key=f"src_{key}_suppressed", width="stretch"):
@@ -564,7 +653,7 @@ def _term_list_block(repo_root, row, list_id, full):
         cols[1].caption("removed")
 
     _word_table(repo_root, module, list_id, layers, suppressed, active, key)
-    _add_vocabulary(repo_root, module, list_id, full, spec, packs)
+    _add_vocabulary(repo_root, module, list_id, spec)
 
 
 def _word_table(repo_root, module, list_id, layers, suppressed, active, key):
@@ -616,26 +705,14 @@ def _word_table(repo_root, module, list_id, layers, suppressed, active, key):
         st.rerun()
 
 
-def _add_vocabulary(repo_root, module, list_id, full, spec, packs):
-    """One control for both ways to add words.
+def _add_vocabulary(repo_root, module, list_id, spec):
+    """Add a single word to a term list.
 
-    Adding a word and attaching a pack are the same verb at different
-    scale, and they sat far apart on the page. This takes either: pick a
-    pack from the list, or type a word that is not one."""
-    # Only packs this list can actually READ. A pack of plain words has no
-    # business in a list of regex patterns, and the control used to offer it
-    # anyway with a warning underneath. See core.terms.pack_kind_admissible.
-    attachable = sorted(
-        p for p in packs
-        if core_terms.pack_kind_admissible(spec, glossary_packs.AVAILABLE_PACKS[p])[0]
-    ) if spec.get("accepts_packs") else []
-    incompatible = sorted(set(packs) - set(attachable)) if spec.get("accepts_packs") else []
-    open_to_words = spec.get("accepts_additions", True)
-    if incompatible:
-        why = core_terms.pack_kind_admissible(
-            spec, glossary_packs.AVAILABLE_PACKS[incompatible[0]])[1]
-        st.caption(f"{len(incompatible)} pack(s) are not offered here: {why}.")
-    if not open_to_words and not attachable:
+    Used to also attach a whole pack from this same control -- adding a
+    word and attaching a pack read as the same verb at different scale,
+    but they act on different things (a list vs. a routing rule), and
+    packs live on the routing rule now. See _rule_packs_editor."""
+    if not spec.get("accepts_additions", True):
         # Offering a control that always refuses is worse than offering
         # none. ste100's two dictionary lists are published reference data;
         # removal and restore stay available on the rows above.
@@ -644,24 +721,15 @@ def _add_vocabulary(repo_root, module, list_id, full, spec, packs):
                    "your own to the project list.")
         return
     cols = st.columns([3, 3, 1])
-    entry = cols[0].selectbox(
-        "Add a word, or pick a pack" if open_to_words else "Attach a pack",
-        [""] + attachable,
-        accept_new_options=open_to_words, key=f"add_{module.RULESET_ID}_{list_id}",
-        help=("Type a single word to register it here. Pick a pack to bind "
-              "its whole vocabulary to this list, for files matching this "
-              "path's routing rule.") if attachable else
-             "Type a single word to register it here.")
+    entry = cols[0].text_input(
+        "Add a word", key=f"add_{module.RULESET_ID}_{list_id}",
+        help="Type a single word to register it here.")
     note = cols[1].text_input("Note", key=f"note_{module.RULESET_ID}_{list_id}",
                                placeholder="why this project uses it")
     with cols[2]:
         st.caption("")
-        if st.button("Add", key=f"addbtn_{module.RULESET_ID}_{list_id}") and entry:
-            if entry in packs:
-                _set_pack(repo_root, full, entry, module.RULESET_ID, list_id,
-                           attach=True)
-            else:
-                _add_word(repo_root, module, list_id, entry.strip(), note)
+        if st.button("Add", key=f"addbtn_{module.RULESET_ID}_{list_id}") and entry.strip():
+            _add_word(repo_root, module, list_id, entry.strip(), note)
 
 
 def _add_word(repo_root, module, list_id, term, note):
@@ -704,30 +772,6 @@ def _override_prompt(repo_root):
         if st.button("Cancel", key="override_cancel"):
             del st.session_state["refused"]
             st.rerun()
-
-
-def _set_pack(repo_root, full_path, pack, ruleset_id, list_id, attach):
-    """Attach or detach on the rule that ACTUALLY gates this path -- the
-    same first-match-wins call the gate makes."""
-    rule = core_config.matching_rule(full_path, repo_root)
-    if rule is None or rule["ruleset"] != ruleset_id:
-        st.warning(f"This path is gated by {(rule or {}).get('ruleset') or 'nothing'}, "
-                   f"not {ruleset_id}, so a pack attached here could never fire.")
-        return
-    current = list((rule.get("packs") or {}).get(list_id, []))
-    new = current + [pack] if attach else [p for p in current if p != pack]
-    _snapshot(repo_root, f"{'attached' if attach else 'detached'} {pack} "
-                          f"on {rule['glob']}")
-    try:
-        spec = rulesets.get_ruleset(ruleset_id).TERM_LISTS[list_id]
-        core_config.set_rule_packs(
-            repo_root, rule["glob"], list_id, new,
-            known_packs=glossary_packs.AVAILABLE_PACKS,
-            admissible=lambda pid: core_terms.pack_kind_admissible(
-                spec, glossary_packs.AVAILABLE_PACKS.get(pid, {})))
-        st.rerun()
-    except Exception as exc:
-        st.error(f"Not saved: {exc}")
 
 
 # --- all words: the flat view a check-keyed layout cannot give ------------
