@@ -89,6 +89,14 @@ def _short_path(file_path):
         return file_path
 
 
+# One glyph per gate action, for Watch's activity table. Dropped by accident
+# during the vocabulary refactor while its only USE stayed put, so the Watch
+# page raised NameError on every render -- see test_dashboard.py, which now
+# fails on any name this module reads and never defines.
+ACTION_ICON = {"deny": "🚫", "auto_fix": "🔧", "clean": "✅",
+               "unscoped_write": "❔", "register_term": "➕", "unregister_term": "➖"}
+
+
 def _status_footer():
     # Deliberately no per-event detail here (ruleset/action/file) -- that's
     # already what Watch's own Full activity table shows, in full, one
@@ -186,7 +194,7 @@ def configure_page():
     with st.container(border=True):
         st.subheader("Terms")
         _terms_table(probe, full, ruleset_id)
-        _add_term_form()
+        _add_term_form(ruleset_id)
         _suppressed_section()
 
     with st.container(border=True):
@@ -478,16 +486,25 @@ def _sources_block(rows, full_path, scope_ruleset=None):
     st.dataframe(
         [{"source": src,
           "kind": "pack" if src in packs else ("yours" if src == "yours" else "shipped"),
-          "terms": e["terms"], "feeds": ", ".join(sorted(e["feeds"]))}
+          "terms here": e["terms"], "feeds": ", ".join(sorted(e["feeds"]))}
          for src, e in sorted(by_source.items(), key=lambda kv: (-kv[1]["terms"], kv[0]))],
         width="stretch", hide_index=True)
+    # Without this line the table looks broken. A pack that declares 262
+    # terms can show 202 here, and the obvious reading is that 60 went
+    # missing. They did not: layering means one word has exactly one owner,
+    # so an overlap is attributed once, to the layer that won it.
+    if any(src in packs for src in by_source):
+        st.caption("A word has one owner. Where two packs carry the same word, "
+                   "or where you registered it yourself, the later layer owns "
+                   "it -- so a pack's count here is what it uniquely "
+                   "contributes to this path, not its size.")
 
     attached = {(src, lid) for src, e in by_source.items() if src in packs
                 for lid in e["feeds"]}
     cols = st.columns([2, 2, 1])
     pack = cols[0].selectbox(
         "Pack", sorted(packs), key="attach_pack",
-        format_func=lambda p: f"{p} ({glossary_packs.pack_meta(p)['term_count']} terms)")
+        format_func=lambda p: f"{p} ({glossary_packs.pack_meta(p)['term_count']} in pack)")
     targets = [(m.RULESET_ID, lid) for m in rulesets.list_rulesets()
                 if "terms" in m.CAPABILITIES
                 for lid, spec in sorted(m.TERM_LISTS.items())
@@ -540,7 +557,7 @@ def _set_pack(full_path, pack, target, attach):
         st.error(f"Not saved: {exc}")
 
 
-def _add_term_form():
+def _add_term_form(scope_ruleset=None):
     """Add one word. Three fields, and a fourth only when it means something.
 
     "Override reason" used to sit here permanently, dead for eight of the
@@ -551,6 +568,11 @@ def _add_term_form():
     what is actually being overridden, instead of standing by empty."""
     targets = [(m.RULESET_ID, lid) for m in rulesets.list_rulesets()
                 if "terms" in m.CAPABILITIES for lid in sorted(m.TERM_LISTS)]
+    # Lists of the ruleset that gates this path come first, so the default
+    # is a list that applies to the file on screen. The attach control got
+    # this ordering already; leaving the add form alphabetical meant the
+    # page offered codewatch.generic_naming while showing an ste100 path.
+    targets.sort(key=lambda t: (t[0] != scope_ruleset, t[0], t[1]))
     with st.form("addterm", clear_on_submit=True):
         cols = st.columns([3, 3, 4, 1])
         target = cols[0].selectbox("Add to list", targets,
