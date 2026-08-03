@@ -93,7 +93,7 @@ def _undo_bar():
         # file alone would leave the toggles and numbers displaying what was
         # just undone -- and the next interaction would write THAT back.
         for key in [k for k in st.session_state
-                    if k.startswith(("chk::", "opt::", "scope_ruleset::"))]:
+                    if k.startswith(("chk::", "opt::"))]:
             del st.session_state[key]
         st.toast("Reverted", icon="↩️")
         st.rerun()
@@ -140,19 +140,18 @@ def configure_page(repo_root):
 
 
 def _scope(repo_root):
-    """The path, the rule that governs it, and that rule made editable in
-    place. Returns (probe, full path, rule dict or None).
+    """The path, and the rule that governs it. Returns (probe, full path,
+    rule dict or None).
 
-    The scope line and the routing table were the same fact at two zoom
-    levels: a sentence naming the winning rule, above a six-row grid that
-    did not mark it. You read the sentence, then hunted the grid for your
-    row. The winning rule is now edited where it is named; the grid is a
-    disclosure, for adding and REORDERING (first match wins, so order is
-    the one thing the folded view genuinely cannot express).
-
-    Both live in one bordered container now -- they used to be a bare
-    line above a separately-boxed expander, which read as two unrelated
-    widgets rather than two zoom levels of the same routing config."""
+    Used to carry its own "Gated by" selectbox, editing the matched
+    rule's ruleset right where it was named -- but the table directly
+    below already edits that exact same cell, inline, via its own
+    SelectboxColumn (see _routing_table). Two widgets that wrote the same
+    fact is not two zoom levels, it's the same edit offered twice, and
+    the top one's write path (a key scoped to the glob, a dedicated
+    callback) was strictly more code for a control the table already had.
+    This is read-only now: it says what the probe resolves to, and points
+    at the table for the one place that changes it."""
     with st.container(border=True):
         cols = st.columns([2, 5])
         default = _opening_path(repo_root)
@@ -165,31 +164,16 @@ def _scope(repo_root):
         full = os.path.join(repo_root, probe)
         rule = core_config.matching_rule(full, repo_root)
 
-        ids = [m.RULESET_ID for m in rulesets.list_rulesets()]
         with cols[1]:
+            st.caption("")
             if rule is None:
-                st.caption("")
                 st.markdown(f"`{probe}` → **no routing rule matches it**, so the "
                             f"gate never runs. Add a rule below.")
             else:
-                inner = st.columns([3, 3])
-                current = rule["ruleset"] or ""
-                # The key is scoped to the GLOB, not to the widget's job. A
-                # single "scope_ruleset" key carried its value across a change
-                # of path, so the box showed the previous rule's ruleset while
-                # naming the new rule -- and the write below fired on that
-                # stale value. See _apply_on_change.
-                key = f"scope_ruleset::{rule['glob']}"
-                inner[0].selectbox(
-                    f"Gated by (rule `{rule['glob']}`)", [""] + ids,
-                    index=([""] + ids).index(current) if current in [""] + ids else 0,
-                    key=key, on_change=_route_changed,
-                    args=(repo_root, rule["glob"], key),
-                    help="Empty puts every file matching this glob out of scope.")
-                with inner[1]:
-                    st.caption("")
-                    st.caption(f"{'out of scope' if not current else current} · "
-                                f"{_pack_count(rule)} pack binding(s)")
+                current = rule["ruleset"] or "out of scope"
+                st.markdown(f"`{probe}` → rule `{rule['glob']}` → **{current}** · "
+                            f"{_pack_count(rule)} pack binding(s) — change it in "
+                            f"the table below.")
 
         with st.expander("All routing rules — first match wins", expanded=True):
             _routing_table(repo_root)
@@ -232,17 +216,6 @@ def _pack_count(rule):
 # load. `on_change` fires only on genuine interaction, which is the whole
 # difference. Callbacks also must not call st.rerun() -- Streamlit reruns
 # after them anyway.
-
-
-def _route_changed(repo_root, glob, key):
-    chosen = st.session_state[key] or None
-    _snapshot(repo_root, f"routed {glob} to {chosen or 'out of scope'}")
-    rules = [{"glob": g, "ruleset": chosen if g == glob else r}
-             for g, r, _ in core_config.rule_packs(repo_root)]
-    try:
-        core_config.save_rules(repo_root, rules, rulesets)
-    except Exception as exc:
-        st.session_state["write_error"] = str(exc)
 
 
 def _check_toggled(repo_root, module, check_id, key):
@@ -410,7 +383,7 @@ def _by_check(repo_root, probe, full, ruleset_id):
     off = sum(1 for r in rows if not r["enabled"])
     st.caption(f"{len(rows)} checks across every ruleset, {off} off. "
                f"**{len(here)}** run on `{probe}` and sort first. "
-               f"Select a row for its tuning and its words.")
+               f"Select a row for its notes and its words.")
 
     cols = st.columns([3, 2])
     needle = cols[0].text_input("Search", key="rules_q").strip().lower()
@@ -433,14 +406,14 @@ def _by_check(repo_root, probe, full, ruleset_id):
     event = st.dataframe(
         [{"check": _row_label(r, ruleset_id), "ruleset": r["ruleset"],
           "what it catches": r["catches"],
-          "tuning": _tuning_summary(repo_root, r, full)} for r in shown],
+          "notes": _notes_summary(repo_root, r, full)} for r in shown],
         width="stretch", hide_index=True, height=380,
         on_select="rerun", selection_mode="single-row", key="checks_grid",
         column_config={
             "check": st.column_config.TextColumn("check", width="medium"),
             "ruleset": st.column_config.TextColumn("ruleset", width="small"),
             "what it catches": st.column_config.TextColumn("what it catches", width="large"),
-            "tuning": st.column_config.TextColumn("tuning", width="medium"),
+            "notes": st.column_config.TextColumn("notes", width="medium"),
         })
     chosen = event.selection.rows
     if not chosen:
@@ -456,12 +429,18 @@ def _row_label(row, ruleset_id):
     return f"{prefix}{row['check']}" + ("" if row["enabled"] else "   (off)")
 
 
-def _tuning_summary(repo_root, row, full):
+def _notes_summary(repo_root, row, full):
     """The one-line answer to "is there anything inside this row" -- so the
-    grid says which checks are worth opening without opening any."""
+    grid says which checks are worth opening without opening any.
+
+    "denies alone" carries a warning glyph, not plain text: everything
+    else here is a tunable VALUE (a threshold, a word count), and this is
+    the one bit that is a BEHAVIOR -- turning the check off is the only
+    way to change what it does, unlike a number that can be raised or
+    lowered. Reading it as just another value in the list undersold it."""
     bits = []
     if row["blocks_alone"]:
-        bits.append("denies alone")
+        bits.append("⚠️ denies alone")
     for name, info in row["options"].items():
         bits.append(f"{name} {info['value']}")
     counts = _list_counts(repo_root, row, full)
