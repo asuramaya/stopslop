@@ -170,17 +170,20 @@ def _routing_section(repo_root):
     Used to be a free-text "Configuring for path" box, resolved against
     the table below to find out anything -- but the table already names
     every real rule directly; typing a path that might not even exist
-    was a detour to a fact already on screen. Click a row instead: the
-    CLICK is the probe. st.dataframe supports selection but not editing,
-    so add/remove/reorder still needs the data_editor below -- same
-    Streamlit gap the checks section works around, same fix (master
-    view here, mutation moved to a disclosure)."""
+    was a detour to a fact already on screen. A first cut of this drew a
+    SECOND table just to make a row clickable: st.dataframe selects but
+    can't edit, st.data_editor edits but can't select, so "pick a rule"
+    and "edit a rule" got two separate grids, the same three columns
+    rendered twice, one of them inert. A "Focus" selectbox does the
+    picking instead -- one line, not a second copy of the table -- and
+    the real, editable table stays the only table, always visible (rule
+    ORDER is load-bearing for first-match-wins, so it's not behind a
+    disclosure either)."""
     with st.container(border=True):
         stored = core_config.rule_packs(repo_root)
         if not stored:
             st.caption("No routing rules yet. Add one below.")
-            with st.expander("Add, remove, or reorder rules", expanded=True):
-                _routing_table(repo_root)
+            _routing_table(repo_root)
             probe = core_config.SYNTHETIC_TEXT_NAME
             return probe, os.path.join(repo_root, probe), None
 
@@ -191,17 +194,9 @@ def _routing_section(repo_root):
         default_idx = next((i for i, (g, _r, _p) in enumerate(stored)
                              if default_rule and g == default_rule["glob"]), 0)
 
-        event = st.dataframe(
-            [{"glob": g, "ruleset": r or "out of scope",
-              "packs": _pack_count({"packs": p})} for g, r, p in stored],
-            width="stretch", hide_index=True,
-            on_select="rerun", selection_mode="single-row", key="routing_focus",
-            column_config={
-                "glob": st.column_config.TextColumn("glob", width="medium"),
-                "ruleset": st.column_config.TextColumn("ruleset", width="small"),
-                "packs": st.column_config.NumberColumn("packs", width="small"),
-            })
-        idx = event.selection.rows[0] if event.selection.rows else default_idx
+        labels = [f"{g} → {r or 'out of scope'}" for g, r, _p in stored]
+        idx = st.selectbox("Focus", range(len(stored)), index=default_idx,
+                            format_func=lambda i: labels[i], key="routing_focus")
         glob, ruleset_id, packs = stored[idx]
         rule = {"glob": glob, "ruleset": ruleset_id, "packs": packs}
         probe = _synthetic_path_for_glob(glob)
@@ -214,8 +209,7 @@ def _routing_section(repo_root):
         else:
             st.caption(f"`{glob}` is out of scope — nothing is checked here.")
 
-        with st.expander("Add, remove, or reorder rules", expanded=False):
-            _routing_table(repo_root)
+        _routing_table(repo_root)
     return probe, full, rule
 
 

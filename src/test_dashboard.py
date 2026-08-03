@@ -121,7 +121,7 @@ class DashboardStructureTests(unittest.TestCase):
 # never write to the config file, so a stale session value is harmless.
 READ_ONLY_WIDGET_KEYS = ("rules_q", "rules_rs", "aw_q", "aw_list",
                           "aw_src", "add_", "note_", "attach_", "override_reason",
-                          "watch_filter", "rules_mode", "packlist::")
+                          "watch_filter", "rules_mode", "packlist::", "routing_focus")
 
 MUTATING_WIDGETS = ("selectbox", "toggle", "number_input", "checkbox", "radio",
                      "segmented_control", "multiselect")
