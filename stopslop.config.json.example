@@ -1,11 +1,22 @@
 {
-  "_comment": "Not activated automatically -- copy to stopslop.config.json at the repo root to use it. With no stopslop.config.json present, stopslop falls back to core/config.py's DEFAULT_RULES: ste100 on *.md/*.txt/*.rst, .claude/ out of scope entirely.",
+  "_comment": "Not activated automatically -- copy to stopslop.config.json at the repo root to use it. With no stopslop.config.json present, stopslop falls back to core/config.py's DEFAULT_RULES: ste100 on *.md/*.txt/*.rst, codewatch on *.py, slopwatch on the repo-root README.md, .claude/ out of scope entirely. This example adds a second slopwatch target (blog/*.md, checked before the general *.md rule) on top of that baseline.",
+
+  "_comment_packs": "A rule's optional \"packs\" object binds bulk vocabulary packs to the term lists they feed, for files matching that glob: {\"<list_id>\": [\"<pack_id>\", ...]}. Two things are deliberate. Packs attach to a PATH, not to a ruleset -- NIST security vocabulary belongs to docs/security/, not to every file ste100 happens to gate. And the RULE names which list each pack feeds, not the pack: a pack is a body of words from a source, so the same pack can feed different lists in different repos, feed two lists at once, or be read at the opposite polarity by a different ruleset. First match wins here exactly as it does for the ruleset, so one matched rule fully explains why a given word passed in a given file. Run `stopslop.py packs` for the available packs and `stopslop.py terms --ruleset ID` for the list ids.",
+
+  "_comment_terms": "The \"terms\" key holds the words this project registered itself, per ruleset and per term list: {\"<ruleset>\": {\"<list>\": {\"<term>\": {\"note\": \"why\"}}}}. An allow list (ste100's project_terms) says what to stop flagging; a deny list (slopwatch's marketing_cliche, codewatch's generic_naming) says what to start flagging. Run `stopslop.py terms --ruleset ID` to see them. Older configs used \"wordlists\" and \"glossary_packs\" keys; both migrate automatically on first read.",
+
   "rulesets": [
     {"glob": ".claude/*", "ruleset": null},
     {"glob": "blog/*.md", "ruleset": "slopwatch"},
-    {"glob": "*.md", "ruleset": "ste100"},
+    {"glob": "docs/security/*.md", "ruleset": "ste100", "packs": {"project_terms": ["nist-security"]}},
+    {"glob": "*.md", "ruleset": "ste100", "packs": {"project_terms": ["mdn-glossary"]}},
     {"glob": "*.txt", "ruleset": "ste100"},
     {"glob": "*.rst", "ruleset": "ste100"},
     {"glob": "*.py", "ruleset": "codewatch"}
-  ]
+  ],
+
+  "terms": {
+    "ste100": {"project_terms": {"webhook": {"note": "domain word the aviation standard never covered"}}},
+    "codewatch": {"generic_naming": {"widget": {"note": "placeholder name that kept showing up in review"}}}
+  }
 }

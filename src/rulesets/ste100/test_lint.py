@@ -17,9 +17,13 @@ Run with:
 or, to run every ruleset's suite together:
     cd src && python3 -m unittest discover -s . -p 'test_*.py'
 """
+import os
+import tempfile
 import unittest
 
+from core import terms as core_terms
 from rulesets.ste100 import lint
+from rulesets import ste100
 
 
 class VocabularyTests(unittest.TestCase):
@@ -306,6 +310,141 @@ class LintAndGateIntegrationTests(unittest.TestCase):
         r = lint.lint_and_gate(doc, context="description")
         modal_flags = [f for f in r["semantic_flags"] if f["kind"] == "modal"]
         self.assertEqual(modal_flags, [])
+
+
+class CheckToggleTests(unittest.TestCase):
+    """list_checks()/set_enabled_checks() on the ste100 contract surface --
+    same isolation technique as test_glossary_packs.py's own
+    PackEnableDisableTests, so this never touches the real repo's own
+    stopslop.config.json. ste100 previously had NO per-check toggles at
+    all (only slopwatch/codewatch did) -- this is the parity fix."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        self._orig_find_root = ste100.paths.find_project_root
+        ste100.paths.find_project_root = lambda _file: self._tmp.name
+
+    def tearDown(self):
+        ste100.paths.find_project_root = self._orig_find_root
+        self._tmp.cleanup()
+
+    def test_every_check_enabled_by_default(self):
+        checks = ste100.list_checks()
+        self.assertEqual(set(checks), lint.ALL_CHECK_IDS)
+        self.assertTrue(all(c["enabled"] for c in checks.values()))
+        self.assertTrue(all(c["description"] for c in checks.values()))
+
+    def test_disabling_modal_check_removes_its_flags_from_lint_and_gate(self):
+        text = "He should not touch the panel."
+        self.assertTrue(any(f["kind"] == "modal"
+                             for f in lint.lint_and_gate(text)["semantic_flags"]))
+        ste100.set_enabled_checks(lint.ALL_CHECK_IDS - {"modal"})
+        self.assertFalse(any(f["kind"] == "modal"
+                              for f in lint.lint_and_gate(text)["semantic_flags"]))
+
+    def test_disabling_vocabulary_check_removes_its_flags(self):
+        text = "The team will leverage the new process."
+        self.assertTrue(any(f["kind"] == "vocabulary"
+                             for f in lint.lint_and_gate(text)["mechanical_violations"]
+                             + lint.lint_and_gate(text)["semantic_flags"]))
+        ste100.set_enabled_checks(lint.ALL_CHECK_IDS - {"vocabulary"})
+        r = lint.lint_and_gate(text)
+        self.assertFalse(any(f["kind"] == "vocabulary"
+                              for f in r["mechanical_violations"] + r["semantic_flags"]))
+
+    def test_unknown_check_id_raises_and_does_not_write(self):
+        with self.assertRaises(ValueError):
+            ste100.set_enabled_checks(["__not_a_real_check__"])
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+
+class DictionaryAsTermListsTests(unittest.TestCase):
+    """The real ASD-STE100 dictionary is now two term lists rather than two
+    module globals nothing else could see.
+
+    Before this it was the only vocabulary in the project outside the
+    term-list model: 1,990 words that could not be listed, searched or
+    curated, while every other ruleset's built-ins could. A project cannot
+    edit a git-tracked standard, so disagreeing with a handful of entries
+    meant forking it -- suppression is what makes the control real."""
+
+    def setUp(self):
+        self._orig = lint._paths.find_project_root
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        lint._paths.find_project_root = lambda _f: self._tmp.name
+        core_terms._migration_checked.clear()
+
+    def tearDown(self):
+        lint._paths.find_project_root = self._orig
+        core_terms._migration_checked.clear()
+        self._tmp.cleanup()
+
+    def _suppress(self, list_id, word):
+        core_terms.remove_term("ste100", lint.TERM_LISTS, self._tmp.name,
+                                list_id, word)
+        return lint.suppressed_vocabulary()
+
+    def test_both_dictionary_halves_are_declared_as_lists(self):
+        self.assertEqual(len(lint.TERM_LISTS["approved_words"]["built_ins"]),
+                          len(lint.APPROVED_WORDS))
+        self.assertEqual(lint.TERM_LISTS["approved_words"]["polarity"], "allow")
+        self.assertEqual(lint.TERM_LISTS["unapproved_words"]["polarity"], "deny")
+
+    def test_forbidden_words_carry_their_replacement_as_metadata(self):
+        built = lint.TERM_LISTS["unapproved_words"]["built_ins"]
+        word = next(w for w, r in lint.UNAPPROVED_MAP.items() if r)
+        self.assertIn(lint.UNAPPROVED_MAP[word], built[word]["note"])
+
+    def test_no_suppression_by_default(self):
+        self.assertEqual(lint.suppressed_vocabulary(), lint._NO_SUPPRESSION)
+
+    def test_suppressing_a_forbidden_word_stops_it_being_flagged(self):
+        word = next(w for w, r in lint.UNAPPROVED_MAP.items() if r)
+        self.assertTrue(lint.check_vocabulary(word))
+        sup = self._suppress("unapproved_words", word)
+        self.assertEqual(lint.check_vocabulary(word, None, sup), [])
+
+    def test_suppressing_an_approved_word_starts_flagging_it(self):
+        word = "check"
+        self.assertEqual(lint.check_vocabulary(word), [])
+        sup = self._suppress("approved_words", word)
+        self.assertTrue(lint.check_vocabulary(word, None, sup))
+
+    def test_suppression_reaches_lint_and_gate(self):
+        word = next(w for w, r in lint.UNAPPROVED_MAP.items() if r)
+        text = f"You must {word} the panel."
+        # Assert on the WORD, not on the "vocabulary" kind: other words in
+        # the sentence ("panel") are legitimately unknown vocabulary and
+        # produce their own flag of the same kind, so a kind-level
+        # assertion would pass or fail for the wrong reason.
+        flagged = lambda: [f.get("label") for f in
+                            lint.lint_and_gate(text)["semantic_flags"]]
+        self.assertIn(word, flagged())
+        self._suppress("unapproved_words", word)
+        self.assertNotIn(word, flagged())
+
+    def test_a_suppressed_word_can_be_restored(self):
+        word = next(w for w, r in lint.UNAPPROVED_MAP.items() if r)
+        self._suppress("unapproved_words", word)
+        core_terms.add_term("ste100", lint.TERM_LISTS, self._tmp.name,
+                             "unapproved_words", word)
+        self.assertEqual(lint.suppressed_vocabulary(), lint._NO_SUPPRESSION)
+        self.assertTrue(lint.check_vocabulary(word))
+
+    def test_dictionary_words_appear_in_the_flat_term_index(self):
+        import rulesets
+        rows = core_terms.term_index(rulesets, self._tmp.name)
+        by_list = {}
+        for row in rows:
+            by_list[row["list"]] = by_list.get(row["list"], 0) + 1
+        self.assertEqual(by_list["approved_words"], len(lint.APPROVED_WORDS))
+        self.assertGreater(by_list["unapproved_words"], 1000)
+
+    def test_an_unresolvable_project_root_never_breaks_the_gate(self):
+        lint._paths.find_project_root = lambda _f: (_ for _ in ()).throw(OSError("x"))
+        self.assertEqual(lint.suppressed_vocabulary(), lint._NO_SUPPRESSION)
 
 
 if __name__ == "__main__":

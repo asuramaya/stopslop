@@ -8,11 +8,21 @@ wiring (hook command paths templated for one checkout, gitignored); this is
 project-level policy the CLI and MCP server need with no live Claude Code
 session at all, closer to `.eslintrc` or `pyproject.toml`.
 
-With no config file present, DEFAULT_RULES reproduces exactly what
-pretool_hook.py's `in_scope()` did before rulesets existed: STE100 on
-.md/.txt/.rst, `.claude/` out of scope entirely. That equivalence is a
-required invariant (see core/test_config.py) -- a ruleset existing in the
-code registry must never change behavior for a clone with no config file.
+With no config file present, DEFAULT_RULES originally reproduced exactly
+what pretool_hook.py's `in_scope()` did before rulesets existed: STE100 on
+.md/.txt/.rst, `.claude/` out of scope entirely -- a required invariant at
+the time (a ruleset existing in the code registry must never *accidentally*
+change behavior for a clone with no config file, just because it got
+registered). codewatch and slopwatch have since been validated against
+this project's own real files (stopslop.py scan, not synthetic fixtures --
+see docs/ for both rulesets' own false-positive fixes found that way), so
+this is now a deliberate, tested widening of the baseline default, not a
+drift: `*.py` routes to codewatch (this project's own primary language),
+and the repo-root `README.md` -- prose meant to read like a person wrote
+it, exactly the AI-polish target slopwatch protects against -- routes to
+slopwatch. ste100 keeps every other `.md`/`.txt`/`.rst` file, unchanged;
+`README.md` matches before the general `*.md` rule since first-match-wins
+checks rules in order, top to bottom.
 
 This module has no dependency on `rulesets` (the registry) -- it only ever
 resolves a path to a bare ruleset id string via `resolve_ruleset_id`, or to a
@@ -25,11 +35,21 @@ import fnmatch
 import json
 import os
 
+# Free text (CLI stdin, an MCP lint_text call, the dashboard playground) has
+# no real file to route on, so every entry point treats it as if written to
+# this name at the repo root -- reusing the one real config-driven resolver
+# instead of each growing its own "default ruleset" fallback that could drift
+# from it. Defined here, next to the resolver, because stopslop.py and
+# mcp_server.py each used to carry their own copy of the literal.
+SYNTHETIC_TEXT_NAME = "__stdin__.md"
+
 DEFAULT_RULES = [
     {"glob": ".claude/*", "ruleset": None},
+    {"glob": "README.md", "ruleset": "slopwatch"},
     {"glob": "*.md", "ruleset": "ste100"},
     {"glob": "*.txt", "ruleset": "ste100"},
     {"glob": "*.rst", "ruleset": "ste100"},
+    {"glob": "*.py", "ruleset": "codewatch"},
 ]
 
 
@@ -52,35 +72,128 @@ def load_rules(project_root, config_file=None):
     return data.get("rulesets", DEFAULT_RULES)
 
 
-def enabled_glossary_packs(project_root, ruleset_id, config_file=None):
-    """Which named vocabulary packs are active for `ruleset_id`, per
-    stopslop.config.json's "glossary_packs" key: {"<ruleset_id>":
-    ["<pack_id>", ...]}. Empty with no config file, and empty for a
-    ruleset_id the key doesn't mention -- a pack existing in code must
-    never change behavior for an unconfigured clone, the same invariant
-    DEFAULT_RULES already guarantees for ruleset routing. Lives in this
-    module, not in a ruleset package, so stopslop.config.json stays the
-    one file that knows the whole project's configuration shape."""
-    path = config_file or config_path(project_root)
-    if not os.path.exists(path):
+def packs_for_path(project_root, file_path=None, list_id=None, config_file=None):
+    """Which vocabulary packs apply to one file, for one term list, read off
+    the SAME first-match-wins routing rule that decides which ruleset gates
+    it:
+
+        {"glob": "docs/security/**", "ruleset": "ste100",
+         "packs": {"project_terms": ["nist-security"]}}
+
+    Two things are deliberate about that shape.
+
+    First, packs hang off the PATH. They used to hang off a ruleset id
+    ("glossary_packs": {"ste100": [...]}), which threw the path away -- and
+    since one ruleset handles all prose, that forced the pack list to be
+    the union of every domain in the repo. A pack is domain content: NIST
+    security vocabulary is right for docs/security/ and wrong for blog/.
+    Domain is a property of the TEXT.
+
+    Second, the rule names WHICH LIST each pack feeds. The pack itself does
+    not say. A pack is a body of words from a source -- the MDN glossary is
+    not ste100 content, it is vocabulary ste100 happens to read as an allow
+    list. Letting the pack name its own consumer meant one pack could never
+    feed two rulesets, never feed two lists, and never be read at the
+    opposite polarity. See core/glossary_packs/__init__.py.
+
+    Deliberately not a cascade. There is no machine-global tier and no
+    project-wide-plus-ruleset merge: exactly one rule matches, and that one
+    rule fully explains why a word passed in a given file. A cascade would
+    make "why did this word pass?" require merging several sources, one of
+    them outside the repo -- gate decisions would stop being locally
+    explainable, which is strictly worse than this flat shape.
+
+    `file_path` None means "no particular file" (free text through the CLI
+    or the dashboard playground) and resolves against the same synthetic
+    path every other free-text entry point already uses, so there is one
+    resolution mechanism rather than a second default that could drift.
+    `list_id` None returns every pack the rule names, across all lists."""
+    if file_path is None:
+        file_path = os.path.join(project_root, SYNTHETIC_TEXT_NAME)
+    rel = _relative_posix_path(file_path, project_root)
+    if rel is None:
         return []
-    with open(path) as f:
-        data = json.load(f)
-    return data.get("glossary_packs", {}).get(ruleset_id, [])
+    for rule in load_rules(project_root, config_file):
+        if fnmatch.fnmatch(rel, rule["glob"]):
+            return _packs_of(rule, list_id)
+    return []
 
 
-def save_glossary_packs(project_root, ruleset_id, pack_ids, config_file=None):
-    """Write which packs are enabled for `ruleset_id`, preserving every
-    other top-level key already in the file (routing rules, another
-    ruleset's own pack list) -- a blind overwrite here would be the exact
-    settings.local.json-clobber bug this project already found and fixed
-    once in stopslop.py's own init --force."""
+def _packs_of(rule, list_id=None):
+    """The pack ids a rule names, for one list or across all of them.
+    Tolerates a rule with no "packs" key at all (the common case)."""
+    packs = rule.get("packs") or {}
+    if not isinstance(packs, dict):
+        return []       # a malformed value contributes nothing, never raises
+    if list_id is not None:
+        return list(packs.get(list_id, []))
+    seen = []
+    for ids in packs.values():
+        for pack_id in ids:
+            if pack_id not in seen:
+                seen.append(pack_id)
+    return seen
+
+
+def rule_packs(project_root, config_file=None):
+    """[(glob, ruleset_id, {list_id: [pack_id, ...]}), ...] for every
+    routing rule -- the whole-project view the Vocabulary tab needs to show
+    which packs feed which list where, without picking one file to resolve
+    against."""
+    out = []
+    for rule in load_rules(project_root, config_file):
+        packs = rule.get("packs") or {}
+        if not isinstance(packs, dict):
+            packs = {}
+        out.append((rule["glob"], rule["ruleset"],
+                     {k: list(v) for k, v in packs.items() if v}))
+    return out
+
+
+def set_rule_packs(project_root, glob, list_id, pack_ids, known_packs=None,
+                    config_file=None):
+    """Point a set of packs at one term list, on the routing rule with this
+    exact glob. Validates every pack id against `known_packs` when given --
+    the same loud-on-typo guarantee save_rules already applies to ruleset
+    ids, for the same reason: a typo'd name in a committed config is how a
+    gate silently stops doing what its owner believes it does.
+
+    Nothing here checks that `list_id` is a list the rule's ruleset
+    actually declares. That is on purpose: this module stays free of any
+    dependency on the ruleset registry (see the module docstring), and an
+    unknown list id is inert -- no list ever asks for it, so it contributes
+    nothing. The callers that DO have a registry (the CLI, the dashboard,
+    the MCP server) offer only real list ids in the first place."""
+    if known_packs is not None:
+        for pack_id in pack_ids:
+            if pack_id not in known_packs:
+                raise ValueError(
+                    f"no glossary pack registered as {pack_id!r} -- "
+                    f"known: {sorted(known_packs)}")
     path = config_file or config_path(project_root)
     data = {}
     if os.path.exists(path):
         with open(path) as f:
             data = json.load(f)
-    data.setdefault("glossary_packs", {})[ruleset_id] = pack_ids
+    rules = [dict(r) for r in data.get("rulesets", DEFAULT_RULES)]
+    if not any(r["glob"] == glob for r in rules):
+        raise ValueError(f"no routing rule with glob {glob!r} -- "
+                          f"known: {[r['glob'] for r in rules]}")
+    for rule in rules:
+        if rule["glob"] != glob:
+            continue
+        packs = dict(rule.get("packs") or {})
+        if not isinstance(rule.get("packs") or {}, dict):
+            packs = {}
+        if pack_ids:
+            packs[list_id] = list(pack_ids)
+        else:
+            packs.pop(list_id, None)
+        if packs:
+            rule["packs"] = packs
+        else:
+            rule.pop("packs", None)
+    data["rulesets"] = rules
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
         f.write("\n")
@@ -201,21 +314,41 @@ def save_rules(project_root, rules, registry, config_file=None):
     instead of read time so a bad id never reaches disk in the first place.
     The one caller today is the dashboard's config editor; a raw file write
     from there would skip this check entirely. Preserves every other top-
-    level key already in the file (e.g. "glossary_packs") -- a blind
-    overwrite here would be the exact settings.local.json-clobber bug this
-    project already found and fixed once in stopslop.py's own init
-    --force, now with a second config file it could happen to again."""
-    for rule in rules:
-        if "glob" not in rule or "ruleset" not in rule:
-            raise ValueError(f"rule {rule!r} needs both 'glob' and 'ruleset' keys")
-        if rule["ruleset"] is not None:
-            registry.get_ruleset(rule["ruleset"])  # raises UnknownRulesetError on a typo
+    level key already in the file -- a blind overwrite here would be the
+    exact settings.local.json-clobber bug this project already found and
+    fixed once in stopslop.py's own init --force, now with a second config
+    file it could happen to again.
+
+    Packs now live ON a rule, so the same clobber risk exists one level
+    down: a caller that edits routing without knowing about packs (the
+    routing editor is a separate widget from the Vocabulary tab) would
+    silently drop them. An incoming rule that says nothing about packs
+    therefore INHERITS whatever the rule with that glob already had --
+    only an explicit "packs" key changes them."""
+    existing_packs = {}
     path = config_file or config_path(project_root)
     data = {}
     if os.path.exists(path):
         with open(path) as f:
             data = json.load(f)
-    data["rulesets"] = rules
+        for rule in data.get("rulesets", []):
+            if rule.get("packs"):
+                existing_packs[rule["glob"]] = dict(rule["packs"])
+
+    merged = []
+    for rule in rules:
+        if "glob" not in rule or "ruleset" not in rule:
+            raise ValueError(f"rule {rule!r} needs both 'glob' and 'ruleset' keys")
+        if rule["ruleset"] is not None:
+            registry.get_ruleset(rule["ruleset"])  # raises UnknownRulesetError on a typo
+        rule = dict(rule)
+        if "packs" not in rule and rule["glob"] in existing_packs:
+            rule["packs"] = dict(existing_packs[rule["glob"]])
+        if not rule.get("packs"):
+            rule.pop("packs", None)
+        merged.append(rule)
+
+    data["rulesets"] = merged
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
         f.write("\n")

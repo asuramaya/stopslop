@@ -48,14 +48,19 @@ class PretoolHookSubprocessTests(unittest.TestCase):
     def _target(self, name):
         return os.path.join(self.tmp, name)
 
+    # These target notes.md, not README.md -- the repo-root README.md is a
+    # real slopwatch default now (see the dedicated ste100-vs-slopwatch
+    # tests below), and these are specifically exercising STE100's own
+    # rules (semicolon auto-fix, "should"-modal denial), independent of
+    # that routing decision.
     def test_clean_write_passes_silently(self):
-        proc = self._run("Write", {"file_path": self._target("README.md"),
+        proc = self._run("Write", {"file_path": self._target("notes.md"),
                                     "content": "The system starts the service."})
         self.assertEqual(proc.returncode, 0)
         self.assertEqual(proc.stdout.strip(), "")
 
     def test_mechanical_violation_gets_auto_fixed(self):
-        proc = self._run("Write", {"file_path": self._target("README.md"),
+        proc = self._run("Write", {"file_path": self._target("notes.md"),
                                     "content": "The system starts; it also stops."})
         decision = json.loads(proc.stdout)["hookSpecificOutput"]
         self.assertEqual(decision["permissionDecision"], "allow")
@@ -63,14 +68,14 @@ class PretoolHookSubprocessTests(unittest.TestCase):
         self.assertNotIn(";", decision["updatedInput"]["content"])
 
     def test_semantic_violation_denies_the_write(self):
-        proc = self._run("Write", {"file_path": self._target("README.md"),
+        proc = self._run("Write", {"file_path": self._target("notes.md"),
                                     "content": "The system should start the service."})
         decision = json.loads(proc.stdout)["hookSpecificOutput"]
         self.assertEqual(decision["permissionDecision"], "deny")
         self.assertIn("should", decision["permissionDecisionReason"])
 
     def test_bash_heredoc_write_is_detected_and_denied(self):
-        command = "cat > {}/README.md <<'EOF'\nThe system should start.\nEOF".format(self.tmp)
+        command = "cat > {}/notes.md <<'EOF'\nThe system should start.\nEOF".format(self.tmp)
         proc = self._run("Bash", {"command": command})
         decision = json.loads(proc.stdout)["hookSpecificOutput"]
         self.assertEqual(decision["permissionDecision"], "deny")
@@ -81,14 +86,39 @@ class PretoolHookSubprocessTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
         self.assertEqual(proc.stdout.strip(), "")
 
-    def test_unscoped_py_write_passes_through_silently(self):
-        proc = self._run("Write", {"file_path": self._target("foo.py"),
-                                    "content": "print(1)"})
+    def test_unscoped_extension_write_passes_through_silently(self):
+        # .json has no default rule at all (unlike .py, a real codewatch
+        # default now -- see the dedicated codewatch test below).
+        proc = self._run("Write", {"file_path": self._target("foo.json"),
+                                    "content": "{}"})
         self.assertEqual(proc.returncode, 0)
         self.assertEqual(proc.stdout.strip(), "")
 
+    def test_root_readme_write_routes_to_slopwatch_by_default(self):
+        # Live regression coverage for the new default: the repo-root
+        # README.md now resolves to slopwatch, not ste100. Uses an em-dash
+        # cluster (4, past slopwatch's own em_dash_threshold of 3) since
+        # that check always blocks alone -- a single weasel/filler-style
+        # flag would not, under slopwatch's count-4 policy, so it wouldn't
+        # actually prove routing changed the live gate's real decision.
+        proc = self._run("Write", {"file_path": self._target("README.md"),
+                                    "content": "The system works — quickly — reliably — safely — always."})
+        decision = json.loads(proc.stdout)["hookSpecificOutput"]
+        self.assertEqual(decision["permissionDecision"], "deny")
+        self.assertIn("em_dash_cluster", decision["permissionDecisionReason"])
+
+    def test_py_write_routes_to_codewatch_by_default(self):
+        # Live regression coverage for the new default: .py now resolves to
+        # codewatch. A bare `except: pass` always blocks under codewatch's
+        # own policy, regardless of flag count.
+        proc = self._run("Write", {"file_path": self._target("tool.py"),
+                                    "content": "try:\n    risky()\nexcept Exception:\n    pass\n"})
+        decision = json.loads(proc.stdout)["hookSpecificOutput"]
+        self.assertEqual(decision["permissionDecision"], "deny")
+        self.assertIn("swallowed_exception", decision["permissionDecisionReason"])
+
     def test_side_effects_land_in_the_isolated_copy_not_the_real_repo(self):
-        self._run("Write", {"file_path": self._target("README.md"),
+        self._run("Write", {"file_path": self._target("notes.md"),
                              "content": "The system starts the service."})
         self.assertTrue(os.path.exists(
             os.path.join(self.tmp, ".claude", "stopslop-history.log")))

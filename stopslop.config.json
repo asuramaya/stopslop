@@ -1,0 +1,331 @@
+{
+  "terms": {
+    "ste100": {
+      "project_terms": {
+        "actor": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "adjectives": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "api": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "asd": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "claude": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "clause": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "clauses": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "cli": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "command": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "compliant": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "compound": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "config": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "construction": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "contraction": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "contractions": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "dat": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "dictionary": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "docs": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "documentation": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "enforcement": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "extraction": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "gate": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "git": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "hash": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "header": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "history": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "imperative": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "infinitive": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "issue": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "json": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "license": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "linter": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "md": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "memory": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "metadata": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "modal": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "noun": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "nouns": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "passive": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "perfect": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "pretool": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "priming": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "project": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "prototype": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "py": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "repository": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "retries": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "retry": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "rst": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "rule": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "scope": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "semicolon": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "semicolons": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "sentence": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "sentences": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "session": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "skill": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "spec": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "ste": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "stopslop": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "technical": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "tense": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "txt": {
+          "note": "project-specific identifier (file extension, tool, or product name), empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "unscoped": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "verb": {
+          "note": "grammar/linguistics term used in this project's own STE100 meta-writing, empirically measured 2026-08-01",
+          "overrides_unapproved": false
+        },
+        "version": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "vocabulary": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "word": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        },
+        "words": {
+          "note": "software/tooling vocabulary, empirically measured against project docs 2026-08-01 -- ASD-STE100 has no coverage for it (aviation-scoped standard)",
+          "overrides_unapproved": false
+        }
+      }
+    }
+  },
+  "rulesets": [
+    {
+      "glob": ".claude/*",
+      "ruleset": null
+    },
+    {
+      "glob": "README.md",
+      "ruleset": "slopwatch"
+    },
+    {
+      "glob": "*.md",
+      "ruleset": "ste100",
+      "packs": {
+        "project_terms": [
+          "mdn-glossary",
+          "microsoft-style-guide",
+          "nist-security"
+        ]
+      }
+    },
+    {
+      "glob": "*.txt",
+      "ruleset": "ste100",
+      "packs": {
+        "project_terms": [
+          "mdn-glossary",
+          "microsoft-style-guide",
+          "nist-security"
+        ]
+      }
+    },
+    {
+      "glob": "*.rst",
+      "ruleset": "ste100",
+      "packs": {
+        "project_terms": [
+          "mdn-glossary",
+          "microsoft-style-guide",
+          "nist-security"
+        ]
+      }
+    },
+    {
+      "glob": "*.py",
+      "ruleset": "codewatch"
+    }
+  ]
+}

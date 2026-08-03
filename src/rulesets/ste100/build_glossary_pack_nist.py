@@ -2,8 +2,8 @@
 """One-time (re-runnable) build step: parses NIST's real bulk glossary
 export (csrc.nist.gov/csrc/media/glossary/glossary-export.zip, the
 official daily-updated JSON export backing https://csrc.nist.gov/glossary)
-into rulesets/ste100/glossary_packs/nist_security.json, the "nist-security"
-pack AVAILABLE_PACKS already registers in glossary_packs/__init__.py.
+into core/glossary_packs/nist_security.json, the "nist-security"
+pack AVAILABLE_PACKS already registers in core/glossary_packs/__init__.py.
 
 WHY AN ALLOWLIST, NOT A DENYLIST (read before touching CURATED_TERMS) --
 build_glossary_pack_mdn.py's sibling script filters its ~600-entry source
@@ -110,8 +110,10 @@ import zipfile
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 DICTIONARY_PATH = os.path.join(THIS_DIR, "dictionary.json")
-PROJECT_TERMS_PATH = os.path.join(THIS_DIR, "project-terms.json")
-OUT_PATH = os.path.join(THIS_DIR, "glossary_packs", "nist_security.json")
+# core/glossary_packs/, not a subdirectory of this ruleset's own package --
+# packs are ruleset-agnostic now, this build script's curation logic is
+# the only part that's still ste100-specific (see load_excluded_words).
+OUT_PATH = os.path.join(THIS_DIR, "..", "..", "core", "glossary_packs", "nist_security.json")
 
 EXPORT_URL = "https://csrc.nist.gov/csrc/media/glossary/glossary-export.zip"
 USER_AGENT = "stopslop-build-glossary-pack-nist/1.0 (stdlib urllib; one-time build script)"
@@ -202,17 +204,30 @@ def fetch_export():
     return json.loads(text)
 
 
+def _load_tier2_terms():
+    """The hand-curated Tier 2 glossary now lives in stopslop.config.json's
+    "wordlists" key (list_id "project_terms" under ruleset "ste100") --
+    see rulesets/ste100/lint.py's _migrate_legacy_project_terms. Read
+    directly with plain json, matching this script's existing no-`core`-
+    import style, rather than pulling in the whole package for one lookup.
+    Empty (not an error) if the project has never registered a term."""
+    config_path = os.path.join(THIS_DIR, "..", "..", "..", "stopslop.config.json")
+    if not os.path.exists(config_path):
+        return {}
+    with open(config_path) as f:
+        data = json.load(f)
+    return data.get("wordlists", {}).get("ste100", {}).get("project_terms", {})
+
+
 def load_excluded_words():
     """Everything a pack must never duplicate: the real ASD-STE100
     dictionary's approved/unapproved words, plus the existing hand-curated
-    Tier 2 glossary (project-terms.json) -- packs are purely additive."""
+    Tier 2 glossary -- packs are purely additive."""
     with open(DICTIONARY_PATH) as f:
         d = json.load(f)
     excluded = set(w.lower() for w in d["approved_words"])
     excluded.update(w.lower() for w in d["unapproved_map"].keys())
-    with open(PROJECT_TERMS_PATH) as f:
-        tier2 = json.load(f)
-    excluded.update(w.lower() for w in tier2.keys())
+    excluded.update(w.lower() for w in _load_tier2_terms())
     return excluded
 
 

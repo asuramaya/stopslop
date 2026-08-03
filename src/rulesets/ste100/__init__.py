@@ -6,8 +6,8 @@ rulesets/__init__.py's registration check requires, plus the two pieces
 (context defaulting, history-log wiring) that are genuinely ste100's own
 policy rather than generic plumbing.
 """
-from rulesets.ste100 import lint, glossary, glossary_packs as _glossary_packs
-from core import config as _core_config, history, paths
+from rulesets.ste100 import lint, glossary
+from core import config as _core_config, glossary_packs as _glossary_packs, history, paths, terms as _terms
 
 RULESET_ID = "ste100"
 # "STE100", not "ASD-STE100" -- matches the exact prefix the pre-refactor
@@ -15,18 +15,23 @@ RULESET_ID = "ste100"
 # byte-for-byte to satisfy this refactor's own backward-compatibility bar
 # (see docs/incidents/ and the hook-output diff run during migration).
 RULESET_NAME = "STE100"
-CAPABILITIES = frozenset({"glossary", "word_lookup"})
+# No "options": unlike slopwatch/codewatch, ste100 has no tunable numeric
+# thresholds today (its checks are the real ASD-STE100 standard's own
+# fixed rules, not density judgments) -- "checks" (per-rule on/off) is a
+# separate, real capability it does have now, see list_checks() below.
+CAPABILITIES = frozenset({"terms", "word_lookup", "checks"})
 
 # Relative to this package's own directory -- integrity_check.py resolves
-# these against the ruleset's install location, not the repo root. Vocabulary
-# packs are enforcement data exactly like dictionary.json once a project
-# enables one (they suppress real flags), so they're tracked here too.
-TRACKED_FILES = ["dictionary.json", "project-terms.json", "lint.py",
-                  "glossary.py", "build_dictionary.py",
-                  "glossary_packs/__init__.py",
-                  "glossary_packs/microsoft_style_guide.json",
-                  "glossary_packs/mdn_glossary.json",
-                  "glossary_packs/nist_security.json"]
+# these against the ruleset's install location, not the repo root.
+# No "glossary_packs/*": packs moved to core/glossary_packs/ (ruleset-
+# agnostic now) -- see integrity_check.py's own CORE_TRACKED_FILES, which
+# tracks them there instead. No "project-terms.json": Tier-2 project terms
+# are project-editable config now (stopslop.config.json's "wordlists"
+# key), not shipped enforcement data -- the same reason stopslop.config.json
+# itself was never in this list. Integrity tracking is for "did the
+# standard's own fixed data or rule logic change," not "did the project
+# register a word."
+TRACKED_FILES = ["dictionary.json", "lint.py", "glossary.py", "build_dictionary.py"]
 
 # kind -> coaching prose for generate_coaching_memory.py's aggregator.
 # Formerly generate_coaching_memory.py's own PRINCIPLE_TEXT; moved here
@@ -56,6 +61,16 @@ PRINCIPLE_TEXT = {
     "synonym_rotation": "The same concept keeps getting named with rotating "
                         "synonyms (check/verify/confirm...) -- pick one term "
                         "per concept before drafting and stay with it.",
+    "latin_abbrev": "Latin abbreviations (e.g., i.e., etc., vs.) keep showing "
+                    "up -- ASD-STE100 forbids them; write the plain English "
+                    "equivalent instead.",
+    "inclusive_language": "Gendered pronouns or terms keep showing up -- name "
+                          "the actor, use 'they', or use the standard's "
+                          "gender-neutral term instead.",
+    "safety_instruction": "A WARNING/CAUTION/NOTE safety label keeps showing "
+                          "up malformed (rule 7.1-7.3) -- format-only check, "
+                          "doesn't detect a missing label, only a badly-formed "
+                          "one.",
 }
 
 
@@ -63,25 +78,64 @@ def _history_path():
     return history.history_log_path(paths.find_project_root(__file__))
 
 
-def lint_and_gate(text, *, context=None):
+def lint_and_gate(text, *, context=None, file_path=None):
     """context: "procedure" (20-word limit, step-by-step instructions) or
     "description" (25-word limit, whole documents). Any other value
     (including None, the contract's default) falls back to "description" --
     ste100's own validation, per the plugin contract leaving context
     interpretation to each ruleset."""
     ctx = context if context in ("procedure", "description") else "description"
-    return lint.lint_and_gate(text, context=ctx)
+    return lint.lint_and_gate(text, context=ctx, file_path=file_path)
 
 
 def blocking_semantic_flags(semantic_flags):
     return lint.blocking_semantic_flags(semantic_flags)
 
 
-def apply_mechanical_fixes(text):
-    return lint.apply_mechanical_fixes(text)
+def apply_mechanical_fixes(text, file_path=None):
+    return lint.apply_mechanical_fixes(text, file_path=file_path)
+
+
+TERM_LISTS = lint.TERM_LISTS
+
+
+def list_term_lists(file_path=None):
+    """ste100's one term list (project vocabulary), in the same shape
+    slopwatch's five and codewatch's one report -- see core/terms.py.
+    file_path matters here: which vocabulary packs are layered in depends
+    on the routing rule matching the file, not on the ruleset."""
+    return _terms.list_term_lists(RULESET_ID, TERM_LISTS,
+                                   paths.find_project_root(__file__),
+                                   file_path=file_path)
+
+
+def add_term(list_id, term, note="", force=False):
+    """Uniform contract entry point. Delegates to glossary.register, which
+    adds ste100's own validation against the real ASD-STE100 dictionary --
+    the one genuine difference between this ruleset's list and the others',
+    now a validator callback rather than a whole parallel API."""
+    if list_id != "project_terms":
+        raise _terms.UnknownTermListError(
+            f"unknown term list {list_id!r} -- known: ['project_terms']")
+    # `force` is a bool in the uniform contract but a REASON string in
+    # ste100's own register(): overriding a real prohibition has to go on
+    # the record with why. A bare force=True falls back to the note.
+    reason = force if isinstance(force, str) else (note or "forced via add_term") if force else None
+    return glossary.register(term, note, reason, history_path=_history_path())
+
+
+def remove_term(list_id, term):
+    if list_id != "project_terms":
+        raise _terms.UnknownTermListError(
+            f"unknown term list {list_id!r} -- known: ['project_terms']")
+    return glossary.unregister(term, history_path=_history_path())
 
 
 def register_term(word, note="", override_unapproved=None):
+    """ste100's own richer registration entry point, kept because
+    override_unapproved carries a REASON string, not just a boolean -- a
+    prohibition override has to go on the record with why. add_term above is
+    the uniform contract wrapper over this."""
     return glossary.register(word, note, override_unapproved, history_path=_history_path())
 
 
@@ -117,9 +171,10 @@ def check_word(word):
         }
     violations = lint.check_vocabulary(word)
     if not violations:
-        if lw in lint.PROJECT_TERMS:
+        effective = lint.effective_project_terms()
+        if lw in effective:
             return {"word": word, "status": "project_term",
-                    "note": lint.PROJECT_TERMS[lw].get("note", "")}
+                    "note": effective[lw].get("note", "")}
         return {"word": word, "status": "approved"}
     v = violations[0]
     return {
@@ -134,34 +189,39 @@ def stats():
     return {
         "approved_words": str(len(lint.APPROVED_WORDS)),
         "forbidden_words": str(len(lint.UNAPPROVED_MAP) + len(lint.UNAPPROVED_NO_REPLACEMENT)),
-        "project_terms": str(len(lint.PROJECT_TERMS)),
+        "project_terms": str(len(lint.effective_project_terms())),
     }
 
 
-def list_glossary_packs():
-    """Every registered vocabulary pack (name, source, license, term
-    count) plus whether it's enabled for this project right now --
-    ste100-specific today, not part of the generic plugin contract (see
-    glossary_packs/__init__.py's own docstring: revisit if a second
-    glossary-capable ruleset ever needs the same mechanism)."""
+def list_checks():
+    """See rulesets/slopwatch/__init__.py's list_checks() -- identical
+    shape and rationale, now also given to ste100's own 13 rule checks
+    (previously the only ruleset of the three with no per-check toggles
+    at all, the actual gap that made the three rulesets' modularity
+    inconsistent with each other)."""
     project_root = paths.find_project_root(__file__)
-    enabled = set(_core_config.enabled_glossary_packs(project_root, RULESET_ID))
+    disabled = set(_core_config.disabled_checks(project_root, RULESET_ID))
     return {
-        pack_id: dict(meta, enabled=pack_id in enabled)
-        for pack_id, meta in _glossary_packs.list_packs().items()
+        check_id: {"description": PRINCIPLE_TEXT.get(check_id, ""),
+                   "enabled": check_id not in disabled}
+        for check_id in sorted(lint.ALL_CHECK_IDS)
     }
 
 
-def set_enabled_glossary_packs(pack_ids):
-    """Enable exactly this set of packs for this project (disables every
-    other known pack) -- validated against the real pack registry first,
-    the same loud-on-typo guarantee core.config.save_rules already gives
-    ruleset ids."""
-    for pack_id in pack_ids:
-        if pack_id not in _glossary_packs.AVAILABLE_PACKS:
-            raise _glossary_packs.UnknownPackError(
-                f"no glossary pack registered as {pack_id!r} -- "
-                f"known: {sorted(_glossary_packs.AVAILABLE_PACKS)}")
+def set_enabled_checks(check_ids):
+    unknown = set(check_ids) - lint.ALL_CHECK_IDS
+    if unknown:
+        raise ValueError(f"unknown check id(s): {sorted(unknown)} -- "
+                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
+    disabled = sorted(lint.ALL_CHECK_IDS - set(check_ids))
     project_root = paths.find_project_root(__file__)
-    _core_config.save_glossary_packs(project_root, RULESET_ID, list(pack_ids))
-    lint.PROJECT_TERMS = lint._load_project_terms()  # refresh the checking-time global
+    _core_config.save_disabled_checks(project_root, RULESET_ID, disabled)
+
+
+# list_glossary_packs()/set_enabled_glossary_packs() USED to live here: two
+# bare functions the ruleset registry knew nothing about, which
+# dashboard.py, stopslop.py and mcp_server.py each reached for with a
+# hasattr() guess. They are gone, not moved -- a pack is enabled on a PATH
+# GLOB, not on a ruleset (core.config.packs_for_path / set_rule_packs), so
+# there was never a ruleset method for them to be. That mismatch is exactly
+# why they sat outside the contract for as long as they did.

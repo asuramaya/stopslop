@@ -12,6 +12,7 @@ import os
 import tempfile
 import unittest
 
+from core import terms as _terms
 from rulesets import slopwatch
 from rulesets.slopwatch import lint
 
@@ -82,6 +83,46 @@ class ColonRevealTests(unittest.TestCase):
         hits = lint.check_colon_reveal(
             "After a long review of every option the team could think of: nothing changed.")
         self.assertEqual(hits, [])
+
+    def test_markdown_bold_label_not_flagged(self):
+        # Live regression: a spec/glossary-style bold lead ("**Manufacturing
+        # processes**: a) Remove material...") was denying real writes to
+        # docs/ASD-STE100-rules-extracted.md -- found via stopslop.py scan
+        # against this project's own real reference doc, not a fixture.
+        self.assertEqual(
+            lint.check_colon_reveal("**Manufacturing processes**: a) Remove material."), [])
+
+    def test_bullet_prefixed_bold_label_not_flagged(self):
+        self.assertEqual(
+            lint.check_colon_reveal("— **(c)**: same category-membership judgment."), [])
+
+    def test_bold_span_containing_the_colon_not_flagged(self):
+        self.assertEqual(
+            lint.check_colon_reveal("**3.2 Use only these forms/tenses: infinitive, imperative.**"), [])
+
+    def test_numbered_method_label_not_flagged(self):
+        self.assertEqual(
+            lint.check_colon_reveal("Method 2: hyphenate word groups that function as one unit."), [])
+
+    def test_spelled_out_step_label_not_flagged(self):
+        self.assertEqual(
+            lint.check_colon_reveal("Step one: the team checked the file first."), [])
+
+    def test_metadata_field_labels_not_flagged(self):
+        for sentence in ("Source: PDF pages 43 to 147.",
+                          "Date: 2026-08-01.",
+                          "Incident: gate bypass during extraction.",
+                          "Checkability legend: (a) deterministic, (b) heuristic."):
+            with self.subTest(sentence=sentence):
+                self.assertEqual(lint.check_colon_reveal(sentence), [])
+
+    def test_dramatic_reveal_with_bold_word_inline_still_flags(self):
+        # The bold-label exemption only applies when the bold span starts
+        # (at most a bullet/dash away from) the beginning of the buildup --
+        # a real reveal that merely bolds one word for emphasis must still
+        # flag, or the exemption would swallow genuine hits too.
+        hits = lint.check_colon_reveal("The **real** issue: nobody noticed.")
+        self.assertEqual(len(hits), 1)
 
 
 class WeaselAttributionTests(unittest.TestCase):
@@ -437,6 +478,105 @@ class CheckToggleAndOptionsTests(unittest.TestCase):
         opts = slopwatch.list_options()
         self.assertEqual(opts["em_dash_threshold"]["value"], 7)
         self.assertEqual(opts["block_flag_count_threshold"]["value"], 8)
+
+
+class WordlistExtensibilityDirectTests(unittest.TestCase):
+    """Direct check-function tests -- extra=() default keeps every existing
+    direct-call test above working unchanged; these confirm the extension
+    mechanism itself, independent of project-config plumbing."""
+
+    def test_extra_term_flags_alongside_built_ins(self):
+        self.assertEqual(lint.check_weasel_attribution("Reportedly this works."), [])
+        hits = lint.check_weasel_attribution("Reportedly this works.", extra=["reportedly"])
+        self.assertEqual(len(hits), 1)
+
+    def test_built_in_still_flags_with_extra_present(self):
+        hits = lint.check_weasel_attribution("Studies show this works.", extra=["reportedly"])
+        self.assertEqual(len(hits), 1)
+
+    def test_extra_term_for_mechanical_stock_adverb_autofixes(self):
+        hits = lint.check_stock_adverb("Frankly, this works.", extra=["frankly"])
+        self.assertEqual(len(hits), 1)
+        self.assertTrue(hits[0]["auto_fix"])
+
+    def test_extra_marketing_adjective_flags(self):
+        self.assertEqual(
+            len(lint.check_marketing_adjective("A bulletproof solution.", extra=["bulletproof"])), 1)
+
+    def test_extra_filler_verb_is_escaped_not_treated_as_regex(self):
+        # A custom term containing a regex metacharacter ("." here) must
+        # match only the literal term, not "." as a wildcard.
+        self.assertEqual(lint.check_filler_verb("This autoXmagic helps.", extra=["auto.magic"]), [])
+        hits = lint.check_filler_verb("This auto.magic helps.", extra=["auto.magic"])
+        self.assertEqual(len(hits), 1)
+
+    def test_extra_marketing_cliche_flags(self):
+        self.assertEqual(
+            len(lint.check_marketing_cliche("An unparalleled offer.", extra=["unparalleled"])), 1)
+
+
+class TermListExtensibilityEndToEndTests(unittest.TestCase):
+    """Same temp-project-root isolation as CheckToggleAndOptionsTests --
+    proves a real add_term() call actually changes lint_and_gate's
+    real-world behavior, not just the direct check functions above."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        self._orig_find_root = lint._paths.find_project_root
+        lint._paths.find_project_root = lambda _file: self._tmp.name
+        _terms._migration_checked.clear()
+
+    def tearDown(self):
+        lint._paths.find_project_root = self._orig_find_root
+        self._tmp.cleanup()
+
+    def test_registered_term_reaches_lint_and_gate(self):
+        text = "Reportedly, this approach works better."
+        self.assertNotIn("weasel_attribution",
+                          [f["kind"] for f in lint.lint_and_gate(text)["semantic_flags"]])
+        slopwatch.add_term("weasel_attribution", "reportedly", "flagged live, missing from v1")
+        self.assertIn("weasel_attribution",
+                       [f["kind"] for f in lint.lint_and_gate(text)["semantic_flags"]])
+
+    def test_removed_term_stops_flagging(self):
+        slopwatch.add_term("weasel_attribution", "reportedly")
+        text = "Reportedly, this approach works better."
+        self.assertIn("weasel_attribution",
+                       [f["kind"] for f in lint.lint_and_gate(text)["semantic_flags"]])
+        slopwatch.remove_term("weasel_attribution", "reportedly")
+        self.assertNotIn("weasel_attribution",
+                          [f["kind"] for f in lint.lint_and_gate(text)["semantic_flags"]])
+
+    def test_registered_stock_adverb_gets_autofixed(self):
+        slopwatch.add_term("stock_adverb", "frankly")
+        self.assertEqual(lint.apply_mechanical_fixes("Frankly, this works."), "This works.")
+
+    def test_list_term_lists_surfaces_project_terms(self):
+        slopwatch.add_term("marketing_cliche", "unparalleled", "found in a real draft")
+        lists = slopwatch.list_term_lists()
+        self.assertEqual(lists["marketing_cliche"]["project_terms"],
+                          {"unparalleled": {"note": "found in a real draft"}})
+        self.assertEqual(lists["weasel_attribution"]["project_terms"], {})
+
+    def test_every_list_reports_deny_polarity(self):
+        # slopwatch flags what it matches. ste100's list is the opposite
+        # polarity -- the distinction that used to be two whole APIs.
+        for view in slopwatch.list_term_lists().values():
+            self.assertEqual(view["polarity"], "deny")
+
+    def test_built_in_counts_are_reported(self):
+        lists = slopwatch.list_term_lists()
+        self.assertEqual(lists["stock_adverb"]["built_in_count"],
+                          len(lint.STOCK_ADVERBS))
+
+    def test_unknown_list_id_raises_and_does_not_write(self):
+        with self.assertRaises(_terms.UnknownTermListError):
+            slopwatch.add_term("__not_real__", "x")
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+    def test_removing_a_never_registered_term_is_a_no_op(self):
+        slopwatch.remove_term("weasel_attribution", "never-added")  # must not raise
 
 
 if __name__ == "__main__":

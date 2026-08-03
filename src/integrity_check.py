@@ -46,9 +46,17 @@ _REGISTRY_NAME = "stopslop-integrity.json"
 # refactor scope exactly (the live write-time enforcement path), plus the
 # core/ modules that used to be part of pretool_hook.py/ste100_lint.py
 # directly and were already tracked implicitly as part of those files.
+# core/glossary_packs/*: moved here from rulesets/ste100/'s own
+# TRACKED_FILES when packs became ruleset-agnostic -- still real
+# enforcement data (suppresses real vocabulary flags once a project
+# enables one), just no longer owned by any one ruleset's package.
 CORE_TRACKED_FILES = ["pretool_hook.py", "bash_write_detect.py",
                        "core/blocks.py", "core/flags.py", "core/config.py",
-                       "core/history.py", "core/paths.py"]
+                       "core/history.py", "core/paths.py", "core/terms.py",
+                       "core/glossary_packs/__init__.py",
+                       "core/glossary_packs/microsoft_style_guide.json",
+                       "core/glossary_packs/mdn_glossary.json",
+                       "core/glossary_packs/nist_security.json"]
 
 
 def _registry_path(project_root):
@@ -100,8 +108,8 @@ def _migrate_legacy_registry(project_root):
         return
     try:
         os.rename(old_path, new_path)
-    except OSError:
-        pass
+    except OSError as ignored:
+        pass  # best-effort one-time migration; a fresh baseline is fine too
 
 
 def check_and_update():
@@ -137,7 +145,7 @@ def check_and_update():
         with open(registry_path, "w") as f:
             json.dump(current, f, indent=2, sort_keys=True)
             f.write("\n")
-    except OSError:
+    except OSError as ignored:
         pass  # integrity tracking must never break session start
 
     return warnings

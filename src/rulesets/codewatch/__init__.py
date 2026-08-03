@@ -2,15 +2,22 @@
 checks and the module docstring there for why this ruleset exists (proving
 stopslop's plugin contract generalizes past prose into code).
 
-CAPABILITIES is deliberately empty, the same reason slopwatch's is: no
-closed vocabulary, no glossary concept.
+CAPABILITIES has no "word_lookup", the same reason slopwatch's doesn't: no
+external standard to look a single word up against. It does have "terms" --
+generic_naming is "match against a list of denylisted name stems", the same
+shared term-list shape (core/terms.py) slopwatch's five checks and ste100's
+project vocabulary all use now. See lint.py's TERM_LISTS, including the
+note there on the ALLOW list this ruleset should eventually have and
+structurally could not have had before.
 """
 from rulesets.codewatch import lint
-from core import config as _core_config, paths
+from core import config as _core_config, paths, terms as _terms
+
+TERM_LISTS = lint.TERM_LISTS
 
 RULESET_ID = "codewatch"
 RULESET_NAME = "codewatch"
-CAPABILITIES = frozenset()
+CAPABILITIES = frozenset({"terms", "checks", "options"})
 
 TRACKED_FILES = ["lint.py"]
 
@@ -41,16 +48,16 @@ PRINCIPLE_TEXT = {
 }
 
 
-def lint_and_gate(text, *, context=None):
-    return lint.lint_and_gate(text, context=context)
+def lint_and_gate(text, *, context=None, file_path=None):
+    return lint.lint_and_gate(text, context=context, file_path=file_path)
 
 
 def blocking_semantic_flags(semantic_flags):
     return lint.blocking_semantic_flags(semantic_flags)
 
 
-def apply_mechanical_fixes(text):
-    return lint.apply_mechanical_fixes(text)
+def apply_mechanical_fixes(text, file_path=None):
+    return lint.apply_mechanical_fixes(text, file_path=file_path)
 
 
 def stats():
@@ -103,3 +110,22 @@ def set_options(options):
     merged = dict(_core_config.ruleset_options(project_root, RULESET_ID))
     merged.update(options)
     _core_config.save_ruleset_options(project_root, RULESET_ID, merged)
+
+
+def list_term_lists(file_path=None):
+    """See rulesets/slopwatch/__init__.py's list_term_lists() -- identical
+    shape and identical delegation, just codewatch's one list."""
+    return _terms.list_term_lists(RULESET_ID, TERM_LISTS,
+                                   paths.find_project_root(__file__),
+                                   file_path=file_path)
+
+
+def add_term(list_id, term, note="", force=False):
+    return _terms.add_term(RULESET_ID, TERM_LISTS,
+                            paths.find_project_root(__file__),
+                            list_id, term, note=note, force=force)
+
+
+def remove_term(list_id, term):
+    return _terms.remove_term(RULESET_ID, TERM_LISTS,
+                               paths.find_project_root(__file__), list_id, term)

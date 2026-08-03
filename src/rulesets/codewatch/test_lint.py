@@ -10,6 +10,7 @@ import os
 import tempfile
 import unittest
 
+from core import terms as _terms
 from rulesets import codewatch
 from rulesets.codewatch import lint
 
@@ -113,12 +114,48 @@ class MutableDefaultArgTests(unittest.TestCase):
 
 
 class PrintDebugTests(unittest.TestCase):
-    def test_print_call_flags(self):
-        hits = lint.check_print_debug("print('debug', value)")
+    def test_print_call_in_a_library_module_flags(self):
+        hits = lint.check_print_debug("print('debug', value)", is_script=False)
         self.assertEqual(len(hits), 1)
 
     def test_ordinary_line_not_flagged(self):
-        self.assertEqual(lint.check_print_debug("logger.info('started')"), [])
+        self.assertEqual(lint.check_print_debug("logger.info('started')", is_script=False), [])
+
+    def test_print_call_in_a_script_shaped_file_not_flagged(self):
+        # Live regression: build_glossary_pack_mdn.py's own print()s inside
+        # def main() -- called only from `if __name__ == "__main__":` --
+        # were being denied by the live gate for being "leftover debug
+        # output" when they were the script's entire purpose. Found by
+        # actually scanning this project's own real files (stopslop.py
+        # scan), not a synthetic fixture.
+        self.assertEqual(lint.check_print_debug("print('Wrote output.json')", is_script=True), [])
+
+
+class IsScriptTests(unittest.TestCase):
+    def test_file_with_main_guard_is_a_script(self):
+        lines = ["def main():", "    pass", "", 'if __name__ == "__main__":', "    main()"]
+        self.assertTrue(lint._is_script(lines))
+
+    def test_single_quoted_main_guard_also_counts(self):
+        self.assertTrue(lint._is_script(["if __name__ == '__main__':", "    main()"]))
+
+    def test_plain_library_module_is_not_a_script(self):
+        lines = ["def helper():", "    return 1"]
+        self.assertFalse(lint._is_script(lines))
+
+    def test_bare_launcher_with_no_def_or_class_is_a_script(self):
+        # Live regression: mcp_launch.py is pure top-level code (an
+        # os.execv() launcher, no functions at all) -- it has no __main__
+        # guard because it doesn't need one, but its print() is exactly as
+        # intentional as a guarded script's. Found via stopslop.py scan
+        # against this project's own real mcp_launch.py.
+        lines = ["import sys", "", "if not ok:", "    print('no venv', file=sys.stderr)",
+                  "    sys.exit(1)"]
+        self.assertTrue(lint._is_script(lines))
+
+    def test_module_with_any_function_is_not_a_bare_launcher(self):
+        lines = ["def helper():", "    return 1", "", "print('debug')"]
+        self.assertFalse(lint._is_script(lines))
 
 
 class TodoStubTests(unittest.TestCase):
@@ -147,6 +184,17 @@ class GenericNamingTests(unittest.TestCase):
 
     def test_descriptive_name_not_flagged(self):
         self.assertEqual(lint.check_generic_naming("retry_count = 3"), [])
+
+    def test_extra_stem_not_flagged_without_registration(self):
+        self.assertEqual(lint.check_generic_naming("widget1 = compute()"), [])
+
+    def test_extra_stem_flags_when_passed(self):
+        hits = lint.check_generic_naming("widget1 = compute()", extra=["widget"])
+        self.assertEqual(len(hits), 1)
+
+    def test_built_in_stem_still_flags_with_extra_present(self):
+        hits = lint.check_generic_naming("helper_1 = compute()", extra=["widget"])
+        self.assertEqual(len(hits), 1)
 
 
 class TautologicalAssertTests(unittest.TestCase):
@@ -218,6 +266,25 @@ class LintAndGateIntegrationTests(unittest.TestCase):
         code = "print('debug')\n"
         self.assertEqual(lint.apply_mechanical_fixes(code), code)
 
+    def test_print_debug_exempt_in_a_script_shaped_file_end_to_end(self):
+        code = (
+            "def main():\n"
+            "    print('Wrote output.json')\n"
+            "    print('done')\n"
+            "\n"
+            'if __name__ == "__main__":\n'
+            "    main()\n"
+        )
+        r = lint.lint_and_gate(code)
+        kinds = [f["kind"] for f in r["semantic_flags"]]
+        self.assertNotIn("print_debug", kinds)
+
+    def test_print_debug_still_flagged_with_no_main_guard(self):
+        code = "def main():\n    print('Wrote output.json')\n"
+        r = lint.lint_and_gate(code)
+        kinds = [f["kind"] for f in r["semantic_flags"]]
+        self.assertIn("print_debug", kinds)
+
 
 class CheckToggleAndOptionsTests(unittest.TestCase):
     """Same isolation technique as slopwatch's own CheckToggleAndOptionsTests
@@ -240,7 +307,11 @@ class CheckToggleAndOptionsTests(unittest.TestCase):
         self.assertTrue(all(c["enabled"] for c in checks.values()))
 
     def test_disabling_a_check_removes_its_flags_from_lint_and_gate(self):
-        code = "print('debug')\n"
+        # Wrapped in a real function (not a bare "print('debug')" one-liner)
+        # so this stays a genuine print_debug hit under _is_script's
+        # no-def-or-class-anywhere exemption -- this test is only checking
+        # the enable/disable toggle machinery, not print_debug's own rules.
+        code = "def helper():\n    print('debug')\n"
         self.assertTrue(any(f["kind"] == "print_debug"
                              for f in lint.lint_and_gate(code)["semantic_flags"]))
         codewatch.set_enabled_checks(lint.ALL_CHECK_IDS - {"print_debug"})
@@ -282,6 +353,60 @@ class CheckToggleAndOptionsTests(unittest.TestCase):
     def test_wrong_type_option_raises(self):
         with self.assertRaises(ValueError):
             codewatch.set_options({"block_flag_count_threshold": "ten"})
+
+
+class TermListExtensibilityEndToEndTests(unittest.TestCase):
+    """Same temp-project-root isolation as CheckToggleAndOptionsTests --
+    proves a real add_term() call actually changes lint_and_gate's
+    real-world behavior, not just the direct check_generic_naming() calls
+    in GenericNamingTests above."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        self._orig_find_root = lint._paths.find_project_root
+        lint._paths.find_project_root = lambda _file: self._tmp.name
+        _terms._migration_checked.clear()
+
+    def tearDown(self):
+        lint._paths.find_project_root = self._orig_find_root
+        self._tmp.cleanup()
+
+    def test_registered_stem_reaches_lint_and_gate(self):
+        code = "widget1 = compute()\n"
+        self.assertNotIn("generic_naming",
+                          [f["kind"] for f in lint.lint_and_gate(code)["semantic_flags"]])
+        codewatch.add_term("generic_naming", "widget", "seen live in a real diff")
+        self.assertIn("generic_naming",
+                       [f["kind"] for f in lint.lint_and_gate(code)["semantic_flags"]])
+
+    def test_removed_term_stops_flagging(self):
+        codewatch.add_term("generic_naming", "widget")
+        code = "widget1 = compute()\n"
+        self.assertIn("generic_naming",
+                       [f["kind"] for f in lint.lint_and_gate(code)["semantic_flags"]])
+        codewatch.remove_term("generic_naming", "widget")
+        self.assertNotIn("generic_naming",
+                          [f["kind"] for f in lint.lint_and_gate(code)["semantic_flags"]])
+
+    def test_list_term_lists_surfaces_project_terms(self):
+        codewatch.add_term("generic_naming", "widget", "seen live in a real diff")
+        lists = codewatch.list_term_lists()
+        self.assertEqual(lists["generic_naming"]["project_terms"],
+                          {"widget": {"note": "seen live in a real diff"}})
+
+    def test_reports_deny_polarity_and_built_in_count(self):
+        view = codewatch.list_term_lists()["generic_naming"]
+        self.assertEqual(view["polarity"], "deny")
+        self.assertEqual(view["built_in_count"], len(lint.GENERIC_NAME_STEMS))
+
+    def test_unknown_list_id_raises_and_does_not_write(self):
+        with self.assertRaises(_terms.UnknownTermListError):
+            codewatch.add_term("__not_real__", "x")
+        self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
+
+    def test_removing_a_never_registered_term_is_a_no_op(self):
+        codewatch.remove_term("generic_naming", "never-added")  # must not raise
 
 
 if __name__ == "__main__":

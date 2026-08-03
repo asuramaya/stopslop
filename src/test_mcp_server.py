@@ -6,12 +6,12 @@ when it's not installed -- the stdlib-only core suite must stay runnable
 without the venv (see requirements.txt).
 
 Read-only tools (lint_text, check_word, list_rulesets, get_status) run
-against the REAL registered rulesets -- safe, no writes. register_project_term
-and unregister_project_term run against a small fake glossary-capable
+against the REAL registered rulesets -- safe, no writes. add_term
+and remove_term run against a small fake terms-capable
 ruleset instead of the real ste100 module, the same "small fake modules"
 pattern core/test_config.py already uses -- this project's own real
-project-terms.json and gate history must never be written by an automated
-test that CI could run on every push.
+stopslop.config.json (project terms live there now) and gate history must
+never be written by an automated test that CI could run on every push.
 
 Run with (needs the venv -- see README's MCP setup section):
     cd src && ../.venv/bin/python3 -m unittest test_mcp_server -v
@@ -72,71 +72,117 @@ class ListRulesetsAndStatusTests(unittest.TestCase):
         self.assertIn("rulesets", result)
 
 
-class _FakeGlossary:
-    """In-memory glossary capable ruleset -- mirrors rulesets/ste100's real
-    shape (register_term/unregister_term/list_terms) without touching any
-    real file on disk."""
+class _FakeTerms:
+    """In-memory terms-capable ruleset -- mirrors the real shape every
+    ruleset now shares (list_term_lists/add_term/remove_term) without
+    touching any file on disk."""
 
     def __init__(self):
-        self.RULESET_ID = "fake_glossary"
-        self.CAPABILITIES = frozenset({"glossary"})
+        self.RULESET_ID = "fake_terms"
+        self.CAPABILITIES = frozenset({"terms"})
         self._terms = {}
 
-    def register_term(self, word, note="", override_unapproved=None):
-        self._terms[word] = {"note": note, "override": override_unapproved}
-        return {"ok": True, "status": "registered", "message": f"registered {word!r}"}
+    def list_term_lists(self, file_path=None):
+        return {"l": {"label": "L", "polarity": "allow", "accepts_packs": False,
+                       "built_in_count": 0, "pack_count": 0,
+                       "project_count": len(self._terms),
+                       "effective_count": len(self._terms),
+                       "project_terms": dict(self._terms),
+                       "pack_terms": [], "rejected": {}}}
 
-    def unregister_term(self, word):
-        existed = self._terms.pop(word, None) is not None
-        return {"ok": existed, "status": "unregistered" if existed else "not_found",
-                "message": f"unregistered {word!r}" if existed else f"{word!r} not registered"}
+    def add_term(self, list_id, term, note="", force=False):
+        self._terms[term] = {"note": note}
+        return {"ok": True, "status": "registered", "message": f"registered {term!r}"}
 
-    def list_terms(self):
-        return dict(self._terms)
+    def remove_term(self, list_id, term):
+        existed = self._terms.pop(term, None) is not None
+        return {"ok": True, "status": "removed" if existed else "no-op",
+                "message": f"removed {term!r}" if existed else f"{term!r} not registered"}
 
 
 @unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
-class RegisterProjectTermTests(unittest.TestCase):
+class TermToolsTests(unittest.TestCase):
     def setUp(self):
-        self.fake = _FakeGlossary()
+        self.fake = _FakeTerms()
         self._original_resolve = mcp_server._resolve
         mcp_server._resolve = lambda ruleset_id=None: self.fake
 
     def tearDown(self):
         mcp_server._resolve = self._original_resolve
 
-    def test_register_then_list_then_unregister_round_trips(self):
-        reg = mcp_server.register_project_term("widget", note="domain noun")
-        self.assertTrue(reg["ok"])
+    def test_add_then_list_then_remove_round_trips(self):
+        self.assertTrue(mcp_server.add_term("l", "widget", note="domain noun")["ok"])
+        listed = mcp_server.list_term_lists()
+        self.assertIn("widget", listed["lists"]["l"]["project_terms"])
 
-        listed = mcp_server.list_project_terms()
-        self.assertIn("widget", listed["terms"])
+        self.assertTrue(mcp_server.remove_term("l", "widget")["ok"])
+        self.assertNotIn("widget",
+                          mcp_server.list_term_lists()["lists"]["l"]["project_terms"])
 
-        unreg = mcp_server.unregister_project_term("widget")
-        self.assertTrue(unreg["ok"])
-        self.assertNotIn("widget", mcp_server.list_project_terms()["terms"])
+    def test_list_reports_polarity(self):
+        self.assertEqual(
+            mcp_server.list_term_lists()["lists"]["l"]["polarity"], "allow")
 
-    def test_capability_gate_refuses_a_ruleset_without_glossary(self):
+    def test_capability_gate_refuses_a_ruleset_without_terms(self):
         mcp_server._resolve = lambda ruleset_id=None: types.SimpleNamespace(
-            RULESET_ID="no_glossary", CAPABILITIES=frozenset())
-        result = mcp_server.register_project_term("widget")
+            RULESET_ID="no_terms", CAPABILITIES=frozenset())
+        result = mcp_server.add_term("l", "widget")
         self.assertEqual(result["status"], "unsupported")
         self.assertFalse(result["ok"])
 
 
 @unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
-class ListGlossaryPacksReadOnlyTests(unittest.TestCase):
-    """Read-only, so this runs against the real ste100 ruleset -- no write
-    ever reaches this project's own stopslop.config.json."""
+class TermToolsAgainstRealRulesetsTests(unittest.TestCase):
+    """Read-only against the real registry -- no write ever reaches this
+    project's own stopslop.config.json."""
 
-    def test_ste100_reports_its_real_packs(self):
-        result = mcp_server.list_glossary_packs(ruleset="ste100")
-        self.assertEqual(set(result["packs"]),
+    def test_every_real_ruleset_reports_its_lists(self):
+        for ruleset_id, expected in (("ste100", "project_terms"),
+                                      ("slopwatch", "marketing_cliche"),
+                                      ("codewatch", "generic_naming")):
+            result = mcp_server.list_term_lists(ruleset=ruleset_id)
+            self.assertIn(expected, result["lists"],
+                           f"{ruleset_id} did not report {expected}")
+
+    def test_ste100_list_is_allow_polarity_and_others_are_deny(self):
+        ste = mcp_server.list_term_lists(ruleset="ste100")["lists"]["project_terms"]
+        slop = mcp_server.list_term_lists(ruleset="slopwatch")["lists"]["marketing_cliche"]
+        self.assertEqual(ste["polarity"], "allow")
+        self.assertEqual(slop["polarity"], "deny")
+
+
+@unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
+class SetPathPacksReadOnlyTests(unittest.TestCase):
+    """Called with no glob, set_path_packs only reports -- safe to run
+    against the real config."""
+
+    def test_lists_every_available_pack_as_inert_content(self):
+        result = mcp_server.set_path_packs()
+        self.assertTrue(result["ok"])
+        self.assertEqual(set(result["available"]),
                           {"microsoft-style-guide", "mdn-glossary", "nist-security"})
+        # No pack names its own consumer -- that binding is in config.
+        self.assertNotIn("target", result["available"]["nist-security"])
 
-    def test_ruleset_without_packs_is_unsupported(self):
-        result = mcp_server.list_glossary_packs(ruleset="slopwatch")
-        self.assertEqual(result["status"], "unsupported")
+    def test_reports_which_rule_and_list_each_pack_feeds(self):
+        result = mcp_server.set_path_packs()
+        self.assertIsInstance(result["enabled_by_rule"], list)
+        for entry in result["enabled_by_rule"]:
+            self.assertEqual(set(entry), {"glob", "ruleset", "packs_by_list"})
+            self.assertIsInstance(entry["packs_by_list"], dict)
+
+    def test_a_glob_without_a_list_id_refuses(self):
+        result = mcp_server.set_path_packs(glob="*.md", pack_ids=["nist-security"])
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "refused")
+        self.assertIn("list_id", result["message"])
+
+    def test_unknown_glob_refuses_without_writing(self):
+        result = mcp_server.set_path_packs(glob="__not_a_real_glob__",
+                                            list_id="project_terms",
+                                            pack_ids=["nist-security"])
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "refused")
 
 
 class _FakeChecksAndOptions:

@@ -27,7 +27,9 @@ meta-comment.ts, and exceptions.ts), not its detection machinery:
 Own words, informed by aislop's own docs/rules.md (MIT) describing these
 rule NAMES and what they catch, but not ported from its TypeScript:
   - mutable_default_arg  (semantic)  def f(x=[]): a default shared across calls
-  - print_debug            (semantic)  leftover print() in production code
+  - print_debug            (semantic)  leftover print() in an importable library
+    module; a script with a real `if __name__ == "__main__":` guard is exempt
+    (see _is_script) -- its console output is the point, not a leftover
   - todo_stub                (semantic)  an untracked TODO/FIXME/HACK
   - generic_naming             (semantic)  helper_1, data2, temp1
   - tautological_assert          (semantic)  assert True, can never fail
@@ -42,7 +44,7 @@ slopwatch already established.
 """
 import re
 
-from core import config as _core_config, paths as _paths
+from core import config as _core_config, paths as _paths, terms as _terms
 
 TRACKED_EXTENSIONS = (".py",)
 
@@ -64,6 +66,21 @@ def _enabled_check_ids():
     except Exception:
         return set(ALL_CHECK_IDS)
     return ALL_CHECK_IDS - disabled
+
+
+def _custom_terms(list_id, file_path=None):
+    """The non-built-in layers (packs, then the project's own registrations)
+    for one term list -- same never-cache-it, read-fresh-every-call
+    philosophy as _enabled_check_ids(). Falls back to none (never breaks a
+    check) if project root can't be resolved. See slopwatch's identical
+    helper and core.config.packs_for_path for why file_path matters."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+        layers = _terms.resolve(TERM_LISTS[list_id], project_root, "codewatch",
+                                 list_id, file_path=file_path)
+        return sorted(set(layers["packs"]) | set(layers["project"]))
+    except Exception:
+        return []
 
 
 DEFAULT_OPTIONS = {
@@ -262,9 +279,36 @@ def check_mutable_default_arg(line):
 
 # --- print_debug (semantic) -- own words -----------------------------------
 _PRINT_DEBUG_RE = re.compile(r"^\s*print\(")
+_MAIN_GUARD_RE = re.compile(r"^if\s+__name__\s*==\s*[\"']__main__[\"']\s*:")
+_DEF_OR_CLASS_RE = re.compile(r"^\s*(?:async\s+def|def|class)\s")
 
 
-def check_print_debug(line):
+def _is_script(lines):
+    """True for a file whose console output is its own point, not a debug
+    leftover -- two shapes, both live-verified against this project's own
+    real files by stopslop.py scan (see docs/incidents/ for the discipline
+    this project applies to any claim like that):
+
+    1. A real `if __name__ == "__main__":` guard: meant to be run directly,
+       not just imported (build_glossary_pack_*.py, build_dictionary.py).
+
+    2. No function or class defined anywhere: a bare top-level launcher
+       (mcp_launch.py) has no importable API surface at all -- every line
+       runs identically whether the file is imported or executed, so
+       there's no "this is really a library, and something leaked into it"
+       question for a `__main__` guard to normally answer.
+
+    A module that defines functions/classes but has no `__main__` guard
+    keeps the original, stricter behavior -- a stray print() deep in
+    otherwise-importable code is still worth flagging."""
+    if any(_MAIN_GUARD_RE.match(line) for line in lines):
+        return True
+    return not any(_DEF_OR_CLASS_RE.match(line) for line in lines)
+
+
+def check_print_debug(line, is_script):
+    if is_script:
+        return []
     if _PRINT_DEBUG_RE.match(line):
         return [{"phrase": line.strip(), "rule": "codewatch.print_debug", "auto_fix": False,
                   "note": "leftover print() -- use logging, or remove it before this ships"}]
@@ -288,16 +332,36 @@ def check_todo_stub(line):
 
 
 # --- generic_naming (semantic) -- own words --------------------------------
-_GENERIC_NAME_RE = re.compile(
-    r"\b(?:helper|data|temp|tmp|value|item|obj|thing|foo|bar|result|util)_?\d+\b", re.IGNORECASE)
+GENERIC_NAME_STEMS = {"helper", "data", "temp", "tmp", "value", "item",
+                       "obj", "thing", "foo", "bar", "result", "util"}
+# codewatch's one term list -- same shared shape (core/terms.py) as
+# slopwatch's five and ste100's project vocabulary, just fewer of them.
+# A DENY list: these stems are the thing being flagged.
+#
+# This ruleset having no ALLOW list is a real gap, not a design choice --
+# "`data` and `handler` are fine in THIS repo" is an obviously reasonable
+# thing to want, and it was structurally impossible to express before,
+# because allow-shaped storage was spelled "glossary" and glossary was
+# ste100's word. Adding one is now a TERM_LISTS entry with
+# polarity="allow", not a new mechanism.
+TERM_LISTS = {
+    "generic_naming": {
+        "label": "Generic name stems",
+        "description": "Placeholder-sounding identifier stems (helper, data, temp...).",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": GENERIC_NAME_STEMS,
+    },
+}
 
 
-def check_generic_naming(line):
+def check_generic_naming(line, extra=()):
     if not _DEF_LINE_RE.match(line) and "=" not in line:
         return []
+    stems = GENERIC_NAME_STEMS | set(extra)
+    pattern = re.compile(r"\b(?:" + "|".join(re.escape(s) for s in stems) + r")_?\d+\b", re.IGNORECASE)
     return [{"word": m.group(0), "rule": "codewatch.generic_naming", "auto_fix": False,
               "note": "generic, numbered name -- say what the value actually is"}
-            for m in _GENERIC_NAME_RE.finditer(line)]
+            for m in pattern.finditer(line)]
 
 
 # --- tautological_assert / constant_condition (semantic) -- own words ------
@@ -320,9 +384,11 @@ def check_constant_condition(line):
     return []
 
 
-def lint_and_gate(text, context=None):
+def lint_and_gate(text, context=None, file_path=None):
     lines = text.split("\n")
     semantic = []
+    is_script = _is_script(lines)
+    extra_generic_names = _custom_terms("generic_naming", file_path)  # once per call, not per line
 
     for i, line in enumerate(lines):
         next_line = lines[i + 1] if i + 1 < len(lines) else None
@@ -336,11 +402,11 @@ def lint_and_gate(text, context=None):
             semantic.append({"kind": "swallowed_exception", "label": v["phrase"], "detail": v, "text": line})
         for v in check_mutable_default_arg(line):
             semantic.append({"kind": "mutable_default_arg", "label": v["phrase"], "detail": v, "text": line})
-        for v in check_print_debug(line):
+        for v in check_print_debug(line, is_script):
             semantic.append({"kind": "print_debug", "label": v["phrase"], "detail": v, "text": line})
         for v in check_todo_stub(line):
             semantic.append({"kind": "todo_stub", "label": v["phrase"], "detail": v, "text": line})
-        for v in check_generic_naming(line):
+        for v in check_generic_naming(line, extra_generic_names):
             semantic.append({"kind": "generic_naming", "label": v["word"], "detail": v, "text": line})
         for v in check_tautological_assert(line):
             semantic.append({"kind": "tautological_assert", "label": v["phrase"], "detail": v, "text": line})
@@ -375,7 +441,7 @@ def blocking_semantic_flags(semantic_flags):
     return []
 
 
-def apply_mechanical_fixes(text):
+def apply_mechanical_fixes(text, file_path=None):
     """No mechanical checks exist here -- every codewatch flag needs a
     human or model decision (cut the comment, name the exception, rename
     the variable), never a blind rewrite. Present for contract completeness."""

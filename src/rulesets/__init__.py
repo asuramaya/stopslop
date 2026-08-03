@@ -13,18 +13,50 @@ malformed ruleset fails loudly at startup rather than surfacing as a
 confusing error deep inside a live gate decision.
 """
 
+# lint_and_gate(text, *, context=None, file_path=None) and
+# apply_mechanical_fixes(text, file_path=None). file_path is part of the
+# contract, not an optimisation: vocabulary packs attach to the routing
+# rule that matched the path, so two files handled by the SAME ruleset can
+# have genuinely different effective vocabularies. A ruleset that ignores
+# file_path is fine; one that cannot accept it will break the live gate.
 REQUIRED_ATTRS = (
     "RULESET_ID", "RULESET_NAME", "CAPABILITIES",
     "lint_and_gate", "blocking_semantic_flags", "apply_mechanical_fixes",
 )
 
 # Which extra attributes a declared CAPABILITIES entry obligates a ruleset
-# to provide. A ruleset with no glossary concept (e.g. a pattern-only
-# ruleset with no closed vocabulary) simply omits "glossary" from
+# to provide. A ruleset with no term lists at all simply omits "terms" from
 # CAPABILITIES and implements none of these -- no stub methods required.
+#
+# "checks"/"options" were, until now, informal: every ruleset happened to
+# expose list_checks()/set_enabled_checks() (or not) and callers guessed
+# with hasattr() across stopslop.py/dashboard.py/mcp_server.py, with
+# nothing to stop a ruleset from declaring half a contract (e.g.
+# list_checks with no set_enabled_checks) and only finding out the hard
+# way, deep inside a live call. Promoted to real, registry-enforced
+# capabilities -- the actual inconsistency across ste100/slopwatch/
+# codewatch was in the CONTRACT, not just in which checks each shipped.
+#
+# "terms" replaces what used to be TWO capabilities: "glossary"
+# (register_term/unregister_term/list_terms, ste100 only) and "wordlists"
+# (add_wordlist_term/remove_wordlist_term/list_wordlists, slopwatch and
+# codewatch). Those were never different concepts -- only different
+# POLARITIES of one concept, allow vs deny, given different names because
+# ste100 was written first. See core/terms.py for the full argument and for
+# the layered built_in -> packs -> project model that replaced both.
+#
+# Vocabulary PACKS are deliberately NOT in this table. A pack is enabled on
+# a path glob, not on a ruleset (core.config.set_rule_packs), so pack
+# enablement is a project-config operation with no ruleset method behind
+# it -- which is precisely how the old list_glossary_packs/
+# set_enabled_glossary_packs pair managed to sit on ste100 unregistered,
+# with three separate callers hasattr()-guessing for them, for as long as
+# it did.
 CAPABILITY_ATTRS = {
-    "glossary": ("register_term", "unregister_term", "list_terms"),
+    "terms": ("list_term_lists", "add_term", "remove_term"),
     "word_lookup": ("check_word",),
+    "checks": ("list_checks", "set_enabled_checks"),
+    "options": ("list_options", "set_options"),
 }
 
 

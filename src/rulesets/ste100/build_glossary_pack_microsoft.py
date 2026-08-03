@@ -4,7 +4,7 @@ MicrosoftDocs/microsoft-style-guide repository from GitHub, parses its
 styleguide/a-z-word-list-term-collections/ directory (854 real per-word
 markdown files across a/..z/ and numbers-symbols/, as verified 2026-08-02 --
 the 12 files under its term-collections/ subfolder are excluded, see "Known
-limitations" below), and writes rulesets/ste100/glossary_packs/
+limitations" below), and writes core/glossary_packs/
 microsoft_style_guide.json, the Tier 2 vocabulary pack glossary_packs.
 load_pack_terms() actually loads when a project opts in.
 
@@ -128,7 +128,10 @@ from datetime import date
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 DICTIONARY_PATH = os.path.join(THIS_DIR, "dictionary.json")
-OUT_PATH = os.path.join(THIS_DIR, "glossary_packs", "microsoft_style_guide.json")
+# core/glossary_packs/, not a subdirectory of this ruleset's own package --
+# packs are ruleset-agnostic now, this build script's curation logic is
+# the only part that's still ste100-specific.
+OUT_PATH = os.path.join(THIS_DIR, "..", "..", "core", "glossary_packs", "microsoft_style_guide.json")
 
 SOURCE_ARCHIVE_URL = (
     "https://github.com/MicrosoftDocs/microsoft-style-guide/archive/refs/heads/main.tar.gz"

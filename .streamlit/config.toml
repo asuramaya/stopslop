@@ -1,0 +1,19 @@
+# Dashboard-only config (src/dashboard.py) -- not read by the hook, the
+# CLI, or the MCP server, so this never affects the live gate itself.
+
+[theme]
+base = "dark"
+# Streamlit's own default primaryColor (#FF4B4B) is what multiselect pills,
+# buttons, and the active-tab underline all render in -- white text on
+# that particular coral red falls short of legible contrast. This is a
+# darker red in the same family (keeps the "stop/deny" red branding the
+# 🛑 icon and the deny-action styling already use) chosen for a real
+# contrast ratio against white pill text.
+primaryColor = "#C62828"
+
+[client]
+# Default "auto" shows a "Deploy" button (this is a local-only tool, never
+# meant to be deployed to Streamlit Cloud) plus a full hamburger menu --
+# together a second header row taller than the content below it needs.
+# "minimal" drops both, leaving a thin one-line toolbar.
+toolbarMode = "minimal"

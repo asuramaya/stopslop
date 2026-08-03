@@ -2,17 +2,28 @@
 checks and the module docstring there for why this ruleset exists (proving
 stopslop's plugin contract generalizes beyond ASD-STE100).
 
-CAPABILITIES is deliberately empty: slopwatch has no closed vocabulary and
-no glossary concept, so it implements none of the optional glossary/
-word_lookup contract methods -- proof that the contract's optional-
-capability design needs no stub methods for a ruleset that doesn't use them.
+CAPABILITIES has no "word_lookup": slopwatch has no real external standard
+to look a single word up against, so it implements none of that contract --
+proof the optional-capability design needs no stub methods for a ruleset
+that doesn't use them.
+
+It DOES have "terms". Five of its checks (weasel_attribution,
+marketing_adjective, filler_verb, marketing_cliche, stock_adverb) are
+fundamentally "match text against a list of words or phrases", and a
+project can extend any of them. That used to be a separate capability
+called "wordlists", distinct from ste100's "glossary" -- but the two were
+never different concepts, only opposite POLARITIES of one (deny here, allow
+there), named differently because ste100 was written first. Both are term
+lists now; see lint.py's TERM_LISTS and core/terms.py.
 """
 from rulesets.slopwatch import lint
-from core import config as _core_config, paths
+from core import config as _core_config, paths, terms as _terms
+
+TERM_LISTS = lint.TERM_LISTS
 
 RULESET_ID = "slopwatch"
 RULESET_NAME = "slopwatch"
-CAPABILITIES = frozenset()
+CAPABILITIES = frozenset({"terms", "checks", "options"})
 
 TRACKED_FILES = ["lint.py"]
 
@@ -68,16 +79,16 @@ PRINCIPLE_TEXT = {
 }
 
 
-def lint_and_gate(text, *, context=None):
-    return lint.lint_and_gate(text, context=context)
+def lint_and_gate(text, *, context=None, file_path=None):
+    return lint.lint_and_gate(text, context=context, file_path=file_path)
 
 
 def blocking_semantic_flags(semantic_flags):
     return lint.blocking_semantic_flags(semantic_flags)
 
 
-def apply_mechanical_fixes(text):
-    return lint.apply_mechanical_fixes(text)
+def apply_mechanical_fixes(text, file_path=None):
+    return lint.apply_mechanical_fixes(text, file_path=file_path)
 
 
 def stats():
@@ -151,3 +162,27 @@ def set_options(options):
     merged = dict(_core_config.ruleset_options(project_root, RULESET_ID))
     merged.update(options)
     _core_config.save_ruleset_options(project_root, RULESET_ID, merged)
+
+
+def list_term_lists(file_path=None):
+    """Every term list this ruleset owns, with its polarity and per-layer
+    counts -- the modularity surface the dashboard's Vocabulary tab and
+    `stopslop.py terms` both read. Identical shape across all three
+    rulesets now, which is the whole point of core/terms.py."""
+    return _terms.list_term_lists(RULESET_ID, TERM_LISTS,
+                                   paths.find_project_root(__file__),
+                                   file_path=file_path)
+
+
+def add_term(list_id, term, note="", force=False):
+    """Add one term to a list's project layer. No validator: these lists
+    have no external standard to check a word against, so `force` is
+    accepted (for one uniform signature across rulesets) and unused."""
+    return _terms.add_term(RULESET_ID, TERM_LISTS,
+                            paths.find_project_root(__file__),
+                            list_id, term, note=note, force=force)
+
+
+def remove_term(list_id, term):
+    return _terms.remove_term(RULESET_ID, TERM_LISTS,
+                               paths.find_project_root(__file__), list_id, term)

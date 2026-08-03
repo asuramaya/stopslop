@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """One-time (re-runnable) build step: parses the real MDN Web Docs Glossary
 (github.com/mdn/content, files/en-us/glossary/) into
-rulesets/ste100/glossary_packs/mdn_glossary.json, the "mdn-glossary" pack
-AVAILABLE_PACKS already registers in glossary_packs/__init__.py.
+core/glossary_packs/mdn_glossary.json, the "mdn-glossary" pack
+AVAILABLE_PACKS already registers in core/glossary_packs/__init__.py.
 
 LICENSE NOTE -- read before touching this file's output shape: MDN's
 content is CC-BY-SA-2.5 (share-alike), NOT this repository's own MIT terms
@@ -97,7 +97,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 DICTIONARY_PATH = os.path.join(THIS_DIR, "dictionary.json")
-OUT_PATH = os.path.join(THIS_DIR, "glossary_packs", "mdn_glossary.json")
+# core/glossary_packs/, not a subdirectory of this ruleset's own package --
+# packs are ruleset-agnostic now, this build script's curation logic is
+# the only part that's still ste100-specific.
+OUT_PATH = os.path.join(THIS_DIR, "..", "..", "core", "glossary_packs", "mdn_glossary.json")
 
 TREE_URL = "https://api.github.com/repos/mdn/content/git/trees/main?recursive=true"
 RAW_BASE = "https://raw.githubusercontent.com/mdn/content/main/files/en-us/glossary"

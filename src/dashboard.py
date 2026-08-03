@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 """Local live dashboard for stopslop, run with `stopslop.py dashboard`.
 
+Two destinations, not five -- Watch and Configure, chosen because that's
+the actual split in how a human uses this, not how stopslop's own files
+happen to be laid out on disk:
+
+- Watch is passive: what did the gate just do, and why. Denials pulled
+  out into their own callout, since a deny is the one event a human
+  actually wants explained -- everything else is routine.
+- Configure is deliberate: routing (which files a ruleset even sees),
+  then one ruleset's checks/thresholds/glossary together in one place,
+  plus a "try it" playground scoped to whichever ruleset you're already
+  looking at. Previously these lived on three separate tabs, organized
+  around which config-file key backed them rather than around "I want to
+  tune slopwatch."
+
+A live-status pulse sits in the sidebar, outside both pages, so it stays
+visible regardless of which one you're on -- the whole point of a *live*
+dashboard is that liveness shouldn't be trapped inside one tab you have
+to be looking at.
+
 Not a second gate, not a second config store -- the same distinction the
 MCP server's own docstring already draws for itself. This reads and
 writes the exact files the hook, the CLI, and an agent editing
@@ -23,6 +42,7 @@ Run with:
 or directly:
     .venv/bin/streamlit run src/dashboard.py
 """
+import fnmatch
 import os
 import sys
 import time
@@ -33,7 +53,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rulesets
 import status_report
 from core import config as core_config
-from core import history, paths
+from core import glossary_packs, history, paths, terms as core_terms
 
 REPO_ROOT = paths.find_project_root(__file__)
 HISTORY_PATH = history.history_log_path(REPO_ROOT)
@@ -42,8 +62,23 @@ CONFIG_PATH = core_config.config_path(REPO_ROOT)
 st.set_page_config(page_title="stopslop", page_icon="🛑", layout="wide")
 
 
+# --- shared helpers ---------------------------------------------------
+
 def _fmt_ts(ts):
     return time.strftime("%H:%M:%S", time.localtime(ts)) if ts else "?"
+
+
+def _relative_time(ts):
+    if not ts:
+        return "?"
+    delta = time.time() - ts
+    if delta < 60:
+        return f"{int(delta)}s ago"
+    if delta < 3600:
+        return f"{int(delta // 60)}m ago"
+    if delta < 86400:
+        return f"{int(delta // 3600)}h ago"
+    return f"{int(delta // 86400)}d ago"
 
 
 def _short_path(file_path):
@@ -55,237 +90,449 @@ def _short_path(file_path):
         return file_path
 
 
-ACTION_ICON = {"deny": "🚫", "auto_fix": "🔧", "clean": "✅",
-               "unscoped_write": "❔", "register_term": "➕", "unregister_term": "➖"}
+def _status_footer():
+    # Deliberately no per-event detail here (ruleset/action/file) -- that's
+    # already what Watch's own Full activity table shows, in full, one
+    # scroll above. This is ambient "is everything okay" status, not a
+    # duplicate of content the current page may already be showing -- and
+    # it lives in the footer, not the header, so it never competes with
+    # the header's real job (brand + navigation) for attention.
+    report = status_report.build_status_report(REPO_ROOT)
+    config_text = "config: custom" if report["config_file_present"] else "config: default"
+    hook_text = "hook: 🟢" if report["hook_configured"] else "hook: 🔴"
+    integrity_text = "integrity: 🟢" if report["integrity_baseline_recorded"] else "integrity: ⚪"
+    st.caption(f"v{report['version']}  ·  {report['gate_event_count']} events  ·  "
+               f"{config_text}  ·  {hook_text}  ·  {integrity_text}")
+
+
+# --- Watch --------------------------------------------------------------
+
+def watch_page():
+    ids = ["All"] + [m.RULESET_ID for m in rulesets.list_rulesets()]
+    st.selectbox("Filter by ruleset", ids, key="watch_filter")
+    _watch_activity()
 
 
 @st.fragment(run_every="2s")
-def activity_and_status():
-    report = status_report.build_status_report(REPO_ROOT)
+def _watch_activity():
+    events = list(reversed(history.read_history_deduped(HISTORY_PATH)))
+    chosen = st.session_state.get("watch_filter", "All")
+    if chosen != "All":
+        events = [e for e in events if e.get("ruleset") == chosen]
 
-    # Two rows of at most 3 metrics rather than one row of 5 -- stays
-    # readable at any viewport width instead of squeezing on a narrow one.
-    row1 = st.columns(3)
-    row1[0].metric("version", report["version"])
-    row1[1].metric("gate events", report["gate_event_count"])
-    row1[2].metric("hook wiring", "on" if report["hook_configured"] else "OFF")
-    row2 = st.columns(3)
-    row2[0].metric("integrity", "ok" if report["integrity_baseline_recorded"] else "none yet")
-    row2[1].metric("config file", "custom" if report["config_file_present"] else "default")
+    denials = [e for e in events if e.get("action") == "deny"][:5]
+    with st.container(border=True):
+        st.subheader(f"🚫 Recent denials ({len(denials)})" if denials else "🚫 Recent denials")
+        if not denials:
+            st.caption("None recently -- every write has passed or been auto-fixed.")
+        for e in denials:
+            st.markdown(f"**{_short_path(e.get('file')) or '(no file)'}** "
+                        f"· {e.get('ruleset', '')} · {_relative_time(e.get('ts'))}")
+            st.caption("flagged: " + (", ".join(e.get("kinds") or []) or "(no kind recorded)"))
 
-    # Stacked, not side-by-side columns -- a ruleset's stat list is
-    # variable-length (codewatch has none beyond "checks", ste100 has
-    # three), so a fixed-width column either wastes space or clips.
-    for rs in report["rulesets"]:
-        stat_line = " · ".join(f"{k.replace('_', ' ')}: {v}" for k, v in rs["stats"].items()
-                                if k != "checks")  # the check-name list is long, not a one-liner
-        st.caption(f"**{rs['name']}** ({rs['id']})" + (f" — {stat_line}" if stat_line else ""))
-
-    st.subheader("Live activity")
-    events = list(reversed(history.read_history_deduped(HISTORY_PATH)))[:50]
+    st.subheader("Full activity")
+    events = events[:50]
     if not events:
-        st.info("No gate activity yet -- write something through the hook, or lint text below.")
+        st.info("No matching activity yet -- write something through the hook, "
+                 "or try a ruleset's playground on Configure.")
         return
     st.dataframe(
         [{
             "time": _fmt_ts(e.get("ts")),
-            "": ACTION_ICON.get(e.get("action"), ""),
+            "event": f"{ACTION_ICON.get(e.get('action'), '')} {e.get('action', '')}".strip(),
             "ruleset": e.get("ruleset", ""),
-            "action": e.get("action", ""),
             "file": _short_path(e.get("file")),
             "kinds": ", ".join(e.get("kinds") or []),
         } for e in events],
-        use_container_width=True, hide_index=True,
+        width="stretch", hide_index=True,
     )
 
 
-def lint_playground():
-    st.subheader("Lint playground")
-    st.caption("Check text the same way the live gate would, without writing it anywhere.")
+# --- Configure ------------------------------------------------------------
+
+def configure_page():
+    """Everything a project configures, in one page of flat, project-wide
+    tables. There is no separate Vocabulary page and no ruleset radio.
+
+    Both were duplication. The radio picked a ruleset for the checks and
+    thresholds blocks while the terms table carried its own ruleset filter
+    -- two selectors for one idea. And a Sources block edited pack
+    bindings while the Routing editor edited the very same `rulesets[]`
+    array, so one config lived behind two controls. Checks, thresholds and
+    terms are now each ONE table covering every ruleset, tagged and
+    filterable, the same shape as each other."""
+    rulesets_with_terms = [m for m in rulesets.list_rulesets() if "terms" in m.CAPABILITIES]
+
+    with st.container(border=True):
+        st.subheader("Routing")
+        _routing_editor()
+
+    with st.container(border=True):
+        st.subheader("Checks")
+        _checks_table()
+
+    with st.container(border=True):
+        st.subheader("Thresholds")
+        _thresholds_table()
+
+    with st.container(border=True):
+        st.subheader("Terms")
+        _terms_table()
+        _add_term_form(rulesets_with_terms)
+        _suppressed_section()
+
+    with st.container(border=True):
+        _playground_section()
+
+
+def _routing_editor():
+    """Which ruleset gates which path. Nothing else.
+
+    This used to also carry a read-only `packs` column and an "attach
+    vocabulary packs" expander -- data in one place and the control in
+    another, and both about vocabulary rather than routing. Packs are a
+    SOURCE OF TERMS, so they live in Terms, next to the words they add."""
+    st.caption(f"`{os.path.relpath(CONFIG_PATH, REPO_ROOT)}` -- first match wins. "
+               "Changes apply to the next gate call immediately, no restart.")
     ids = [m.RULESET_ID for m in rulesets.list_rulesets()]
-    ruleset_id = st.selectbox("Ruleset", ids, key="playground_ruleset")
-    text = st.text_area("Text", height=120, key="playground_text",
-                         placeholder="Paste a sentence or a snippet...")
-    if st.button("Lint it", type="primary") and text.strip():
-        active = rulesets.get_ruleset(ruleset_id)
-        result = active.lint_and_gate(text)
-        blocking = active.blocking_semantic_flags(result["semantic_flags"])
-        if blocking:
-            st.error(f"Would DENY -- {len(blocking)} flag(s) need a person's judgment")
-            for f in blocking:
-                st.write(f"- **[{f['kind']}]** {f.get('label') or ''} -- "
-                         f"{f['detail'].get('note', '')}")
-        elif result["mechanical_violations"]:
-            st.warning(f"Would AUTO-FIX -- {len(result['mechanical_violations'])} "
-                       f"mechanical violation(s)")
-            st.code(active.apply_mechanical_fixes(text))
-        else:
-            st.success("Would PASS unchanged")
-        non_blocking = [f for f in result["semantic_flags"] if f not in blocking]
-        if non_blocking:
-            with st.expander(f"{len(non_blocking)} non-blocking note(s)"):
-                for f in non_blocking:
-                    st.write(f"- [{f['kind']}] {f.get('label') or ''}")
-
-
-def config_editor():
-    st.subheader("Routing configuration")
-    st.caption(f"`{CONFIG_PATH}` -- picks which ruleset lints which file, first match wins. "
-               "Changes apply to the next gate call immediately, no session restart needed.")
-    rules = core_config.load_rules(REPO_ROOT)
-    ids = [m.RULESET_ID for m in rulesets.list_rulesets()]
-    rows = [{"glob": r["glob"], "ruleset": r["ruleset"] or ""} for r in rules]
-
     edited = st.data_editor(
-        rows, num_rows="dynamic", use_container_width=True, key="config_editor",
+        [{"glob": g, "ruleset": r or ""} for g, r, _ in core_config.rule_packs(REPO_ROOT)],
+        num_rows="dynamic", width="stretch", key="config_editor",
         column_config={
             "glob": st.column_config.TextColumn("glob", required=True),
             "ruleset": st.column_config.SelectboxColumn(
                 "ruleset", options=[""] + ids,
                 help="Empty means out of scope entirely (like .claude/*)."),
-        },
-    )
-    if st.button("Save routing config"):
-        new_rules = [{"glob": r["glob"], "ruleset": r["ruleset"] or None}
-                     for r in edited if r.get("glob")]
+        })
+    if st.button("Save routing"):
         try:
-            core_config.save_rules(REPO_ROOT, new_rules, rulesets)
-            st.success(f"Wrote {len(new_rules)} rule(s) to stopslop.config.json")
+            core_config.save_rules(
+                REPO_ROOT,
+                [{"glob": r["glob"], "ruleset": r["ruleset"] or None}
+                 for r in edited if r.get("glob")],
+                rulesets)
+            st.toast("Routing saved", icon="✅")
+            st.rerun()
         except Exception as exc:
             st.error(f"Not saved: {exc}")
 
 
-def glossary_editor():
-    glossary_rulesets = [m for m in rulesets.list_rulesets() if "glossary" in m.CAPABILITIES]
-    if not glossary_rulesets:
-        st.info("No registered ruleset declares a glossary capability.")
+def _filter_row(rows, text_fields, facets, key):
+    """Search box plus one multiselect per facet, returning the filtered
+    rows. Shared so the Checks and Terms tables cannot drift into two
+    different standards for the same interaction, which is exactly what
+    happened when only one of them had filters."""
+    cols = st.columns([3] + [2] * len(facets))
+    needle = cols[0].text_input("Search", key=f"{key}_q").strip().lower()
+    picked = {}
+    for i, facet in enumerate(facets):
+        chosen = cols[i + 1].multiselect(
+            facet.replace("_", " ").title(), sorted({r[facet] for r in rows}),
+            key=f"{key}_{facet}")
+        if chosen:
+            picked[facet] = set(chosen)
+
+    out = [r for r in rows
+           if (not needle or any(needle in str(r[f]).lower() for f in text_fields))
+           and all(r[f] in vals for f, vals in picked.items())]
+    if len(out) != len(rows):
+        st.caption(f"{len(out)} of {len(rows)} shown")
+    return out
+
+
+def _checks_table():
+    """Every check every ruleset ships, in one table -- the same shape the
+    terms table uses, rather than a wall of checkboxes behind a ruleset
+    radio."""
+    rows = []
+    for module in rulesets.list_rulesets():
+        if "checks" not in module.CAPABILITIES:
+            continue
+        for cid, meta in sorted(module.list_checks().items()):
+            rows.append({"enabled": meta["enabled"], "check": cid,
+                          "ruleset": module.RULESET_ID,
+                          "what it catches": meta["description"] or ""})
+    if not rows:
+        st.caption("No ruleset exposes individually-toggleable checks.")
         return
-    for ruleset in glossary_rulesets:
-        st.subheader(f"{ruleset.RULESET_NAME} glossary")
 
-        if hasattr(ruleset, "list_glossary_packs"):
-            packs = ruleset.list_glossary_packs()
-            pack_labels = {
-                pid: f"{pid} -- {meta['name']} ({meta['license']}, {meta['term_count']} terms)"
-                for pid, meta in packs.items()
-            }
-            currently_enabled = [pid for pid, meta in packs.items() if meta["enabled"]]
-            selected = st.multiselect(
-                "Bulk vocabulary packs (off by default -- each is a real, "
-                "license-checked external source, see NOTICE)",
-                options=list(pack_labels), default=currently_enabled,
-                format_func=lambda pid: pack_labels[pid], key=f"packs_{ruleset.RULESET_ID}",
-            )
-            if st.button("Apply pack selection", key=f"apply_packs_{ruleset.RULESET_ID}"):
-                try:
-                    ruleset.set_enabled_glossary_packs(selected)
-                    st.toast(f"Enabled: {', '.join(selected) or '(none)'}", icon="✅")
-                    st.rerun()
-                except Exception as exc:
-                    st.error(f"Not saved: {exc}")
+    off = sum(1 for r in rows if not r["enabled"])
+    st.caption(f"{len(rows)} checks · {off} off" if off else f"{len(rows)} checks, all on")
+    shown = _filter_row(rows, ("check", "what it catches"), ("ruleset",), "chk")
+    if not shown:
+        st.caption("Nothing matches.")
+        return
+    edited = st.data_editor(
+        shown, width="stretch", hide_index=True, key="checks_table",
+        column_config={
+            "enabled": st.column_config.CheckboxColumn("on", width="small"),
+            "check": st.column_config.TextColumn("check", disabled=True),
+            "ruleset": st.column_config.TextColumn("ruleset", disabled=True, width="small"),
+            "what it catches": st.column_config.TextColumn(
+                "what it catches", disabled=True, width="large"),
+        })
+    if st.button("Save checks"):
+        by_ruleset = {}
+        for row in edited:
+            by_ruleset.setdefault(row["ruleset"], []).append(row)
+        try:
+            for ruleset_id, group in by_ruleset.items():
+                rulesets.get_ruleset(ruleset_id).set_enabled_checks(
+                    [r["check"] for r in group if r["enabled"]])
+            st.toast("Checks saved", icon="✅")
+            st.rerun()
+        except Exception as exc:
+            st.error(f"Not saved: {exc}")
 
-        terms = ruleset.list_terms()
-        st.caption(f"{len(terms)} manually registered term(s) "
-                   f"(vocabulary packs are listed separately above, not counted here)")
-        if terms:
-            st.dataframe(
-                [{"word": w, "note": t.get("note", ""),
-                  "overrides a real rule": bool(t.get("overrides_unapproved"))}
-                 for w, t in sorted(terms.items())],
-                use_container_width=True, hide_index=True,
-            )
 
-        with st.form(key=f"register_{ruleset.RULESET_ID}", clear_on_submit=True):
-            cols = st.columns([2, 3, 2, 1])
-            word = cols[0].text_input("word")
-            note = cols[1].text_input("note")
-            override = cols[2].text_input("override reason (only if the word is already forbidden)")
-            submitted = cols[3].form_submit_button("Register")
-            if submitted and word:
-                result = ruleset.register_term(word, note, override or None)
-                # toast + rerun, not st.success -- a plain success message
-                # would render into a script run that's about to be thrown
-                # away by rerun(), and without the rerun the table above
-                # keeps showing the pre-registration term count/list until
-                # some unrelated later interaction happens to refresh it.
-                st.toast(result["message"], icon="✅" if result["ok"] else "🚫")
-                st.rerun()
+def _thresholds_table():
+    rows = []
+    for module in rulesets.list_rulesets():
+        if "options" not in module.CAPABILITIES:
+            continue
+        for name, info in sorted(module.list_options().items()):
+            rows.append({"option": name, "ruleset": module.RULESET_ID,
+                          "value": info["value"], "default": info["default"]})
+    if not rows:
+        st.caption("No ruleset exposes tunable thresholds.")
+        return
+    edited = st.data_editor(
+        rows, width="stretch", hide_index=True, key="options_table",
+        column_config={
+            "option": st.column_config.TextColumn("option", disabled=True),
+            "ruleset": st.column_config.TextColumn("ruleset", disabled=True, width="small"),
+            "value": st.column_config.NumberColumn("value", step=1),
+            "default": st.column_config.NumberColumn("default", disabled=True),
+        })
+    if st.button("Save thresholds"):
+        by_ruleset = {}
+        for row in edited:
+            by_ruleset.setdefault(row["ruleset"], {})[row["option"]] = int(row["value"])
+        try:
+            for ruleset_id, values in by_ruleset.items():
+                rulesets.get_ruleset(ruleset_id).set_options(values)
+            st.toast("Thresholds saved", icon="✅")
+            st.rerun()
+        except Exception as exc:
+            st.error(f"Not saved: {exc}")
 
-        unreg_col, btn_col = st.columns([4, 1])
-        word_to_remove = unreg_col.text_input("word to unregister", key=f"unreg_{ruleset.RULESET_ID}")
-        if btn_col.button("Unregister", key=f"unreg_btn_{ruleset.RULESET_ID}") and word_to_remove:
-            result = ruleset.unregister_term(word_to_remove)
-            st.toast(result["message"], icon="✅" if result["ok"] else "🚫")
+
+def _terms_table():
+    """Every term, for one resolved path, with the sources that supply them.
+
+    The path input is not a convenience. Packs attach to the routing rule
+    that matches a file, so two files handled by the same ruleset genuinely
+    have different vocabularies -- and this table used to resolve silently
+    against the synthetic free-text path, showing what a `.md` file happens
+    to get while presenting it as the project's vocabulary."""
+    head = st.columns([2, 5])
+    default = core_config.SYNTHETIC_TEXT_NAME
+    probe = head[0].text_input("Resolve for path", value=default,
+                                key="terms_path").strip() or default
+    full = os.path.join(REPO_ROOT, probe)
+    matched = core_config.resolve_ruleset_id(full, REPO_ROOT)
+    rows = core_terms.term_index(rulesets, REPO_ROOT, file_path=full)
+    with head[1]:
+        st.caption("")
+        st.caption(f"`{probe}` is gated by **{matched or 'nothing (out of scope)'}** · "
+                   f"**{len(rows)}** terms from **{len({r['source'] for r in rows})}** "
+                   f"sources. Every ruleset is listed; filter to narrow.")
+
+    _sources_table(rows, probe, full)
+
+    shown = _filter_row(rows, ("term", "note"),
+                         ("ruleset", "list", "source", "polarity"), "trm")
+    if not shown:
+        st.caption("Nothing matches.")
+        return
+
+    event = st.dataframe(
+        shown, width="stretch", hide_index=True, height=380,
+        on_select="rerun", selection_mode="multi-row", key="terms_table",
+        column_config={
+            "term": st.column_config.TextColumn("term", width="medium"),
+            "ruleset": st.column_config.TextColumn("ruleset", width="small"),
+            "list": st.column_config.TextColumn("list", width="small"),
+            "source": st.column_config.TextColumn("source", width="small"),
+            "polarity": st.column_config.TextColumn("polarity", width="small"),
+            "note": st.column_config.TextColumn("note", width="large"),
+        })
+
+    picked = [shown[i] for i in event.selection.rows]
+    if not picked:
+        st.caption("Select rows to remove them. A shipped term -- a built-in or "
+                   "a pack word -- is suppressed rather than deleted, since the "
+                   "word lives in a ruleset's source or a shipped pack, and can "
+                   "be restored below.")
+        return
+    if st.button(f"Remove {len(picked)} selected", type="primary", key="rm_sel"):
+        results = []
+        for row in picked:
+            module = rulesets.get_ruleset(row["ruleset"])
+            try:
+                results.append(module.remove_term(row["list"], row["term"]))
+            except Exception as exc:
+                results.append({"ok": False, "message": str(exc)})
+        failed = [r for r in results if not r.get("ok")]
+        for r in failed:
+            st.error(r.get("message", ""))
+        if not failed:
+            st.toast(f"{len(results)} term(s) removed.", icon="✅")
+        st.rerun()
+
+
+def _sources_table(rows, probe, full_path):
+    """Where this path's terms come from, and the one control that changes
+    it. Counted from the same rows the table below renders, so the summary
+    can never disagree with the detail."""
+    counts = {}
+    for row in rows:
+        counts[(row["source"], row["ruleset"], row["list"])] = \
+            counts.get((row["source"], row["ruleset"], row["list"]), 0) + 1
+    packs = set(glossary_packs.AVAILABLE_PACKS)
+    kind = lambda src: "pack" if src in packs else ("yours" if src == "yours" else "shipped")
+
+    with st.expander(f"Sources — {len(counts)} feeding `{probe}`"):
+        st.dataframe(
+            [{"kind": kind(src), "source": src, "feeds": f"{rs}.{lid}", "terms": n}
+             for (src, rs, lid), n in sorted(counts.items(),
+                                              key=lambda kv: (-kv[1], kv[0]))],
+            width="stretch", hide_index=True)
+
+        attached = [(src, rs, lid) for (src, rs, lid) in counts if src in packs]
+        cols = st.columns([2, 2, 1])
+        pack = cols[0].selectbox("Pack", sorted(packs), key="attach_pack",
+                                  format_func=lambda p: f"{p} "
+                                      f"({glossary_packs.pack_meta(p)['term_count']})")
+        targets = [(m.RULESET_ID, lid) for m in rulesets.list_rulesets()
+                    if "terms" in m.CAPABILITIES
+                    for lid, spec in sorted(m.TERM_LISTS.items())
+                    if spec.get("accepts_packs")]
+        target = cols[1].selectbox("Feeds", targets, key="attach_list",
+                                    format_func=lambda t: f"{t[0]}.{t[1]}")
+        on = (pack, target[0], target[1]) in attached
+        with cols[2]:
+            st.caption("")
+            label = "Detach" if on else "Attach"
+            if st.button(label, key="attach_btn"):
+                _set_pack(full_path, pack, target, attach=not on)
+
+        polarity = rulesets.get_ruleset(target[0]).TERM_LISTS[target[1]]["polarity"]
+        if polarity == "deny" and not on:
+            st.caption("⚠️ That is a deny list — every word in the pack would "
+                       "become something the gate flags.")
+
+
+def _set_pack(full_path, pack, target, attach):
+    """Attach or detach one pack on the rule that matches the current path,
+    so the control acts on exactly the resolution shown above it."""
+    ruleset_id, list_id = target
+    for glob, rs, by_list in core_config.rule_packs(REPO_ROOT):
+        if rs != ruleset_id or not fnmatch.fnmatch(
+                os.path.relpath(full_path, REPO_ROOT).replace(os.sep, "/"), glob):
+            continue
+        current = list(by_list.get(list_id, []))
+        new = current + [pack] if attach else [p for p in current if p != pack]
+        try:
+            core_config.set_rule_packs(REPO_ROOT, glob, list_id, new,
+                                        known_packs=glossary_packs.AVAILABLE_PACKS)
+            st.toast(f"{glob} → {list_id}: {', '.join(new) or '(none)'}", icon="✅")
+            st.rerun()
+        except Exception as exc:
+            st.error(f"Not saved: {exc}")
+        return
+    st.warning(f"No routing rule sends this path to {ruleset_id}, so there is "
+               f"nothing to attach the pack to. Add a rule in Routing first.")
+
+
+def _add_term_form(term_rulesets):
+    targets = [(m.RULESET_ID, lid) for m in term_rulesets
+                for lid in sorted(m.TERM_LISTS)]
+    with st.form("addterm", clear_on_submit=True):
+        cols = st.columns([2, 2, 3, 2, 1])
+        target = cols[0].selectbox("List", targets,
+                                    format_func=lambda t: f"{t[0]}.{t[1]}")
+        term = cols[1].text_input("Term")
+        note = cols[2].text_input("Note")
+        force = cols[3].text_input(
+            "Override reason",
+            help="Only needed when the ruleset's own standard already forbids "
+                  "the word. Goes on the record.")
+        if cols[4].form_submit_button("Add") and term:
+            module = rulesets.get_ruleset(target[0])
+            try:
+                result = module.add_term(target[1], term, note, force=force or False)
+            except Exception as exc:
+                st.error(f"Not saved: {exc}")
+                return
+            st.toast(result.get("message", ""), icon="✅" if result.get("ok") else "🚫")
             st.rerun()
 
-        if "word_lookup" in ruleset.CAPABILITIES:
-            check = st.text_input(f"check a single word against {ruleset.RULESET_ID}",
-                                   key=f"check_{ruleset.RULESET_ID}")
-            if check:
-                st.json(ruleset.check_word(check))
+
+def _suppressed_section():
+    rows = core_terms.suppressed_index(rulesets, REPO_ROOT)
+    if not rows:
+        return
+    with st.expander(f"{len(rows)} suppressed term(s)"):
+        st.caption("Removed from a built-in or a pack. The word still exists in "
+                   "its source; this project just does not use it here.")
+        event = st.dataframe(rows, width="stretch", hide_index=True,
+                              on_select="rerun", selection_mode="multi-row",
+                              key="suppressed_table")
+        picked = [rows[i] for i in event.selection.rows]
+        if picked and st.button(f"Restore {len(picked)}", key="restore_sel"):
+            for row in picked:
+                rulesets.get_ruleset(row["ruleset"]).add_term(row["list"], row["term"])
+            st.toast(f"{len(picked)} term(s) restored.", icon="✅")
+            st.rerun()
 
 
-def tuning_editor():
-    st.caption("Turn individual checks on or off, and adjust each ruleset's own "
-               "tunable thresholds -- separate from Configuration's file routing, "
-               "this is about what a ruleset actually looks for once it runs.")
-    tuning_rulesets = [m for m in rulesets.list_rulesets()
-                        if hasattr(m, "list_checks") or hasattr(m, "list_options")]
-    if not tuning_rulesets:
-        st.info("No registered ruleset declares individually-toggleable checks "
-                 "or tunable options.")
+def _playground_section():
+    """Free text against a chosen ruleset. This is the one place a ruleset
+    picker genuinely belongs -- it names what to run, rather than scoping a
+    page that is otherwise project-wide."""
+    st.subheader("Try it")
+    ids = [m.RULESET_ID for m in rulesets.list_rulesets()]
+    cols = st.columns([1, 4])
+    ruleset_id = cols[0].selectbox("Ruleset", ids, key="playground_ruleset")
+    text = cols[1].text_area("Text", height=120, key="playground_text",
+                              placeholder="Paste a sentence or a snippet...")
+    if not (st.button("Lint it", type="primary", key="lint_btn") and text.strip()):
         return
 
-    for ruleset in tuning_rulesets:
-        st.subheader(ruleset.RULESET_NAME)
-
-        if hasattr(ruleset, "list_checks"):
-            checks = ruleset.list_checks()
-            check_labels = {cid: f"{cid} -- {meta['description']}" for cid, meta in checks.items()}
-            currently_enabled = [cid for cid, meta in checks.items() if meta["enabled"]]
-            selected = st.multiselect(
-                "Checks", options=list(check_labels), default=currently_enabled,
-                format_func=lambda cid: check_labels[cid], key=f"checks_{ruleset.RULESET_ID}",
-            )
-            if st.button("Apply check selection", key=f"apply_checks_{ruleset.RULESET_ID}"):
-                try:
-                    ruleset.set_enabled_checks(selected)
-                    st.toast(f"Enabled: {', '.join(sorted(selected)) or '(none)'}", icon="✅")
-                    st.rerun()
-                except Exception as exc:
-                    st.error(f"Not saved: {exc}")
-
-        if hasattr(ruleset, "list_options"):
-            options = ruleset.list_options()
-            with st.form(key=f"options_{ruleset.RULESET_ID}"):
-                new_values = {}
-                for name, info in sorted(options.items()):
-                    new_values[name] = st.number_input(
-                        name, value=info["value"], step=1,
-                        help=f"default: {info['default']}",
-                        key=f"opt_{ruleset.RULESET_ID}_{name}")
-                if st.form_submit_button("Save options"):
-                    try:
-                        ruleset.set_options(new_values)
-                        # toast + rerun, not st.success -- same reasoning as
-                        # glossary_editor's register form below.
-                        st.toast("Options saved", icon="✅")
-                        st.rerun()
-                    except Exception as exc:
-                        st.error(f"Not saved: {exc}")
+    ruleset = rulesets.get_ruleset(ruleset_id)
+    result = ruleset.lint_and_gate(text)
+    blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
+    if blocking:
+        st.error(f"Would DENY -- {len(blocking)} flag(s) need a person's judgment")
+        for f in blocking:
+            st.write(f"- **[{f['kind']}]** {f.get('label') or ''} -- "
+                     f"{f['detail'].get('note', '')}")
+    elif result["mechanical_violations"]:
+        st.warning(f"Would AUTO-FIX -- {len(result['mechanical_violations'])} "
+                   f"mechanical violation(s)")
+        st.code(ruleset.apply_mechanical_fixes(text))
+    else:
+        st.success("Would PASS unchanged")
+    non_blocking = [f for f in result["semantic_flags"] if f not in blocking]
+    if non_blocking:
+        with st.expander(f"{len(non_blocking)} non-blocking note(s)"):
+            for f in non_blocking:
+                st.write(f"- [{f['kind']}] {f.get('label') or ''}")
 
 
-st.title("🛑 stopslop")
-tab_activity, tab_playground, tab_config, tab_glossary, tab_tuning = st.tabs(
-    ["Activity", "Lint playground", "Configuration", "Glossary", "Tuning"])
+# --- entry point: one header row (brand + nav + pulse), no sidebar ---
 
-with tab_activity:
-    activity_and_status()
-with tab_playground:
-    lint_playground()
-with tab_config:
-    config_editor()
-with tab_glossary:
-    glossary_editor()
-with tab_tuning:
-    tuning_editor()
+watch = st.Page(watch_page, title="Watch", icon="👁", default=True)
+configure = st.Page(configure_page, title="Configure", icon="⚙️")
+nav = st.navigation([watch, configure], position="hidden")
+
+with st.container(border=True, horizontal=True, vertical_alignment="center"):
+    st.markdown("#### 🛑 stopslop")
+    st.page_link(watch)
+    st.page_link(configure)
+
+nav.run()  # runs the selected page's body inline, right here
+
+st.divider()
+_status_footer()

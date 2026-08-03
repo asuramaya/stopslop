@@ -43,8 +43,10 @@ RETRY_CAP = 3  # configurable: consecutive denials on the same file before
 # unnoticed. A new non-linted extension needs adding here on purpose; until
 # then it's still allowed through (linting genuinely non-prose files would
 # break normal development) but it's LOGGED, not silent -- see
-# is_unscoped_write below.
-ALLOWED_UNLINTED_EXTENSIONS = (".py", ".json")
+# is_unscoped_write below. ".py" isn't here: it's a real codewatch default
+# now (see core.config.DEFAULT_RULES), so resolve_ruleset() already handles
+# it before this allowlist is ever consulted.
+ALLOWED_UNLINTED_EXTENSIONS = (".json",)
 
 
 def _log_and_regenerate(event, ruleset_id):
@@ -61,7 +63,7 @@ def _log_and_regenerate(event, ruleset_id):
     history.log_event(event, ruleset_id, HISTORY_LOG)
     try:
         generate_coaching_memory.regenerate(ruleset_id)
-    except Exception:
+    except Exception as ignored:
         pass
 
 
@@ -150,7 +152,11 @@ def main():
     else:
         return
 
-    result = ruleset.lint_and_gate(text)
+    # file_path is passed, not just resolved-and-discarded: vocabulary
+    # packs attach to the routing rule that matched this path, so the
+    # effective glossary genuinely differs between two files the same
+    # ruleset gates. See core.config.packs_for_path.
+    result = ruleset.lint_and_gate(text, file_path=file_path)
 
     # See <ruleset>.blocking_semantic_flags for what's excluded and why --
     # every caller (this hook, stopslop.py's `lint` command, the MCP
@@ -211,7 +217,7 @@ def main():
         return
 
     if result["mechanical_violations"]:
-        fixed_text = ruleset.apply_mechanical_fixes(text)
+        fixed_text = ruleset.apply_mechanical_fixes(text, file_path=file_path)
         updated_input = dict(tool_input)
         if tool_name == "Write":
             updated_input["content"] = fixed_text

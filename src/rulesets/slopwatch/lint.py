@@ -65,7 +65,7 @@ from core.blocks import (
     HEADER_RE, LIST_ITEM_RE,
 )
 from core.flags import dedup_flags, default_label as _label
-from core import config as _core_config, paths as _paths
+from core import config as _core_config, paths as _paths, terms as _terms
 
 # Every "kind" string this ruleset's checks can produce -- the modularity
 # surface rulesets/slopwatch/__init__.py's list_checks()/set_enabled_checks()
@@ -94,6 +94,25 @@ def _enabled_check_ids():
     except Exception:
         return set(ALL_CHECK_IDS)
     return ALL_CHECK_IDS - disabled
+
+
+def _custom_terms(list_id, file_path=None):
+    """The non-built-in layers (packs, then the project's own registrations)
+    for one term list -- the `extra` every list-shaped check below already
+    takes. Same never-cache-it, read-fresh-every-call philosophy as
+    _enabled_check_ids(). Falls back to none (never breaks a check) if
+    project root can't be resolved.
+
+    file_path matters because pack content is resolved against the routing
+    rule that matches the file being written, not against the ruleset --
+    see core.config.packs_for_path for why domain is a property of the path."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+        layers = _terms.resolve(TERM_LISTS[list_id], project_root, "slopwatch",
+                                 list_id, file_path=file_path)
+        return sorted(set(layers["packs"]) | set(layers["project"]))
+    except Exception:
+        return []
 
 
 DEFAULT_OPTIONS = {
@@ -142,13 +161,14 @@ def check_filler_opener(sentence):
 
 # --- stock_adverb (mechanical) ------------------------------------------
 STOCK_ADVERBS = {"undoubtedly", "arguably", "notably", "importantly", "ultimately"}
-_STOCK_ADVERB_RE = re.compile(
-    r"(,\s*)?\b(" + "|".join(STOCK_ADVERBS) + r")\b(,\s*|\s+)?", re.IGNORECASE)
 
 
-def check_stock_adverb(sentence):
+def check_stock_adverb(sentence, extra=()):
+    words = STOCK_ADVERBS | set(extra)
+    pattern = re.compile(r"(,\s*)?\b(" + "|".join(re.escape(w) for w in words) + r")\b(,\s*|\s+)?",
+                          re.IGNORECASE)
     hits = []
-    for m in _STOCK_ADVERB_RE.finditer(sentence):
+    for m in pattern.finditer(sentence):
         hits.append({"word": m.group(2), "rule": "slopwatch.stock_adverb",
                       "auto_fix": True, "replacement": ""})
     return hits
@@ -158,7 +178,19 @@ def check_stock_adverb(sentence):
 _COLON_REVEAL_RE = re.compile(r"^(.{1,60}?):\s+(\S.*)$")
 _COLON_LABEL_WORDS = {"note", "example", "examples", "warning", "caution", "steps",
                        "requirement", "requirements", "following", "summary", "tip", "important",
-                       "needed", "required", "include", "includes", "contains", "options"}
+                       "needed", "required", "include", "includes", "contains", "options",
+                       "source", "date", "incident", "help", "legend", "given"}
+# "Step 2:", "Method 2:", "Step one:" -- a numbered/ordinal step or method
+# label, not a dramatic reveal. Live-verified false-positive class (see
+# _MD_BOLD_LEAD_MARKERS below) found by stopslop.py scan against this
+# project's own docs/, not a synthetic fixture.
+_NUMBERED_LABEL_RE = re.compile(
+    r"^[A-Za-z]+\s+(?:\d+(?:\.\d+)*|one|two|three|four|five|six|seven|eight|nine|ten)$",
+    re.IGNORECASE)
+# Leading bullet/dash markers to strip before checking for a markdown-bold
+# lead -- deliberately excludes "*" itself, since that's the very character
+# the bold-lead check below is looking for.
+_MD_BOLD_LEAD_MARKERS = "-—•\t "
 
 
 def check_colon_reveal(sentence):
@@ -166,25 +198,39 @@ def check_colon_reveal(sentence):
     if not m:
         return []
     before, _after = m.groups()
+    before = before.strip()
+    # A markdown-bold label ("**Manufacturing processes**:", the same
+    # construct slopwatch's own bold_bullet_lead check already names) is a
+    # structural glossary/spec-entry lead, not a buildup-then-reveal --
+    # even one prefixed with a bullet/dash ("-- **(c)**:") or where the
+    # colon itself falls inside the bold span ("**3.2 Use only these
+    # forms/tenses:").
+    if before.lstrip(_MD_BOLD_LEAD_MARKERS).startswith("**"):
+        return []
+    if _NUMBERED_LABEL_RE.match(before):
+        return []
     words_before = before.split()
     if not (1 <= len(words_before) <= 6):
         return []
     last_word = words_before[-1].lower().strip(".,;:")
     if last_word in _COLON_LABEL_WORDS:
         return []  # a genuine label/list intro, not a dramatic reveal
-    return [{"phrase": before.strip() + ":", "rule": "slopwatch.colon_reveal", "auto_fix": False,
+    return [{"phrase": before + ":", "rule": "slopwatch.colon_reveal", "auto_fix": False,
               "note": "buildup-then-reveal construction -- state it as a plain sentence instead"}]
 
 
 # --- weasel_attribution (semantic) ---------------------------------------
 WEASEL_PHRASES = ["studies show", "experts agree", "research suggests", "many believe"]
-_WEASEL_RE = re.compile(r"\b(" + "|".join(re.escape(p) for p in WEASEL_PHRASES) + r")\b", re.IGNORECASE)
 
 
-def check_weasel_attribution(sentence):
+def check_weasel_attribution(sentence, extra=()):
+    phrases = list(WEASEL_PHRASES) + list(extra)
+    if not phrases:
+        return []
+    pattern = re.compile(r"\b(" + "|".join(re.escape(p) for p in phrases) + r")\b", re.IGNORECASE)
     return [{"phrase": m.group(1), "rule": "slopwatch.weasel_attribution", "auto_fix": False,
               "note": "unnamed authority -- name the actual source, or cut the claim"}
-            for m in _WEASEL_RE.finditer(sentence)]
+            for m in pattern.finditer(sentence)]
 
 
 # --- binary_contrast (semantic, adjacent-sentence-pair) -------------------
@@ -334,30 +380,34 @@ def check_emoji(sentence):
 # --- marketing_adjective / filler_verb (semantic) -- ported from deslopper -
 MARKETING_ADJECTIVES = {"seamless", "robust", "powerful", "cutting-edge", "comprehensive",
                          "vibrant", "elegant", "intuitive", "game-changing"}
-_MARKETING_ADJECTIVE_RE = re.compile(
-    r"\b(" + "|".join(re.escape(w) for w in MARKETING_ADJECTIVES) + r")\b", re.IGNORECASE)
 
 
-def check_marketing_adjective(sentence):
+def check_marketing_adjective(sentence, extra=()):
+    words = MARKETING_ADJECTIVES | set(extra)
+    pattern = re.compile(r"\b(" + "|".join(re.escape(w) for w in words) + r")\b", re.IGNORECASE)
     return [{"word": m.group(1), "rule": "slopwatch.marketing_adjective", "auto_fix": False,
               "note": "marketing adjective -- say what is actually true instead"}
-            for m in _MARKETING_ADJECTIVE_RE.finditer(sentence)]
+            for m in pattern.finditer(sentence)]
 
 
 FILLER_VERB_PATTERNS = ["surfaces", "leverages?", "enables?", "powers", "facilitates?",
                          "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?",
                          "streamlines?", "empowers?", "showcases?"]
-_FILLER_VERB_RE = re.compile(r"\b(" + "|".join(FILLER_VERB_PATTERNS) + r")\b", re.IGNORECASE)
 # "delve" alone is a plain, approved verb ("delve into the archive" is fine
 # English) -- only the "delve into/deeper" collocation reads as filler,
 # matching deslopper's own case-sensitive exception for this one word.
 _FILLER_VERB_DELVE_RE = re.compile(r"\bdelves?\b(?=\s+(?:into|deeper))", re.IGNORECASE)
 
 
-def check_filler_verb(sentence):
+def check_filler_verb(sentence, extra=()):
+    # extra terms are literal words/phrases (re.escape'd), unlike the
+    # built-in patterns above which bake in their own pluralization --
+    # a project registering "showcase" doesn't need to know regex.
+    patterns = list(FILLER_VERB_PATTERNS) + [re.escape(t) for t in extra]
+    filler_re = re.compile(r"\b(" + "|".join(patterns) + r")\b", re.IGNORECASE)
     hits = [{"word": m.group(1), "rule": "slopwatch.filler_verb", "auto_fix": False,
               "note": "filler verb -- use a plain verb, or cut"}
-            for m in _FILLER_VERB_RE.finditer(sentence)]
+            for m in filler_re.finditer(sentence)]
     hits.extend({"word": m.group(0), "rule": "slopwatch.filler_verb", "auto_fix": False,
                   "note": "filler verb -- use a plain verb, or cut"}
                 for m in _FILLER_VERB_DELVE_RE.finditer(sentence))
@@ -372,14 +422,61 @@ MARKETING_CLICHES = ["amazing", "breathtaking", "stunning", "must-visit", "must 
                       "world class", "in this article we will", "in this guide we will",
                       "let's dive in", "without further ado", "look no further",
                       "you've come to the right place", "we've got you covered"]
-_MARKETING_CLICHE_RE = re.compile(
-    r"\b(" + "|".join(re.escape(p) for p in MARKETING_CLICHES) + r")\b", re.IGNORECASE)
 
 
-def check_marketing_cliche(sentence):
+# Every check that's fundamentally "match text against a list of words or
+# phrases", declared as a TERM LIST -- the one shared shape every ruleset
+# now uses (see core/terms.py). All five are DENY lists: the terms are the
+# thing being flagged, the opposite polarity from ste100's project
+# vocabulary, which is an ALLOW list. Both are term lists; polarity is a
+# field, not a different concept with a different name and a different API,
+# which is what it used to be.
+#
+# accepts_packs is True even though no pack targets these today. A pack
+# declares which (ruleset, list) it feeds, so a corporate banned-phrase
+# pack aimed at ("slopwatch", "marketing_cliche") would work with no code
+# change here -- leaving the door open costs nothing and is the difference
+# between a real abstraction and one shaped around its first user.
+TERM_LISTS = {
+    "weasel_attribution": {
+        "label": "Weasel attributions",
+        "description": "Vague appeals to authority with no named source.",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": WEASEL_PHRASES,
+    },
+    "marketing_adjective": {
+        "label": "Marketing adjectives",
+        "description": "Promotional adjectives that assert quality instead of showing it.",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": MARKETING_ADJECTIVES,
+    },
+    "filler_verb": {
+        "label": "Filler verbs",
+        "description": "Verb phrases that add length without adding meaning.",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": FILLER_VERB_PATTERNS,
+    },
+    "marketing_cliche": {
+        "label": "Marketing cliches",
+        "description": "Stock phrases that signal generated copy.",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": MARKETING_CLICHES,
+    },
+    "stock_adverb": {
+        "label": "Stock adverbs",
+        "description": "Filler adverbs safe to delete outright (auto-fixed).",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": STOCK_ADVERBS,
+    },
+}
+
+
+def check_marketing_cliche(sentence, extra=()):
+    phrases = list(MARKETING_CLICHES) + list(extra)
+    pattern = re.compile(r"\b(" + "|".join(re.escape(p) for p in phrases) + r")\b", re.IGNORECASE)
     return [{"phrase": m.group(1), "rule": "slopwatch.marketing_cliche", "auto_fix": False,
               "note": "marketing cliche -- say the specific thing instead"}
-            for m in _MARKETING_CLICHE_RE.finditer(sentence)]
+            for m in pattern.finditer(sentence)]
 
 
 _SOLICIT_CRITICISM_RES = [
@@ -476,10 +573,19 @@ def check_negative_listing(sentences):
 _DEDUP_EXCLUDE_KINDS = {"em_dash_cluster"}  # document-level, one flag total -- nothing to collapse
 
 
-def lint_and_gate(text, context=None):
+def lint_and_gate(text, context=None, file_path=None):
     sentences = []
     mechanical = []
     semantic = []
+
+    # Fetched once per call, not once per sentence -- same "read fresh but
+    # don't re-read per sentence" discipline _enabled_check_ids()/
+    # apply_mechanical_fixes() already use.
+    extra_stock_adverbs = _custom_terms("stock_adverb", file_path)
+    extra_weasel = _custom_terms("weasel_attribution", file_path)
+    extra_marketing_adjective = _custom_terms("marketing_adjective", file_path)
+    extra_filler_verb = _custom_terms("filler_verb", file_path)
+    extra_marketing_cliche = _custom_terms("marketing_cliche", file_path)
 
     for block_type, content in split_into_blocks(text):
         if block_type in ("fence", "blank"):
@@ -503,11 +609,11 @@ def lint_and_gate(text, context=None):
     for s in sentences:
         for v in check_filler_opener(s):
             semantic.append({"kind": "filler_opener", "label": _label(v), "detail": v, "text": s})
-        for v in check_stock_adverb(s):
+        for v in check_stock_adverb(s, extra_stock_adverbs):
             mechanical.append({"kind": "stock_adverb", "label": _label(v), "detail": v, "text": s})
         for v in check_colon_reveal(s):
             semantic.append({"kind": "colon_reveal", "label": _label(v), "detail": v, "text": s})
-        for v in check_weasel_attribution(s):
+        for v in check_weasel_attribution(s, extra_weasel):
             semantic.append({"kind": "weasel_attribution", "label": _label(v), "detail": v, "text": s})
         for v in check_entity_encoded_punctuation(s):
             mechanical.append({"kind": "entity_encoded_punctuation", "label": _label(v), "detail": v, "text": s})
@@ -517,11 +623,11 @@ def lint_and_gate(text, context=None):
             semantic.append({"kind": "vague_intensifier", "label": _label(v), "detail": v, "text": s})
         for v in check_emoji(s):
             mechanical.append({"kind": "emoji_in_prose", "label": _label(v), "detail": v, "text": s})
-        for v in check_marketing_adjective(s):
+        for v in check_marketing_adjective(s, extra_marketing_adjective):
             semantic.append({"kind": "marketing_adjective", "label": _label(v), "detail": v, "text": s})
-        for v in check_filler_verb(s):
+        for v in check_filler_verb(s, extra_filler_verb):
             semantic.append({"kind": "filler_verb", "label": _label(v), "detail": v, "text": s})
-        for v in check_marketing_cliche(s):
+        for v in check_marketing_cliche(s, extra_marketing_cliche):
             semantic.append({"kind": "marketing_cliche", "label": _label(v), "detail": v, "text": s})
         for v in check_solicit_criticism(s):
             semantic.append({"kind": "solicit_criticism", "label": _label(v), "detail": v, "text": s})
@@ -574,9 +680,11 @@ def blocking_semantic_flags(semantic_flags):
     return []
 
 
-def fix_sentence(sentence, enabled=None):
+def fix_sentence(sentence, enabled=None, extra_stock_adverbs=None):
     if enabled is None:
         enabled = _enabled_check_ids()
+    if extra_stock_adverbs is None:
+        extra_stock_adverbs = _custom_terms("stock_adverb")
     protected = []
     def _protect(m):
         protected.append(m.group(0))
@@ -587,7 +695,9 @@ def fix_sentence(sentence, enabled=None):
     # check -- a disabled check must not silently keep rewriting text its
     # own flag no longer appears for.
     if "stock_adverb" in enabled:
-        s = _STOCK_ADVERB_RE.sub(" ", s)
+        words = STOCK_ADVERBS | set(extra_stock_adverbs)
+        s = re.sub(r"(,\s*)?\b(" + "|".join(re.escape(w) for w in words) + r")\b(,\s*|\s+)?",
+                    " ", s, flags=re.IGNORECASE)
     if "entity_encoded_punctuation" in enabled:
         s = _ENTITY_EM_DASH_RE.sub("—", s)
         s = _ENTITY_SECTION_RE.sub("section", s)
@@ -605,24 +715,26 @@ def fix_sentence(sentence, enabled=None):
     return s
 
 
-def _fix_paragraph(text, enabled):
-    return " ".join(fix_sentence(s, enabled) for s in tokenize_sentences(text))
+def _fix_paragraph(text, enabled, extra_stock_adverbs):
+    return " ".join(fix_sentence(s, enabled, extra_stock_adverbs) for s in tokenize_sentences(text))
 
 
-def apply_mechanical_fixes(text):
+def apply_mechanical_fixes(text, file_path=None):
     """Only call this when status == 'mechanical_violations' (no semantic
     flags) -- same rule as every other ruleset's fixer. Block-aware via
     split_into_blocks, mirroring rulesets/ste100/lint.py's approach."""
     enabled = _enabled_check_ids()  # read once per call, not once per sentence
+    extra_stock_adverbs = _custom_terms("stock_adverb", file_path)  # same: once per call
     out = []
     for block_type, content in split_into_blocks(text):
         if block_type in ("fence", "blank"):
             out.append(content)
         elif block_type == "header":
-            out.append(fix_sentence(content, enabled))
+            out.append(fix_sentence(content, enabled, extra_stock_adverbs))
         elif block_type == "list_item":
             marker, item_text = LIST_ITEM_RE.match(content).groups()
-            out.append(marker + (_fix_paragraph(item_text, enabled) if item_text.strip() else item_text))
+            out.append(marker + (_fix_paragraph(item_text, enabled, extra_stock_adverbs)
+                                  if item_text.strip() else item_text))
         else:
-            out.append(_fix_paragraph(content, enabled))
+            out.append(_fix_paragraph(content, enabled, extra_stock_adverbs))
     return "\n".join(out)

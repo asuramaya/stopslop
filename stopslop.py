@@ -10,6 +10,7 @@ state.
     stopslop.py init                 wire up .claude/settings.local.json
     stopslop.py lint TEXT            check text without writing it anywhere
     stopslop.py lint --file PATH     check an existing file the same way
+    stopslop.py scan [PATH ...]      bulk-check an existing tree of files, no live write
     stopslop.py register WORD [NOTE] add a project-glossary term
     stopslop.py status               dictionary/glossary/gate-activity summary
     stopslop.py list-rulesets        show every registered ruleset and what routes to it
@@ -42,7 +43,7 @@ SETTINGS_REAL = os.path.join(REPO_ROOT, ".claude", "settings.local.json")
 # treated as if written to this synthetic path under the repo root so they
 # go through the exact same config-driven resolution a real write would,
 # instead of a second "default ruleset" concept that could drift from it.
-_SYNTHETIC_STDIN_PATH = os.path.join(REPO_ROOT, "__stdin__.md")
+_SYNTHETIC_STDIN_PATH = os.path.join(REPO_ROOT, core_config.SYNTHETIC_TEXT_NAME)
 
 
 def _resolve(ruleset_id, target_path):
@@ -131,7 +132,7 @@ def cmd_lint(args):
         return 1
 
     ruleset = _resolve(args.ruleset, target_path)
-    result = ruleset.lint_and_gate(text, context=args.context)
+    result = ruleset.lint_and_gate(text, context=args.context, file_path=target_path)
     mechanical = result["mechanical_violations"]
     # Same filter the live gate applies (ruleset.blocking_semantic_flags) --
     # this command reports what a real write would actually do, not every
@@ -179,71 +180,193 @@ def cmd_lint(args):
     return 1 if semantic else 0
 
 
-def _require_glossary(ruleset, verb):
-    if "glossary" not in ruleset.CAPABILITIES:
-        print(f"'{ruleset.RULESET_ID}' ruleset has no glossary/vocabulary registry "
-              f"(capabilities: {sorted(ruleset.CAPABILITIES)}) -- nothing to {verb} here.",
-              file=sys.stderr)
+def cmd_scan(args):
+    from core import scan as core_scan
+
+    if args.glob != "*" and not args.ruleset:
+        print("--glob only applies together with --ruleset (config-driven resolution "
+              "already narrows file selection by its own routing globs).", file=sys.stderr)
+        return 1
+
+    target_paths = [os.path.abspath(p) for p in args.paths] if args.paths else [REPO_ROOT]
+    for p in target_paths:
+        if not os.path.exists(p):
+            print(f"{p!r} does not exist.", file=sys.stderr)
+            return 1
+
+    if args.ruleset:
+        rulesets.get_ruleset(args.ruleset)  # raises UnknownRulesetError on a typo, loud on purpose
+
+    report = core_scan.scan_tree(target_paths, REPO_ROOT, rulesets,
+                                  ruleset_id=args.ruleset, glob_pattern=args.glob)
+
+    if args.json:
+        print(json.dumps(report, indent=2, default=str))
+        return 1 if any(r["would_block"] for r in report["results"]) else 0
+
+    fail = [r for r in report["results"] if r["would_block"]]
+    with_notes = [r for r in report["results"]
+                  if not r["would_block"] and (r["mechanical_flags"] or r["all_semantic_flags"])]
+    clean_count = report["scanned"] - len(fail) - len(with_notes)
+
+    if not args.quiet:
+        for r in fail + with_notes:
+            status = "FAIL" if r["would_block"] else "PASS"
+            rel = os.path.relpath(r["path"], REPO_ROOT)
+            n_blocking = len(r["blocking_flags"])
+            n_mech = len(r["mechanical_flags"])
+            n_notes = len(r["all_semantic_flags"]) - n_blocking
+            bits = []
+            if n_blocking:
+                bits.append(f"{n_blocking} blocking issue(s)")
+            if n_mech:
+                bits.append(f"{n_mech} mechanical fix(es)")
+            if n_notes and args.all:
+                bits.append(f"{n_notes} non-blocking note(s)")
+            print(f"{status}  {rel} [{r['ruleset']}]  " + ", ".join(bits))
+            if args.all:
+                for f in r["all_semantic_flags"]:
+                    d = f["detail"]
+                    label = f.get("label") or d.get("rule", "?")
+                    note = d.get("note") or d.get("basis") or ""
+                    extra = f" -- {note}" if note else ""
+                    print(f"    [{f['kind']}, rule {d.get('rule', '?')}] {label!r}{extra}")
+                for m in r["mechanical_flags"]:
+                    d = m["detail"]
+                    label = m.get("label") or d.get("rule", "?")
+                    repl = d.get("replacement")
+                    arrow = f" -> {repl!r}" if repl else ""
+                    print(f"    [{m['kind']}, auto-fix] {label!r}{arrow}")
+        print()
+
+    kind_counts = {}
+    for r in report["results"]:
+        for f in r["all_semantic_flags"] + r["mechanical_flags"]:
+            kind_counts[f["kind"]] = kind_counts.get(f["kind"], 0) + 1
+
+    print(f"Scanned {report['scanned']} file(s) "
+          f"({report['skipped_out_of_scope']} out of scope, "
+          f"{report['skipped_unreadable']} unreadable/binary, skipped).")
+    print(f"  {clean_count} clean")
+    print(f"  {len(with_notes)} pass, with an auto-fixable mechanical issue and/or "
+          f"a non-blocking note")
+    print(f"  {len(fail)} would FAIL a live write (need a person's judgment)")
+    if kind_counts:
+        print("\nBy check, across every flag found:")
+        for kind, count in sorted(kind_counts.items(), key=lambda kv: -kv[1]):
+            print(f"  {kind}: {count}")
+
+    return 1 if fail else 0
+
+
+def _require_terms(ruleset):
+    if "terms" not in ruleset.CAPABILITIES:
+        print(f"'{ruleset.RULESET_ID}' ruleset has no term lists "
+              f"(capabilities: {sorted(ruleset.CAPABILITIES)}).", file=sys.stderr)
         sys.exit(1)
 
 
-def cmd_register(args):
-    parser = argparse.ArgumentParser(prog="stopslop.py register", add_help=False)
-    parser.add_argument("word")
-    parser.add_argument("note", nargs="?", default="")
-    parser.add_argument("--override-unapproved", metavar="REASON", default=None)
-    sub_args = parser.parse_args(args.rest)
-
-    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
-    _require_glossary(ruleset, "register")
-    result = ruleset.register_term(sub_args.word, sub_args.note, sub_args.override_unapproved)
-    stream = sys.stdout if result["status"] == "registered" else sys.stderr
-    prefix = "" if result["status"] == "registered" else f"{result['status']}: "
-    print(f"{prefix}{result['message']}", file=stream)
-    return 0 if result["ok"] else 1
-
-
-def cmd_unregister(args):
-    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
-    _require_glossary(ruleset, "unregister")
-    result = ruleset.unregister_term(args.word)
-    print(result["message"])
-    return 0 if result["ok"] else 1
+def _print_term_list(list_id, view):
+    arrow = "allowed" if view["polarity"] == "allow" else "flagged"
+    print(f"{list_id} [{view['polarity']}: matching terms are {arrow}] -- {view['label']}")
+    layers = [f"{view['built_in_count']} built-in"]
+    if view["accepts_packs"]:
+        layers.append(f"{view['pack_count']} from packs")
+    layers.append(f"{view['project_count']} yours")
+    if view.get("suppressed_count"):
+        layers.append(f"{view['suppressed_count']} suppressed")
+    print(f"  {view['effective_count']} effective ({', '.join(layers)})")
+    for term, info in sorted(view["project_terms"].items()):
+        flag = " [overrides a real prohibition]" if info.get("overrides_unapproved") else ""
+        note = info.get("note", "")
+        print(f"    {term}{flag}" + (f" -- {note}" if note else ""))
+    if view["rejected"]:
+        print(f"  {len(view['rejected'])} pack term(s) refused by this ruleset's own "
+              f"prohibitions: {', '.join(sorted(view['rejected'])[:8])}")
 
 
 def cmd_terms(args):
+    """One command for every named word list any ruleset owns.
+
+    Replaces five: register, unregister, terms, glossary-packs and
+    wordlist. They existed separately because ste100's allow list and
+    slopwatch's deny lists were modelled as different concepts -- see
+    src/core/terms.py for why they never were."""
     ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
-    _require_glossary(ruleset, "list")
-    terms = ruleset.list_terms()
-    if not terms:
-        print("No project terms registered yet. Add one with `stopslop.py register`.")
-        return 0
-    for word in sorted(terms):
-        info = terms[word]
-        flag = " [overrides a real prohibition]" if info.get("overrides_unapproved") else ""
-        note = info.get("note", "")
-        print(f"{word}{flag}" + (f" -- {note}" if note else ""))
-    return 0
+    _require_terms(ruleset)
 
-
-def cmd_glossary_packs(args):
-    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
-    if not hasattr(ruleset, "list_glossary_packs"):
-        print(f"'{ruleset.RULESET_ID}' ruleset has no vocabulary-pack support.", file=sys.stderr)
-        return 1
-
-    if args.enable is not None:
+    if args.add is not None:
+        if not args.list:
+            print(f"--add needs --list LIST_ID -- known: "
+                  f"{sorted(ruleset.list_term_lists())}", file=sys.stderr)
+            return 1
         try:
-            ruleset.set_enabled_glossary_packs(args.enable)
+            result = ruleset.add_term(args.list, args.add, args.note or "",
+                                       force=args.force or False)
         except Exception as exc:
             print(f"Not saved: {exc}", file=sys.stderr)
             return 1
-        print(f"Enabled: {', '.join(args.enable) or '(none)'}")
+        stream = sys.stdout if result.get("ok") else sys.stderr
+        print(result.get("message", ""), file=stream)
+        if not result.get("ok"):
+            return 1
 
-    for pack_id, meta in ruleset.list_glossary_packs().items():
-        state = "ON " if meta["enabled"] else "off"
-        print(f"[{state}] {pack_id} -- {meta['name']} ({meta['license']}, "
-              f"{meta['term_count']} term(s)) -- {meta['source']}")
+    if args.remove is not None:
+        if not args.list:
+            print(f"--remove needs --list LIST_ID -- known: "
+                  f"{sorted(ruleset.list_term_lists())}", file=sys.stderr)
+            return 1
+        try:
+            result = ruleset.remove_term(args.list, args.remove)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(result.get("message", ""))
+
+    views = ruleset.list_term_lists()
+    if args.list and args.list not in views:
+        print(f"Not found: unknown list {args.list!r} -- known: {sorted(views)}",
+              file=sys.stderr)
+        return 1
+    for list_id in ([args.list] if args.list else sorted(views)):
+        _print_term_list(list_id, views[list_id])
+    return 0
+
+
+def cmd_packs(args):
+    """Vocabulary packs. A pack is inert content from a real source; where
+    it applies (a path glob) and what it feeds (a term list) are both
+    project decisions, made here, not baked into the pack."""
+    from core import glossary_packs
+
+    if args.enable is not None:
+        if not args.glob or not args.list:
+            print("--enable needs --glob GLOB and --list LIST_ID: a pack applies "
+                  "to a path, and feeds one named term list.", file=sys.stderr)
+            return 1
+        try:
+            core_config.set_rule_packs(REPO_ROOT, args.glob, args.list, args.enable,
+                                        known_packs=glossary_packs.AVAILABLE_PACKS)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"{args.glob} -> {args.list}: {', '.join(args.enable) or '(none)'}")
+
+    print("Available packs (any of these can feed any term list):")
+    for pack_id, meta in sorted(glossary_packs.list_packs().items()):
+        print(f"  {pack_id} -- {meta['name']} "
+              f"({meta['license']}, {meta['term_count']} term(s))")
+        print(f"      {meta['source']}")
+
+    print("\nEnabled per routing rule:")
+    any_enabled = False
+    for glob, ruleset_id, by_list in core_config.rule_packs(REPO_ROOT):
+        for list_id, pack_ids in sorted(by_list.items()):
+            if pack_ids:
+                any_enabled = True
+                print(f"  {glob} [{ruleset_id}] -> {list_id}: {', '.join(pack_ids)}")
+    if not any_enabled:
+        print("  (none)")
     return 0
 
 
@@ -367,28 +490,50 @@ def main():
                               "the live gate doesn't currently act on (see README's gap list)")
     p_lint.set_defaults(func=cmd_lint)
 
-    p_register = sub.add_parser("register", help="add a word to a ruleset's glossary, if it has one",
-                                 add_help=False)
-    p_register.add_argument("--ruleset", help="ruleset id to register against (default: ste100)")
-    p_register.add_argument("rest", nargs=argparse.REMAINDER,
-                             help="WORD [NOTE] [--override-unapproved REASON]")
-    p_register.set_defaults(func=cmd_register)
+    p_scan = sub.add_parser("scan", help="bulk-check an existing tree of files against a ruleset, "
+                                          "with no live write -- for adopting stopslop onto a "
+                                          "codebase that already exists, not just files edited going forward")
+    p_scan.add_argument("paths", nargs="*", help="file(s)/directory(ies) to scan (default: this project's whole tree)")
+    p_scan.add_argument("--ruleset", help="force every matched file through this one ruleset id, "
+                                           "ignoring stopslop.config.json's routing (default: resolve "
+                                           "each file's ruleset from config, same as a live write -- "
+                                           "skips anything out of scope)")
+    p_scan.add_argument("--glob", default="*", help="filename pattern to include, only used together "
+                                                      "with --ruleset (default: every regular file)")
+    p_scan.add_argument("--all", action="store_true", help="show every flag per file, including "
+                                                             "non-blocking notes (default: one summary "
+                                                             "line per flagged file)")
+    p_scan.add_argument("--quiet", action="store_true", help="print only the final summary, no per-file lines")
+    p_scan.add_argument("--json", action="store_true", help="machine-readable output instead of the text report")
+    p_scan.set_defaults(func=cmd_scan)
 
-    p_unregister = sub.add_parser("unregister", help="remove a word from a ruleset's glossary")
-    p_unregister.add_argument("--ruleset", help="ruleset id (default: ste100)")
-    p_unregister.add_argument("word")
-    p_unregister.set_defaults(func=cmd_unregister)
-
-    p_terms = sub.add_parser("terms", help="list every registered glossary word for a ruleset")
-    p_terms.add_argument("--ruleset", help="ruleset id (default: ste100)")
+    p_terms = sub.add_parser("terms",
+                              help="list/extend any ruleset's term lists (replaces "
+                                    "register, unregister, terms, glossary-packs, wordlist)")
+    p_terms.add_argument("--ruleset", help="ruleset id (default: resolved from config)")
+    p_terms.add_argument("--list", metavar="LIST_ID",
+                          help="which term list to show or change (no-argument output "
+                               "shows the known ids)")
+    p_terms.add_argument("--add", metavar="TERM", help="add a term to --list")
+    p_terms.add_argument("--note", help="why the term was added -- goes on the record")
+    p_terms.add_argument("--remove", metavar="TERM", help="remove a term from --list")
+    p_terms.add_argument("--force", metavar="REASON", nargs="?", const=True, default=None,
+                          help="register even if the ruleset's own standard forbids the "
+                               "word (ste100 requires a REASON; it goes in the note)")
     p_terms.set_defaults(func=cmd_terms)
 
-    p_packs = sub.add_parser("glossary-packs", help="list/enable bulk vocabulary packs for a ruleset")
-    p_packs.add_argument("--ruleset", help="ruleset id (default: ste100)")
+    p_packs = sub.add_parser("packs",
+                              help="list vocabulary packs and enable them on a path glob")
+    p_packs.add_argument("--glob", metavar="GLOB",
+                          help="which routing rule to change (a pack applies to a PATH, "
+                               "not to a ruleset)")
+    p_packs.add_argument("--list", metavar="LIST_ID",
+                          help="which term list the packs feed (a pack has no opinion "
+                               "about that -- see `stopslop.py terms` for the ids)")
     p_packs.add_argument("--enable", nargs="*", metavar="PACK_ID",
-                          help="set exactly this list of packs as enabled (disables every "
-                               "other known pack); pass with no ids to disable all")
-    p_packs.set_defaults(func=cmd_glossary_packs)
+                          help="set exactly this list of packs on --glob; pass with no "
+                               "ids to disable all of them there")
+    p_packs.set_defaults(func=cmd_packs)
 
     p_checks = sub.add_parser("checks", help="list/enable individual checks for a ruleset")
     p_checks.add_argument("--ruleset", help="ruleset id (default: ste100)")

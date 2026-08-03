@@ -23,8 +23,8 @@ from core.blocks import (
     HEADER_RE as _HEADER_RE, LIST_ITEM_RE as _LIST_ITEM_RE, FENCE_RE as _FENCE_RE,
 )
 from core.flags import dedup_flags, default_label as _label
-from core import config as _core_config, paths as _paths
-from rulesets.ste100 import glossary_packs
+from core import config as _core_config, paths as _paths, terms as _terms
+from core import glossary_packs
 
 # --- Tier 1: base approved dictionary, loaded from the real ASD-STE100
 # extraction (dictionary.json, built by build_dictionary.py from
@@ -80,13 +80,44 @@ UNAPPROVED_NO_AUTOFIX = set(UNAPPROVED_MAP)
 
 # Tier 2: project glossary -- domain-specific technical vocabulary the real
 # ASD-STE100 dictionary was never going to cover (an aviation-maintenance
-# standard, not a software one), e.g. "repository" or "endpoint". Persisted
-# to project-terms.json, alongside dictionary.json -- shipped seed data, not
-# session-local runtime state (unlike .claude/stopslop-history.log), so it
-# lives with the tool's other data files and ships in version control -- so
-# a registration survives past this process. See glossary.py to add a word.
-PROJECT_TERMS_PATH = os.path.join(
+# standard, not a software one), e.g. "repository" or "endpoint". Registered
+# terms persist through core.config's generic wordlist store (stopslop.
+# config.json's "wordlists" key, list_id "project_terms") -- the same
+# project-root-scoped mechanism slopwatch/codewatch's own list-shaped
+# checks use, not a bespoke ste100-only file anymore. See glossary.py to
+# add a word; see _migrate_legacy_project_terms below for the one-time
+# move off the pre-refactor location.
+_LEGACY_PROJECT_TERMS_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "project-terms.json")
+
+
+def _migrate_legacy_project_terms(project_root):
+    """One-time: fold the pre-pluggable-ruleset project-terms.json --
+    stored inside this package's own directory, a leftover from when
+    "the ste100 package" and "the project ste100 protects" were the same
+    thing -- into stopslop.config.json's "wordlists" key at the real
+    project root. Never touches anything if the new location already has
+    content (an already-migrated project, or a fresh one where terms were
+    registered directly against the new store) or the legacy file doesn't
+    exist. Deletes the legacy file only after a successful write, so a
+    crash mid-migration leaves the original data intact to retry from,
+    never in a state where both copies are gone."""
+    if _terms.project_terms(project_root, "ste100", "project_terms"):
+        return
+    if not os.path.exists(_LEGACY_PROJECT_TERMS_PATH):
+        return
+    try:
+        with open(_LEGACY_PROJECT_TERMS_PATH) as f:
+            legacy_terms = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return
+    if not legacy_terms:
+        return
+    _terms.save_project_terms(project_root, "ste100", "project_terms", legacy_terms)
+    try:
+        os.remove(_LEGACY_PROJECT_TERMS_PATH)
+    except OSError as ignored:
+        pass
 
 
 def _load_manual_terms():
@@ -96,41 +127,89 @@ def _load_manual_terms():
     so "what's registered" stays a small, deliberate list even when a
     large vocabulary pack is enabled (see _load_project_terms below for
     the merged view check_vocabulary() actually uses)."""
-    if not os.path.exists(PROJECT_TERMS_PATH):
-        return {}
-    try:
-        with open(PROJECT_TERMS_PATH) as f:
-            return json.load(f)
-    except (OSError, json.JSONDecodeError):
-        return {}
-
-
-def _load_project_terms():
-    """The full effective Tier 2 glossary check_vocabulary() actually
-    checks against: every enabled vocabulary pack's terms, plus the
-    manual glossary layered on top (a manual registration always wins on
-    conflict -- it is the more deliberate, more recent act). Packs are a
-    convenience layer on top of a working gate, never a reason to break
-    it: any failure resolving project root or reading a pack file is
-    swallowed, same principle as history.log_event's own OSError
-    handling elsewhere in this project."""
-    merged = {}
     try:
         project_root = _paths.find_project_root(__file__)
-        for pack_id in _core_config.enabled_glossary_packs(project_root, "ste100"):
-            merged.update(glossary_packs.load_pack_terms(pack_id))
     except Exception:
-        pass
-    merged.update(_load_manual_terms())
-    return merged
+        return {}
+    _migrate_legacy_project_terms(project_root)
+    return _terms.project_terms(project_root, "ste100", "project_terms")
 
 
-PROJECT_TERMS = _load_project_terms()
+def _pack_admissible(term):
+    """Whether a vocabulary PACK may introduce `term` into the project
+    glossary. A pack may fill a coverage gap; it may never quietly cancel a
+    rule the real ASD-STE100 dictionary states.
+
+    The three packs shipped today collide with the forbidden list exactly
+    zero times -- but only because each build_glossary_pack_*.py script
+    hand-excludes words the dictionary already covers. That made the
+    invariant a property of how those three files happened to be BUILT, not
+    of the model, and it evaporates the moment a fourth pack arrives from
+    anywhere else: a pack containing "utilize" would silently un-forbid a
+    word the standard explicitly replaces, which is a gate that has quietly
+    stopped gating. A project registration can still override a prohibition
+    -- deliberately, with a stated reason, via register_term's
+    override_unapproved -- because a human typing one word is an act; a bulk
+    import of several hundred is not."""
+    return (term not in UNAPPROVED_MAP
+            and term not in UNAPPROVED_NO_REPLACEMENT
+            and term not in MODAL_WORDS)
+
+
+_NO_SUPPRESSION = {"approved": frozenset(), "unapproved": frozenset()}
+
+
+def suppressed_vocabulary():
+    """Words this project has removed from the shipped ASD-STE100 lists.
+
+    The dictionary is 1,990 words in a git-tracked JSON file -- a project
+    cannot edit it, and should not have to fork a standard to disagree with
+    four entries. Removing one records a tombstone (core.terms) which these
+    checks subtract, so the control the vocabulary table offers is real
+    rather than decorative. Read fresh and cheaply: the mapping is empty for
+    almost every project, and building the full layered view of a 787-word
+    list on every gated write would not be."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+        return {
+            "approved": _terms.suppressed_terms(project_root, "ste100", "approved_words"),
+            "unapproved": _terms.suppressed_terms(project_root, "ste100", "unapproved_words"),
+        }
+    except Exception as ignored:
+        return _NO_SUPPRESSION
+
+
+def effective_project_terms(file_path=None):
+    """The full Tier 2 glossary the checks actually run against for one
+    file: the manual registrations, plus whatever packs the routing rule
+    matching `file_path` enables. Packs are resolved PER PATH -- NIST
+    security vocabulary belongs to docs/security/, not to "the ste100
+    ruleset" -- see core.config.packs_for_path.
+
+    Any failure (unresolvable project root, unreadable pack file) yields
+    the manual terms alone rather than raising: packs are a convenience
+    layer on top of a working gate, never a reason to break it, the same
+    principle history.log_event's own OSError handling uses."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+        return _terms.effective_terms(TERM_LISTS["project_terms"], project_root,
+                                       "ste100", "project_terms", file_path=file_path)
+    except Exception as ignored:
+        return _load_manual_terms()
+
+
+# The manual layer only -- deliberately NOT including packs. Pack content
+# depends on which file is being written, so there is no single correct
+# import-time answer; lint_and_gate/apply_mechanical_fixes resolve the real
+# set per call via effective_project_terms(). This global remains as the
+# strictest sensible default for a direct check_vocabulary()/check_ing()
+# call that names no file.
+PROJECT_TERMS = _load_manual_terms()
 
 # would/may/might/could default replacements for check_modals' non-heuristic
-# fallback path -- deliberately NOT in UNAPPROVED_MAP. They used to be (both
-# the old hand-curated stand-in and an earlier version of this dictionary
-# load put them there), and that was a real bug, found live while verifying
+# fallback path -- deliberately NOT in UNAPPROVED_MAP, unlike the old
+# hand-curated stand-in and an earlier version of this dictionary load, both
+# of which put them there. That was a real bug, found live while verifying
 # this change: check_vocabulary's word-level scan has no notion of the
 # semi-modal collocation check_modals guards against ("may need to" must NOT
 # blindly become "can need to"), so it auto-fixed "may" on sight regardless
@@ -152,6 +231,46 @@ UNAPPROVED_MAP.update({
     "leverage": "use", "seamlessly": "", "robustly": "", "effectively": "",
 })
 
+# Declared here, not beside the other lists above, because UNAPPROVED_MAP is
+# still being extended at this point -- a term list built from it any earlier
+# would silently miss the corporate-jargon entries added just above.
+TERM_LISTS = {
+    "approved_words": {
+        "label": "Approved vocabulary",
+        "description": "The real ASD-STE100 dictionary's approved words. A word "
+                        "here is never flagged as unknown or unapproved.",
+        "polarity": "allow",
+        "accepts_packs": False,
+        "built_ins": APPROVED_WORDS,
+    },
+    "unapproved_words": {
+        "label": "Forbidden vocabulary",
+        "description": "Words the real ASD-STE100 dictionary forbids, most with "
+                        "an approved replacement.",
+        "polarity": "deny",
+        "accepts_packs": False,
+        "built_ins": dict(
+            {w: {"note": f"use \u201c{r}\u201d instead"} for w, r in UNAPPROVED_MAP.items() if r},
+            **{w: {"note": "no replacement given"} for w in UNAPPROVED_MAP if not UNAPPROVED_MAP[w]},
+            **{w: {"note": "no replacement given"} for w in UNAPPROVED_NO_REPLACEMENT},
+        ),
+    },
+    "project_terms": {
+        "label": "Project vocabulary",
+        "description": "Domain words the real ASD-STE100 dictionary was never "
+                        "going to cover (it is an aviation-maintenance standard, "
+                        "not a software one) that this project permits anyway.",
+        "polarity": "allow",
+        "accepts_packs": True,
+        "built_ins": (),   # nothing ships pre-registered; the 787-word approved
+                            # dictionary is the STANDARD this list exempts from,
+                            # not a built-in layer of the list itself
+        "pack_admissible": _pack_admissible,
+    },
+}
+
+
+
 # Real ASD-STE100 rule 3.5 whitelist (docs/ASD-STE100-rules-extracted.md):
 # nouns (lighting, opening, routing, servicing), adjectives (mating, missing,
 # remaining), pronoun (something), preposition (during). The earlier list here
@@ -159,8 +278,8 @@ UNAPPROVED_MAP.update({
 ING_NOUN_EXCEPTIONS = {"lighting", "opening", "routing", "servicing",
                         "mating", "missing", "remaining", "something", "during"}
 
-# NOT from the spec -- a separate, deliberately small, closed list of ordinary
-# English words that happen to end in "-ing" but have no plausible
+# Separate from ASD-STE100 itself -- a deliberately small, closed list of
+# ordinary English words that happen to end in "-ing" but have no plausible
 # verb-derived (gerund/present-participle) reading in normal usage at all, so
 # rule 3.5 (which targets verb-derived -ing misuse) cannot actually apply to
 # them. Found live: "The meeting starts in the morning. Check the wing and
@@ -304,7 +423,9 @@ def _dictionary_base_form(lw):
     return None
 
 
-def check_vocabulary(sentence):
+def check_vocabulary(sentence, project_terms=None, suppressed=None):
+    _pt = PROJECT_TERMS if project_terms is None else project_terms
+    _sup = suppressed or _NO_SUPPRESSION
     violations = []
     for w in words(sentence):
         lw = w.lower().strip("'")
@@ -317,7 +438,11 @@ def check_vocabulary(sentence):
         # word -- harmless for the gate decision (unknown_vocabulary is
         # excluded from denial either way) but noisy everywhere the raw
         # flag list gets read: --all output, coaching-memory aggregation.
-        if not lw or lw in APPROVED_WORDS or lw in PROJECT_TERMS or lw in MODAL_WORDS:
+        if not lw or lw in _pt or lw in MODAL_WORDS:
+            continue
+        if lw in APPROVED_WORDS and lw not in _sup["approved"]:
+            continue
+        if lw in _sup["unapproved"]:
             continue
         if lw in UNAPPROVED_MAP:
             violations.append({
@@ -359,7 +484,7 @@ def check_vocabulary(sentence):
     return violations
 
 
-def check_ing(sentence):
+def check_ing(sentence, project_terms=None, suppressed=None):
     # Deliberately does NOT try to auto-exempt "-ing NOUN" compounds
     # (monitoring alerts, troubleshooting section) even though rule 3.5
     # permits them -- tried that heuristic and it silently exempted genuine
@@ -368,6 +493,8 @@ def check_ing(sentence):
     # from noun-modifier without real parsing). A false positive here costs
     # a cheap human/model glance; a false negative ships a real violation
     # silently. For a gate, over-flag and let it be reviewed.
+    _pt = PROJECT_TERMS if project_terms is None else project_terms
+    _sup = suppressed or _NO_SUPPRESSION
     hits = []
     for m in re.finditer(r"\b(\w+ing)\b", sentence, re.IGNORECASE):
         w = m.group(1).lower()
@@ -382,7 +509,7 @@ def check_ing(sentence):
         # guessed from syntactic context and got it wrong on "initiating
         # failover") -- this is a direct dictionary lookup on the word
         # itself, not a guess about what follows it.
-        if w in APPROVED_WORDS or w in PROJECT_TERMS:
+        if (w in APPROVED_WORDS and w not in _sup["approved"]) or w in _pt:
             continue
         hits.append({"word": m.group(1), "rule": "3.5", "auto_fix": None,
                       "note": "not in the closed whitelist -- flagged even "
@@ -620,7 +747,7 @@ def check_synonym_rotation(full_text):
     return hits
 
 
-# Section 7: safety instructions (rules 7.1-7.3). FORMAT-ONLY by design
+# Safety instructions, rule 7 (rules 7.1-7.3). FORMAT-ONLY by design
 # choice: this checks that a block ALREADY carrying a recognized risk-level
 # label is well-formed. It does NOT try to detect where a label is MISSING
 # from text that should have had one -- "does this paragraph describe a
@@ -667,12 +794,36 @@ def check_safety_instruction(block_text):
     return hits
 
 
-def lint_sentence(sentence, context="procedure"):
+# Every "kind" string this ruleset's checks can produce -- the modularity
+# surface rulesets/ste100/__init__.py's list_checks()/set_enabled_checks()
+# expose, same shape slopwatch/codewatch already have. Previously ste100
+# had no per-check toggles at all (the per-check-toggle work only ever
+# touched the other two rulesets) -- the real gap that made the three
+# rulesets' configurability inconsistent with each other.
+ALL_CHECK_IDS = frozenset({
+    "safety_instruction", "length", "vocabulary", "ing_form", "perfect_tense",
+    "progressive", "passive", "modal", "punctuation", "trailing_condition",
+    "latin_abbrev", "inclusive_language", "synonym_rotation",
+})
+
+
+def _enabled_check_ids():
+    """Same never-cache-it, read-fresh-every-call shape as slopwatch's/
+    codewatch's own _enabled_check_ids()."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+        disabled = set(_core_config.disabled_checks(project_root, "ste100"))
+    except Exception:
+        return set(ALL_CHECK_IDS)
+    return ALL_CHECK_IDS - disabled
+
+
+def lint_sentence(sentence, context="procedure", project_terms=None, suppressed=None):
     return {
         "text": sentence,
         "length": check_length(sentence, context),
-        "vocabulary": check_vocabulary(sentence),
-        "ing_forms": check_ing(sentence),
+        "vocabulary": check_vocabulary(sentence, project_terms, suppressed),
+        "ing_forms": check_ing(sentence, project_terms, suppressed),
         "perfect_tense": check_perfect(sentence),
         "progressive": check_progressive(sentence),
         "passive": check_passive(sentence),
@@ -695,13 +846,21 @@ def lint_sentence(sentence, context="procedure"):
 _DEDUP_EXCLUDE_KINDS = {"length", "trailing_condition", "synonym_rotation"}
 
 
-def lint_and_gate(text, context="procedure"):
+def lint_and_gate(text, context="procedure", file_path=None):
     # Block-aware via split_into_blocks (core.blocks, shared with
     # apply_mechanical_fixes below): code fences are never linted at all,
     # and each header/list-item/paragraph is sentence-tokenized within its
     # own bounds rather than the whole document being flattened into one
     # blob -- see split_into_blocks's docstring for the false-positive this
     # fixed.
+    #
+    # The effective glossary is resolved ONCE per call, not per sentence:
+    # pack content depends on which file is being written (packs hang off
+    # the routing rule that matches the path), so it is no longer a free
+    # module-level constant. Same "read fresh, but not per iteration"
+    # discipline _enabled_check_ids() already uses.
+    project_terms = effective_project_terms(file_path)
+    suppressed = suppressed_vocabulary()
     sentences = []
     safety_hits = []
     for block_type, content in split_into_blocks(text):
@@ -732,7 +891,7 @@ def lint_and_gate(text, context="procedure"):
         # a command to carry out.
         block_context = "procedure" if is_numbered_item else context
         sentences.extend((s, block_context) for s in tokenize_sentences(block_text))
-    results = [lint_sentence(s, ctx) for s, ctx in sentences]
+    results = [lint_sentence(s, ctx, project_terms, suppressed) for s, ctx in sentences]
 
     mechanical = []
     semantic = []
@@ -779,12 +938,19 @@ def lint_and_gate(text, context="procedure"):
     for v in check_synonym_rotation(lintable_text):
         semantic.append({"kind": "synonym_rotation", "label": _label(v), "detail": v, "text": None})
 
+    # Every check above runs unconditionally (they're cheap regex/string
+    # ops); a disabled check's own flags are dropped here in one place,
+    # same shape slopwatch's/codewatch's own lint_and_gate already use.
+    enabled = _enabled_check_ids()
+    mechanical = [f for f in mechanical if f["kind"] in enabled]
+    semantic = [f for f in semantic if f["kind"] in enabled]
+
     mechanical = dedup_flags(mechanical, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
     semantic = dedup_flags(semantic, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
 
-    # "status" reports whether the ENGINE found any semantic flag at all --
-    # it does NOT mean "would deny." Callers that make the actual gate
-    # decision never read this field; they call blocking_semantic_flags()
+    # "status" reports whether the ENGINE found any semantic flag at all,
+    # not whether the write would be denied. Callers that make the actual
+    # gate decision never read this field; they call blocking_semantic_flags()
     # instead, which excludes vocabulary flags staged out of denial for now.
     # A sentence can legitimately report status="semantic_flags" here and
     # still pass the live gate cleanly -- e.g. any unknown_vocabulary hit
@@ -809,9 +975,9 @@ def lint_and_gate(text, context="procedure"):
 # vocabulary auto-fix is disabled (see UNAPPROVED_NO_AUTOFIX above) -- it's
 # excluded here too, for the same staging reason, not because it's unsafe
 # to report. Re-enabling any of these as a denial reason needs a real
-# PROJECT_TERMS starter glossary (exists now, see project-terms.json) plus a
-# first-occurrence registration flow (glossary.py, but nothing calls it
-# automatically yet) to mature first.
+# PROJECT_TERMS starter glossary (exists now, see glossary.py's register())
+# plus a first-occurrence registration flow (glossary.py, but nothing calls
+# it automatically yet) to mature first.
 #
 # THE SINGLE SOURCE OF TRUTH for "does this flag actually block a write" --
 # every caller (the hook, the CLI, the MCP server) goes through
@@ -824,11 +990,13 @@ def blocking_semantic_flags(semantic_flags):
             if not (f["kind"] == "vocabulary" and f["detail"]["type"] in EXCLUDED_VOCAB_TYPES)]
 
 
-def fix_sentence(sentence):
+def fix_sentence(sentence, project_terms=None, suppressed=None):
     # Protect inline code spans before any substitution -- the "Untouchables"
     # principle (code, identifiers, CLI flags must never be rewritten) means
     # a contraction or slop word inside backticks must survive unchanged,
     # even though the same regexes would happily match text inside them.
+    _pt = PROJECT_TERMS if project_terms is None else project_terms
+    _sup = suppressed or _NO_SUPPRESSION
     protected = []
     def _protect(m):
         protected.append(m.group(0))
@@ -901,7 +1069,9 @@ def fix_sentence(sentence):
         # APPROVED_WORDS check at all and rewrote it anyway -- live-tested
         # regression, "could complete the task" auto-"fixed" to "can full
         # the task."
-        if "'" in w or lw in APPROVED_WORDS or lw in PROJECT_TERMS or lw in UNAPPROVED_NO_AUTOFIX:
+        if ("'" in w or lw in _pt or lw in UNAPPROVED_NO_AUTOFIX
+                or (lw in APPROVED_WORDS and lw not in _sup["approved"])
+                or lw in _sup["unapproved"]):
             return w
         return UNAPPROVED_MAP.get(lw, w)
     s = re.sub(r"\b[A-Za-z]+\b", _vocab_sub, s)
@@ -925,11 +1095,12 @@ def fix_sentence(sentence):
     return s
 
 
-def _fix_paragraph(text):
-    return " ".join(fix_sentence(s) for s in tokenize_sentences(text))
+def _fix_paragraph(text, project_terms, suppressed):
+    return " ".join(fix_sentence(s, project_terms, suppressed)
+                     for s in tokenize_sentences(text))
 
 
-def apply_mechanical_fixes(text):
+def apply_mechanical_fixes(text, file_path=None):
     """Only call this when status == 'mechanical_violations' (no semantic
     flags) -- semantic flags mean the text needs a human/model decision, not
     a blind rewrite.
@@ -943,17 +1114,23 @@ def apply_mechanical_fixes(text):
     line) -- paragraph and block boundaries survive, exact line-wrapping
     does not.
     """
+    # Resolved once per call, not once per sentence -- the effective
+    # glossary depends on which file is being written (packs are path-
+    # scoped), so it can no longer be a module-level constant read for free.
+    project_terms = effective_project_terms(file_path)
+    suppressed = suppressed_vocabulary()
     out = []
     for block_type, content in split_into_blocks(text):
         if block_type in ("fence", "blank"):
             out.append(content)
         elif block_type == "header":
-            out.append(fix_sentence(content))
+            out.append(fix_sentence(content, project_terms, suppressed))
         elif block_type == "list_item":
             marker, item_text = _LIST_ITEM_RE.match(content).groups()
-            out.append(marker + (_fix_paragraph(item_text) if item_text.strip() else item_text))
+            out.append(marker + (_fix_paragraph(item_text, project_terms, suppressed)
+                                  if item_text.strip() else item_text))
         else:  # paragraph
-            out.append(_fix_paragraph(content))
+            out.append(_fix_paragraph(content, project_terms, suppressed))
     return "\n".join(out)
 
 

@@ -40,6 +40,7 @@ import rulesets
 import status_report
 from core import config as core_config
 from core import paths
+from core import scan as core_scan
 
 from mcp.server.mcpserver import MCPServer
 
@@ -53,7 +54,7 @@ mcp = MCPServer(
 )
 
 REPO_ROOT = paths.find_project_root(__file__)
-_SYNTHETIC_STDIN_PATH = os.path.join(REPO_ROOT, "__stdin__.md")
+_SYNTHETIC_STDIN_PATH = os.path.join(REPO_ROOT, core_config.SYNTHETIC_TEXT_NAME)
 
 
 def _resolve(ruleset_id):
@@ -131,80 +132,110 @@ def check_word(word: str, ruleset: str = "") -> dict:
 
 
 @mcp.tool()
-def register_project_term(word: str, note: str = "", override_unapproved: str = "", ruleset: str = "") -> dict:
-    """Add a word to a ruleset's glossary so the gate stops flagging it, if
-    that ruleset has a glossary (see list_rulesets). For genuine domain
-    vocabulary a closed-vocabulary ruleset was never going to cover (e.g.
-    "repository", "API" for ste100). Registration is meant to be
-    deliberate: confirm with the person you're working with before calling
-    this, the same way the project's own workflow does it (ask, then
-    register on approval), even though this tool itself doesn't enforce
-    that step. Refuses a word the real dictionary already forbids unless
-    override_unapproved gives an explicit reason -- that's overriding a
-    real rule, not filling a coverage gap, and needs to be a deliberate,
-    on-the-record choice.
+def list_term_lists(ruleset: str = "", file_path: str = "") -> dict:
+    """Every named word list a ruleset checks against, with its POLARITY
+    ("allow" = matching terms are permitted, "deny" = matching terms are
+    flagged) and where each term came from: shipped built-ins, opt-in
+    vocabulary packs, or this project's own registrations.
+
+    Pass file_path when you care about a specific file: vocabulary packs
+    are enabled per path glob, not per ruleset, so two files handled by the
+    same ruleset can have genuinely different effective vocabularies. Also
+    reports any pack terms the ruleset refused because its own standard
+    forbids them.
     """
     active = _resolve(ruleset or None)
-    if "glossary" not in active.CAPABILITIES:
-        return _unsupported(active, "glossary", "register a term for")
-    return active.register_term(word, note, override_unapproved or None)
+    if "terms" not in active.CAPABILITIES:
+        return _unsupported(active, "terms", "list term lists for")
+    return {"ruleset": active.RULESET_ID,
+            "lists": active.list_term_lists(file_path or None)}
 
 
 @mcp.tool()
-def unregister_project_term(word: str, ruleset: str = "") -> dict:
-    """Remove a word from a ruleset's glossary, if it has one -- undoes a
-    mistaken register_project_term call. The gate goes back to flagging
-    the word normally.
+def add_term(list_id: str, term: str, note: str = "", force: str = "",
+             ruleset: str = "") -> dict:
+    """Add one term to a ruleset's term list -- what the gate should stop
+    flagging (an "allow" list, e.g. ste100's project vocabulary) or start
+    flagging (a "deny" list, e.g. slopwatch's marketing cliches). Call
+    list_term_lists first to see the ids and their polarity.
+
+    Registration is meant to be deliberate: confirm with the person you're
+    working with before calling this, the same way the project's own
+    workflow does (ask, then register on approval), even though this tool
+    doesn't enforce that step.
+
+    `force` is a REASON string, not a flag. A list backed by a real
+    external standard (ste100's) refuses a word that standard explicitly
+    forbids unless you give one -- that is overriding a real rule, not
+    filling a coverage gap, and belongs on the record.
     """
     active = _resolve(ruleset or None)
-    if "glossary" not in active.CAPABILITIES:
-        return _unsupported(active, "glossary", "unregister a term for")
-    return active.unregister_term(word)
-
-
-@mcp.tool()
-def list_project_terms(ruleset: str = "") -> dict:
-    """Every word currently registered in a ruleset's glossary, if it has
-    one, with the note it was registered under and whether it overrides a
-    real prohibition.
-    """
-    active = _resolve(ruleset or None)
-    if "glossary" not in active.CAPABILITIES:
-        return _unsupported(active, "glossary", "list terms for")
-    return {"ruleset": active.RULESET_ID, "terms": active.list_terms()}
-
-
-@mcp.tool()
-def list_glossary_packs(ruleset: str = "") -> dict:
-    """Every bulk vocabulary pack registered for a ruleset (name, source
-    URL, license, real term count, and whether it's enabled for this
-    project right now), if that ruleset supports packs at all. A pack
-    starts disabled -- enabling one is a project-level choice, made with
-    enable_glossary_packs, not automatic just because a pack exists in
-    code.
-    """
-    active = _resolve(ruleset or None)
-    if not hasattr(active, "list_glossary_packs"):
-        return _unsupported(active, "glossary-packs", "list vocabulary packs for")
-    return {"ruleset": active.RULESET_ID, "packs": active.list_glossary_packs()}
-
-
-@mcp.tool()
-def enable_glossary_packs(pack_ids: list[str], ruleset: str = "") -> dict:
-    """Set exactly this list of vocabulary packs as enabled for a ruleset
-    -- disables every other known pack for that ruleset. Pass an empty
-    list to disable all packs. Validated against the real pack registry
-    first: an unknown pack id refuses instead of silently doing nothing.
-    Takes effect on the next gate call immediately, no session restart.
-    """
-    active = _resolve(ruleset or None)
-    if not hasattr(active, "set_enabled_glossary_packs"):
-        return _unsupported(active, "glossary-packs", "enable vocabulary packs for")
+    if "terms" not in active.CAPABILITIES:
+        return _unsupported(active, "terms", "add a term for")
     try:
-        active.set_enabled_glossary_packs(pack_ids)
+        return active.add_term(list_id, term, note, force=force or False)
     except Exception as exc:
         return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "enabled", "message": f"enabled: {', '.join(pack_ids) or '(none)'}"}
+
+
+@mcp.tool()
+def remove_term(list_id: str, term: str, ruleset: str = "") -> dict:
+    """Remove one term from a ruleset's term list -- undoes a mistaken
+    add_term call. A no-op, not an error, if the term was never registered.
+    """
+    active = _resolve(ruleset or None)
+    if "terms" not in active.CAPABILITIES:
+        return _unsupported(active, "terms", "remove a term for")
+    try:
+        return active.remove_term(list_id, term)
+    except Exception as exc:
+        return {"ok": False, "status": "refused", "message": str(exc)}
+
+
+@mcp.tool()
+def set_path_packs(glob: str = "", list_id: str = "",
+                    pack_ids: list[str] = None) -> dict:
+    """List vocabulary packs, and point them at a term list on a path glob.
+
+    A pack is bulk, pre-curated vocabulary from a real external source
+    (MDN, NIST, the Microsoft style guide). It is inert content: it does
+    NOT declare which ruleset or list reads it. Both halves of that binding
+    are project decisions made here, because the same pack can reasonably
+    feed different lists in different repos -- or be read at the opposite
+    polarity, as an allow list by one ruleset and a deny list by another.
+
+    A pack attaches to a routing rule rather than to a ruleset because a
+    pack is domain content and domain is a property of the text: NIST
+    security vocabulary belongs to docs/security/, not to every file
+    ste100 happens to gate.
+
+    Called with no arguments this only reports. Pass glob, list_id and
+    pack_ids to set exactly that list of packs (an empty pack_ids detaches
+    them from that list). Unknown pack ids and unknown globs both refuse
+    rather than silently doing nothing.
+    """
+    from core import glossary_packs
+
+    def _snapshot():
+        return [{"glob": g, "ruleset": r, "packs_by_list": by_list}
+                for g, r, by_list in core_config.rule_packs(REPO_ROOT)]
+
+    result = {"available": glossary_packs.list_packs(), "enabled_by_rule": _snapshot()}
+    if not glob:
+        return dict(result, ok=True, status="listed")
+    if not list_id:
+        return dict(result, ok=False, status="refused",
+                     message="list_id is required: a pack feeds a named term list, "
+                             "and the pack itself does not say which one. Call "
+                             "list_term_lists to see the ids.")
+    try:
+        core_config.set_rule_packs(REPO_ROOT, glob, list_id, pack_ids or [],
+                                    known_packs=glossary_packs.AVAILABLE_PACKS)
+    except Exception as exc:
+        return dict(result, ok=False, status="refused", message=str(exc))
+    result["enabled_by_rule"] = _snapshot()
+    return dict(result, ok=True, status="saved",
+                message=f"{glob} -> {list_id}: {', '.join(pack_ids or []) or '(none)'}")
 
 
 @mcp.tool()
@@ -267,6 +298,52 @@ def set_ruleset_options(options: dict, ruleset: str = "") -> dict:
         return {"ok": False, "status": "refused", "message": str(exc)}
     return {"ok": True, "status": "set",
             "message": f"set: {', '.join(f'{k}={v}' for k, v in options.items()) or '(none)'}"}
+
+
+@mcp.tool()
+def scan_codebase(paths: list[str] = None, ruleset: str = "", glob: str = "*") -> dict:
+    """Bulk-check an existing tree of files against a ruleset, with no live
+    write -- the missing piece for adopting stopslop onto a codebase that
+    already exists, not just files edited going forward. `paths` (relative
+    to the project root, or absolute) defaults to the whole project if
+    empty. Leave `ruleset` empty to resolve each file's ruleset from
+    stopslop.config.json, the same as a live write -- a file out of scope
+    under the current routing is skipped, not flagged. Pass a ruleset id to
+    force every matched file through that one ruleset regardless of
+    routing (e.g. testing slopwatch against an existing docs/ tree before
+    ever adding a routing rule for it); `glob` then narrows which
+    filenames are included (default: every regular file).
+    """
+    target_paths = [p if os.path.isabs(p) else os.path.join(REPO_ROOT, p) for p in (paths or [])] or [REPO_ROOT]
+    for p in target_paths:
+        if not os.path.exists(p):
+            return {"ok": False, "status": "not_found", "message": f"{p!r} does not exist."}
+    if ruleset:
+        try:
+            rulesets.get_ruleset(ruleset)
+        except rulesets.UnknownRulesetError as exc:
+            return {"ok": False, "status": "unknown_ruleset", "message": str(exc)}
+
+    report = core_scan.scan_tree(target_paths, REPO_ROOT, rulesets,
+                                  ruleset_id=ruleset or None, glob_pattern=glob)
+    fail = [r for r in report["results"] if r["would_block"]]
+    return {
+        "ok": True,
+        "scanned": report["scanned"],
+        "skipped_out_of_scope": report["skipped_out_of_scope"],
+        "skipped_unreadable": report["skipped_unreadable"],
+        "would_fail_count": len(fail),
+        "results": [
+            {
+                "path": os.path.relpath(r["path"], REPO_ROOT),
+                "ruleset": r["ruleset"],
+                "would_block": r["would_block"],
+                "blocking_issues": _flag_summary(r["blocking_flags"]),
+                "mechanical_fixes": _flag_summary(r["mechanical_flags"]),
+            }
+            for r in report["results"] if r["blocking_flags"] or r["mechanical_flags"]
+        ],
+    }
 
 
 @mcp.tool()
