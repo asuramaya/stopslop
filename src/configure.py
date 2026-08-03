@@ -69,6 +69,11 @@ def _snapshot(project_root, label):
 
 
 def _undo_bar():
+    # A callback cannot render, so a failed write parks its message here.
+    error = st.session_state.pop("write_error", None)
+    if error:
+        st.error(f"Not saved: {error}")
+
     entry = st.session_state.get("undo")
     if not entry:
         return
@@ -82,6 +87,13 @@ def _undo_bar():
             with open(entry["path"], "w") as f:
                 f.write(entry["blob"])
         del st.session_state["undo"]
+        # Drop the widget state for every control that mirrors the config.
+        # A keyed widget outlives the value it was showing, so restoring the
+        # file alone would leave the toggles and numbers displaying what was
+        # just undone -- and the next interaction would write THAT back.
+        for key in [k for k in st.session_state
+                    if k.startswith(("chk::", "opt::", "scope_ruleset::"))]:
+            del st.session_state[key]
         st.toast("Reverted", icon="↩️")
         st.rerun()
 
@@ -154,13 +166,18 @@ def _scope(repo_root):
         else:
             inner = st.columns([3, 3])
             current = rule["ruleset"] or ""
-            chosen = inner[0].selectbox(
+            # The key is scoped to the GLOB, not to the widget's job. A
+            # single "scope_ruleset" key carried its value across a change
+            # of path, so the box showed the previous rule's ruleset while
+            # naming the new rule -- and the write below fired on that
+            # stale value. See _apply_on_change.
+            key = f"scope_ruleset::{rule['glob']}"
+            inner[0].selectbox(
                 f"Gated by (rule `{rule['glob']}`)", [""] + ids,
                 index=([""] + ids).index(current) if current in [""] + ids else 0,
-                key="scope_ruleset",
+                key=key, on_change=_route_changed,
+                args=(repo_root, rule["glob"], key),
                 help="Empty puts every file matching this glob out of scope.")
-            if chosen != current:
-                _save_rule_ruleset(repo_root, rule["glob"], chosen or None)
             with inner[1]:
                 st.caption("")
                 st.caption(f"{'out of scope' if not current else current} · "
@@ -175,15 +192,53 @@ def _pack_count(rule):
     return sum(len(v) for v in (rule.get("packs") or {}).values())
 
 
-def _save_rule_ruleset(repo_root, glob, ruleset_id):
-    rules = [{"glob": g, "ruleset": ruleset_id if g == glob else r}
+# --- apply-on-change, done the one way that is safe -----------------------
+#
+# A keyed Streamlit widget returns SESSION STATE, not a fresh render of the
+# data behind it. So the obvious shape for instant save --
+#
+#     value = st.selectbox(..., key="k")
+#     if value != stored: write(value)
+#
+# -- is a silent-write bug, not a style choice. Whenever the stored value
+# changes for any reason the widget did not cause (a different path
+# resolving to a different rule, an undo, another process editing the
+# config), the stale widget value differs from the new stored one and the
+# write fires with nobody having touched anything. It cost this repo a real
+# corruption: the scope box carried "slopwatch" across a path change and
+# silently re-routed *.md away from ste100, in the config file, on page
+# load. `on_change` fires only on genuine interaction, which is the whole
+# difference. Callbacks also must not call st.rerun() -- Streamlit reruns
+# after them anyway.
+
+
+def _route_changed(repo_root, glob, key):
+    chosen = st.session_state[key] or None
+    _snapshot(repo_root, f"routed {glob} to {chosen or 'out of scope'}")
+    rules = [{"glob": g, "ruleset": chosen if g == glob else r}
              for g, r, _ in core_config.rule_packs(repo_root)]
-    _snapshot(repo_root, f"routed {glob} to {ruleset_id or 'out of scope'}")
     try:
         core_config.save_rules(repo_root, rules, rulesets)
-        st.rerun()
     except Exception as exc:
-        st.error(f"Not saved: {exc}")
+        st.session_state["write_error"] = str(exc)
+
+
+def _check_toggled(repo_root, module, check_id, key):
+    on = st.session_state[key]
+    _snapshot(repo_root, f"{'enabled' if on else 'disabled'} {check_id}")
+    try:
+        module.set_checks_enabled({check_id: on})
+    except Exception as exc:
+        st.session_state["write_error"] = str(exc)
+
+
+def _option_changed(repo_root, module, name, key):
+    value = int(st.session_state[key])
+    _snapshot(repo_root, f"set {module.RULESET_ID}.{name} to {value}")
+    try:
+        module.set_options({name: value})
+    except Exception as exc:
+        st.session_state["write_error"] = str(exc)
 
 
 def _routing_table(repo_root):
@@ -309,12 +364,29 @@ def _check_rows(ruleset_id):
 
 
 def _by_check(repo_root, probe, full, ruleset_id):
+    """A dense grid, and the detail for one selected row beneath it.
+
+    The first cut of this gave every check its own st.expander, following
+    an ASCII sketch that drew a table with inline expansion. Streamlit
+    cannot make that shape, and the approximation cost 6x the height for
+    the same information: 44 bordered boxes, 2281px of widget chrome, a
+    4114px page. It also lost column alignment, because each row collapsed
+    into one markdown string, and it left the section rendered as a widget
+    list beside two real grids, which is what made the page read as two
+    unrelated idioms stitched together.
+
+    Master/detail is the native answer to the gap Streamlit does have:
+    st.dataframe supports row selection but is read-only, st.data_editor
+    is editable but supports no selection, and a check row needs both a
+    toggle and a detail affordance. Rather than fight that with a second
+    control, the toggle moves into the detail -- reading this list is
+    constant, and turning a check off is rare and worth seeing first."""
     rows = _check_rows(ruleset_id)
     here = [r for r in rows if r["ruleset"] == ruleset_id]
     off = sum(1 for r in rows if not r["enabled"])
     st.caption(f"{len(rows)} checks across every ruleset, {off} off. "
-               f"**{len(here)}** run on `{probe}`. Expand a row for its "
-               f"tuning and its words.")
+               f"**{len(here)}** run on `{probe}` and sort first. "
+               f"Select a row for its tuning and its words.")
 
     cols = st.columns([3, 2])
     needle = cols[0].text_input("Search", key="rules_q").strip().lower()
@@ -328,67 +400,69 @@ def _by_check(repo_root, probe, full, ruleset_id):
         st.caption("Nothing matches.")
         return
 
-    for row in shown:
-        _check_row(repo_root, full, row, ruleset_id)
+    event = st.dataframe(
+        [{"on": "✓" if r["enabled"] else "", "runs here": "✓" if r["ruleset"] == ruleset_id else "",
+          "check": r["check"], "ruleset": r["ruleset"], "what it catches": r["catches"],
+          "tuning": _tuning_summary(repo_root, r, full)} for r in shown],
+        width="stretch", hide_index=True, height=380,
+        on_select="rerun", selection_mode="single-row", key="checks_grid",
+        column_config={
+            "on": st.column_config.TextColumn("on", width="small"),
+            "runs here": st.column_config.TextColumn("here", width="small"),
+            "check": st.column_config.TextColumn("check", width="medium"),
+            "ruleset": st.column_config.TextColumn("ruleset", width="small"),
+            "what it catches": st.column_config.TextColumn("what it catches", width="large"),
+            "tuning": st.column_config.TextColumn("tuning", width="medium"),
+        })
+    chosen = event.selection.rows
+    if not chosen:
+        st.caption("Nothing selected.")
+        return
+    _check_detail(repo_root, full, shown[chosen[0]], ruleset_id)
 
 
-def _check_row(repo_root, full, row, ruleset_id):
-    """One check: toggle outside the disclosure, detail inside it.
-
-    The toggle is the most common action on this page, so it must not
-    require opening anything; the detail is the rarest, so it must not
-    cost vertical space when unopened."""
-    live = row["ruleset"] == ruleset_id
-    counts = _list_counts(repo_root, row, full)
+def _tuning_summary(repo_root, row, full):
+    """The one-line answer to "is there anything inside this row" -- so the
+    grid says which checks are worth opening without opening any."""
     bits = []
     if row["blocks_alone"]:
         bits.append("denies alone")
     for name, info in row["options"].items():
         bits.append(f"{name} {info['value']}")
+    counts = _list_counts(repo_root, row, full)
     if counts:
         bits.append(f"{sum(counts.values())} words")
-    summary = " · ".join(bits)
+    return " · ".join(bits)
 
-    cols = st.columns([0.5, 9])
-    with cols[0]:
-        on = st.checkbox(" ", value=row["enabled"], key=f"chk_{row['ruleset']}_{row['check']}",
-                          label_visibility="collapsed")
-        if on != row["enabled"]:
-            _snapshot(repo_root, f"{'enabled' if on else 'disabled'} {row['check']}")
-            try:
-                row["module"].set_checks_enabled({row["check"]: on})
-                st.rerun()
-            except Exception as exc:
-                st.error(f"Not saved: {exc}")
-    label = (f"{'' if live else '· '}**{row['check']}** — {row['catches']}"
-             + (f"  ·  _{summary}_" if summary else ""))
-    with cols[1].expander(label):
-        st.caption(f"Instead: {row['instead']}")
-        if not live:
-            st.caption(f"Runs on files routed to {row['ruleset']}, not on this path.")
-        if row["blocks_alone"]:
-            st.warning("This check denies a write on its own, whatever the "
-                       "flag count. Turning it off changes what blocks.")
-        for name, info in row["options"].items():
-            _option_control(repo_root, row, name, info)
-        for list_id in row["lists"]:
-            _term_list_block(repo_root, row, list_id, full)
+
+def _check_detail(repo_root, full, row, ruleset_id):
+    live = row["ruleset"] == ruleset_id
+    st.markdown(f"### `{row['check']}` · {row['ruleset']}")
+    st.markdown(f"**Catches:** {row['catches']}  \n**Instead:** {row['instead']}")
+    if not live:
+        st.caption(f"Runs on files routed to {row['ruleset']}, not on this path.")
+
+    key = f"chk::{row['ruleset']}::{row['check']}"
+    st.toggle("Enabled", value=row["enabled"], key=key, on_change=_check_toggled,
+               args=(repo_root, row["module"], row["check"], key))
+    if row["blocks_alone"]:
+        st.warning("This check denies a write on its own, whatever the flag "
+                   "count. Turning it off changes what blocks.")
+    for name, info in row["options"].items():
+        _option_control(repo_root, row, name, info)
+    for list_id in row["lists"]:
+        _term_list_block(repo_root, row, list_id, full)
 
 
 def _option_control(repo_root, row, name, info):
     cols = st.columns([2, 6])
-    value = cols[0].number_input(
-        name, value=int(info["value"]), step=1, key=f"opt_{row['ruleset']}_{name}")
+    key = f"opt::{row['ruleset']}::{name}"
+    cols[0].number_input(name, value=int(info["value"]), step=1, key=key,
+                          on_change=_option_changed,
+                          args=(repo_root, row["module"], name, key))
     with cols[1]:
         st.caption("")
         st.caption(f"shipped default {info['default']}")
-    if int(value) != int(info["value"]):
-        _snapshot(repo_root, f"set {row['ruleset']}.{name} to {int(value)}")
-        try:
-            row["module"].set_options({name: int(value)})
-            st.rerun()
-        except Exception as exc:
-            st.error(f"Not saved: {exc}")
 
 
 def _list_counts(repo_root, row, full):

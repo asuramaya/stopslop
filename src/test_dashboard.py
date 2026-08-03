@@ -24,6 +24,7 @@ constants, functions, imports, classes.
 Static, not an import: these tests read source and never execute it, so
 adding a module here can never run its import-time side effects.
 """
+import ast
 import builtins
 import os
 import symtable
@@ -113,6 +114,102 @@ class DashboardStructureTests(unittest.TestCase):
                      self.source.index("def _status_footer")], "x", "exec"), scope)
         for action in ("deny", "auto_fix", "clean", "unscoped_write"):
             self.assertIn(action, scope["ACTION_ICON"])
+
+
+# Widgets whose value is only ever READ during a render -- a search box, a
+# filter, the path being inspected, the pending entry in an add form. These
+# never write to the config file, so a stale session value is harmless.
+READ_ONLY_WIDGET_KEYS = ("scope_path", "rules_q", "rules_rs", "aw_q", "aw_list",
+                          "aw_src", "add_", "note_", "attach_", "override_reason",
+                          "watch_filter", "rules_mode")
+
+MUTATING_WIDGETS = ("selectbox", "toggle", "number_input", "checkbox", "radio",
+                     "segmented_control")
+
+
+def _key_literal(call):
+    """The static prefix of a call's `key=` argument, or None. Keys are
+    often f-strings (`f"chk::{ruleset}::{check}"`); the leading constant is
+    what identifies the widget's purpose."""
+    for kw in call.keywords:
+        if kw.arg != "key":
+            continue
+        if isinstance(kw.value, ast.Constant) and isinstance(kw.value.value, str):
+            return kw.value.value
+        if isinstance(kw.value, ast.JoinedStr):
+            first = kw.value.values[0] if kw.value.values else None
+            if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                return first.value
+        return ""
+    return None
+
+
+class ApplyOnChangeTests(unittest.TestCase):
+    """A keyed Streamlit widget returns SESSION STATE, not a fresh render of
+    the data behind it, so the natural shape for instant-save --
+
+        value = st.selectbox(..., key="k")
+        if value != stored: write(value)
+
+    -- fires whenever the STORED value changes for a reason the widget did
+    not cause. It is a silent write with nobody having touched anything.
+
+    This is not hypothetical. The Configure page's scope selector used one
+    key for every routing rule, so the box carried `slopwatch` across a
+    change of path and re-routed `*.md` away from ste100 IN THE CONFIG FILE,
+    on page load. Two other controls (the enabled toggle, the threshold
+    input) had the same shape and had not yet been caught.
+
+    `on_change` fires only on genuine interaction. Any widget on the config
+    page that can write must use it."""
+
+    def _calls(self, path):
+        with open(path) as f:
+            tree = ast.parse(f.read())
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            if isinstance(func, ast.Attribute) and func.attr in MUTATING_WIDGETS:
+                yield node
+
+    def test_every_writable_widget_applies_on_change(self):
+        path = os.path.join(SRC_DIR, "configure.py")
+        for call in self._calls(path):
+            key = _key_literal(call)
+            if key is None:
+                continue                       # unkeyed: no session state to go stale
+            if key.startswith(READ_ONLY_WIDGET_KEYS):
+                continue
+            names = {kw.arg for kw in call.keywords}
+            with self.subTest(widget=f"{call.func.attr}(key={key!r})", line=call.lineno):
+                self.assertIn(
+                    "on_change", names,
+                    f"line {call.lineno}: this widget has a key, so its value "
+                    f"outlives the data behind it. Either apply through "
+                    f"on_change, or add its key prefix to READ_ONLY_WIDGET_KEYS "
+                    f"to state that it never writes.")
+
+    def test_no_callback_calls_st_rerun(self):
+        """Streamlit reruns after a callback on its own, and calling rerun
+        inside one raises. Callbacks are named by on_change= arguments."""
+        path = os.path.join(SRC_DIR, "configure.py")
+        with open(path) as f:
+            tree = ast.parse(f.read())
+        callbacks = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                for kw in node.keywords:
+                    if kw.arg == "on_change" and isinstance(kw.value, ast.Name):
+                        callbacks.add(kw.value.id)
+        self.assertTrue(callbacks, "no on_change callbacks found -- has the "
+                                    "apply-on-change pattern been replaced?")
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name in callbacks:
+                reruns = [d for d in ast.walk(node)
+                          if isinstance(d, ast.Attribute) and d.attr == "rerun"]
+                with self.subTest(callback=node.name):
+                    self.assertEqual(reruns, [], "st.rerun() inside a callback raises")
 
 
 if __name__ == "__main__":
