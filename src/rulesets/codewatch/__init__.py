@@ -52,6 +52,13 @@ CHECKS = {
 }
 
 
+# See rulesets/ste100/__init__.py's DENY_POLICY.
+DENY_POLICY = {
+    "text": "A write is denied when semantic flags reach "
+            "{block_flag_count_threshold}.",
+    "always_blocking": ("swallowed_exception",),
+}
+
 def lint_and_gate(text, *, context=None, file_path=None):
     return lint.lint_and_gate(text, context=context, file_path=file_path)
 

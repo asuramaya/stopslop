@@ -346,6 +346,13 @@ GENERIC_NAME_STEMS = {"helper", "data", "temp", "tmp", "value", "item",
 # polarity="allow", not a new mechanism.
 TERM_LISTS = {
     "generic_naming": {
+        # Which CHECK this list feeds. Declared, not inferred from the
+        # id: ste100's three lists all feed one check, so any UI that
+        # paired them by name would show that check as having no
+        # vocabulary at all. A list naming its check is fine (both are
+        # internal to this ruleset); a PACK naming its consumer was not,
+        # because a pack is shared content -- see core/glossary_packs.
+        "feeds": "generic_naming",
         "label": "Generic name stems",
         "description": "Placeholder-sounding identifier stems (helper, data, temp...).",
         "polarity": "deny", "accepts_packs": True,

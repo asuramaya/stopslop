@@ -122,5 +122,72 @@ class CoachingMemoryStillGetsItsVoiceTests(unittest.TestCase):
         self.assertIn("(12x)", line)
 
 
+
+class CheckToConfigLinksTests(unittest.TestCase):
+    """Every link the Configure page draws between a check and its tuning
+    or its words is DECLARED by the ruleset, never inferred from names.
+
+    The page folds a check's on/off, its parameter and its word list into
+    one row, so those links became load-bearing. The first cut inferred
+    them: an option was a check's parameter if it shared a name prefix
+    ("em_dash_cluster" -> "em" -> "em_dash_threshold", correct by luck),
+    and a list belonged to a check of the same id -- which silently showed
+    ste100's `vocabulary` check as having no vocabulary, because its three
+    lists do not share its name. These assertions keep both declared."""
+
+    def test_every_term_list_names_a_check_that_exists(self):
+        for module in rulesets.list_rulesets():
+            checks = set(module.list_checks()) if "checks" in module.CAPABILITIES else set()
+            for list_id, spec in getattr(module, "TERM_LISTS", {}).items():
+                with self.subTest(list=f"{module.RULESET_ID}.{list_id}"):
+                    feeds = spec.get("feeds")
+                    self.assertTrue(feeds, "no 'feeds' key: the Configure page "
+                                            "would never show this list anywhere")
+                    self.assertIn(feeds, checks)
+
+    def test_every_declared_check_option_exists(self):
+        for module in rulesets.list_rulesets():
+            options = set(module.list_options()) if "options" in module.CAPABILITIES else set()
+            checks = set(module.list_checks()) if "checks" in module.CAPABILITIES else set()
+            for check_id, names in getattr(module, "CHECK_OPTIONS", {}).items():
+                with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
+                    self.assertIn(check_id, checks)
+                    for name in names:
+                        self.assertIn(name, options)
+
+    def test_the_deny_policy_names_only_real_checks_and_real_options(self):
+        for module in rulesets.list_rulesets():
+            policy = getattr(module, "DENY_POLICY", None)
+            with self.subTest(ruleset=module.RULESET_ID):
+                self.assertIsNotNone(policy, "no DENY_POLICY: the page cannot "
+                                              "state what blocks a write")
+                checks = set(module.list_checks()) if "checks" in module.CAPABILITIES else set()
+                for check_id in policy["always_blocking"]:
+                    self.assertIn(check_id, checks)
+                # The text is format()ed with live option values, so a
+                # placeholder with no option behind it renders as a stray
+                # brace or raises, depending on the caller.
+                options = ({n: i["value"] for n, i in module.list_options().items()}
+                           if "options" in module.CAPABILITIES else {})
+                policy["text"].format(**options)
+
+    def test_every_option_is_owned_by_a_check_or_is_the_deny_threshold(self):
+        """No option may be orphaned. Configure shows an option either
+        inside its check's row or in the deny-policy sentence; one that is
+        neither would be invisible and therefore uneditable."""
+        for module in rulesets.list_rulesets():
+            if "options" not in module.CAPABILITIES:
+                continue
+            owned = {n for names in getattr(module, "CHECK_OPTIONS", {}).values()
+                     for n in names}
+            policy_text = getattr(module, "DENY_POLICY", {}).get("text", "")
+            for name in module.list_options():
+                with self.subTest(option=f"{module.RULESET_ID}.{name}"):
+                    self.assertTrue(name in owned or ("{" + name + "}") in policy_text,
+                                     f"{name} is in no check's CHECK_OPTIONS and is "
+                                     f"not named in DENY_POLICY, so nothing on the "
+                                     f"Configure page would ever show it")
+
+
 if __name__ == "__main__":
     unittest.main()

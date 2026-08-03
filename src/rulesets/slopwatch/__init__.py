@@ -101,6 +101,26 @@ CHECKS = {
 }
 
 
+# See rulesets/ste100/__init__.py's DENY_POLICY for why this lives on the
+# ruleset. `always_blocking` names checks that deny ON THEIR OWN, ignoring
+# the count -- a fact the checks table cannot show without being told, since
+# such a row is otherwise identical to the other nineteen.
+# Which tunable option belongs to which check. Declared, never inferred: an
+# option name that happens to share a prefix with a check id is a
+# coincidence, and a UI that pairs them by prefix will eventually pair the
+# wrong two. block_flag_count_threshold is deliberately absent -- it is not
+# any check's parameter, it is the ruleset's deny policy (see DENY_POLICY).
+CHECK_OPTIONS = {
+    "em_dash_cluster": ("em_dash_threshold",),
+}
+
+DENY_POLICY = {
+    "text": "No single flag denies on its own. A write is denied when "
+            "semantic flags reach {block_flag_count_threshold}, so the text "
+            "reads as densely formulaic rather than merely imperfect.",
+    "always_blocking": ("em_dash_cluster",),
+}
+
 def lint_and_gate(text, *, context=None, file_path=None):
     return lint.lint_and_gate(text, context=context, file_path=file_path)
 

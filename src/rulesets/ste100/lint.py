@@ -236,6 +236,13 @@ UNAPPROVED_MAP.update({
 # would silently miss the corporate-jargon entries added just above.
 TERM_LISTS = {
     "approved_words": {
+        # Which CHECK this list feeds. Declared, not inferred from the
+        # id: ste100's three lists all feed one check, so any UI that
+        # paired them by name would show that check as having no
+        # vocabulary at all. A list naming its check is fine (both are
+        # internal to this ruleset); a PACK naming its consumer was not,
+        # because a pack is shared content -- see core/glossary_packs.
+        "feeds": "vocabulary",
         "label": "Approved vocabulary",
         "description": "The real ASD-STE100 dictionary's approved words. A word "
                         "here is never flagged as unknown or unapproved.",
@@ -244,6 +251,7 @@ TERM_LISTS = {
         "built_ins": APPROVED_WORDS,
     },
     "unapproved_words": {
+        "feeds": "vocabulary",
         "label": "Forbidden vocabulary",
         "description": "Words the real ASD-STE100 dictionary forbids, most with "
                         "an approved replacement.",
@@ -256,6 +264,7 @@ TERM_LISTS = {
         ),
     },
     "project_terms": {
+        "feeds": "vocabulary",
         "label": "Project vocabulary",
         "description": "Domain words the real ASD-STE100 dictionary was never "
                         "going to cover (it is an aviation-maintenance standard, "

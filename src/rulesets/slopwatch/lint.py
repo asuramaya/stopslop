@@ -439,30 +439,41 @@ MARKETING_CLICHES = ["amazing", "breathtaking", "stunning", "must-visit", "must 
 # between a real abstraction and one shaped around its first user.
 TERM_LISTS = {
     "weasel_attribution": {
+        # Which CHECK this list feeds. Declared, not inferred from the
+        # id: ste100's three lists all feed one check, so any UI that
+        # paired them by name would show that check as having no
+        # vocabulary at all. A list naming its check is fine (both are
+        # internal to this ruleset); a PACK naming its consumer was not,
+        # because a pack is shared content -- see core/glossary_packs.
+        "feeds": "weasel_attribution",
         "label": "Weasel attributions",
         "description": "Vague appeals to authority with no named source.",
         "polarity": "deny", "accepts_packs": True,
         "built_ins": WEASEL_PHRASES,
     },
     "marketing_adjective": {
+        "feeds": "marketing_adjective",
         "label": "Marketing adjectives",
         "description": "Promotional adjectives that assert quality instead of showing it.",
         "polarity": "deny", "accepts_packs": True,
         "built_ins": MARKETING_ADJECTIVES,
     },
     "filler_verb": {
+        "feeds": "filler_verb",
         "label": "Filler verbs",
         "description": "Verb phrases that add length without adding meaning.",
         "polarity": "deny", "accepts_packs": True,
         "built_ins": FILLER_VERB_PATTERNS,
     },
     "marketing_cliche": {
+        "feeds": "marketing_cliche",
         "label": "Marketing cliches",
         "description": "Stock phrases that signal generated copy.",
         "polarity": "deny", "accepts_packs": True,
         "built_ins": MARKETING_CLICHES,
     },
     "stock_adverb": {
+        "feeds": "stock_adverb",
         "label": "Stock adverbs",
         "description": "Filler adverbs safe to delete outright (auto-fixed).",
         "polarity": "deny", "accepts_packs": True,

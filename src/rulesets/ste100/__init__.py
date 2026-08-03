@@ -83,6 +83,20 @@ def _history_path():
     return history.history_log_path(paths.find_project_root(__file__))
 
 
+# What actually denies a write, in the ruleset's own words. The dashboard
+# renders this beside the checks rather than leaving the single most
+# consequential setting in the product unstated: the page used to say which
+# checks fire and which words are known, and never what blocks.
+# `text` is format()ed with this ruleset's live option values, so a tunable
+# number in the sentence shows what it is right now, not its default.
+DENY_POLICY = {
+    "text": "Denies on every semantic flag EXCEPT unapproved vocabulary "
+            "(unknown words, unapproved synonyms, words with no approved "
+            "replacement). Those are reported and let through, because the "
+            "dictionary cannot know a project's own domain words.",
+    "always_blocking": (),
+}
+
 def lint_and_gate(text, *, context=None, file_path=None):
     """context: "procedure" (20-word limit, step-by-step instructions) or
     "description" (25-word limit, whole documents). Any other value
