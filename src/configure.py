@@ -148,46 +148,51 @@ def _scope(repo_root):
     did not mark it. You read the sentence, then hunted the grid for your
     row. The winning rule is now edited where it is named; the grid is a
     disclosure, for adding and REORDERING (first match wins, so order is
-    the one thing the folded view genuinely cannot express)."""
-    cols = st.columns([2, 5])
-    default = _opening_path(repo_root)
-    probe = cols[0].text_input(
-        "Configuring for path", value=default, key="scope_path",
-        help="Any path in this repo, real or not -- routing decides the rest. "
-             f"`{core_config.SYNTHETIC_TEXT_NAME}` is the synthetic name every "
-             "free-text entry point (the CLI, an MCP lint_text call, Try it "
-             "below) is treated as.").strip() or default
-    full = os.path.join(repo_root, probe)
-    rule = core_config.matching_rule(full, repo_root)
+    the one thing the folded view genuinely cannot express).
 
-    ids = [m.RULESET_ID for m in rulesets.list_rulesets()]
-    with cols[1]:
-        if rule is None:
-            st.caption("")
-            st.markdown(f"`{probe}` → **no routing rule matches it**, so the "
-                        f"gate never runs. Add a rule below.")
-        else:
-            inner = st.columns([3, 3])
-            current = rule["ruleset"] or ""
-            # The key is scoped to the GLOB, not to the widget's job. A
-            # single "scope_ruleset" key carried its value across a change
-            # of path, so the box showed the previous rule's ruleset while
-            # naming the new rule -- and the write below fired on that
-            # stale value. See _apply_on_change.
-            key = f"scope_ruleset::{rule['glob']}"
-            inner[0].selectbox(
-                f"Gated by (rule `{rule['glob']}`)", [""] + ids,
-                index=([""] + ids).index(current) if current in [""] + ids else 0,
-                key=key, on_change=_route_changed,
-                args=(repo_root, rule["glob"], key),
-                help="Empty puts every file matching this glob out of scope.")
-            with inner[1]:
+    Both live in one bordered container now -- they used to be a bare
+    line above a separately-boxed expander, which read as two unrelated
+    widgets rather than two zoom levels of the same routing config."""
+    with st.container(border=True):
+        cols = st.columns([2, 5])
+        default = _opening_path(repo_root)
+        probe = cols[0].text_input(
+            "Configuring for path", value=default, key="scope_path",
+            help="Any path in this repo, real or not -- routing decides the rest. "
+                 f"`{core_config.SYNTHETIC_TEXT_NAME}` is the synthetic name every "
+                 "free-text entry point (the CLI, an MCP lint_text call, Try it "
+                 "below) is treated as.").strip() or default
+        full = os.path.join(repo_root, probe)
+        rule = core_config.matching_rule(full, repo_root)
+
+        ids = [m.RULESET_ID for m in rulesets.list_rulesets()]
+        with cols[1]:
+            if rule is None:
                 st.caption("")
-                st.caption(f"{'out of scope' if not current else current} · "
-                            f"{_pack_count(rule)} pack binding(s)")
+                st.markdown(f"`{probe}` → **no routing rule matches it**, so the "
+                            f"gate never runs. Add a rule below.")
+            else:
+                inner = st.columns([3, 3])
+                current = rule["ruleset"] or ""
+                # The key is scoped to the GLOB, not to the widget's job. A
+                # single "scope_ruleset" key carried its value across a change
+                # of path, so the box showed the previous rule's ruleset while
+                # naming the new rule -- and the write below fired on that
+                # stale value. See _apply_on_change.
+                key = f"scope_ruleset::{rule['glob']}"
+                inner[0].selectbox(
+                    f"Gated by (rule `{rule['glob']}`)", [""] + ids,
+                    index=([""] + ids).index(current) if current in [""] + ids else 0,
+                    key=key, on_change=_route_changed,
+                    args=(repo_root, rule["glob"], key),
+                    help="Empty puts every file matching this glob out of scope.")
+                with inner[1]:
+                    st.caption("")
+                    st.caption(f"{'out of scope' if not current else current} · "
+                                f"{_pack_count(rule)} pack binding(s)")
 
-    with st.expander("All routing rules — first match wins", expanded=True):
-        _routing_table(repo_root)
+        with st.expander("All routing rules — first match wins", expanded=True):
+            _routing_table(repo_root)
     return probe, full, rule
 
 
