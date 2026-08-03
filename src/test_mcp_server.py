@@ -5,9 +5,9 @@ hand-verified only (see README's gap list). mcp_server.py imports the
 when it's not installed -- the stdlib-only core suite must stay runnable
 without the venv (see requirements.txt).
 
-Read-only tools (lint_text, check_word, list_rulesets, get_status) run
-against the REAL registered rulesets -- safe, no writes. add_term
-and remove_term run against a small fake terms-capable
+Read-only tools (lint_text, check_word, list_rulesets, get_status,
+list_path_packs) run against the REAL registered rulesets -- safe, no
+writes. add_term and remove_term run against a small fake terms-capable
 ruleset instead of the real ste100 module, the same "small fake modules"
 pattern core/test_config.py already uses -- this project's own real
 stopslop.config.json (project terms live there now) and gate history must
@@ -152,12 +152,14 @@ class TermToolsAgainstRealRulesetsTests(unittest.TestCase):
 
 
 @unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
-class SetPathPacksReadOnlyTests(unittest.TestCase):
-    """Called with no glob, set_path_packs only reports -- safe to run
-    against the real config."""
+class ListPathPacksTests(unittest.TestCase):
+    """Pure read -- safe to run against the real config. See
+    SetPathPacksRefusalTests for the write half, split into its own tool
+    (set_path_packs) so an agent isn't guessing list-vs-write from which
+    arguments happen to be present."""
 
     def test_lists_every_available_pack_as_inert_content(self):
-        result = mcp_server.set_path_packs()
+        result = mcp_server.list_path_packs()
         self.assertTrue(result["ok"])
         self.assertEqual(set(result["available"]),
                           {"microsoft-style-guide", "mdn-glossary", "nist-security"})
@@ -165,14 +167,23 @@ class SetPathPacksReadOnlyTests(unittest.TestCase):
         self.assertNotIn("target", result["available"]["nist-security"])
 
     def test_reports_which_rule_and_list_each_pack_feeds(self):
-        result = mcp_server.set_path_packs()
+        result = mcp_server.list_path_packs()
         self.assertIsInstance(result["enabled_by_rule"], list)
         for entry in result["enabled_by_rule"]:
             self.assertEqual(set(entry), {"glob", "ruleset", "packs_by_list"})
             self.assertIsInstance(entry["packs_by_list"], dict)
 
+
+@unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
+class SetPathPacksRefusalTests(unittest.TestCase):
+    """Only the refusal paths, which never reach a real write -- still safe
+    against the real config. glob and list_id are required arguments now
+    (the old "called with no glob, only reports" dual-mode moved to
+    list_path_packs), so there is no more list-mode call to test here."""
+
     def test_a_glob_without_a_list_id_refuses(self):
-        result = mcp_server.set_path_packs(glob="*.md", pack_ids=["nist-security"])
+        result = mcp_server.set_path_packs(glob="*.md", list_id="",
+                                            pack_ids=["nist-security"])
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "refused")
         self.assertIn("list_id", result["message"])

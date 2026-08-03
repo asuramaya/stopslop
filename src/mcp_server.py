@@ -194,41 +194,49 @@ def remove_term(list_id: str, term: str, ruleset: str = "") -> dict:
 
 
 @mcp.tool()
-def set_path_packs(glob: str = "", list_id: str = "",
-                    pack_ids: list[str] = None) -> dict:
-    """List vocabulary packs, and point them at a term list on a path glob.
+def list_path_packs() -> dict:
+    """Every available vocabulary pack, and which routing rule/list each is
+    currently bound to. Read-only -- see set_path_packs to bind one.
 
     A pack is bulk, pre-curated vocabulary from a real external source
     (MDN, NIST, the Microsoft style guide). It is inert content: it does
-    NOT declare which ruleset or list reads it. Both halves of that binding
-    are project decisions made here, because the same pack can reasonably
-    feed different lists in different repos -- or be read at the opposite
-    polarity, as an allow list by one ruleset and a deny list by another.
+    NOT declare which ruleset or list reads it -- that's why "available"
+    lists packs with no mention of a consumer, and the binding lives
+    entirely in "enabled_by_rule".
+    """
+    from core import glossary_packs
+    return {"ok": True, "status": "listed",
+            "available": glossary_packs.list_packs(),
+            "enabled_by_rule": [{"glob": g, "ruleset": r, "packs_by_list": by_list}
+                                 for g, r, by_list in core_config.rule_packs(REPO_ROOT)]}
+
+
+@mcp.tool()
+def set_path_packs(glob: str, list_id: str, pack_ids: list[str] = None) -> dict:
+    """Point vocabulary packs at a term list on a path glob. Call
+    list_path_packs first to see the available pack ids and the current
+    bindings.
+
+    Both halves of the binding -- which rule, which list -- are project
+    decisions made here, because the same pack can reasonably feed
+    different lists in different repos, or be read at the opposite
+    polarity: an allow list by one ruleset, a deny list by another.
 
     A pack attaches to a routing rule rather than to a ruleset because a
     pack is domain content and domain is a property of the text: NIST
     security vocabulary belongs to docs/security/, not to every file
     ste100 happens to gate.
 
-    Called with no arguments this only reports. Pass glob, list_id and
-    pack_ids to set exactly that list of packs (an empty pack_ids detaches
-    them from that list). Unknown pack ids and unknown globs both refuse
+    Sets exactly the pack_ids given (an empty list detaches every pack
+    from that list). Unknown pack ids and unknown globs both refuse
     rather than silently doing nothing.
     """
     from core import glossary_packs
-
-    def _snapshot():
-        return [{"glob": g, "ruleset": r, "packs_by_list": by_list}
-                for g, r, by_list in core_config.rule_packs(REPO_ROOT)]
-
-    result = {"available": glossary_packs.list_packs(), "enabled_by_rule": _snapshot()}
-    if not glob:
-        return dict(result, ok=True, status="listed")
     if not list_id:
-        return dict(result, ok=False, status="refused",
-                     message="list_id is required: a pack feeds a named term list, "
+        return {"ok": False, "status": "refused",
+                 "message": "list_id is required: a pack feeds a named term list, "
                              "and the pack itself does not say which one. Call "
-                             "list_term_lists to see the ids.")
+                             "list_term_lists to see the ids."}
     # The same kind guard the dashboard applies. Without it this entry point
     # walks straight past a rule enforced at three other layers: a pack of
     # plain words could be bound to a list of regex patterns from here.
@@ -246,10 +254,9 @@ def set_path_packs(glob: str = "", list_id: str = "",
                                     known_packs=glossary_packs.AVAILABLE_PACKS,
                                     admissible=admissible)
     except Exception as exc:
-        return dict(result, ok=False, status="refused", message=str(exc))
-    result["enabled_by_rule"] = _snapshot()
-    return dict(result, ok=True, status="saved",
-                message=f"{glob} -> {list_id}: {', '.join(pack_ids or []) or '(none)'}")
+        return {"ok": False, "status": "refused", "message": str(exc)}
+    return {"ok": True, "status": "saved",
+            "message": f"{glob} -> {list_id}: {', '.join(pack_ids or []) or '(none)'}"}
 
 
 @mcp.tool()
@@ -378,7 +385,7 @@ def explain(file_path: str) -> dict:
     """Everything that will happen to one file, in one call.
 
     The rest of this surface is organised by CONFIG KEY -- list_checks,
-    list_options, list_term_lists, set_path_packs -- which is the shape of
+    list_options, list_term_lists, list_path_packs -- which is the shape of
     the storage, not the shape of the question. An agent about to write a
     file wants one answer: what gates this, what would block me, and what
     can I do about it. Getting that from the other tools meant knowing to
