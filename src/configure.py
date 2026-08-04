@@ -41,6 +41,19 @@ full routing table stays reachable below the focused rule, because rule
 ORDER is load-bearing (first match wins) and order is invisible in a view
 that only shows the winner.
 
+The checks table is EDITABLE, and shows one ruleset -- the one governing
+the focused path. It was a read-only grid over all 43 fleet checks, with
+a detail pane below carrying the toggle and settings for the selected
+row. Both halves of that were wrong. Showing every ruleset's checks meant
+two thirds of the rows did not apply to the path the page is configured
+for, and needed a ruleset column, a ruleset filter, a dimming convention
+and an explanatory caption to undo the confusion of showing them. And
+34 of those 43 checks hold NOTHING but an on/off switch, so the pane was
+empty-but-for-the-toggle four times in five. The switch and every numeric
+setting are cells now; only word lists and set-valued settings, which
+have no cell shape, remain below -- reachable for the 9 checks that have
+them, absent for the rest.
+
 Every edit applies immediately -- the same promise the page makes about
 reaching the next gate call. Anything that cannot be inferred back from
 the result (deleting a rule, renaming a glob, removing selected words)
@@ -98,7 +111,7 @@ def _undo_bar():
         # file alone would leave the toggles and numbers displaying what was
         # just undone -- and the next interaction would write THAT back.
         for key in [k for k in st.session_state
-                    if k.startswith(("chk::", "opt::", "pack::"))]:
+                    if k.startswith(("opt::", "pack::", "checks_editor::"))]:
             del st.session_state[key]
         st.toast("Reverted", icon="↩️")
         st.rerun()
@@ -310,15 +323,6 @@ def _pack_count(rule):
 # after them anyway.
 
 
-def _check_toggled(repo_root, module, check_id, key):
-    on = st.session_state[key]
-    _snapshot(repo_root, f"{'enabled' if on else 'disabled'} {check_id}")
-    try:
-        module.set_checks_enabled({check_id: on})
-    except Exception as exc:
-        st.session_state["write_error"] = str(exc)
-
-
 def _option_changed(repo_root, module, name, key):
     raw = st.session_state[key]
     # number_input's own value can arrive as a float even with step=1;
@@ -445,144 +449,251 @@ def _deny_policy(repo_root, ruleset_id):
 
 
 def _check_rows(ruleset_id):
+    """Every check of the ruleset governing the focused path -- and only
+    that ruleset's.
+
+    This used to return all 43 checks fleet-wide, sorting the focused
+    ruleset first and dimming the rest with a leading dot, which meant
+    two thirds of the rows on screen did not apply to the path the whole
+    page is configured for. It needed a `ruleset` column, a ruleset
+    filter, a dimming convention and a "Runs on files routed to X, not on
+    this path" caption to explain itself -- four devices whose only job
+    was to undo the confusion of showing the other rows at all. The Path
+    selector at the top already picks the ruleset; changing it is how you
+    reach another one."""
+    module = rulesets.get_ruleset(ruleset_id)
+    if "checks" not in module.CAPABILITIES:
+        return module, []
+    options = ({n: i for n, i in module.list_options().items()}
+               if "options" in module.CAPABILITIES else {})
+    blocks_alone_at = getattr(module, "DENY_POLICY", {}).get("blocks_alone_at", {})
+    owned = getattr(module, "CHECK_OPTIONS", {})
+    lists = getattr(module, "TERM_LISTS", {})
     rows = []
-    for module in rulesets.list_rulesets():
-        if "checks" not in module.CAPABILITIES:
-            continue
-        options = ({n: i for n, i in module.list_options().items()}
-                   if "options" in module.CAPABILITIES else {})
-        blocks_alone_at = getattr(module, "DENY_POLICY", {}).get("blocks_alone_at", {})
-        owned = getattr(module, "CHECK_OPTIONS", {})
-        lists = getattr(module, "TERM_LISTS", {})
-        for check_id, meta in sorted(module.list_checks().items()):
-            rows.append({
-                "module": module, "check": check_id, "ruleset": module.RULESET_ID,
-                "catches": meta["catches"], "instead": meta["instead"],
-                "enabled": meta["enabled"],
-                "blocks_alone_at": blocks_alone_at.get(check_id),
-                # A check's own parameter, from the ruleset's own
-                # declaration -- the link the separate Thresholds table
-                # never drew. Never inferred from the names: see
-                # slopwatch's CHECK_OPTIONS for why.
-                "options": {n: options[n] for n in owned.get(check_id, ())
-                            if n in options},
-                # Lists this check owns, by the list's own declaration.
-                # ste100 maps three lists onto one check, so matching on
-                # the id would leave `vocabulary` looking wordless.
-                "lists": [lid for lid, spec in lists.items()
-                          if spec.get("feeds") == check_id],
-            })
-    rows.sort(key=lambda r: (r["ruleset"] != ruleset_id, r["ruleset"], r["check"]))
-    return rows
+    for check_id, meta in sorted(module.list_checks().items()):
+        rows.append({
+            "module": module, "check": check_id, "ruleset": module.RULESET_ID,
+            "catches": meta["catches"], "instead": meta["instead"],
+            "enabled": meta["enabled"],
+            "blocks_alone_at": blocks_alone_at.get(check_id),
+            # A check's own parameter, from the ruleset's own
+            # declaration -- the link the separate Thresholds table
+            # never drew. Never inferred from the names: see
+            # slopwatch's CHECK_OPTIONS for why.
+            "options": {n: options[n] for n in owned.get(check_id, ())
+                        if n in options},
+            # Lists this check owns, by the list's own declaration.
+            # ste100 maps three lists onto one check, so matching on
+            # the id would leave `vocabulary` looking wordless.
+            "lists": [lid for lid, spec in lists.items()
+                      if spec.get("feeds") == check_id],
+        })
+    return module, rows
+
+
+def _numeric_option_columns(rows):
+    """Option names any check in this ruleset carries, in declaration
+    order -- one table column each.
+
+    Sparse on purpose: `procedure_word_limit` is blank for the twelve
+    ste100 checks that have no word limit, and that blankness is the
+    honest answer to "what can I tune on this row" -- most rules are
+    binary (a sentence either is passive or it is not) and have no number
+    to set. Only a number-valued option becomes a column; a set-valued
+    one (ste100's excluded_vocab_types) has no NumberColumn shape and
+    stays in the detail below."""
+    names = []
+    for row in rows:
+        for name, info in row["options"].items():
+            if "choices" not in info and name not in names:
+                names.append(name)
+    return names
 
 
 def _by_check(repo_root, probe, full, ruleset_id):
-    """A dense grid, and the detail for one selected row beneath it.
+    """One editable table: every check of this path's ruleset, its on/off
+    switch, and its own numbers, all in the row.
 
-    The first cut of this gave every check its own st.expander, following
-    an ASCII sketch that drew a table with inline expansion. Streamlit
-    cannot make that shape, and the approximation cost 6x the height for
-    the same information: 44 bordered boxes, 2281px of widget chrome, a
-    4114px page. It also lost column alignment, because each row collapsed
-    into one markdown string, and it left the section rendered as a widget
-    list beside two real grids, which is what made the page read as two
-    unrelated idioms stitched together.
+    This was master/detail -- a read-only grid, and a pane below carrying
+    the toggle and any settings for whichever row you clicked. Streamlit
+    forces that shape on anything needing both selection and editing
+    (st.dataframe selects but cannot edit; st.data_editor edits but
+    cannot select, still true in 1.60), and the cost landed exactly where
+    it hurt: 34 of the fleet's 43 checks have NOTHING inside them but an
+    on/off switch, so four rows in five made you click into a pane that
+    was empty except for the toggle you came for. Worse, the pane's
+    toggle sat under a table whose leftmost column was Streamlit's own
+    selection checkbox -- two checkbox-shaped controls for one row, the
+    inert-looking one being the real selector.
 
-    Master/detail is the native answer to the gap Streamlit does have:
-    st.dataframe supports row selection but is read-only, st.data_editor
-    is editable but supports no selection, and a check row needs both a
-    toggle and a detail affordance. Rather than fight that with a second
-    control, the toggle moves into the detail -- reading this list is
-    constant, and turning a check off is rare and worth seeing first."""
-    rows = _check_rows(ruleset_id)
-    here = [r for r in rows if r["ruleset"] == ruleset_id]
+    Editing wins the trade. `on` is a real checkbox in the row, each
+    numeric setting is a cell, and nothing is one click away that used to
+    be. What genuinely cannot be a cell -- a check's word LISTS, and
+    ste100's set-valued excluded_vocab_types -- moves below under a
+    selector naming only the checks that have any, so the pane appears
+    for the 9 rows it has content for instead of all 43."""
+    module, rows = _check_rows(ruleset_id)
+    if not rows:
+        st.caption(f"{ruleset_id} declares no checks.")
+        return
+
     off = sum(1 for r in rows if not r["enabled"])
-    st.caption(f"{len(rows)} checks across every ruleset, {off} off. "
-               f"**{len(here)}** run on `{probe}`.")
-
-    cols = st.columns([3, 2])
-    needle = cols[0].text_input("Search", key="rules_q").strip().lower()
-    picked = cols[1].multiselect("Ruleset", sorted({r["ruleset"] for r in rows}),
-                                  key="rules_rs", placeholder="All rulesets")
+    st.caption(f"{len(rows)} checks run on `{probe}`"
+               + (f", {off} turned off." if off else "."))
+    needle = st.text_input("Search", key="rules_q").strip().lower()
     shown = [r for r in rows
-             if (not needle or needle in r["check"].lower()
-                 or needle in r["catches"].lower() or needle in r["instead"].lower())
-             and (not picked or r["ruleset"] in picked)]
+             if not needle or needle in r["check"].lower()
+             or needle in r["catches"].lower() or needle in r["instead"].lower()]
     if not shown:
         st.caption("Nothing matches.")
         return
 
-    # Three columns, not five. `on` rendered a "✓" that looked like a
-    # checkbox, sat directly beside Streamlit's real selection checkbox, and
-    # did nothing when clicked -- two checkbox-shaped things, one inert. And
-    # `here` was `ruleset == scoped`, a second column encoding a comparison
-    # the first already contains. State is a prefix on the check name now:
-    # visible at a glance, impossible to mistake for a control.
-    event = st.dataframe(
-        [{"check": _row_label(r, ruleset_id), "ruleset": r["ruleset"],
-          "what it catches": r["catches"],
-          "notes": _notes_summary(repo_root, r, full)} for r in shown],
-        width="stretch", hide_index=True, height=380,
-        on_select="rerun", selection_mode="single-row", key="checks_grid",
-        column_config={
-            "check": st.column_config.TextColumn("check", width="medium"),
-            "ruleset": st.column_config.TextColumn("ruleset", width="small"),
-            "what it catches": st.column_config.TextColumn("what it catches", width="large"),
-            "notes": st.column_config.TextColumn("notes", width="medium"),
-        })
-    chosen = event.selection.rows
-    if not chosen:
-        return
-    _check_detail(repo_root, full, shown[chosen[0]], ruleset_id)
+    numeric = _numeric_option_columns(rows)
+    table, config = [], {
+        "on": st.column_config.CheckboxColumn("on", width="small"),
+        "check": st.column_config.TextColumn("check", width="medium", disabled=True),
+        "what it catches": st.column_config.TextColumn(
+            "what it catches", width="large", disabled=True),
+    }
+    # TextColumn, not NumberColumn, for a display reason that survived
+    # two attempts at the numeric one: an empty cell in a NumberColumn
+    # renders the literal "None" (object, float and pandas' nullable
+    # Int64 all do it in 1.60), and these columns are SPARSE by design --
+    # twelve of ste100's thirteen rows would read "None None" beside the
+    # one row that has word limits. A text cell can be genuinely empty.
+    # The value is still validated as an integer on the way back in.
+    for name in numeric:
+        config[name] = st.column_config.TextColumn(
+            name, width="small",
+            help=f"{name}, on the checks that have one. Blank means this "
+                 f"check takes no such setting.")
+    # Text, not a number: a check with no word list has no count, and an
+    # empty NumberColumn cell renders the literal "None" -- which read as
+    # a value on 9 of codewatch's 10 rows. Blank says "nothing here"
+    # without saying it in a word.
+    config["words"] = st.column_config.TextColumn(
+        "words", width="small", disabled=True,
+        help="Vocabulary this check matches against. Edit it below.")
+    config["denies alone"] = st.column_config.TextColumn(
+        "denies alone", width="small", disabled=True,
+        help="This check denies a write by itself once it fires this many "
+             "times, whatever the total flag count. Blank means it only "
+             "counts toward the ruleset's shared threshold above.")
+
+    for r in shown:
+        counts = _list_counts(repo_root, r, full)
+        entry = {"on": r["enabled"], "check": r["check"],
+                 "what it catches": r["catches"],
+                 "words": str(sum(counts.values())) if counts else "",
+                 "denies alone": _blocks_alone_label(r)}
+        for name in numeric:
+            info = r["options"].get(name)
+            entry[name] = str(int(info["value"])) if info else ""
+        table.append(entry)
+
+    # Keyed per ruleset: switching Path swaps every row underneath, and a
+    # shared key would carry the previous ruleset's edits onto whatever
+    # rows happen to land in the same positions.
+    edited = st.data_editor(
+        table, width="stretch", hide_index=True, height=380, num_rows="fixed",
+        key=f"checks_editor::{ruleset_id}", column_config=config,
+        column_order=["on", "check", "what it catches", *numeric,
+                      "words", "denies alone"])
+    _apply_check_edits(repo_root, module, shown, table, edited, numeric)
+    _check_contents(repo_root, full, shown, ruleset_id)
 
 
-def _row_label(row, ruleset_id):
-    """`check` carries its own state. "off" is the exceptional case and the
-    only one worth marking; a check that does not run on this path is dimmed
-    with a leading dot rather than given a column of its own."""
-    prefix = "" if row["ruleset"] == ruleset_id else "· "
-    return f"{prefix}{row['check']}" + ("" if row["enabled"] else "   (off)")
-
-
-def _notes_summary(repo_root, row, full):
-    """The one-line answer to "is there anything inside this row" -- so the
-    grid says which checks are worth opening without opening any.
-
-    "denies alone" carries a warning glyph, not plain text: everything
-    else here is a tunable VALUE (a threshold, a word count), and this is
-    the one bit that is a BEHAVIOR -- turning the check off is the only
-    way to change what it does, unlike a number that can be raised or
-    lowered. Reading it as just another value in the list undersold it."""
-    bits = []
+def _blocks_alone_label(row):
     n = row["blocks_alone_at"]
-    if n:
-        bits.append("⚠️ denies alone" if n == 1 else f"⚠️ denies alone at {n}")
+    return "" if not n else ("⚠️ on sight" if n == 1 else f"⚠️ at {n}")
+
+
+def check_edits(rows, before, after, numeric):
+    """(toggles, options, error) for what actually changed in the table.
+
+    Pure, and separate from the writing, because this is where the risk
+    is: st.data_editor has no on_change reporting WHICH cell moved, so
+    the only way to know is to diff the rendered rows against the
+    returned ones (the shape _routing_table already uses), and a diff
+    that is subtly wrong writes something nobody asked for. A pure
+    function can be tested against the awkward cases -- a blank in a
+    sparse column, a cleared value, typed nonsense -- without a browser
+    and without touching the config file. See test_configure.py."""
+    toggles, options = {}, {}
+    for row, was, now in zip(rows, before, after):
+        if bool(now.get("on")) != bool(was["on"]):
+            toggles[row["check"]] = bool(now["on"])
+        for name in numeric:
+            fresh = str(now.get(name) or "").strip()
+            # Blank on the LEFT means this check takes no such setting --
+            # the column is sparse by design, so there is nothing to
+            # write. Blank on the RIGHT means the value was cleared, and
+            # this table has no meaning for "no threshold": the ruleset
+            # declares one or it does not. Both are left alone.
+            if not was[name] or not fresh or fresh == was[name]:
+                continue
+            try:
+                options[name] = int(fresh)
+            except ValueError:
+                return {}, {}, f"{name} must be a whole number, not {fresh!r}"
+    return toggles, options, None
+
+
+def _apply_check_edits(repo_root, module, rows, before, after, numeric):
+    """Write whatever check_edits found, and nothing else. Only genuine
+    differences are written, so a rerun triggered by anything else on the
+    page (a Path change, an undo) writes nothing."""
+    toggles, options, error = check_edits(rows, before, after, numeric)
+    if error:
+        st.session_state["write_error"] = error
+        return
+    if not toggles and not options:
+        return
+
+    labels = ([f"{'enabled' if on else 'disabled'} {c}" for c, on in toggles.items()]
+              + [f"set {module.RULESET_ID}.{n} to {v}" for n, v in options.items()])
+    _snapshot(repo_root, "; ".join(labels))
+    try:
+        if toggles:
+            module.set_checks_enabled(toggles)
+        if options:
+            module.set_options(options)
+    except Exception as exc:
+        st.session_state["write_error"] = str(exc)
+        return
+    st.rerun()
+
+
+def _check_contents(repo_root, full, rows, ruleset_id):
+    """The words and set-valued settings behind a check, for the checks
+    that have any.
+
+    Every row used to open a pane like this, and for 34 of the fleet's 43
+    checks it held nothing but the on/off toggle -- which is now a cell in
+    the row. So the selector lists only the checks with something actually
+    inside, and says how many there are rather than presenting itself as
+    the way to reach a check at all. With none, it does not render."""
+    have = [r for r in rows if r["lists"]
+            or any("choices" in i for i in r["options"].values())]
+    if not have:
+        return
+
+    st.divider()
+    labels = {r["check"]: f"{r['check']} — " + ", ".join(
+        filter(None, [f"{len(r['lists'])} word list(s)" if r["lists"] else "",
+                      "vocabulary types" if any("choices" in i for i in
+                                                 r["options"].values()) else ""]))
+        for r in have}
+    picked = st.selectbox(
+        f"Words and lists ({len(have)} of these {len(rows)} checks have any)",
+        [r["check"] for r in have], key=f"check_contents::{ruleset_id}",
+        format_func=lambda c: labels[c])
+    row = next(r for r in have if r["check"] == picked)
+
+    st.caption(f"**Instead:** {row['instead']}")
     for name, info in row["options"].items():
-        bits.append(f"{name} {info['value']}")
-    counts = _list_counts(repo_root, row, full)
-    if counts:
-        bits.append(f"{sum(counts.values())} words")
-    return " · ".join(bits)
-
-
-def _check_detail(repo_root, full, row, ruleset_id):
-    live = row["ruleset"] == ruleset_id
-    st.markdown(f"### `{row['check']}` · {row['ruleset']}")
-    st.markdown(f"**Catches:** {row['catches']}  \n**Instead:** {row['instead']}")
-    if not live:
-        st.caption(f"Runs on files routed to {row['ruleset']}, not on this path.")
-
-    key = f"chk::{row['ruleset']}::{row['check']}"
-    st.toggle("Enabled", value=row["enabled"], key=key, on_change=_check_toggled,
-               args=(repo_root, row["module"], row["check"], key))
-    if row["blocks_alone_at"]:
-        n = row["blocks_alone_at"]
-        times = "once" if n == 1 else f"{n} times"
-        st.warning(f"This check denies a write on its own after it fires "
-                   f"{times}, whatever the total flag count. Turning it "
-                   f"off changes what blocks.")
-    for name, info in row["options"].items():
-        _option_control(repo_root, row, name, info)
+        if "choices" in info:
+            _option_control(repo_root, row, name, info)
     for list_id in row["lists"]:
         _term_list_block(repo_root, row, list_id, full)
 

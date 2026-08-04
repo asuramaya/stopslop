@@ -119,9 +119,10 @@ class DashboardStructureTests(unittest.TestCase):
 # Widgets whose value is only ever READ during a render -- a search box, a
 # filter, the path being inspected, the pending entry in an add form. These
 # never write to the config file, so a stale session value is harmless.
-READ_ONLY_WIDGET_KEYS = ("rules_q", "rules_rs", "aw_q", "aw_list",
+READ_ONLY_WIDGET_KEYS = ("rules_q", "aw_q", "aw_list",
                           "aw_src", "add_", "note_", "attach_", "override_reason",
-                          "watch_filter", "rules_mode", "packlist::", "routing_focus")
+                          "watch_filter", "rules_mode", "packlist::", "routing_focus",
+                          "check_contents::")
 
 MUTATING_WIDGETS = ("selectbox", "toggle", "number_input", "checkbox", "radio",
                      "segmented_control", "multiselect")
@@ -238,6 +239,52 @@ class UndoBarOrderingTests(unittest.TestCase):
             "_undo_bar must run before _routing_section in configure_page, "
             "or a widget mirroring config state (see _rule_packs_editor) "
             "draws stale on the very rerun that was supposed to fix it")
+
+
+class UndoClearsEveryConfigMirroringWidgetTests(unittest.TestCase):
+    """_undo_bar drops the session state of every widget that mirrors the
+    config file, by key prefix. A widget added later whose prefix is not
+    in that tuple survives an Undo showing the value that was just undone
+    -- and the next interaction writes THAT back, which is the silent
+    re-corruption the whole apply-on-change design exists to prevent.
+
+    The checks table is the live case: it is an st.data_editor holding
+    every check's on/off state and numbers, so an Undo that restored the
+    file while it kept its pre-undo cells would offer to re-apply them."""
+
+    def _cleared_prefixes(self):
+        path = os.path.join(SRC_DIR, "configure.py")
+        with open(path) as f:
+            tree = ast.parse(f.read())
+        func = next(n for n in ast.walk(tree)
+                    if isinstance(n, ast.FunctionDef) and n.name == "_undo_bar")
+        for node in ast.walk(func):
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "startswith"):
+                arg = node.args[0]
+                if isinstance(arg, ast.Tuple):
+                    return {e.value for e in arg.elts if isinstance(e, ast.Constant)}
+        return set()
+
+    def test_undo_clears_the_checks_editor(self):
+        self.assertIn(
+            "checks_editor::", self._cleared_prefixes(),
+            "_undo_bar does not clear the checks table's session state, so "
+            "clicking Undo reverts the config file while the table keeps "
+            "showing the on/off states and numbers that were just undone")
+
+    def test_every_cleared_prefix_is_still_used(self):
+        """The inverse: a prefix left behind after its widget was deleted
+        reads as coverage that no longer exists. `chk::` outlived the
+        per-check Enabled toggle by exactly one refactor."""
+        path = os.path.join(SRC_DIR, "configure.py")
+        with open(path) as f:
+            source = f.read()
+        for prefix in self._cleared_prefixes():
+            with self.subTest(prefix=prefix):
+                self.assertGreater(
+                    source.count(prefix), 1,
+                    f"_undo_bar clears {prefix!r} but no widget uses it")
 
 
 class DenyPolicyRendersItsOwnOptionsTests(unittest.TestCase):
