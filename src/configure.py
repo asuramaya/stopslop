@@ -203,11 +203,9 @@ def _routing_section(repo_root):
         full = os.path.join(repo_root, probe)
 
         if ruleset_id:
-            st.markdown(f"`{glob}` → **{ruleset_id}** · "
-                        f"{_pack_count(rule)} pack binding(s)")
             _rule_packs_editor(repo_root, rule)
         else:
-            st.caption(f"`{glob}` is out of scope — nothing is checked here.")
+            st.caption("Out of scope — nothing is checked here.")
 
         _routing_table(repo_root)
     return probe, full, rule
@@ -325,9 +323,7 @@ def _option_changed(repo_root, module, name, key):
 
 
 def _routing_table(repo_root):
-    st.caption(f"`{os.path.basename(core_config.config_path(repo_root))}` — "
-               "rules are tried top to bottom and the first match wins, so "
-               "ORDER matters. Changes reach the next gate call with no restart.")
+    st.caption("First match wins — order matters.")
     stored = core_config.rule_packs(repo_root)
     edited = st.data_editor(
         [{"glob": g, "ruleset": r or "", "packs": _pack_count({"packs": p})}
@@ -467,8 +463,7 @@ def _by_check(repo_root, probe, full, ruleset_id):
     here = [r for r in rows if r["ruleset"] == ruleset_id]
     off = sum(1 for r in rows if not r["enabled"])
     st.caption(f"{len(rows)} checks across every ruleset, {off} off. "
-               f"**{len(here)}** run on `{probe}` and sort first. "
-               f"Select a row for its notes and its words.")
+               f"**{len(here)}** run on `{probe}`.")
 
     cols = st.columns([3, 2])
     needle = cols[0].text_input("Search", key="rules_q").strip().lower()
