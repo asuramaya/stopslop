@@ -420,7 +420,7 @@ def explain(file_path: str) -> dict:
 
     disabled = set(core_config.disabled_checks_for_path(
         REPO_ROOT, module.RULESET_ID, full))
-    always = set(policy.get("always_blocking", ()))
+    blocks_alone_at = policy.get("blocks_alone_at", {})
     checks = {}
     if "checks" in module.CAPABILITIES:
         for check_id, meta in sorted(module.list_checks().items()):
@@ -428,7 +428,7 @@ def explain(file_path: str) -> dict:
                 continue
             checks[check_id] = {"catches": meta["catches"],
                                  "instead": meta["instead"],
-                                 "denies_alone": check_id in always,
+                                 "denies_alone": check_id in blocks_alone_at,
                                  "remedies": core_flags.remedies_for(module, check_id)}
     return {
         "ok": True, "status": "gated", "file": file_path,

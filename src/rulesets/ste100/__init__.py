@@ -98,7 +98,11 @@ DENY_POLICY = {
             "of: {excluded_vocab_types}. Those are reported and let "
             "through, because the dictionary cannot know a project's own "
             "domain words.",
-    "always_blocking": (),
+    # Empty by design: ste100 blocks by default and names exceptions,
+    # the opposite shape from slopwatch/codewatch's shared-pool-plus-
+    # per-check-count. Declared anyway so every ruleset carries the same
+    # key -- see rulesets/slopwatch/__init__.py's DENY_POLICY.
+    "blocks_alone_at": {},
 }
 
 def lint_and_gate(text, *, context=None, file_path=None):

@@ -684,14 +684,25 @@ def lint_and_gate(text, context=None, file_path=None):
     }
 
 
+# Checks that deny on their own once THEIR OWN flags in this call reach a
+# declared count, bypassing the shared pool below -- a general per-check
+# mechanism, not a name check against one hardcoded id. See
+# rulesets/slopwatch/__init__.py's DENY_POLICY["blocks_alone_at"], the same
+# fact restated for the UI; DenyPolicyMatchesBehaviourTests in
+# test_check_text.py holds the two in step.
+BLOCKS_ALONE_AT = {"em_dash_cluster": 1}
+
+
 def blocking_semantic_flags(semantic_flags):
     """A different POLICY from ste100's exclusion-list approach -- see the
-    module docstring. Individual flags never block alone; a write is
-    denied only when the text reads as densely formulaic: an em-dash
-    cluster fires on its own, or the configured flag-count threshold is
-    reached (4 by default, see DEFAULT_OPTIONS)."""
-    if any(f["kind"] == "em_dash_cluster" for f in semantic_flags):
-        return semantic_flags
+    module docstring. Individual flags never block alone (except a check
+    named in BLOCKS_ALONE_AT, once its own count is reached); a write is
+    otherwise denied only when the text reads as densely formulaic: the
+    configured flag-count threshold is reached (4 by default, see
+    DEFAULT_OPTIONS)."""
+    for check_id, threshold in BLOCKS_ALONE_AT.items():
+        if sum(1 for f in semantic_flags if f["kind"] == check_id) >= threshold:
+            return semantic_flags
     if len(semantic_flags) >= _options()["block_flag_count_threshold"]:
         return semantic_flags
     return []

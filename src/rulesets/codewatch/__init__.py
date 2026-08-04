@@ -56,7 +56,7 @@ CHECKS = {
 DENY_POLICY = {
     "text": "A write is denied when semantic flags reach "
             "{block_flag_count_threshold}.",
-    "always_blocking": ("swallowed_exception",),
+    "blocks_alone_at": {"swallowed_exception": 1},
 }
 
 def lint_and_gate(text, *, context=None, file_path=None):

@@ -75,12 +75,15 @@ Add these names only for a ruleset that needs them:
 - `CHECKS = {"kind": (catches, instead), ...}` -- two facts per check: what
   it catches, and what to do instead. A `kind` with no entry still shows up
   everywhere, with generic text.
-- `DENY_POLICY = {"text": ..., "always_blocking": (...)}` -- what actually
+- `DENY_POLICY = {"text": ..., "blocks_alone_at": {...}}` -- what actually
   denies a write, in your own words.
 
   The `text` is format()ed with your live option values. A placeholder
-  prints the number in force. The `always_blocking` tuple names the checks
-  that deny ON THEIR OWN, whatever the count.
+  prints the number in force. `blocks_alone_at` maps a check id to how
+  many of ITS OWN flags deny a write on their own, bypassing any shared
+  pool -- `{"em_dash_cluster": 1}` denies the instant that check fires
+  once; a check absent from the dict relies on the pool alone. Declare
+  the dict on every ruleset, even if it is empty.
 
   Tests hold both to what `blocking_semantic_flags` does. A policy sentence
   that nothing verifies still carries the authority of one that does. That

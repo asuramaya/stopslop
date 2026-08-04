@@ -163,7 +163,7 @@ class CheckToConfigLinksTests(unittest.TestCase):
                 self.assertIsNotNone(policy, "no DENY_POLICY: the page cannot "
                                               "state what blocks a write")
                 checks = set(module.list_checks()) if "checks" in module.CAPABILITIES else set()
-                for check_id in policy["always_blocking"]:
+                for check_id in policy["blocks_alone_at"]:
                     self.assertIn(check_id, checks)
                 # The text is format()ed with live option values, so a
                 # placeholder with no option behind it renders as a stray
@@ -211,7 +211,7 @@ class DenyPolicyMatchesBehaviourTests(unittest.TestCase):
                 continue
             threshold = module.list_options()["block_flag_count_threshold"]["value"]
             neutral = next((c for c in module.list_checks()
-                            if c not in policy["always_blocking"]), None)
+                            if c not in policy["blocks_alone_at"]), None)
             self.assertIsNotNone(neutral)
             with self.subTest(ruleset=module.RULESET_ID):
                 below = module.blocking_semantic_flags(
@@ -224,21 +224,33 @@ class DenyPolicyMatchesBehaviourTests(unittest.TestCase):
                                  f"policy says it denies at {threshold}, but "
                                  f"{threshold} flags did not block")
 
-    def test_every_always_blocking_check_really_blocks_alone(self):
+    def test_every_blocks_alone_check_denies_at_its_declared_count(self):
+        """Not just "one flag blocks" -- the count itself is the contract
+        now, so this proves both ends: AT the declared count it blocks,
+        one BELOW it it does not (still relying on the shared pool, which
+        stays out of reach at these small counts)."""
         for module in rulesets.list_rulesets():
-            for check_id in module.DENY_POLICY["always_blocking"]:
+            for check_id, threshold in module.DENY_POLICY["blocks_alone_at"].items():
                 with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
+                    at = module.blocking_semantic_flags(self._flags(threshold, check_id))
                     self.assertTrue(
-                        module.blocking_semantic_flags(self._flags(1, check_id)),
-                        f"{check_id} is declared always-blocking and the page "
-                        f"warns a user about it, but one of them did not block")
+                        at, f"{check_id} is declared blocks_alone_at={threshold} "
+                            f"and the page warns a user about it, but "
+                            f"{threshold} of them did not block")
+                    if threshold > 1:
+                        below = module.blocking_semantic_flags(
+                            self._flags(threshold - 1, check_id))
+                        self.assertEqual(
+                            below, [],
+                            f"{check_id} is declared blocks_alone_at={threshold}, "
+                            f"but {threshold - 1} already blocked")
 
     def test_no_undeclared_check_blocks_alone(self):
         """The inverse, and the one that catches drift in the direction
         nobody looks: a check that gained always-block behaviour in code
         without being declared would show on the page as an ordinary row."""
         for module in rulesets.list_rulesets():
-            declared = set(module.DENY_POLICY["always_blocking"])
+            declared = set(module.DENY_POLICY["blocks_alone_at"])
             threshold_based = "{block_flag_count_threshold}" in module.DENY_POLICY["text"]
             if not threshold_based:
                 continue          # ste100 blocks on any non-excluded flag by design
@@ -249,7 +261,7 @@ class DenyPolicyMatchesBehaviourTests(unittest.TestCase):
                     self.assertEqual(
                         module.blocking_semantic_flags(self._flags(1, check_id)), [],
                         f"{check_id} blocks on its own but is not in "
-                        f"DENY_POLICY['always_blocking'], so the page shows it "
+                        f"DENY_POLICY['blocks_alone_at'], so the page shows it "
                         f"as an ordinary row and the warning never appears")
 
 

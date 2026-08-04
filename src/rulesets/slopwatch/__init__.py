@@ -102,9 +102,12 @@ CHECKS = {
 
 
 # See rulesets/ste100/__init__.py's DENY_POLICY for why this lives on the
-# ruleset. `always_blocking` names checks that deny ON THEIR OWN, ignoring
-# the count -- a fact the checks table cannot show without being told, since
-# such a row is otherwise identical to the other nineteen.
+# ruleset. `blocks_alone_at` maps a check id to how many of ITS OWN flags
+# deny a write on their own, ignoring the shared count -- a fact the checks
+# table cannot show without being told, since such a row is otherwise
+# identical to the other nineteen. A general per-check mechanism, not a
+# name check against one hardcoded id: any check could carry a count here,
+# it happens that only one currently does.
 # Which tunable option belongs to which check. Declared, never inferred: an
 # option name that happens to share a prefix with a check id is a
 # coincidence, and a UI that pairs them by prefix will eventually pair the
@@ -122,7 +125,7 @@ DENY_POLICY = {
     # and stops there.
     "text": "No single flag denies on its own. A write is denied when "
             "semantic flags reach {block_flag_count_threshold}.",
-    "always_blocking": ("em_dash_cluster",),
+    "blocks_alone_at": {"em_dash_cluster": 1},
 }
 
 def lint_and_gate(text, *, context=None, file_path=None):

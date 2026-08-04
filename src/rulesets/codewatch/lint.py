@@ -436,15 +436,22 @@ def lint_and_gate(text, context=None, file_path=None):
     }
 
 
+# See rulesets/slopwatch/lint.py's BLOCKS_ALONE_AT for the general shape.
+# swallowed_exception denies on its own because it is a real correctness
+# risk, not a style preference; everything else blocks only past the
+# configured density threshold.
+BLOCKS_ALONE_AT = {"swallowed_exception": 1}
+
+
 def blocking_semantic_flags(semantic_flags):
     """A third distinct policy, alongside ste100's exclusion list and
-    slopwatch's pure count threshold: swallowed_exception always blocks
-    (a real correctness risk, not a style preference); everything else
+    slopwatch's pure count threshold: a check named in BLOCKS_ALONE_AT
+    denies once its own flags reach the declared count; everything else
     blocks only past the configured density threshold (4 by default, see
     DEFAULT_OPTIONS)."""
-    always_blocking = [f for f in semantic_flags if f["kind"] == "swallowed_exception"]
-    if always_blocking:
-        return semantic_flags
+    for check_id, threshold in BLOCKS_ALONE_AT.items():
+        if sum(1 for f in semantic_flags if f["kind"] == check_id) >= threshold:
+            return semantic_flags
     if len(semantic_flags) >= _options()["block_flag_count_threshold"]:
         return semantic_flags
     return []

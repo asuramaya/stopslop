@@ -417,14 +417,15 @@ def _check_rows(ruleset_id):
             continue
         options = ({n: i for n, i in module.list_options().items()}
                    if "options" in module.CAPABILITIES else {})
-        always = set(getattr(module, "DENY_POLICY", {}).get("always_blocking", ()))
+        blocks_alone_at = getattr(module, "DENY_POLICY", {}).get("blocks_alone_at", {})
         owned = getattr(module, "CHECK_OPTIONS", {})
         lists = getattr(module, "TERM_LISTS", {})
         for check_id, meta in sorted(module.list_checks().items()):
             rows.append({
                 "module": module, "check": check_id, "ruleset": module.RULESET_ID,
                 "catches": meta["catches"], "instead": meta["instead"],
-                "enabled": meta["enabled"], "blocks_alone": check_id in always,
+                "enabled": meta["enabled"],
+                "blocks_alone_at": blocks_alone_at.get(check_id),
                 # A check's own parameter, from the ruleset's own
                 # declaration -- the link the separate Thresholds table
                 # never drew. Never inferred from the names: see
@@ -519,8 +520,9 @@ def _notes_summary(repo_root, row, full):
     way to change what it does, unlike a number that can be raised or
     lowered. Reading it as just another value in the list undersold it."""
     bits = []
-    if row["blocks_alone"]:
-        bits.append("⚠️ denies alone")
+    n = row["blocks_alone_at"]
+    if n:
+        bits.append("⚠️ denies alone" if n == 1 else f"⚠️ denies alone at {n}")
     for name, info in row["options"].items():
         bits.append(f"{name} {info['value']}")
     counts = _list_counts(repo_root, row, full)
@@ -539,9 +541,12 @@ def _check_detail(repo_root, full, row, ruleset_id):
     key = f"chk::{row['ruleset']}::{row['check']}"
     st.toggle("Enabled", value=row["enabled"], key=key, on_change=_check_toggled,
                args=(repo_root, row["module"], row["check"], key))
-    if row["blocks_alone"]:
-        st.warning("This check denies a write on its own, whatever the flag "
-                   "count. Turning it off changes what blocks.")
+    if row["blocks_alone_at"]:
+        n = row["blocks_alone_at"]
+        times = "once" if n == 1 else f"{n} times"
+        st.warning(f"This check denies a write on its own after it fires "
+                   f"{times}, whatever the total flag count. Turning it "
+                   f"off changes what blocks.")
     for name, info in row["options"].items():
         _option_control(repo_root, row, name, info)
     for list_id in row["lists"]:
