@@ -127,8 +127,15 @@ def _status_footer():
     config_text = "config: custom" if report["config_file_present"] else "config: default"
     hook_text = "hook: 🟢" if report["hook_configured"] else "hook: 🔴"
     integrity_text = "integrity: 🟢" if report["integrity_baseline_recorded"] else "integrity: ⚪"
-    st.caption(f"v{report['version']}  ·  {report['gate_event_count']} events  ·  "
-               f"{config_text}  ·  {hook_text}  ·  {integrity_text}")
+    st.caption(
+        f"v{report['version']}  ·  {report['gate_event_count']} events  ·  "
+        f"{config_text}  ·  {hook_text}  ·  {integrity_text}",
+        help="config: whether stopslop.config.json overrides the built-in "
+             "defaults, or none exists. hook: is the gate wired into Claude "
+             "Code (🔴 = run `stopslop.py init`). integrity: whether a "
+             "baseline snapshot of the shipped rule files has ever been "
+             "recorded (⚪ = not yet) -- this checks that a snapshot exists, "
+             "not that it currently matches.")
 
 
 # --- Watch --------------------------------------------------------------

@@ -174,7 +174,7 @@ def _routing_section(repo_root):
     SECOND table just to make a row clickable: st.dataframe selects but
     can't edit, st.data_editor edits but can't select, so "pick a rule"
     and "edit a rule" got two separate grids, the same three columns
-    rendered twice, one of them inert. A "Focus" selectbox does the
+    rendered twice, one of them inert. A "Path" selectbox does the
     picking instead -- one line, not a second copy of the table -- and
     the real, editable table stays the only table, always visible (rule
     ORDER is load-bearing for first-match-wins, so it's not behind a
@@ -195,7 +195,7 @@ def _routing_section(repo_root):
                              if default_rule and g == default_rule["glob"]), 0)
 
         labels = [f"{g} → {r or 'out of scope'}" for g, r, _p in stored]
-        idx = st.selectbox("Focus", range(len(stored)), index=default_idx,
+        idx = st.selectbox("Path", range(len(stored)), index=default_idx,
                             format_func=lambda i: labels[i], key="routing_focus")
         glob, ruleset_id, packs = stored[idx]
         rule = {"glob": glob, "ruleset": ruleset_id, "packs": packs}
@@ -240,12 +240,21 @@ def _rule_packs_editor(repo_root, rule):
         if core_terms.pack_kind_admissible(spec, glossary_packs.AVAILABLE_PACKS[p])[0])
     current = list((rule.get("packs") or {}).get(list_id, []))
     key = f"pack::{rule['glob']}::{list_id}"
+    # Name the check this list feeds too, when it differs from the list's
+    # own id (ste100's project_terms feeds `vocabulary`, three lists to one
+    # check) -- the checks grid below is searchable by check id, not list
+    # id, and the two only happen to match for rulesets with 1:1 lists.
+    feeds = spec.get("feeds")
+    label = f"Packs feeding `{list_id}`"
+    if feeds and feeds != list_id:
+        label += f", the `{feeds}` check"
     st.multiselect(
-        f"Packs feeding `{list_id}`", attachable, default=current, key=key,
+        label, attachable, default=current, key=key,
+        placeholder="No packs attached",
         on_change=_rule_packs_changed,
         args=(repo_root, rule["glob"], rule["ruleset"], list_id, key),
         help="Bulk, license-checked vocabulary from a real outside source "
-             "-- see NOTICE for each pack's source and license.")
+             "-- see NOTICE at the repo root for each pack's source and license.")
 
 
 def _rule_packs_changed(repo_root, glob, ruleset_id, list_id, key):
@@ -469,7 +478,7 @@ def _by_check(repo_root, probe, full, ruleset_id):
     cols = st.columns([3, 2])
     needle = cols[0].text_input("Search", key="rules_q").strip().lower()
     picked = cols[1].multiselect("Ruleset", sorted({r["ruleset"] for r in rows}),
-                                  key="rules_rs")
+                                  key="rules_rs", placeholder="All rulesets")
     shown = [r for r in rows
              if (not needle or needle in r["check"].lower()
                  or needle in r["catches"].lower() or needle in r["instead"].lower())
@@ -796,9 +805,10 @@ def _all_words(repo_root, probe, full, ruleset_id):
 
     cols = st.columns([3, 2, 2])
     needle = cols[0].text_input("Search", key="aw_q").strip().lower()
-    lists = cols[1].multiselect("List", sorted({r["list"] for r in rows}), key="aw_list")
+    lists = cols[1].multiselect("List", sorted({r["list"] for r in rows}),
+                                 key="aw_list", placeholder="All lists")
     sources = cols[2].multiselect("Source", sorted({r["source"] for r in rows}),
-                                   key="aw_src")
+                                   key="aw_src", placeholder="All sources")
     shown = [r for r in rows
              if (not needle or needle in r["term"].lower() or needle in r["note"].lower())
              and (not lists or r["list"] in lists)

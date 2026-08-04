@@ -428,7 +428,12 @@ def explain(file_path: str) -> dict:
                 continue
             checks[check_id] = {"catches": meta["catches"],
                                  "instead": meta["instead"],
-                                 "denies_alone": check_id in blocks_alone_at,
+                                 # Occurrences of THIS check alone that deny a
+                                 # write, or null if it only ever contributes
+                                 # to the ruleset's shared flag-count pool.
+                                 # A bare "denies_alone: true/false" would lie
+                                 # for any check declared at N > 1.
+                                 "denies_alone_at": blocks_alone_at.get(check_id),
                                  "remedies": core_flags.remedies_for(module, check_id)}
     return {
         "ok": True, "status": "gated", "file": file_path,
