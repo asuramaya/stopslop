@@ -392,17 +392,33 @@ def _rules_section(repo_root, probe, full, ruleset_id):
     mode = st.segmented_control(
         "View", ["by check", "all words"], default="by check",
         key="rules_mode", label_visibility="collapsed")
-    _deny_policy(ruleset_id)
+    _deny_policy(repo_root, ruleset_id)
     if mode == "all words":
         _all_words(repo_root, probe, full, ruleset_id)
     else:
         _by_check(repo_root, probe, full, ruleset_id)
 
 
-def _deny_policy(ruleset_id):
-    """What actually blocks a write. Text comes from the ruleset, formatted
-    with its live option values, so the number in the sentence is the
-    number in force."""
+def _deny_policy(repo_root, ruleset_id):
+    """What actually blocks a write, and the controls for the numbers in
+    that sentence.
+
+    A ruleset's options split in two by WHO owns them. A check's own
+    parameter (ste100's procedure_word_limit, slopwatch's
+    em_dash_threshold) is declared in CHECK_OPTIONS and edited inside that
+    check's row. What was left over -- block_flag_count_threshold, the
+    count at which a write is denied -- belongs to no check, so it was
+    rendered only as a NUMBER INSIDE THIS SENTENCE and had no control
+    anywhere on the page. The single most consequential setting in the
+    product was the one thing here nobody could change without hand-editing
+    stopslop.config.json. codewatch made it obvious: its checks table shows
+    an empty options column for all ten rows, because its only option is
+    this one.
+
+    So a policy-level option gets its control here, beside the sentence it
+    appears in. Which options those are is derived -- every option this
+    ruleset declares that no check claims -- not a hardcoded name, so a
+    ruleset adding a second policy-level number is covered on arrival."""
     if not ruleset_id:
         st.info("This path is out of scope, so nothing below runs on it.")
         return
@@ -417,6 +433,15 @@ def _deny_policy(ruleset_id):
         text = policy["text"]        # a placeholder with no option behind it
         st.caption(f"(policy text names an unknown option {missing})")
     st.markdown(f"🚫 **{ruleset_id} denies a write:** {text}")
+
+    if "options" not in module.CAPABILITIES:
+        return
+    owned = {n for names in getattr(module, "CHECK_OPTIONS", {}).values()
+             for n in names}
+    row = {"ruleset": ruleset_id, "module": module}
+    for name, info in module.list_options().items():
+        if name not in owned:
+            _option_control(repo_root, row, name, info)
 
 
 def _check_rows(ruleset_id):

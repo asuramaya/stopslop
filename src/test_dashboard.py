@@ -240,5 +240,53 @@ class UndoBarOrderingTests(unittest.TestCase):
             "draws stale on the very rerun that was supposed to fix it")
 
 
+class DenyPolicyRendersItsOwnOptionsTests(unittest.TestCase):
+    """A ruleset option belongs to a check (CHECK_OPTIONS, edited in that
+    check's row) or to the deny policy itself. The policy-level ones had
+    NO control anywhere: block_flag_count_threshold -- the count at which
+    a write is denied, the single most consequential number in the
+    product -- was rendered only as a formatted number inside the policy
+    sentence, as read-only markdown.
+
+    test_check_text.py's own option-coverage test accepted that sentence
+    as proof the option was reachable, which is why nothing caught it:
+    the option WAS shown, it just could not be changed. codewatch made it
+    visible from the outside -- ten checks, an empty options column on
+    every row, because its only option is this one.
+
+    So _deny_policy must render a control, not only prose."""
+
+    def test_deny_policy_renders_a_control_for_policy_level_options(self):
+        path = os.path.join(SRC_DIR, "configure.py")
+        with open(path) as f:
+            tree = ast.parse(f.read())
+        func = next(n for n in ast.walk(tree)
+                    if isinstance(n, ast.FunctionDef) and n.name == "_deny_policy")
+        called = {node.func.id for node in ast.walk(func)
+                  if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)}
+        self.assertIn(
+            "_option_control", called,
+            "_deny_policy renders the deny-policy sentence but no control "
+            "for the options named in it, so a policy-level option like "
+            "block_flag_count_threshold is visible and uneditable -- the "
+            "exact state this test exists to prevent returning to")
+
+    def test_deny_policy_does_not_hardcode_an_option_name(self):
+        """Derived from CHECK_OPTIONS, not a name check. A ruleset adding
+        a second policy-level number must be covered on arrival, the same
+        way blocks_alone_at generalized off two hardcoded check ids."""
+        path = os.path.join(SRC_DIR, "configure.py")
+        with open(path) as f:
+            tree = ast.parse(f.read())
+        func = next(n for n in ast.walk(tree)
+                    if isinstance(n, ast.FunctionDef) and n.name == "_deny_policy")
+        literals = {node.value for node in ast.walk(func)
+                    if isinstance(node, ast.Constant) and isinstance(node.value, str)}
+        self.assertNotIn(
+            "block_flag_count_threshold", literals,
+            "_deny_policy names a specific option, so a ruleset declaring "
+            "a different policy-level option would silently get no control")
+
+
 if __name__ == "__main__":
     unittest.main()

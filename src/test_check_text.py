@@ -171,9 +171,17 @@ class CheckToConfigLinksTests(unittest.TestCase):
                 policy["text"].format(**core_flags.display_options(module))
 
     def test_every_option_is_owned_by_a_check_or_is_the_deny_threshold(self):
-        """No option may be orphaned. Configure shows an option either
-        inside its check's row or in the deny-policy sentence; one that is
-        neither would be invisible and therefore uneditable."""
+        """No option may be orphaned. Configure EDITS an option either
+        inside its check's row (CHECK_OPTIONS) or beside the deny-policy
+        sentence (_deny_policy renders a control for every option no check
+        claims), so an option in neither place would be unreachable.
+
+        This once asserted only that an option was SHOWN somewhere, and
+        the deny-policy sentence counted -- which let
+        block_flag_count_threshold pass while being rendered as read-only
+        markdown, uneditable on the whole page. Visible is not editable.
+        See ConfigureRendersEveryOptionTests, which holds the rendering
+        side of this."""
         for module in rulesets.list_rulesets():
             if "options" not in module.CAPABILITIES:
                 continue
