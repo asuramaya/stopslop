@@ -75,13 +75,20 @@ extra key a stored rule carries (packs had this as a carve-out;
 `disable` was already exposed to the same clobber, and `embedded_prose`
 would have been next).
 
-**Where it runs.** The live hook (`pretool_hook.py`) and `stopslop.py
-lint` (skipped under `--ruleset`, which means "exactly this ruleset and
-nothing else"). Known simplifications, on purpose: `scan` and the MCP
-`lint_text` tool do not run the embedded pass yet, and a deny composed
-of both host and embedded flags logs as ONE history event under the host
-ruleset's id -- two events would be collapsed by the double-fire dedup,
-and a new action type is not worth the surface today.
+**Where it runs.** Three places: the live hook (`pretool_hook.py`),
+`stopslop.py lint`, and the git pre-commit gate (`stopslop.py
+precommit`). The lint command skips the pass under `--ruleset`; that
+flag means "exactly this ruleset and nothing else". The hook and the
+pre-commit gate judge the RESULTING file, with a ratchet: deny only
+what is deniable AND worse than before. That rule closed two live
+cheats. A delta-linted file could accrete slop under the bar, one Edit
+at a time. And an Edit fragment never parses as Python, so this pass
+skipped every Edit at first. Segments lint joined as one document, so
+a document-level check (an em-dash cluster) sees a file's whole
+embedded prose. Two simplifications are deliberate. `scan` and the MCP
+`lint_text` tool do not run the pass yet. A deny with host and
+embedded flags both logs as ONE history event, under the host
+ruleset's id; the double-fire dedup would collapse two events.
 
 ## Adding a language
 

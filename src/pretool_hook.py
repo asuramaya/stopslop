@@ -251,15 +251,23 @@ def main():
 
     before_weight = after_weight = None
     if flags and after_text is not None and before_text.strip():
+        # Weigh what the POLICY would deny, not every flag raised: ste100
+        # reports excluded-vocabulary words without ever blocking on
+        # them, and counting those punished an edit for prose the policy
+        # itself waves through. For a density ruleset the blocking output
+        # is all-or-nothing, which is also right -- an under-threshold
+        # document weighs 0 because it IS compliant.
         before_semantic = ruleset.lint_and_gate(
             before_text, file_path=file_path)["semantic_flags"]
         before_pool = (core_extract.embedded_prose_pool(
                            before_text, extension, embedded, file_path=file_path)
                        if embedded is not None else [])
-        before_weight = (flags_mod.flag_weight(before_semantic)
-                         + flags_mod.flag_weight(before_pool))
-        after_weight = (flags_mod.flag_weight(semantic)
-                        + flags_mod.flag_weight(embedded_pool))
+        before_weight = flags_mod.flag_weight(
+            ruleset.blocking_semantic_flags(before_semantic))
+        if embedded is not None:
+            before_weight += flags_mod.flag_weight(
+                embedded.blocking_semantic_flags(before_pool))
+        after_weight = flags_mod.flag_weight(flags)
         if after_weight <= before_weight:
             flags = []      # deniable, but no worse than it already was
 
@@ -284,8 +292,9 @@ def main():
         if before_weight is not None:
             reason += (
                 f"\n\nRatchet: the file carries {before_weight} "
-                f"flag-occurrence(s) before this write and {after_weight} "
-                f"after it. A write that does not add flags passes."
+                f"blocking flag-occurrence(s) before this write and "
+                f"{after_weight} after it. A write that does not add "
+                f"blocking flags passes."
             )
         # Say what can be DONE, not only what is wrong. A deny used to list
         # its flags and stop there, so an agent blocked on a legitimate

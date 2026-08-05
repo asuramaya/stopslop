@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """stopslop: one entry point for everything a person actually does with
-this tool by hand. The gate itself (src/pretool_hook.py,
-sessionstart_hook.py) runs automatically once wired up via Claude Code
+this tool by hand. The gate itself (`src/pretool_hook.py`,
+`sessionstart_hook.py`) runs automatically once wired up via Claude Code
 hooks and never needs a person to invoke it directly -- this script is for
 the parts that do: first-time setup, an ad-hoc compliance check outside a
 live write, registering project vocabulary, and checking the tool's own
@@ -17,9 +17,9 @@ state.
 
 Every command that checks or registers text against a ruleset takes an
 optional --ruleset ID. Omit it and the target resolves through the same
-config-driven path resolution the live gate uses (core.config.resolve_ruleset):
+config-driven path resolution the live gate uses (`core.config.resolve_ruleset`):
 --file PATH resolves against PATH directly; free text/stdin resolves as if
-it were being written to a synthetic <repo_root>/__stdin__.md, so there's
+it were being written to a synthetic `<repo_root>/__stdin__.md`, so there's
 exactly one resolution mechanism shared by every entry point rather than a
 second, separately-maintained default that could quietly drift from it.
 """
@@ -35,6 +35,7 @@ sys.path.insert(0, SRC_DIR)
 import rulesets
 from core import config as core_config
 from core import extract as core_extract
+from core import flags as core_flags
 from core.version import VERSION
 
 SETTINGS_EXAMPLE = os.path.join(REPO_ROOT, ".claude", "settings.local.json.example")
@@ -49,8 +50,8 @@ _SYNTHETIC_STDIN_PATH = os.path.join(REPO_ROOT, core_config.SYNTHETIC_TEXT_NAME)
 
 def _resolve(ruleset_id, target_path):
     """The one resolution mechanism every command below uses: an explicit
-    --ruleset always wins; otherwise resolve target_path through the same
-    config-driven path core.config.resolve_ruleset uses for a live write.
+    --ruleset always wins; otherwise resolve `target_path` through the same
+    config-driven path `core.config.resolve_ruleset` uses for a live write.
     Exits with a clear message (not a traceback) if resolution fails --
     both an unknown --ruleset id and a stopslop.config.json rule naming an
     unregistered id raise loudly by design (see core/config.py)."""
@@ -65,7 +66,122 @@ def _resolve(ruleset_id, target_path):
     return resolved
 
 
+def _install_git_precommit():
+    """Wire `stopslop.py precommit` as the repo's git pre-commit hook.
+
+    The PreToolUse hook guards one harness's tool loop, and only for
+    sessions started in this directory. A session working from elsewhere
+    by absolute path, a human in an editor, and every clever Bash write
+    all reach the repo through ONE shared path: git. Never clobbers a
+    pre-commit that is not stopslop's own."""
+    hooks_dir = os.path.join(REPO_ROOT, ".git", "hooks")
+    if not os.path.isdir(hooks_dir):
+        return
+    hook_path = os.path.join(hooks_dir, "pre-commit")
+    script = ("#!/bin/sh\n# installed by stopslop.py init\n"
+              f'exec python3 "{os.path.join(REPO_ROOT, "stopslop.py")}" precommit\n')
+    if os.path.exists(hook_path):
+        with open(hook_path) as f:
+            existing = f.read()
+        if "stopslop" not in existing:
+            print(f"{hook_path} exists and is not stopslop's; left alone. "
+                  f"Add `stopslop.py precommit` to it by hand for the commit gate.")
+            return
+        if existing == script:
+            return
+    with open(hook_path, "w") as f:
+        f.write(script)
+    os.chmod(hook_path, 0o755)
+    print(f"Wrote {hook_path} (the commit-time gate; bypass once with --no-verify)")
+
+
+def _git_show(ref):
+    """One git object's text, or None for binary/missing -- either way,
+    nothing the gate can judge."""
+    import subprocess
+    try:
+        return subprocess.run(["git", "show", ref], capture_output=True,
+                                text=True, check=True, cwd=REPO_ROOT).stdout
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError):
+        return None
+
+
+def _gate_state(rel, content, full):
+    """(blocking, weight) for one file state under its routing, host and
+    embedded passes both -- or None when nothing gates it."""
+    ruleset = core_config.resolve_ruleset(full, REPO_ROOT, rulesets)
+    rule = core_config.matching_rule(full, REPO_ROOT)
+    embedded = core_extract.rule_embedded_ruleset(rule, rulesets)
+    if ruleset is None and embedded is None:
+        return None
+    blocking = []
+    extension = os.path.splitext(rel)[1]
+    if ruleset is not None:
+        semantic = ruleset.lint_and_gate(content, file_path=full)["semantic_flags"]
+        blocking += ruleset.blocking_semantic_flags(semantic)
+    if embedded is not None:
+        pool = core_extract.embedded_prose_pool(content, extension, embedded,
+                                                  file_path=full)
+        blocking += embedded.blocking_semantic_flags(pool)
+    # Weight of the POLICY's own output, not of every flag raised -- see
+    # the same note in pretool_hook.py's ratchet.
+    return blocking, core_flags.flag_weight(blocking)
+
+
+def cmd_precommit(args):
+    """Gate the STAGED tree the way the live hook gates a write: judge
+    each staged file's staged content, ratcheted against its HEAD
+    version. A commit is refused only for a file that is deniable AND
+    carries more flag-occurrences than it did at HEAD, so legacy flags
+    never freeze the repo -- the same monotone rule pretool_hook.py
+    applies per write, at the one choke point every writer shares."""
+    import subprocess
+    try:
+        staged = subprocess.run(
+            ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+            capture_output=True, text=True, check=True, cwd=REPO_ROOT,
+        ).stdout.splitlines()
+    except (subprocess.CalledProcessError, OSError):
+        return 0    # no git to read: never break a commit path blind
+    failures = 0
+    for rel in staged:
+        full = os.path.join(REPO_ROOT, rel)
+        after = _git_show(f":{rel}")
+        if after is None:
+            continue
+        state = _gate_state(rel, after, full)
+        if state is None:
+            continue
+        blocking, after_weight = state
+        if not blocking:
+            continue
+        before = _git_show(f"HEAD:{rel}")
+        if before and before.strip():
+            before_state = _gate_state(rel, before, full)
+            if before_state and after_weight <= before_state[1]:
+                continue    # deniable, but no worse than HEAD
+            before_weight = before_state[1] if before_state else 0
+        else:
+            before_weight = 0
+        failures += 1
+        print(f"stopslop: {rel}: {len(blocking)} blocking flag(s), "
+              f"{after_weight} occurrence(s) vs {before_weight} at HEAD")
+        for f in blocking[:6]:
+            where = f" (line {f['embedded_line']})" if "embedded_line" in f else ""
+            print(f"  [{f['kind']}] {core_flags.display_label(f)}{where}")
+    if failures:
+        print(f"stopslop: commit blocked ({failures} file(s)). Fix the "
+              f"additions, or bypass once with `git commit --no-verify`.")
+        return 1
+    return 0
+
+
 def cmd_init(args):
+    # Before the settings guard, not after: the commit gate is idempotent
+    # and self-guarded, and a repo initialized before it existed should
+    # gain it from a plain re-run, not need --force (which is about
+    # OVERWRITING settings, an unrelated risk).
+    _install_git_precommit()
     if os.path.exists(SETTINGS_REAL) and not args.force:
         print(f"{SETTINGS_REAL} already exists -- not overwriting.")
         print("Re-run with --force if you want to replace it.")
@@ -319,7 +435,7 @@ def cmd_terms(args):
 
     if args.add is not None:
         if not args.list:
-            print(f"--add needs --list LIST_ID -- known: "
+            print(f"`--add` needs `--list LIST_ID` -- known: "
                   f"{sorted(ruleset.list_term_lists())}", file=sys.stderr)
             return 1
         try:
@@ -335,7 +451,7 @@ def cmd_terms(args):
 
     if args.remove is not None:
         if not args.list:
-            print(f"--remove needs --list LIST_ID -- known: "
+            print(f"`--remove` needs `--list LIST_ID` -- known: "
                   f"{sorted(ruleset.list_term_lists())}", file=sys.stderr)
             return 1
         try:
@@ -558,6 +674,10 @@ def main():
                           help="set exactly this list of packs on --glob; pass with no "
                                "ids to disable all of them there")
     p_packs.set_defaults(func=cmd_packs)
+
+    p_pre = sub.add_parser("precommit",
+                            help="gate staged files (the git pre-commit hook target)")
+    p_pre.set_defaults(func=cmd_precommit)
 
     p_checks = sub.add_parser("checks", help="list checks for a ruleset, or turn them on and off")
     p_checks.add_argument("--ruleset", help="ruleset id (default: ste100)")
