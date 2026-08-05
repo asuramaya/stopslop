@@ -61,13 +61,30 @@ confirms first, and the last write is always undoable, because every
 mutation on this page lands in one file.
 """
 import os
+import time
 
 import streamlit as st
 
 import rulesets
 from core import config as core_config
 from core import flags as core_flags
-from core import glossary_packs, terms as core_terms
+from core import glossary_packs, history as core_history, terms as core_terms
+
+
+def relative_time(ts):
+    """'2h ago' for a timestamp, '?' for a missing one. Lives here rather
+    than dashboard.py because both pages need it and the import only runs
+    one way (dashboard imports this module)."""
+    if not ts:
+        return "?"
+    delta = time.time() - ts
+    if delta < 60:
+        return f"{int(delta)}s ago"
+    if delta < 3600:
+        return f"{int(delta // 60)}m ago"
+    if delta < 86400:
+        return f"{int(delta // 3600)}h ago"
+    return f"{int(delta // 86400)}d ago"
 
 
 # --- undo: one config file, so one mechanism covers every mutation --------
@@ -593,13 +610,20 @@ def _by_check(repo_root, probe, full, ruleset_id):
         help="This check denies a write by itself once it fires this many "
              "times, whatever the total flag count. Blank means it only "
              "counts toward the ruleset's shared threshold above.")
+    config["last fired"] = st.column_config.TextColumn(
+        "last fired", width="small", disabled=True,
+        help="The newest gate event in this repo where this check flagged "
+             "something. Blank means it has never fired here.")
 
+    fired = _last_fired(repo_root, ruleset_id)
     for r in shown:
         counts = _list_counts(repo_root, r, full)
         entry = {"on": r["enabled"], "check": r["check"],
                  "what it catches": r["catches"],
                  "words": str(sum(counts.values())) if counts else "",
-                 "denies alone": _blocks_alone_label(r)}
+                 "denies alone": _blocks_alone_label(r),
+                 "last fired": (relative_time(fired[r["check"]])
+                                 if r["check"] in fired else "")}
         for name in numeric:
             info = r["options"].get(name)
             entry[name] = str(int(info["value"])) if info else ""
@@ -612,7 +636,7 @@ def _by_check(repo_root, probe, full, ruleset_id):
         table, width="stretch", hide_index=True, height=380, num_rows="fixed",
         key=f"checks_editor::{ruleset_id}", column_config=config,
         column_order=["on", "check", "what it catches", *numeric,
-                      "words", "denies alone"])
+                      "words", "denies alone", "last fired"])
     _apply_check_edits(repo_root, module, shown, table, edited, numeric)
     _check_contents(repo_root, full, shown, ruleset_id)
 
@@ -620,6 +644,28 @@ def _by_check(repo_root, probe, full, ruleset_id):
 def _blocks_alone_label(row):
     n = row["blocks_alone_at"]
     return "" if not n else ("⚠️ on sight" if n == 1 else f"⚠️ at {n}")
+
+
+def _last_fired(repo_root, ruleset_id):
+    """{check_id: ts} of the newest gate event in this repo naming each
+    check -- the Watch page's data, joined into the table where tuning
+    happens, so "the gate just denied something, which row was it" needs
+    no page switch and no remembered check id.
+
+    Reads the log fresh every rerun, the same never-cache treatment every
+    config read here gets; the log is small and append-only. Revisit with
+    an mtime-keyed cache only if it measurably drags."""
+    events = core_history.read_history_deduped(
+        core_history.history_log_path(repo_root))
+    out = {}
+    for e in events:
+        if e.get("ruleset") != ruleset_id:
+            continue
+        ts = e.get("ts", 0)
+        for kind in e.get("kinds") or []:
+            if ts > out.get(kind, 0):
+                out[kind] = ts
+    return out
 
 
 def check_edits(rows, before, after, numeric):

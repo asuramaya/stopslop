@@ -68,17 +68,9 @@ def _fmt_ts(ts):
     return time.strftime("%H:%M:%S", time.localtime(ts)) if ts else "?"
 
 
-def _relative_time(ts):
-    if not ts:
-        return "?"
-    delta = time.time() - ts
-    if delta < 60:
-        return f"{int(delta)}s ago"
-    if delta < 3600:
-        return f"{int(delta // 60)}m ago"
-    if delta < 86400:
-        return f"{int(delta // 3600)}h ago"
-    return f"{int(delta // 86400)}d ago"
+# Lives in configure.py now (the checks table's "last fired" column needs
+# it too, and the import only runs this direction).
+_relative_time = _configure.relative_time
 
 
 def _short_path(file_path):
