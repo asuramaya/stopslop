@@ -120,11 +120,13 @@ CHECK_OPTIONS = {
 DENY_POLICY = {
     # The rationale for the threshold (why density, not any single flag,
     # is what should block a write) belongs in blocking_semantic_flags's
-    # own docstring below -- this is the UI-facing text, rendered as-is on
-    # the Configure page and in MCP's explain(), so it states the policy
-    # and stops there.
-    "text": "No single flag denies on its own. A write is denied when "
-            "semantic flags reach {block_flag_count_threshold}.",
+    # own docstring below -- this is the UI-facing text, completing the
+    # sentence "<ruleset> denies a write ...", so it states the policy
+    # and stops there. The old opener "No single flag denies on its own"
+    # is gone because it was FALSE: em_dash_cluster, one line down,
+    # denies alone at 1 -- the checks table's denies-alone column is
+    # where that exception lives.
+    "text": "at {block_flag_count_threshold} flags or more.",
     "blocks_alone_at": {"em_dash_cluster": 1},
 }
 

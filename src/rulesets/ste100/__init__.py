@@ -93,11 +93,11 @@ DENY_POLICY = {
     # {excluded_vocab_types} is filled in from the LIVE option value, not
     # hardcoded prose -- excluded_vocab_types is a tunable set now, and a
     # project that narrows or widens it deserves a policy sentence that
-    # still describes what the gate actually does.
-    "text": "Denies on every semantic flag EXCEPT vocabulary flagged as one "
-            "of: {excluded_vocab_types}. Those are reported and let "
-            "through, because the dictionary cannot know a project's own "
-            "domain words.",
+    # still describes what the gate actually does. The text completes
+    # "<ruleset> denies a write ..." (see codewatch's DENY_POLICY note).
+    "text": "on every flag. Vocabulary of an excluded type "
+            "({excluded_vocab_types}) is reported and let through -- the "
+            "dictionary cannot know a project's own domain words.",
     # Empty by design: ste100 blocks by default and names exceptions,
     # the opposite shape from slopwatch/codewatch's shared-pool-plus-
     # per-check-count. Declared anyway so every ruleset carries the same

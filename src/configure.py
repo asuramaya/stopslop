@@ -61,6 +61,7 @@ confirms first, and the last write is always undoable, because every
 mutation on this page lands in one file.
 """
 import os
+import re
 import time
 
 import streamlit as st
@@ -429,25 +430,22 @@ def _rules_section(repo_root, probe, full, ruleset_id):
 
 
 def _deny_policy(repo_root, ruleset_id):
-    """What actually blocks a write, and the controls for the numbers in
-    that sentence.
+    """The deny sentence, with the number in it AS the control.
 
     A ruleset's options split in two by WHO owns them. A check's own
     parameter (ste100's procedure_word_limit, slopwatch's
-    em_dash_threshold) is declared in CHECK_OPTIONS and edited inside that
-    check's row. What was left over -- block_flag_count_threshold, the
-    count at which a write is denied -- belongs to no check, so it was
-    rendered only as a NUMBER INSIDE THIS SENTENCE and had no control
-    anywhere on the page. The single most consequential setting in the
-    product was the one thing here nobody could change without hand-editing
-    stopslop.config.json. codewatch made it obvious: its checks table shows
-    an empty options column for all ten rows, because its only option is
-    this one.
-
-    So a policy-level option gets its control here, beside the sentence it
-    appears in. Which options those are is derived -- every option this
-    ruleset declares that no check claims -- not a hardcoded name, so a
-    ruleset adding a second policy-level number is covered on arrival."""
+    em_dash_threshold) is declared in CHECK_OPTIONS and edited inside
+    that check's row. What is left over belongs to the deny policy
+    itself -- and it used to render three times in a vertical stack: as
+    a number formatted into this sentence, as a raw snake_case label,
+    and as a spinner under both, with the sentence itself opening
+    "denies a write: A write is denied ...". One statement now: a
+    policy-level option named in the text becomes an inline control at
+    exactly that spot, so the threshold appears once on the whole page.
+    A policy option the text does not name still gets a plain control
+    row below. Which options are policy-level is derived -- every option
+    no check claims -- never a hardcoded name, so a ruleset adding a
+    second policy-level number is covered on arrival."""
     if not ruleset_id:
         st.info("This path is out of scope, so nothing below runs on it.")
         return
@@ -456,21 +454,54 @@ def _deny_policy(repo_root, ruleset_id):
     if not policy:
         return
     options = core_flags.display_options(module)
-    try:
-        text = policy["text"].format(**options)
-    except KeyError as missing:
-        text = policy["text"]        # a placeholder with no option behind it
-        st.caption(f"(policy text names an unknown option {missing})")
-    st.markdown(f"🚫 **{ruleset_id} denies a write:** {text}")
-
-    if "options" not in module.CAPABILITIES:
-        return
     owned = {n for names in getattr(module, "CHECK_OPTIONS", {}).values()
              for n in names}
+    declared = module.list_options() if "options" in module.CAPABILITIES else {}
+    policy_opts = {n: i for n, i in declared.items() if n not in owned}
     row = {"ruleset": ruleset_id, "module": module}
-    for name, info in module.list_options().items():
-        if name not in owned:
+
+    text = policy["text"]
+    inline = [n for n in policy_opts if ("{%s}" % n) in text]
+    lead = f"🚫 **{ruleset_id} denies a write** "
+    if not inline:
+        try:
+            text = text.format(**options)
+        except KeyError as missing:
+            st.caption(f"(policy text names an unknown option {missing})")
+        st.markdown(lead + text)
+    else:
+        pattern = "|".join("\\{%s\\}" % re.escape(n) for n in inline)
+        with st.container(horizontal=True, vertical_alignment="center"):
+            for piece in re.split(f"({pattern})", text):
+                if piece.startswith("{") and piece[1:-1] in policy_opts:
+                    name = piece[1:-1]
+                    _inline_policy_control(repo_root, row, name,
+                                            policy_opts[name])
+                    continue
+                try:
+                    piece = piece.format(**options)
+                except KeyError as missing:
+                    st.caption(f"(policy text names an unknown option {missing})")
+                if lead or piece.strip():
+                    st.markdown(lead + piece)
+                lead = ""
+
+    for name, info in policy_opts.items():
+        if name not in inline:
             _option_control(repo_root, row, name, info)
+
+
+def _inline_policy_control(repo_root, row, name, info):
+    """A policy option named in the deny sentence, rendered as the number
+    in that sentence -- the only place its value appears. The sentence is
+    the label, so the widget's own is collapsed; the option's name and
+    its built-in default live in the tooltip, off the screen."""
+    key = f"opt::{row['ruleset']}::{name}"
+    st.number_input(
+        name, value=int(info["value"]), step=1, key=key, width=90,
+        label_visibility="collapsed",
+        on_change=_option_changed, args=(repo_root, row["module"], name, key),
+        help=f"{name.replace('_', ' ')} — built-in default {info['default']}")
 
 
 def _check_rows(ruleset_id):

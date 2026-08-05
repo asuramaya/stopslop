@@ -52,10 +52,12 @@ CHECKS = {
 }
 
 
-# See rulesets/ste100/__init__.py's DENY_POLICY.
+# See rulesets/ste100/__init__.py's DENY_POLICY. The text completes the
+# sentence "<ruleset> denies a write ..." -- the dashboard renders that
+# lead, so opening with "A write is denied ..." here would say the same
+# clause twice in its own line (it did, for a while).
 DENY_POLICY = {
-    "text": "A write is denied when semantic flags reach "
-            "{block_flag_count_threshold}.",
+    "text": "at {block_flag_count_threshold} flags or more.",
     "blocks_alone_at": {"swallowed_exception": 1},
 }
 

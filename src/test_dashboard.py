@@ -311,11 +311,16 @@ class DenyPolicyRendersItsOwnOptionsTests(unittest.TestCase):
         called = {node.func.id for node in ast.walk(func)
                   if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)}
         self.assertIn(
-            "_option_control", called,
-            "_deny_policy renders the deny-policy sentence but no control "
-            "for the options named in it, so a policy-level option like "
-            "block_flag_count_threshold is visible and uneditable -- the "
+            "_inline_policy_control", called,
+            "_deny_policy renders the deny-policy sentence but no inline "
+            "control for the option named in it, so a policy-level option "
+            "like the deny threshold is visible and uneditable -- the "
             "exact state this test exists to prevent returning to")
+        self.assertIn(
+            "_option_control", called,
+            "_deny_policy must keep the fallback control row for a policy "
+            "option the sentence does not name -- inline-only coverage "
+            "silently drops any option added without a placeholder")
 
     def test_deny_policy_does_not_hardcode_an_option_name(self):
         """Derived from CHECK_OPTIONS, not a name check. A ruleset adding
