@@ -34,6 +34,7 @@ sys.path.insert(0, SRC_DIR)
 
 import rulesets
 from core import config as core_config
+from core import extract as core_extract
 from core.version import VERSION
 
 SETTINGS_EXAMPLE = os.path.join(REPO_ROOT, ".claude", "settings.local.json.example")
@@ -142,8 +143,20 @@ def cmd_lint(args):
     excluded_count = len(result["semantic_flags"]) - len(blocking)
     semantic = result["semantic_flags"] if args.all else blocking
 
+    # The embedded-prose pass a real write would also run -- skipped when
+    # --ruleset overrides resolution, which means "lint as exactly this
+    # ruleset and nothing else". See core/extract.py.
+    embedded_blocking, embedded_module = [], None
+    if not args.ruleset:
+        rule = core_config.matching_rule(target_path, REPO_ROOT)
+        embedded_module = core_extract.rule_embedded_ruleset(rule, rulesets)
+        if embedded_module is not None:
+            embedded_blocking = core_extract.embedded_prose_flags(
+                text, os.path.splitext(target_path)[1], embedded_module,
+                file_path=target_path)
+
     print(f"[{ruleset.RULESET_NAME}]")
-    if not mechanical and not semantic:
+    if not mechanical and not semantic and not embedded_blocking:
         if excluded_count and not args.all:
             # Generic on purpose: what's hidden isn't always a "vocabulary"
             # concept (ste100's is; slopwatch's below-threshold flags are a
@@ -177,7 +190,16 @@ def cmd_lint(args):
             arrow = f" -> {repl!r}" if repl else ""
             print(f"  [{m['kind']}] {label!r}{arrow}")
 
-    return 1 if semantic else 0
+    if embedded_blocking:
+        print(f"Embedded prose ({embedded_module.RULESET_NAME}): "
+              f"{len(embedded_blocking)} blocking flag(s) -- a real write "
+              f"would be denied:\n")
+        for f in embedded_blocking:
+            label = f.get("label") or f["detail"].get("rule", "?")
+            print(f"  line {f['embedded_line']}: [{f['kind']}] {label!r}")
+        print()
+
+    return 1 if (semantic or embedded_blocking) else 0
 
 
 def cmd_scan(args):

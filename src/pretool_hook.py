@@ -28,6 +28,7 @@ import bash_write_detect
 import generate_coaching_memory
 import rulesets
 from core import config as core_config
+from core import extract as core_extract
 from core import flags as flags_mod
 from core import history, paths
 
@@ -165,14 +166,29 @@ def main():
     # rather than each keeping its own copy of this filter.
     flags = ruleset.blocking_semantic_flags(result["semantic_flags"])
 
+    # A code rule can also name a prose ruleset for its embedded string
+    # literals and docstrings -- the crack between "codewatch reads code"
+    # and "prose rulesets read .md" is where this project's own UI copy
+    # lived unlinted. Either gate denying denies. See core/extract.py.
+    rule = core_config.matching_rule(file_path, PROJECT_ROOT)
+    embedded = core_extract.rule_embedded_ruleset(rule, rulesets)
+    if embedded is not None:
+        flags = flags + core_extract.embedded_prose_flags(
+            text, os.path.splitext(file_path)[1], embedded, file_path=file_path)
+
     if flags:
         summary_lines = []
         for f in flags[:8]:
-            summary_lines.append(f"- [{f['kind']}] {flags_mod.display_label(f)}")
+            where = (f" (embedded prose, line {f['embedded_line']})"
+                     if "embedded_line" in f else "")
+            summary_lines.append(f"- [{f['kind']}] {flags_mod.display_label(f)}{where}")
         more = f"\n...and {len(flags) - 8} more" if len(flags) > 8 else ""
         attempt_number = count_consecutive_denials(file_path) + 1
+        gate_name = ruleset.RULESET_NAME
+        if any("embedded_line" in f for f in flags):
+            gate_name += f" + {embedded.RULESET_NAME} on embedded prose"
         reason = (
-            f"{ruleset.RULESET_NAME} gate: {file_path} has {len(flags)} semantic flag(s) "
+            f"{gate_name} gate: {file_path} has {len(flags)} flag(s) "
             f"requiring human/model resolution before this can be written.\n"
             + "\n".join(summary_lines) + more
         )
@@ -182,8 +198,12 @@ def main():
         # ruleset's own declarations (core.flags.remedies_for), so a new
         # check or list is covered without anyone updating a table here.
         remedy_lines = []
+        host_kinds = {f["kind"] for f in flags if "embedded_line" not in f}
         for kind in dict.fromkeys(f["kind"] for f in flags[:8]):
-            for line in flags_mod.remedies_for(ruleset, kind):
+            # A remedy comes from the ruleset that owns the check -- the
+            # embedded ruleset's kinds mean nothing to the host's lists.
+            owner = ruleset if kind in host_kinds else embedded
+            for line in flags_mod.remedies_for(owner, kind):
                 remedy_lines.append(f"- {kind}: {line}")
         if remedy_lines:
             reason += ("\n\nIf a flag is a false positive here, these resolve it "

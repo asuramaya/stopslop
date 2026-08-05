@@ -237,6 +237,54 @@ class SaveRulesTests(unittest.TestCase):
                 written = json.load(f)
             self.assertEqual(written["glossary_packs"], {"ste100": ["microsoft-style-guide"]})
 
+    def test_preserves_every_extra_rule_key_not_only_packs(self):
+        """A routing edit that says nothing about a rule's other keys
+        must not drop them. Packs had this guarantee as a carve-out;
+        "disable" was already exposed to the identical clobber, and
+        "embedded_prose" would have been next."""
+        import json
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.py", "ruleset": "ste100",
+                     "embedded_prose": "ste100",
+                     "disable": ["some_check"]},
+                ]}, f)
+            config.save_rules(tmp, [{"glob": "*.py", "ruleset": "ste100"}],
+                               self._fake_registry(), config_file=path)
+            with open(path) as f:
+                rule = json.load(f)["rulesets"][0]
+            self.assertEqual(rule["embedded_prose"], "ste100")
+            self.assertEqual(rule["disable"], ["some_check"])
+
+    def test_embedded_prose_typo_raises_before_writing(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            rules = [{"glob": "*.py", "ruleset": "ste100",
+                      "embedded_prose": "slopwtch"}]
+            with self.assertRaises(rulesets.UnknownRulesetError):
+                config.save_rules(tmp, rules, self._fake_registry(),
+                                   config_file=path)
+            self.assertFalse(os.path.exists(path))
+
+    def test_embedded_prose_on_an_extractorless_extension_raises(self):
+        """A binding that can never fire is a gate quietly off -- the
+        .dat-bypass failure shape, refused at write time."""
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            rules = [{"glob": "*.md", "ruleset": "ste100",
+                      "embedded_prose": "ste100"}]
+            with self.assertRaises(ValueError):
+                config.save_rules(tmp, rules, self._fake_registry(),
+                                   config_file=path)
+
     def test_malformed_rule_raises(self):
         import os
         import tempfile

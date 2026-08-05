@@ -399,21 +399,28 @@ def save_rules(project_root, rules, registry, config_file=None):
     fixed once in stopslop.py's own init --force, now with a second config
     file it could happen to again.
 
-    Packs now live ON a rule, so the same clobber risk exists one level
-    down: a caller that edits routing without knowing about packs (the
-    routing editor is a separate widget from the Vocabulary tab) would
-    silently drop them. An incoming rule that says nothing about packs
-    therefore INHERITS whatever the rule with that glob already had --
-    only an explicit "packs" key changes them."""
-    existing_packs = {}
+    A rule carries more than glob and ruleset now -- packs, a per-rule
+    "disable" list, an "embedded_prose" ruleset -- so the same clobber
+    risk exists one level down: a caller that edits routing without
+    knowing about those keys (the routing editor is a separate widget)
+    would silently drop them. An incoming rule that says nothing about a
+    key therefore INHERITS whatever the rule with that glob already had;
+    only an explicit key changes it. Generalized from a packs-only
+    carve-out after "embedded_prose" arrived and would have been the
+    second key to hit the identical bug ("disable" was already exposed,
+    unnoticed)."""
+    from core import extract as core_extract
+
+    existing_extras = {}
     path = config_file or config_path(project_root)
     data = {}
     if os.path.exists(path):
         with open(path) as f:
             data = json.load(f)
         for rule in data.get("rulesets", []):
-            if rule.get("packs"):
-                existing_packs[rule["glob"]] = dict(rule["packs"])
+            extras = {k: v for k, v in rule.items() if k not in ("glob", "ruleset")}
+            if extras:
+                existing_extras[rule["glob"]] = extras
 
     merged = []
     for rule in rules:
@@ -422,10 +429,19 @@ def save_rules(project_root, rules, registry, config_file=None):
         if rule["ruleset"] is not None:
             registry.get_ruleset(rule["ruleset"])  # raises UnknownRulesetError on a typo
         rule = dict(rule)
-        if "packs" not in rule and rule["glob"] in existing_packs:
-            rule["packs"] = dict(existing_packs[rule["glob"]])
+        for key, value in existing_extras.get(rule["glob"], {}).items():
+            rule.setdefault(key, value)
         if not rule.get("packs"):
             rule.pop("packs", None)
+        embedded = rule.get("embedded_prose")
+        if embedded:
+            registry.get_ruleset(embedded)  # same loud-on-typo guarantee
+            if not core_extract.glob_extension_supported(rule["glob"]):
+                raise ValueError(
+                    f"embedded_prose on {rule['glob']!r}: no extractor for "
+                    f"that extension -- supported: "
+                    f"{sorted(core_extract.SUPPORTED_EXTENSIONS)}. A binding "
+                    f"that can never fire is a gate quietly off.")
         merged.append(rule)
 
     data["rulesets"] = merged
