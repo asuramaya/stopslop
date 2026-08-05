@@ -98,6 +98,10 @@ CHECKS = {
                                "collapse into one direct statement"),
     "negative_listing": ("The \"Not X. Not Y.\" listing construction",
                          "state the point once"),
+    "terminology": ("A banned synonym of one of this project's canonical "
+                    "terms, per its declared lexicon",
+                    "one word, one meaning: use the canonical term the "
+                    "word's own note names"),
 }
 
 
@@ -143,14 +147,11 @@ def apply_mechanical_fixes(text, file_path=None):
 
 
 def stats():
-    return {"checks": "20 (filler_opener, stock_adverb, colon_reveal, "
-                       "binary_contrast, em_dash_cluster, weasel_attribution, "
-                       "entity_encoded_punctuation, bold_bullet_lead, id_label_lead, "
-                       "not_just_x_but_y, vague_intensifier, emoji_in_prose, "
-                       "marketing_adjective, filler_verb, marketing_cliche, "
-                       "solicit_criticism, unearned_profundity, "
-                       "dramatic_fragmentation, canned_question_answer, "
-                       "negative_listing)"}
+    # Derived, not a hand-maintained sentence -- the count in this string
+    # drifted the moment terminology arrived, exactly the class of "second
+    # copy of a fact" this codebase keeps deleting.
+    return {"checks": f"{len(lint.ALL_CHECK_IDS)} "
+                       f"({', '.join(sorted(lint.ALL_CHECK_IDS))})"}
 
 
 def list_checks():

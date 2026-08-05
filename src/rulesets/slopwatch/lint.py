@@ -78,6 +78,7 @@ ALL_CHECK_IDS = frozenset({
     "solicit_criticism", "unearned_profundity", "dramatic_fragmentation",
     "bold_bullet_lead", "id_label_lead", "binary_contrast",
     "canned_question_answer", "negative_listing", "em_dash_cluster",
+    "terminology",
 })
 
 
@@ -114,6 +115,21 @@ def _custom_terms(list_id, file_path=None):
         return sorted(set(layers["packs"]) | set(layers["project"]))
     except Exception:
         return []
+
+
+def _lexicon_terms(file_path=None):
+    """The project lexicon WITH its notes -- unlike _custom_terms, which
+    flattens a list to bare strings. terminology's whole point is that a
+    banned synonym's note names the canonical term, so the flag can say
+    the fix and not only the fault. Same fall-back-to-nothing posture."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+        layers = _terms.resolve(TERM_LISTS["terminology"], project_root,
+                                 "slopwatch", "terminology", file_path=file_path)
+        return {term.lower(): {"note": (info or {}).get("note", "")}
+                for term, info in layers["effective"].items()}
+    except Exception:
+        return {}
 
 
 DEFAULT_OPTIONS = {
@@ -425,6 +441,34 @@ MARKETING_CLICHES = ["amazing", "breathtaking", "stunning", "must-visit", "must 
                       "you've come to the right place", "we've got you covered"]
 
 
+# --- terminology (semantic) -- one word, one meaning -----------------------
+# ASD-STE100's cardinal principle, finally implemented as a RULE rather
+# than only shipped as a dictionary: a project names its canonical terms
+# by banning their synonyms. Each term on the `terminology` list is a
+# BANNED synonym; its note says what to write instead, and travels into
+# the flag so a deny states the fix, not only the fault. The built-in
+# list is EMPTY on purpose -- a lexicon is project-specific by nature
+# (this repo bans "shipped" in favor of "built-in"; yours won't) -- so
+# the check is inert until a project registers words or attaches a pack.
+
+
+def check_terminology(sentence, lexicon=None):
+    if not lexicon:
+        return []
+    pattern = re.compile(
+        r"\b(" + "|".join(re.escape(t) for t in
+                           sorted(lexicon, key=len, reverse=True)) + r")\b",
+        re.IGNORECASE)
+    hits = []
+    for m in pattern.finditer(sentence):
+        note = (lexicon.get(m.group(1).lower()) or {}).get("note") or ""
+        hits.append({"word": m.group(1), "rule": "slopwatch.terminology",
+                      "auto_fix": False,
+                      "note": note or "banned by this project's lexicon -- "
+                                       "one word, one meaning"})
+    return hits
+
+
 # Every check that's fundamentally "match text against a list of words or
 # phrases", declared as a TERM LIST -- the one shared shape every ruleset
 # now uses (see core/terms.py). All five are DENY lists: the terms are the
@@ -484,6 +528,17 @@ TERM_LISTS = {
         "description": "Filler adverbs safe to delete outright (auto-fixed).",
         "polarity": "deny", "accepts_packs": True,
         "built_ins": STOCK_ADVERBS,
+    },
+    "terminology": {
+        "content_kind": "word",
+        "feeds": "terminology",
+        "label": "Project lexicon",
+        "description": "Banned synonyms of this project's canonical terms "
+                        "-- one word, one meaning. A term's note names the "
+                        "word to use instead.",
+        "polarity": "deny", "accepts_packs": True,
+        # Empty on purpose: a lexicon is project-specific by nature.
+        "built_ins": (),
     },
 }
 
@@ -603,6 +658,7 @@ def lint_and_gate(text, context=None, file_path=None):
     extra_marketing_adjective = _custom_terms("marketing_adjective", file_path)
     extra_filler_verb = _custom_terms("filler_verb", file_path)
     extra_marketing_cliche = _custom_terms("marketing_cliche", file_path)
+    lexicon = _lexicon_terms(file_path)
 
     for block_type, content in split_into_blocks(text):
         if block_type in ("fence", "blank"):
@@ -652,6 +708,8 @@ def lint_and_gate(text, context=None, file_path=None):
             semantic.append({"kind": "unearned_profundity", "label": _label(v), "detail": v, "text": s})
         for v in check_dramatic_fragmentation(s):
             semantic.append({"kind": "dramatic_fragmentation", "label": _label(v), "detail": v, "text": s})
+        for v in check_terminology(s, lexicon):
+            semantic.append({"kind": "terminology", "label": _label(v), "detail": v, "text": s})
 
     for v in check_binary_contrast(sentences):
         semantic.append({"kind": "binary_contrast", "label": _label(v), "detail": v, "text": v.get("text")})

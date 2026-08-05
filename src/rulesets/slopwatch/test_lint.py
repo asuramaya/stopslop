@@ -579,5 +579,45 @@ class TermListExtensibilityEndToEndTests(unittest.TestCase):
         slopwatch.remove_term("weasel_attribution", "never-added")  # must not raise
 
 
+class TerminologyTests(unittest.TestCase):
+    """The project lexicon: one word, one meaning, as a check. Pure-function
+    tests against an explicit lexicon dict -- the config-layer plumbing
+    (registering a banned word, packs) is the same core.terms machinery the
+    other five list-shaped checks already exercise above."""
+
+    LEXICON = {"shipped": {"note": 'use "built-in" instead'},
+               "utilize": {"note": ""}}
+
+    def test_no_lexicon_means_no_flags_at_all(self):
+        self.assertEqual(lint.check_terminology("Shipped words go free."), [])
+        self.assertEqual(lint.check_terminology("Shipped words go free.", {}), [])
+
+    def test_a_banned_synonym_flags_case_insensitively(self):
+        hits = lint.check_terminology("The Shipped default applies.", self.LEXICON)
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]["word"], "Shipped")
+        self.assertEqual(hits[0]["rule"], "slopwatch.terminology")
+
+    def test_the_flag_note_names_the_canonical_term(self):
+        hits = lint.check_terminology("the shipped default", self.LEXICON)
+        self.assertIn("built-in", hits[0]["note"])
+
+    def test_a_term_with_no_note_gets_the_generic_principle(self):
+        hits = lint.check_terminology("we utilize things", self.LEXICON)
+        self.assertIn("one word, one meaning", hits[0]["note"])
+
+    def test_word_boundaries_hold(self):
+        # "reshipped" contains "shipped"; a substring match would flag it.
+        self.assertEqual(
+            lint.check_terminology("the reshipped carton", self.LEXICON), [])
+
+    def test_lexicon_flags_are_semantic_and_reach_lint_and_gate(self):
+        # End to end through the real resolver: with no project lexicon
+        # registered, the check is inert on ordinary text.
+        result = lint.lint_and_gate("The shipped default applies here.")
+        self.assertNotIn("terminology",
+                          [f["kind"] for f in result["semantic_flags"]])
+
+
 if __name__ == "__main__":
     unittest.main()
