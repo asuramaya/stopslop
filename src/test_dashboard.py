@@ -112,7 +112,8 @@ class DashboardStructureTests(unittest.TestCase):
         scope = {}
         exec(compile(self.source[self.source.index("ACTION_ICON = {"):
                      self.source.index("def _status_footer")], "x", "exec"), scope)
-        for action in ("deny", "auto_fix", "clean", "unscoped_write"):
+        for action in ("deny", "auto_fix", "clean", "unscoped_write",
+                        "config_write"):
             self.assertIn(action, scope["ACTION_ICON"])
 
 

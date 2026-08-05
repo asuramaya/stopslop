@@ -69,6 +69,23 @@ def _log_and_regenerate(event, ruleset_id):
         pass
 
 
+def _log_config_write(file_path):
+    """True (and logged) when this write targets stopslop.config.json.
+
+    The config file is the gate's own control surface, writable through
+    the unlinted-json allowlist -- which meant an agent denied by the
+    gate could raise its own threshold, or disable the check that fired,
+    and retry, with no record anywhere. Not blocked: the config is the
+    human's file, local-first by design, and the dashboard edits it
+    constantly. No longer silent either -- the event lands in history,
+    so Watch shows the gate's own rules being changed mid-session."""
+    if os.path.abspath(file_path) != core_config.config_path(PROJECT_ROOT):
+        return False
+    history.log_event({"file": file_path, "action": "config_write",
+                        "kinds": []}, "_core", HISTORY_LOG)
+    return True
+
+
 def _log_unscoped(event):
     """unscoped_write events aren't about any particular ruleset's rules --
     they're a governance/audit signal about a write that matched no active
@@ -84,6 +101,36 @@ def count_consecutive_denials(file_path):
 
 def recent_deny_nearby():
     return history.recent_deny_nearby(HISTORY_LOG)
+
+
+def _read_current(file_path):
+    """The file as it exists NOW, or "" -- nonexistent and unreadable are
+    both 'no before-state', and the gate must never crash on either."""
+    try:
+        with open(file_path) as f:
+            return f.read()
+    except (OSError, UnicodeDecodeError):
+        return ""
+
+
+def _resulting_text(tool_name, tool_input, before_text):
+    """The file as it will exist AFTER this write, or None when it cannot
+    be reconstructed (Bash; an Edit whose old_string is not found -- the
+    tool itself will fail on that anyway).
+
+    The gate judges the RESULT, not the chunk. Delta-linting had two
+    exploitable holes: a file could accrete unbounded slop threshold-1
+    flags per Edit, forever under the bar; and the embedded-prose pass
+    silently never ran for Edit at all, because a new_string fragment
+    almost never parses as Python, so the extractor saw nothing."""
+    if tool_name == "Write":
+        return tool_input.get("content", "")
+    old = tool_input.get("old_string", "")
+    new = tool_input.get("new_string", "")
+    if not old or old not in before_text:
+        return None
+    count = -1 if tool_input.get("replace_all") else 1
+    return before_text.replace(old, new, count)
 
 
 def resolve_target_path(target):
@@ -132,6 +179,8 @@ def main():
         file_path = resolve_target_path(target)
         ruleset = core_config.resolve_ruleset(file_path, PROJECT_ROOT, rulesets)
         if ruleset is None:
+            if _log_config_write(file_path):
+                return
             if text.strip() and is_unscoped_write(file_path):
                 _log_unscoped({"file": file_path, "action": "unscoped_write", "kinds": [],
                                 "word_count": len(text.split()), "nearby_deny": recent_deny_nearby()})
@@ -144,6 +193,8 @@ def main():
         text = tool_input.get("content", "") if tool_name == "Write" else tool_input.get("new_string", "")
         ruleset = core_config.resolve_ruleset(file_path, PROJECT_ROOT, rulesets)
         if ruleset is None:
+            if _log_config_write(file_path):
+                return
             if text.strip() and is_unscoped_write(file_path):
                 _log_unscoped({"file": file_path, "action": "unscoped_write", "kinds": [],
                                 "word_count": len(text.split()), "nearby_deny": recent_deny_nearby()})
@@ -158,47 +209,91 @@ def main():
     # packs attach to the routing rule that matched this path, so the
     # effective glossary genuinely differs between two files the same
     # ruleset gates. See core.config.packs_for_path.
+    # Mechanical fixes act on the written CHUNK (the delta is what the
+    # hook can rewrite via updatedInput), so this lint stays delta-based.
     result = ruleset.lint_and_gate(text, file_path=file_path)
+
+    rule = core_config.matching_rule(file_path, PROJECT_ROOT)
+    embedded = core_extract.rule_embedded_ruleset(rule, rulesets)
+    extension = os.path.splitext(file_path)[1]
+
+    # Semantic judgment runs on the RESULTING FILE where it can be
+    # reconstructed (see _resulting_text for the two cheats delta-linting
+    # allowed), with RATCHET semantics: when the file already exists, a
+    # write is denied only if the result is deniable AND the write made
+    # it worse -- measured in flag OCCURRENCES, so repeats count. A file
+    # with legacy flags stays editable; it just cannot gain more. Bash
+    # stays delta-judged: a heredoc target is not reconstructable here.
+    before_text = _read_current(file_path) if can_autofix else ""
+    after_text = (_resulting_text(tool_name, tool_input, before_text)
+                  if can_autofix else None)
+    judged = after_text if after_text is not None else text
+    semantic = (result["semantic_flags"] if judged == text
+                else ruleset.lint_and_gate(judged, file_path=file_path)["semantic_flags"])
+    # A code rule can also name a prose ruleset for its embedded string
+    # literals and docstrings -- the crack between "codewatch reads code"
+    # and "prose rulesets read .md" is where this project's own UI copy
+    # lived unlinted. Either gate denying denies. See core/extract.py.
+    embedded_pool = (core_extract.embedded_prose_pool(
+                         judged, extension, embedded, file_path=file_path)
+                     if embedded is not None else [])
 
     # See <ruleset>.blocking_semantic_flags for what's excluded and why --
     # every caller (this hook, stopslop.py's `lint` command, the MCP
     # server) calls the resolved ruleset's own blocking_semantic_flags
     # rather than each keeping its own copy of this filter.
-    flags = ruleset.blocking_semantic_flags(result["semantic_flags"])
-
-    # A code rule can also name a prose ruleset for its embedded string
-    # literals and docstrings -- the crack between "codewatch reads code"
-    # and "prose rulesets read .md" is where this project's own UI copy
-    # lived unlinted. Either gate denying denies. See core/extract.py.
-    rule = core_config.matching_rule(file_path, PROJECT_ROOT)
-    embedded = core_extract.rule_embedded_ruleset(rule, rulesets)
+    flags = list(ruleset.blocking_semantic_flags(semantic))
     if embedded is not None:
-        flags = flags + core_extract.embedded_prose_flags(
-            text, os.path.splitext(file_path)[1], embedded, file_path=file_path)
+        for f in embedded.blocking_semantic_flags(embedded_pool):
+            f = dict(f)
+            f["embedded"] = True
+            flags.append(f)
+
+    before_weight = after_weight = None
+    if flags and after_text is not None and before_text.strip():
+        before_semantic = ruleset.lint_and_gate(
+            before_text, file_path=file_path)["semantic_flags"]
+        before_pool = (core_extract.embedded_prose_pool(
+                           before_text, extension, embedded, file_path=file_path)
+                       if embedded is not None else [])
+        before_weight = (flags_mod.flag_weight(before_semantic)
+                         + flags_mod.flag_weight(before_pool))
+        after_weight = (flags_mod.flag_weight(semantic)
+                        + flags_mod.flag_weight(embedded_pool))
+        if after_weight <= before_weight:
+            flags = []      # deniable, but no worse than it already was
 
     if flags:
         summary_lines = []
         for f in flags[:8]:
-            where = (f" (embedded prose, line {f['embedded_line']})"
-                     if "embedded_line" in f else "")
+            where = ""
+            if f.get("embedded"):
+                where = (f" (embedded prose, line {f['embedded_line']})"
+                         if "embedded_line" in f else " (embedded prose)")
             summary_lines.append(f"- [{f['kind']}] {flags_mod.display_label(f)}{where}")
         more = f"\n...and {len(flags) - 8} more" if len(flags) > 8 else ""
         attempt_number = count_consecutive_denials(file_path) + 1
         gate_name = ruleset.RULESET_NAME
-        if any("embedded_line" in f for f in flags):
+        if any(f.get("embedded") for f in flags):
             gate_name += f" + {embedded.RULESET_NAME} on embedded prose"
         reason = (
             f"{gate_name} gate: {file_path} has {len(flags)} flag(s) "
             f"requiring human/model resolution before this can be written.\n"
             + "\n".join(summary_lines) + more
         )
+        if before_weight is not None:
+            reason += (
+                f"\n\nRatchet: the file carries {before_weight} "
+                f"flag-occurrence(s) before this write and {after_weight} "
+                f"after it. A write that does not add flags passes."
+            )
         # Say what can be DONE, not only what is wrong. A deny used to list
         # its flags and stop there, so an agent blocked on a legitimate
         # domain word never learned that add_term exists. Derived from the
         # ruleset's own declarations (core.flags.remedies_for), so a new
         # check or list is covered without anyone updating a table here.
         remedy_lines = []
-        host_kinds = {f["kind"] for f in flags if "embedded_line" not in f}
+        host_kinds = {f["kind"] for f in flags if not f.get("embedded")}
         for kind in dict.fromkeys(f["kind"] for f in flags[:8]):
             # A remedy comes from the ruleset that owns the check -- the
             # embedded ruleset's kinds mean nothing to the host's lists.

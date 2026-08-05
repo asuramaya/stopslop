@@ -102,6 +102,8 @@ CHECKS = {
                     "terms, per its declared lexicon",
                     "one word, one meaning: use the canonical term the "
                     "word's own note names"),
+    "identifier_in_prose": ("A snake_case identifier written as plain prose",
+                             "name it in words, or mark it as inline code"),
 }
 
 

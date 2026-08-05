@@ -64,7 +64,7 @@ from core.blocks import (
     tokenize_sentences, split_into_blocks,
     HEADER_RE, LIST_ITEM_RE,
 )
-from core.flags import dedup_flags, default_label as _label
+from core.flags import dedup_flags, flag_weight, default_label as _label
 from core import config as _core_config, paths as _paths, terms as _terms
 
 # Every "kind" string this ruleset's checks can produce -- the modularity
@@ -78,7 +78,7 @@ ALL_CHECK_IDS = frozenset({
     "solicit_criticism", "unearned_profundity", "dramatic_fragmentation",
     "bold_bullet_lead", "id_label_lead", "binary_contrast",
     "canned_question_answer", "negative_listing", "em_dash_cluster",
-    "terminology",
+    "terminology", "identifier_in_prose",
 })
 
 
@@ -441,6 +441,24 @@ MARKETING_CLICHES = ["amazing", "breathtaking", "stunning", "must-visit", "must 
                       "you've come to the right place", "we've got you covered"]
 
 
+# --- identifier_in_prose (semantic) ----------------------------------------
+# snake_case in prose is an internal name shown to a reader who was never
+# told it exists -- the register drift a manual UI audit kept catching by
+# eye (a threshold rendered as block_flag_count_threshold beside a
+# sentence written in plain words). An identifier belongs in prose only
+# as marked code, and inline code is stripped before checks run, so the
+# fix IS the escape hatch: backtick it.
+_IDENTIFIER_RE = re.compile(r"\b_{0,2}[A-Za-z0-9]+(?:_[A-Za-z0-9]+)+_{0,2}\b")
+
+
+def check_identifier_in_prose(sentence):
+    return [{"word": m.group(0), "rule": "slopwatch.identifier_in_prose",
+              "auto_fix": False,
+              "note": "internal identifier in prose -- name it in words, "
+                      "or mark it as code"}
+            for m in _IDENTIFIER_RE.finditer(sentence)]
+
+
 # --- terminology (semantic) -- one word, one meaning -----------------------
 # ASD-STE100's cardinal principle, finally implemented as a RULE rather
 # than only shipped as a dictionary: a project names its canonical terms
@@ -710,6 +728,8 @@ def lint_and_gate(text, context=None, file_path=None):
             semantic.append({"kind": "dramatic_fragmentation", "label": _label(v), "detail": v, "text": s})
         for v in check_terminology(s, lexicon):
             semantic.append({"kind": "terminology", "label": _label(v), "detail": v, "text": s})
+        for v in check_identifier_in_prose(s):
+            semantic.append({"kind": "identifier_in_prose", "label": _label(v), "detail": v, "text": s})
 
     for v in check_binary_contrast(sentences):
         semantic.append({"kind": "binary_contrast", "label": _label(v), "detail": v, "text": v.get("text")})
@@ -758,10 +778,15 @@ def blocking_semantic_flags(semantic_flags):
     otherwise denied only when the text reads as densely formulaic: the
     configured flag-count threshold is reached (4 by default, see
     DEFAULT_OPTIONS)."""
+    # Occurrences, not deduped length: dedup collapses fifty repeats of
+    # one banned word into a single display entry, and a policy that
+    # counted the collapsed list scored monotonous slop below varied
+    # slop. See core.flags.flag_weight.
     for check_id, threshold in BLOCKS_ALONE_AT.items():
-        if sum(1 for f in semantic_flags if f["kind"] == check_id) >= threshold:
+        own = [f for f in semantic_flags if f["kind"] == check_id]
+        if flag_weight(own) >= threshold:
             return semantic_flags
-    if len(semantic_flags) >= _options()["block_flag_count_threshold"]:
+    if flag_weight(semantic_flags) >= _options()["block_flag_count_threshold"]:
         return semantic_flags
     return []
 

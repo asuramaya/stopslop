@@ -48,6 +48,19 @@ def display_label(flag):
     return flag["kind"]
 
 
+def flag_weight(flags):
+    """Total OCCURRENCES across a flag list, not its deduped length.
+
+    dedup_flags collapses repeats of one (kind, label) into a single
+    entry for display, which is right for a human reading a deny message
+    and wrong for a policy counting toward a threshold: a policy that
+    measured the collapsed list read fifty repeats of one banned word as
+    a single flag, so monotonous slop outscored varied slop. Every
+    counter that feeds a threshold or a worse-than-before comparison
+    weighs flags through this."""
+    return sum(f.get("detail", {}).get("occurrences", 1) for f in flags)
+
+
 def dedup_flags(flags, exclude_kinds=frozenset()):
     """Collapse repeated occurrences of the exact same (kind, label) into
     one flag with an 'occurrences' count added to its detail dict, keeping

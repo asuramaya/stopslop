@@ -211,7 +211,7 @@ def _routing_section(repo_root):
         if ruleset_id:
             _rule_packs_editor(repo_root, rule)
         else:
-            st.caption("Out of scope — nothing is checked here.")
+            st.caption("Out of scope. Nothing is checked here.")
     return probe, full, rule
 
 
@@ -325,7 +325,8 @@ def _option_changed(repo_root, module, name, key):
     # number_input's own value can arrive as a float even with step=1;
     # multiselect already returns the list a choice-option needs untouched.
     value = int(raw) if isinstance(raw, (int, float)) else raw
-    _snapshot(repo_root, f"set {module.RULESET_ID}.{name} to {value}")
+    _snapshot(repo_root, f"set {module.RULESET_ID} "
+                          f"{name.replace('_', ' ')} to {value}")
     try:
         module.set_options({name: value})
     except Exception as exc:
@@ -333,7 +334,7 @@ def _option_changed(repo_root, module, name, key):
 
 
 def _routing_table(repo_root):
-    st.caption("First match wins — order matters.")
+    st.caption("First match wins; order matters.")
     stored = core_config.rule_packs(repo_root)
     edited = st.data_editor(
         [{"glob": g, "ruleset": r or "", "packs": _pack_count({"packs": p})}
@@ -400,7 +401,7 @@ def _rules_section(repo_root, probe, full, ruleset_id):
     # demonstrates the system working was the last thing anyone found.
     # An expander rather than an open panel: visible and one click away
     # without asking for text before showing any state.
-    with st.expander("Try it — paste text, see what the gate does"):
+    with st.expander("Try it: paste text, see what the gate does"):
         _playground(repo_root, probe, full, ruleset_id)
     _by_check(repo_root, probe, full, ruleset_id)
 
@@ -429,7 +430,12 @@ def _deny_policy(repo_root, ruleset_id):
     policy = getattr(module, "DENY_POLICY", None)
     if not policy:
         return
-    options = core_flags.display_options(module)
+    # Prettify string-valued options for DISPLAY only: ste100's excluded
+    # vocabulary types are internal enum values (unknown_vocabulary, ...),
+    # and the page bans raw identifiers from its prose. The underlying
+    # values are untouched; MCP's explain() keeps the machine-readable form.
+    options = {k: (v.replace("_", " ") if isinstance(v, str) else v)
+               for k, v in core_flags.display_options(module).items()}
     owned = {n for names in getattr(module, "CHECK_OPTIONS", {}).values()
              for n in names}
     declared = module.list_options() if "options" in module.CAPABILITIES else {}
@@ -477,7 +483,7 @@ def _inline_policy_control(repo_root, row, name, info):
         name, value=int(info["value"]), step=1, key=key, width=90,
         label_visibility="collapsed",
         on_change=_option_changed, args=(repo_root, row["module"], name, key),
-        help=f"{name.replace('_', ' ')} — built-in default {info['default']}")
+        help=f"{name.replace('_', ' ')}; built-in default {info['default']}")
 
 
 def _check_rows(ruleset_id):
@@ -719,7 +725,8 @@ def _apply_check_edits(repo_root, module, rows, before, after, numeric):
         return
 
     labels = ([f"{'enabled' if on else 'disabled'} {c}" for c, on in toggles.items()]
-              + [f"set {module.RULESET_ID}.{n} to {v}" for n, v in options.items()])
+              + [f"set {module.RULESET_ID} {n.replace('_', ' ')} to {v}"
+                 for n, v in options.items()])
     _snapshot(repo_root, "; ".join(labels))
     try:
         if toggles:
@@ -749,10 +756,10 @@ def _check_contents(repo_root, full, rows, ruleset_id):
     if len(have) == 1:
         # A selectbox offering one choice is a control that does nothing.
         row = have[0]
-        st.caption(f"Words and lists — `{row['check']}` is the only one "
+        st.caption(f"Words and lists: `{row['check']}` is the only one "
                    f"of these checks with any.")
     else:
-        labels = {r["check"]: f"{r['check']} — " + ", ".join(
+        labels = {r["check"]: f"{r['check']}: " + ", ".join(
             filter(None, [f"{len(r['lists'])} word list(s)" if r["lists"] else "",
                           "vocabulary types" if any("choices" in i for i in
                                                      r["options"].values()) else ""]))
@@ -766,7 +773,7 @@ def _check_contents(repo_root, full, rows, ruleset_id):
     # One line, whole story: what the check catches, then the remedy --
     # the remedy used to float alone as "Instead: ..." with nothing on
     # screen saying instead of WHAT.
-    st.caption(f"{row['catches']} — instead, {row['instead']}.")
+    st.caption(f"{row['catches']}. Instead, {row['instead']}.")
     for name, info in row["options"].items():
         if "choices" in info:
             _option_control(repo_root, row, name, info)
@@ -849,7 +856,7 @@ def _term_list_block(repo_root, row, list_id, full):
     # on the list DOES, in plain words rather than an ALLOW/DENY tag the
     # sentence right after it restated.
     polarity = spec.get("polarity")
-    st.markdown(f"**{spec.get('label') or list_id}** — "
+    st.markdown(f"**{spec.get('label') or list_id}**: "
                 f"{len(layers['effective'])} words; "
                 + ("a word here stops being flagged." if polarity == "allow"
                    else "a word here gets flagged."),
@@ -956,7 +963,7 @@ def _add_vocabulary(repo_root, module, list_id, spec):
         # Offering a control that always refuses is worse than offering
         # none. ste100's two dictionary lists are published reference data;
         # removal and restore stay available on the rows above.
-        st.caption("This list takes no new words — it is published reference "
+        st.caption("This list takes no new words; it is published reference "
                    "data. Remove a word above to stop using it here, or add "
                    "your own to the project list.")
         return
@@ -1093,15 +1100,16 @@ def _playground(repo_root, probe, full, ruleset_id):
     result = ruleset.lint_and_gate(text, file_path=full)
     blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
     if blocking:
-        st.error(f"Would DENY — {len(blocking)} flag(s) need a person's judgment")
+        st.error(f"Would DENY: {len(blocking)} flag(s) need a person's judgment")
         # Same per-flag format the hook's own deny message uses -- and no
         # bolded [tag] opening each item, which is slopwatch's own
         # bold_bullet_lead pattern, caught here by the dogfooding pass.
         for f in blocking:
-            st.write(f"- [{f['kind']}] {f.get('label') or ''} — "
-                     f"{f['detail'].get('note', '')}")
+            note = f['detail'].get('note', '')
+            st.write(f"- [{f['kind']}] {f.get('label') or ''}"
+                     + (f": {note}" if note else ""))
     elif result["mechanical_violations"]:
-        st.warning(f"Would AUTO-FIX — {len(result['mechanical_violations'])} "
+        st.warning(f"Would AUTO-FIX: {len(result['mechanical_violations'])} "
                    f"mechanical violation(s)")
         st.code(ruleset.apply_mechanical_fixes(text, file_path=full))
     else:

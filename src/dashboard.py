@@ -85,7 +85,8 @@ def _short_path(file_path):
 # page raised NameError on every render -- see test_dashboard.py, which now
 # fails on any name this module reads and never defines.
 ACTION_ICON = {"deny": "🚫", "auto_fix": "🔧", "clean": "✅",
-               "unscoped_write": "❔", "register_term": "➕", "unregister_term": "➖"}
+               "unscoped_write": "❔", "register_term": "➕", "unregister_term": "➖",
+               "config_write": "⚙️"}
 
 
 def _first_run_notice():

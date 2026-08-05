@@ -99,28 +99,46 @@ def _append(segments, value, line):
         segments.append({"line": line, "text": value})
 
 
-def embedded_prose_flags(text, extension, module, file_path=None):
-    """Blocking flags from the prose embedded in a code file, judged by
-    the embedded ruleset's OWN deny policy -- the plugin contract's core
-    principle, unchanged: no policy lives here.
+def embedded_prose_pool(text, extension, module, file_path=None):
+    """Every semantic flag for the prose embedded in a code file, judged
+    as ONE document.
 
-    Flags pool across every segment before blocking_semantic_flags runs
-    ONCE: density is judged over the file's whole embedded prose, the
-    way a ruleset judges a whole document. Eight strings carrying one
-    flag each read exactly as sloppy as one string carrying eight, and a
-    per-segment threshold would let the first case through. Each
-    surviving flag carries its segment's starting line as
-    "embedded_line". `file_path` passes through to lint_and_gate so a
-    rule's vocabulary packs feed the embedded ruleset's lists the same
-    way they feed the host's."""
+    Segments join with blank lines and lint once. Per-segment linting
+    had a structural blind spot: document-level checks (em-dash
+    clustering, cross-sentence patterns) could never fire, because no
+    single caption holds a cluster even when the rendered page holds
+    dozens -- the file's total was unreachable by construction. Joining
+    also means eight strings carrying one flag each read exactly as
+    sloppy as one string carrying eight. Each flag that names a sentence
+    is traced back to its segment and carries that segment's starting
+    line as "embedded_line"; a document-level flag with no sentence of
+    its own stays file-scoped. Mechanical violations are dropped, not
+    fixed (the splice-back problem, see the module docstring).
+    `file_path` passes through so a rule's vocabulary packs feed the
+    embedded ruleset's lists the same way they feed the host's."""
+    segments = prose_segments(text, extension)
+    if not segments:
+        return []
+    joined = "\n\n".join(s["text"] for s in segments)
+    result = module.lint_and_gate(joined, file_path=file_path)
     pooled = []
-    for segment in prose_segments(text, extension):
-        result = module.lint_and_gate(segment["text"], file_path=file_path)
-        for flag in result["semantic_flags"]:
-            flag = dict(flag)
-            flag["embedded_line"] = segment["line"]
-            pooled.append(flag)
-    return module.blocking_semantic_flags(pooled)
+    for flag in result["semantic_flags"]:
+        flag = dict(flag)
+        sentence = flag.get("text") or ""
+        for segment in segments:
+            if sentence and sentence in segment["text"]:
+                flag["embedded_line"] = segment["line"]
+                break
+        pooled.append(flag)
+    return pooled
+
+
+def embedded_prose_flags(text, extension, module, file_path=None):
+    """The BLOCKING subset of embedded_prose_pool, decided by the
+    embedded ruleset's OWN deny policy -- the plugin contract's core
+    principle, unchanged: no policy lives here."""
+    return module.blocking_semantic_flags(
+        embedded_prose_pool(text, extension, module, file_path=file_path))
 
 
 def rule_embedded_ruleset(rule, registry):

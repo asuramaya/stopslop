@@ -96,7 +96,7 @@ DENY_POLICY = {
     # still describes what the gate actually does. The text completes
     # "<ruleset> denies a write ..." (see codewatch's DENY_POLICY note).
     "text": "on every flag. Vocabulary of an excluded type "
-            "({excluded_vocab_types}) is reported and let through -- the "
+            "({excluded_vocab_types}) is reported and let through; the "
             "dictionary cannot know a project's own domain words.",
     # Empty by design: ste100 blocks by default and names exceptions,
     # the opposite shape from slopwatch/codewatch's shared-pool-plus-

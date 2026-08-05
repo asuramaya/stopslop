@@ -12,7 +12,8 @@ instead of anything that was actually found.
 import unittest
 from types import SimpleNamespace
 
-from core.flags import display_label, display_options
+from core.flags import (dedup_flags, display_label, display_options,
+                          flag_weight)
 
 
 class DisplayLabelTests(unittest.TestCase):
@@ -82,6 +83,24 @@ class DisplayOptionsTests(unittest.TestCase):
     def test_ruleset_without_options_capability_returns_empty(self):
         module = self._module({"checks"}, {})
         self.assertEqual(display_options(module), {})
+
+
+class FlagWeightTests(unittest.TestCase):
+    """Occurrences, not deduped length -- the policy-side counterpart of
+    dedup_flags. A policy that measured the collapsed list read fifty
+    repeats of one banned word as a single flag."""
+
+    def test_a_flag_without_occurrences_weighs_one(self):
+        self.assertEqual(flag_weight([{"kind": "x", "detail": {}}]), 1)
+
+    def test_occurrences_sum_across_the_list(self):
+        collapsed = [{"kind": "x", "detail": {"occurrences": 5}},
+                     {"kind": "y", "detail": {}}]
+        self.assertEqual(flag_weight(collapsed), 6)
+
+    def test_dedup_then_weight_round_trips_the_original_count(self):
+        raw = [{"kind": "x", "label": "slop", "detail": {}} for _ in range(4)]
+        self.assertEqual(flag_weight(dedup_flags(raw)), 4)
 
 
 if __name__ == "__main__":

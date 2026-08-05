@@ -68,12 +68,18 @@ class ProseSegmentsTests(unittest.TestCase):
             extract.prose_segments('"real prose with many words"', ".js"), [])
 
 
-def _stub_ruleset(threshold):
-    """A minimal embedded ruleset: every word spelled 'slop' flags, and
-    the deny policy is a bare count threshold."""
+def _stub_ruleset(threshold, calls=None):
+    """A minimal embedded ruleset: every word spelled 'slop' flags (with
+    the containing paragraph as the flag's sentence, like a real check),
+    and the deny policy is a bare count threshold."""
     def lint_and_gate(text, file_path=None):
-        flags = [{"kind": "stub_slop", "detail": {}, "label": w}
-                 for w in text.split() if w == "slop"]
+        if calls is not None:
+            calls.append(text)
+        flags = []
+        for paragraph in text.split("\n\n"):
+            flags.extend({"kind": "stub_slop", "detail": {}, "label": w,
+                           "text": paragraph}
+                          for w in paragraph.split() if w == "slop")
         return {"semantic_flags": flags, "mechanical_violations": []}
 
     def blocking_semantic_flags(flags):
@@ -88,20 +94,40 @@ class EmbeddedProseFlagsTests(unittest.TestCase):
     SOURCE = ('a = "slop in the first string"\n'
               'b = "slop in the second string"\n')
 
-    def test_flags_pool_across_segments_before_the_policy_runs(self):
-        # One flag per segment; a per-segment threshold of 2 would let
-        # both through. Pooling is the point: density is judged over the
-        # file's whole embedded prose.
-        flags = extract.embedded_prose_flags(self.SOURCE, ".py", _stub_ruleset(2))
+    def test_segments_are_judged_as_one_document_in_one_call(self):
+        # Per-segment linting made document-level checks unreachable by
+        # construction: no single caption ever holds a cluster. One
+        # joined lint is the fix, and also what makes the pooled
+        # threshold honest -- two strings with one flag each read
+        # exactly as sloppy as one string with two.
+        calls = []
+        flags = extract.embedded_prose_flags(self.SOURCE, ".py",
+                                              _stub_ruleset(2, calls))
+        self.assertEqual(len(calls), 1)
+        self.assertIn("first string", calls[0])
+        self.assertIn("second string", calls[0])
         self.assertEqual(len(flags), 2)
 
     def test_below_the_pooled_threshold_nothing_blocks(self):
         flags = extract.embedded_prose_flags(self.SOURCE, ".py", _stub_ruleset(3))
         self.assertEqual(flags, [])
 
-    def test_each_flag_carries_its_segment_line(self):
+    def test_each_flag_traces_back_to_its_segment_line(self):
         flags = extract.embedded_prose_flags(self.SOURCE, ".py", _stub_ruleset(1))
         self.assertEqual(sorted(f["embedded_line"] for f in flags), [1, 2])
+
+    def test_a_document_level_flag_stays_file_scoped(self):
+        # A flag with no sentence of its own (an em-dash-cluster shape)
+        # cannot name a segment, and must not invent one.
+        def lint_and_gate(text, file_path=None):
+            return {"semantic_flags": [{"kind": "doc_level", "detail": {},
+                                          "label": None, "text": None}],
+                     "mechanical_violations": []}
+        module = types.SimpleNamespace(lint_and_gate=lint_and_gate,
+                                        blocking_semantic_flags=lambda f: f)
+        flags = extract.embedded_prose_flags(self.SOURCE, ".py", module)
+        self.assertEqual(len(flags), 1)
+        self.assertNotIn("embedded_line", flags[0])
 
     def test_no_segments_means_no_ruleset_calls_at_all(self):
         def explode(*a, **k):

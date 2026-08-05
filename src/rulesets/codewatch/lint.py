@@ -45,6 +45,7 @@ slopwatch already established.
 import re
 
 from core import config as _core_config, paths as _paths, terms as _terms
+from core.flags import flag_weight
 
 TRACKED_EXTENSIONS = (".py",)
 
@@ -449,10 +450,13 @@ def blocking_semantic_flags(semantic_flags):
     denies once its own flags reach the declared count; everything else
     blocks only past the configured density threshold (4 by default, see
     DEFAULT_OPTIONS)."""
+    # Occurrences, not deduped length -- see core.flags.flag_weight and
+    # the same note in rulesets/slopwatch/lint.py.
     for check_id, threshold in BLOCKS_ALONE_AT.items():
-        if sum(1 for f in semantic_flags if f["kind"] == check_id) >= threshold:
+        own = [f for f in semantic_flags if f["kind"] == check_id]
+        if flag_weight(own) >= threshold:
             return semantic_flags
-    if len(semantic_flags) >= _options()["block_flag_count_threshold"]:
+    if flag_weight(semantic_flags) >= _options()["block_flag_count_threshold"]:
         return semantic_flags
     return []
 
