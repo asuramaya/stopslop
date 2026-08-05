@@ -125,7 +125,7 @@ def _status_footer():
         help="config: whether stopslop.config.json overrides the built-in "
              "defaults, or none exists. hook: is the gate wired into Claude "
              "Code (🔴 = run `stopslop.py init`). integrity: whether a "
-             "baseline snapshot of the shipped rule files has ever been "
+             "baseline snapshot of the built-in rule files has ever been "
              "recorded (⚪ = not yet) -- this checks that a snapshot exists, "
              "not that it currently matches.")
 

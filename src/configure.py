@@ -180,6 +180,14 @@ def configure_page(repo_root):
         _rules_section(repo_root, probe, full, ruleset_id)
 
 
+def _display_path(probe):
+    """The probe path as a human should see it: the stand-in stem goes
+    back to being the wildcard it replaced. `__probe__.md` is an internal
+    name for fnmatch's benefit; a caption saying "13 checks run on
+    __probe__.md" leaks it."""
+    return probe.replace("__probe__", "*")
+
+
 def _synthetic_path_for_glob(glob):
     """A literal path fnmatch would actually match against `glob` -- for
     "Try it" and any pack/context resolution downstream, which need a
@@ -594,7 +602,7 @@ def _by_check(repo_root, probe, full, ruleset_id):
         return
 
     off = sum(1 for r in rows if not r["enabled"])
-    st.caption(f"{len(rows)} checks run on `{probe}`"
+    st.caption(f"{len(rows)} checks run on `{_display_path(probe)}`"
                + (f", {off} turned off." if off else "."))
     needle = st.text_input(
         "Search", key="rules_q",
@@ -627,9 +635,9 @@ def _by_check(repo_root, probe, full, ruleset_id):
     # The value is still validated as an integer on the way back in.
     for name in numeric:
         config[name] = st.column_config.TextColumn(
-            name, width="small",
-            help=f"{name}, on the checks that have one. Blank means this "
-                 f"check takes no such setting.")
+            name.replace("_", " "), width="small",
+            help=f"{name.replace('_', ' ')}, on the checks that have one. "
+                 f"Blank means this check takes no such setting.")
     # Text, not a number: a check with no word list has no count, and an
     # empty NumberColumn cell renders the literal "None" -- which read as
     # a value on 9 of codewatch's 10 rows. Blank says "nothing here"
@@ -772,18 +780,27 @@ def _check_contents(repo_root, full, rows, ruleset_id):
         return
 
     st.divider()
-    labels = {r["check"]: f"{r['check']} — " + ", ".join(
-        filter(None, [f"{len(r['lists'])} word list(s)" if r["lists"] else "",
-                      "vocabulary types" if any("choices" in i for i in
-                                                 r["options"].values()) else ""]))
-        for r in have}
-    picked = st.selectbox(
-        f"Words and lists ({len(have)} of these {len(rows)} checks have any)",
-        [r["check"] for r in have], key=f"check_contents::{ruleset_id}",
-        format_func=lambda c: labels[c])
-    row = next(r for r in have if r["check"] == picked)
+    if len(have) == 1:
+        # A selectbox offering one choice is a control that does nothing.
+        row = have[0]
+        st.caption(f"Words and lists — of these {len(rows)} checks, only "
+                   f"`{row['check']}` has any.")
+    else:
+        labels = {r["check"]: f"{r['check']} — " + ", ".join(
+            filter(None, [f"{len(r['lists'])} word list(s)" if r["lists"] else "",
+                          "vocabulary types" if any("choices" in i for i in
+                                                     r["options"].values()) else ""]))
+            for r in have}
+        picked = st.selectbox(
+            f"Words and lists ({len(have)} of these {len(rows)} checks have any)",
+            [r["check"] for r in have], key=f"check_contents::{ruleset_id}",
+            format_func=lambda c: labels[c])
+        row = next(r for r in have if r["check"] == picked)
 
-    st.caption(f"**Instead:** {row['instead']}")
+    # One line, whole story: what the check catches, then the remedy --
+    # the remedy used to float alone as "Instead: ..." with nothing on
+    # screen saying instead of WHAT.
+    st.caption(f"{row['catches']} — instead, {row['instead']}.")
     for name, info in row["options"].items():
         if "choices" in info:
             _option_control(repo_root, row, name, info)
@@ -800,14 +817,16 @@ def _option_control(repo_root, row, name, info):
     # declared domain, not a number. Declared, not inferred from the
     # value's type: see rulesets/ste100/__init__.py's _OPTION_CHOICES.
     if "choices" in info:
-        cols[0].multiselect(name, options=info["choices"], default=info["value"],
+        cols[0].multiselect(name.replace("_", " "), options=info["choices"],
+                             default=info["value"],
                              key=key, on_change=_option_changed, args=args)
     else:
-        cols[0].number_input(name, value=int(info["value"]), step=1, key=key,
+        cols[0].number_input(name.replace("_", " "), value=int(info["value"]),
+                              step=1, key=key,
                               on_change=_option_changed, args=args)
     with cols[1]:
         st.caption("")
-        st.caption(f"shipped default {info['default']}")
+        st.caption(f"built-in default {info['default']}")
 
 
 def _list_counts(repo_root, row, full):
@@ -853,36 +872,45 @@ def _term_list_block(repo_root, row, list_id, full):
     packs = set(glossary_packs.AVAILABLE_PACKS)
     # Name the list. A check can own more than one -- ste100's `vocabulary`
     # stacks three, an allow list, a deny list and the project's own -- and
-    # three unlabelled blocks of words read as one repeated widget.
+    # three unlabelled blocks of words read as one repeated widget. One
+    # statement of each fact: the label (the id lives in its tooltip, for
+    # cross-reference with the packs control), the count, and what being
+    # on the list DOES, in plain words rather than an ALLOW/DENY tag the
+    # sentence right after it restated.
     polarity = spec.get("polarity")
-    st.markdown(f"**{spec.get('label') or list_id}** · `{list_id}` · "
-                f"{len(layers['effective'])} words · "
-                f"{'ALLOW' if polarity == 'allow' else 'DENY'} — "
-                + ("words here stop being flagged." if polarity == "allow"
-                   else "words here start being flagged."))
+    st.markdown(f"**{spec.get('label') or list_id}** — "
+                f"{len(layers['effective'])} words; "
+                + ("a word here stops being flagged." if polarity == "allow"
+                   else "a word here gets flagged."),
+                help=f"list id: `{list_id}`")
 
     counts = _resolve_counts(repo_root, module, list_id, full)
     key = f"{module.RULESET_ID}.{list_id}"
     active = st.session_state.get(f"srcfilter_{key}")
-    for source, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
-        cols = st.columns([3, 1])
-        selected = active == source
-        if cols[0].button(f"{'▸ ' if selected else ''}{source}  ({n})",
-                           key=f"src_{key}_{source}", width="stretch"):
-            st.session_state[f"srcfilter_{key}"] = None if selected else source
-            st.rerun()
-        cols[1].caption("pack" if source in packs else
-                         ("yours" if source == "yours" else "shipped"))
-
     suppressed = core_terms.suppressed_terms(repo_root, module.RULESET_ID, list_id)
-    if suppressed:
-        cols = st.columns([3, 1])
-        selected = active == "suppressed"
-        if cols[0].button(f"{'▸ ' if selected else ''}suppressed  ({len(suppressed)})",
-                           key=f"src_{key}_suppressed", width="stretch"):
-            st.session_state[f"srcfilter_{key}"] = None if selected else "suppressed"
-            st.rerun()
-        cols[1].caption("removed")
+    # A filter over one source filters nothing: skip the buttons unless
+    # there are at least two places a word here can come from.
+    if len(counts) + (1 if suppressed else 0) > 1:
+        for source, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+            cols = st.columns([3, 1])
+            selected = active == source
+            if cols[0].button(f"{'▸ ' if selected else ''}{source}  ({n})",
+                               key=f"src_{key}_{source}", width="stretch"):
+                st.session_state[f"srcfilter_{key}"] = None if selected else source
+                st.rerun()
+            if source in packs:
+                cols[1].caption("pack")
+
+        if suppressed:
+            cols = st.columns([3, 1])
+            selected = active == "suppressed"
+            if cols[0].button(f"{'▸ ' if selected else ''}suppressed  ({len(suppressed)})",
+                               key=f"src_{key}_suppressed", width="stretch"):
+                st.session_state[f"srcfilter_{key}"] = None if selected else "suppressed"
+                st.rerun()
+            cols[1].caption("removed")
+    else:
+        active = None       # a filter that survived its second source
 
     _word_table(repo_root, module, list_id, layers, suppressed, active, key)
     _add_vocabulary(repo_root, module, list_id, spec)
@@ -931,11 +959,11 @@ def _word_table(repo_root, module, list_id, layers, suppressed, active, key):
                 module.add_term(list_id, r["term"])
             st.rerun()
         return
-    shipped = [r for r in chosen if r["source"] != "yours"]
+    not_yours = [r for r in chosen if r["source"] != "yours"]
     detail = (f"{len(chosen)} word(s) go. "
-              + (f"{len(shipped)} of them are shipped (a built-in or a pack "
-                 f"word), so they are SUPPRESSED rather than deleted and stay "
-                 f"restorable." if shipped else "All are your own, so they are deleted."))
+              + (f"{len(not_yours)} of them come from a built-in list or a "
+                 f"pack, so they are suppressed rather than deleted and stay "
+                 f"restorable." if not_yours else "All are your own, so they are deleted."))
     if _confirm(f"rm_{key}", f"Remove {len(chosen)} selected word(s)", detail):
         _snapshot(repo_root, f"removed {len(chosen)} word(s) from {list_id}")
         for r in chosen:
@@ -957,7 +985,7 @@ def _add_vocabulary(repo_root, module, list_id, spec):
         # Offering a control that always refuses is worse than offering
         # none. ste100's two dictionary lists are published reference data;
         # removal and restore stay available on the rows above.
-        st.caption("This list takes no new words — it is shipped reference "
+        st.caption("This list takes no new words — it is published reference "
                    "data. Remove a word above to stop using it here, or add "
                    "your own to the project list.")
         return
@@ -1083,7 +1111,7 @@ def _playground(repo_root, probe, full, ruleset_id):
     the out-of-scope case before this is ever reached. No title of its
     own: the expander carries it, and the deny line directly above
     already names the ruleset this lints with."""
-    st.caption(f"Linted exactly as the gate would lint `{probe}`, "
+    st.caption(f"Linted exactly as the gate would lint `{_display_path(probe)}`, "
                f"with that path's own vocabulary.")
     text = st.text_area("Text", height=120, key="playground_text",
                          placeholder="Paste a sentence or a snippet...")
