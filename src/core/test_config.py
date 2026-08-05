@@ -847,6 +847,20 @@ class PerPathDisabledChecksTests(unittest.TestCase):
         self._write([{"glob": "*.py", "ruleset": "codewatch", "disable": "oops"}])
         self.assertEqual(self._for("a.py"), [])
 
+    def test_the_disable_list_reaches_the_embedded_prose_ruleset_too(self):
+        """A rule's disable applies to every ruleset the rule invokes on
+        its paths -- found on day one of dogfooding, when colon_reveal
+        read code strings ("Usage:", "Not saved:") as 194 false
+        positives that only a per-path disable could turn off."""
+        self._write([{"glob": "*.py", "ruleset": "codewatch",
+                       "embedded_prose": "slopwatch",
+                       "disable": ["colon_reveal"]}])
+        self.assertEqual(self._for("a.py", ruleset="slopwatch"),
+                          ["colon_reveal"])
+        self.assertEqual(self._for("a.py", ruleset="codewatch"),
+                          ["colon_reveal"])
+        self.assertEqual(self._for("a.py", ruleset="ste100"), [])
+
 
 if __name__ == "__main__":
     unittest.main()

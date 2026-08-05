@@ -12,7 +12,7 @@ someone to proactively run it: a change made mid-session, before it's ever
 staged or committed, is invisible to `git diff` until somebody thinks to
 look, and a change that IS committed is still only visible to a reviewer
 who actually opens that diff. This check adds an automatic, passive layer
-on top: it runs unprompted at every SessionStart and surfaces a warning
+on top: it runs unprompted at every SessionStart and prints a warning
 whether or not the change was ever committed, staged, or reviewed by anyone.
 
 Not access control and not tamper prevention -- a hash registry an agent can
@@ -27,7 +27,7 @@ SessionStart, namespaced by "_core" and each ruleset id (so two rulesets'
 same-named files, e.g. two lint.py, never collide). Every SessionStart
 compares current hashes against that baseline, reports any mismatch as a
 warning, THEN overwrites the registry with the current hashes. A legitimate
-edit made during a session surfaces as a one-time "changed since last
+edit made during a session shows up as a one-time "changed since last
 session" notice at the NEXT session start -- informational, not a block,
 matching this project's existing division of labor (the write-gate blocks
 bad content; this just makes drift visible).

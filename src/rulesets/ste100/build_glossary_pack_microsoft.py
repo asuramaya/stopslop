@@ -64,7 +64,7 @@ Filtering pipeline (why a word is IN or OUT), applied in this order:
      lint.check_vocabulary(); a candidate like "canceled" (stems to the
      already-APPROVED "cancel") is dropped too, as pure redundancy.
      Confirmed live on this exact source: allows, depressed, dimmed,
-     enables, labeled, runs, and zeros all stem to a forbidden word and
+     `enables`, `labeled`, `runs`, and `zeros` all stem to a forbidden word and
      are excluded this way, not by manual listing.
 
   3. Not a Microsoft product/brand/platform name, not a named punctuation

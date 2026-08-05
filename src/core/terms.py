@@ -55,11 +55,11 @@ Two properties this module exists to guarantee:
 2. **A pack cannot override the prohibitions of the ruleset reading it.** A
    ruleset may declare `pack_admissible` on a list: a predicate deciding
    whether bulk-imported content is allowed to introduce a given term. The
-   three packs shipped today collide with ASD-STE100's forbidden list
+   three built-in packs collide with ASD-STE100's forbidden list
    exactly zero times -- but only because their build scripts hand-exclude
    words the dictionary already covers. That made the invariant a property
    of how those three files happened to be produced, not of the model. Once
-   packs are first-class and extensible, a fourth pack containing "utilize"
+   packs are first-class and extensible, a fourth pack containing `utilize`
    would silently un-forbid a word the standard explicitly replaces: a gate
    that quietly stops gating. Rejections are reported, not swallowed, so the
    UI can surface them. A PROJECT registration can still override a
@@ -260,7 +260,7 @@ def _built_in_layer(spec):
     """Whatever the ruleset ships for this list.
 
     `built_ins` may be a plain collection of terms, or a MAPPING of term ->
-    metadata. The mapping form exists because some shipped vocabulary
+    metadata. The mapping form exists because some built-in vocabulary
     carries data the checks use -- ASD-STE100's forbidden words each name
     an approved replacement -- and a layer that could only hold bare
     strings was the reason that dictionary sat outside the term-list model
@@ -276,7 +276,7 @@ def suppressed_terms(project_root, ruleset_id, list_id, config_file=None):
     """Just the tombstones for one list, as a set.
 
     Deliberately cheaper than resolve(): a live gate needs to know what a
-    project has removed from a shipped list, and building the whole layered
+    project has removed from a built-in list, and building the whole layered
     view to find out would mean materialising every built-in on every
     write. This reads one small mapping that is almost always empty."""
     stored = project_terms(project_root, ruleset_id, list_id, config_file=config_file)
@@ -489,7 +489,7 @@ def add_term(ruleset_id, term_lists, project_root, list_id, term, note="",
     if not term_lists[list_id].get("accepts_additions", True):
         return {"ok": False, "status": "refused",
                 "message": f"'{list_id}' does not take new words -- it is "
-                            f"shipped reference data, not a project list. "
+                            f"published reference data, not a project list. "
                             f"Words can still be removed from it, and "
                             f"anything removed can be restored."}
 
@@ -514,7 +514,7 @@ def remove_term(ruleset_id, term_lists, project_root, list_id, term,
 
     Removing a term the project itself added simply deletes it. Removing a
     built-in or a pack term cannot delete anything -- those words live in a
-    ruleset's source file or a shipped JSON pack -- so it records a
+    ruleset's source file or a built-in JSON pack -- so it records a
     tombstone in the project layer instead, which resolve() subtracts. That
     is the difference between a list that can only grow and one a person
     can actually curate."""

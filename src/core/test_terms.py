@@ -662,7 +662,7 @@ class ClosedListTests(unittest.TestCase):
         result = self._add("shipped", "charlie")
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "refused")
-        self.assertIn("shipped reference data", result["message"])
+        self.assertIn("published reference data", result["message"])
         self.assertNotIn("charlie", self._effective("shipped")["effective"])
 
     def test_a_closed_list_still_allows_suppression(self):

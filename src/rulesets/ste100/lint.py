@@ -145,7 +145,7 @@ def _pack_admissible(term):
     hand-excludes words the dictionary already covers. That made the
     invariant a property of how those three files happened to be BUILT, not
     of the model, and it evaporates the moment a fourth pack arrives from
-    anywhere else: a pack containing "utilize" would silently un-forbid a
+    anywhere else: a pack containing `utilize` would silently un-forbid a
     word the standard explicitly replaces, which is a gate that has quietly
     stopped gating. A project registration can still override a prohibition
     -- deliberately, with a stated reason, via register_term's
@@ -182,7 +182,7 @@ def suppressed_vocabulary():
 def effective_project_terms(file_path=None):
     """The full Tier 2 glossary the checks actually run against for one
     file: the manual registrations, plus whatever packs the routing rule
-    matching `file_path` enables. Packs are resolved PER PATH -- NIST
+    matching `file_path` turns on. Packs are resolved PER PATH -- NIST
     security vocabulary belongs to docs/security/, not to "the ste100
     ruleset" -- see core.config.packs_for_path.
 

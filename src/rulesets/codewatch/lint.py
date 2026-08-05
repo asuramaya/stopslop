@@ -296,7 +296,7 @@ def _is_script(lines):
     2. No function or class defined anywhere: a bare top-level launcher
        (mcp_launch.py) has no importable API surface at all -- every line
        runs identically whether the file is imported or executed, so
-       there's no "this is really a library, and something leaked into it"
+       there's no "this is actually a library, and something leaked into it"
        question for a `__main__` guard to normally answer.
 
     A module that defines functions/classes but has no `__main__` guard

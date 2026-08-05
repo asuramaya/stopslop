@@ -611,10 +611,12 @@ class TerminologyTests(unittest.TestCase):
         self.assertEqual(
             lint.check_terminology("the reshipped carton", self.LEXICON), [])
 
-    def test_lexicon_flags_are_semantic_and_reach_lint_and_gate(self):
-        # End to end through the real resolver: with no project lexicon
-        # registered, the check is inert on ordinary text.
-        result = lint.lint_and_gate("The shipped default applies here.")
+    def test_a_word_no_lexicon_bans_is_never_flagged(self):
+        # End to end through the real resolver. Deliberately NOT asserting
+        # on a word this repo's own lexicon bans ("shipped") -- that made
+        # the test a hostage of the project's live config, and it failed
+        # the moment dogfooding registered the first real banned word.
+        result = lint.lint_and_gate("The plain default applies here.")
         self.assertNotIn("terminology",
                           [f["kind"] for f in result["semantic_flags"]])
 

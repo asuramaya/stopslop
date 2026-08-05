@@ -609,7 +609,7 @@ def _by_check(repo_root, probe, full, ruleset_id):
         placeholder="a check, or any word in any list",
         help="Matches checks by name and description, and every word in "
              "every ruleset's lists -- ste100's whole dictionary lives "
-             "under one check, so \"is 'leverage' banned\" is a word "
+             "under one check, so \"is `leverage` banned\" is a word "
              "search, not a row in this table.").strip().lower()
     shown = [r for r in rows
              if not needle or needle in r["check"].lower()
@@ -1053,7 +1053,7 @@ def _override_prompt(repo_root):
 def _word_matches(repo_root, full, needle):
     """Words matching the search, across every ruleset's lists.
 
-    "Is 'leverage' banned, and where" is a real question a check-keyed
+    "Is `leverage` banned, and where" is a real question a check-keyed
     table cannot answer -- ste100's 2830 words sit under ONE check while
     codewatch's 12 sit under another. This used to be a whole second view
     behind a "by check / all words" mode pill; browsing 2830 rows was
@@ -1128,8 +1128,11 @@ def _playground(repo_root, probe, full, ruleset_id):
     blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
     if blocking:
         st.error(f"Would DENY — {len(blocking)} flag(s) need a person's judgment")
+        # Same per-flag format the hook's own deny message uses -- and no
+        # bolded [tag] opening each item, which is slopwatch's own
+        # bold_bullet_lead pattern, caught here by the dogfooding pass.
         for f in blocking:
-            st.write(f"- **[{f['kind']}]** {f.get('label') or ''} — "
+            st.write(f"- [{f['kind']}] {f.get('label') or ''} — "
                      f"{f['detail'].get('note', '')}")
     elif result["mechanical_violations"]:
         st.warning(f"Would AUTO-FIX — {len(result['mechanical_violations'])} "

@@ -256,10 +256,19 @@ def disabled_checks_for_path(project_root, ruleset_id, file_path=None,
     cannot turn one back on that the project disabled globally. One
     direction keeps "why did this not fire here?" answerable from two
     places at most, and keeps the rule from silently re-enabling something
-    a project deliberately switched off."""
+    a project deliberately switched off.
+
+    A rule's "disable" list applies to EVERY ruleset the rule invokes on
+    its paths -- the host and, since embedded prose arrived, the
+    embedded_prose ruleset too. The need showed up on day one of
+    dogfooding: colon_reveal is a real prose check that reads code
+    strings as one long false positive ("Usage:", "Not saved:",
+    "default:" are labels, not buildup-and-reveal), and per-path
+    disabling is exactly the mechanism for "this check does not apply in
+    this context"."""
     disabled = set(disabled_checks(project_root, ruleset_id, config_file))
     rule = matching_rule(file_path, project_root, config_file) if file_path else None
-    if rule and rule.get("ruleset") == ruleset_id:
+    if rule and ruleset_id in (rule.get("ruleset"), rule.get("embedded_prose")):
         extra = rule.get("disable") or []
         if isinstance(extra, list):
             disabled |= set(extra)

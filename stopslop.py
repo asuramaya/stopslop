@@ -68,7 +68,7 @@ def _resolve(ruleset_id, target_path):
 def cmd_init(args):
     if os.path.exists(SETTINGS_REAL) and not args.force:
         print(f"{SETTINGS_REAL} already exists -- not overwriting.")
-        print("Re-run with --force if you really want to replace it.")
+        print("Re-run with --force if you want to replace it.")
         return 1
 
     with open(SETTINGS_EXAMPLE) as f:
@@ -363,8 +363,8 @@ def cmd_packs(args):
 
     if args.enable is not None:
         if not args.glob or not args.list:
-            print("--enable needs --glob GLOB and --list LIST_ID: a pack applies "
-                  "to a path, and feeds one named term list.", file=sys.stderr)
+            print("`--enable` needs `--glob GLOB` and `--list LIST_ID`: a pack "
+                  "applies to a path, and feeds one named term list.", file=sys.stderr)
             return 1
         try:
             core_config.set_rule_packs(REPO_ROOT, args.glob, args.list, args.enable,
@@ -547,7 +547,7 @@ def main():
     p_terms.set_defaults(func=cmd_terms)
 
     p_packs = sub.add_parser("packs",
-                              help="list vocabulary packs and enable them on a path glob")
+                              help="list vocabulary packs and attach them to a path glob")
     p_packs.add_argument("--glob", metavar="GLOB",
                           help="which routing rule to change (a pack applies to a PATH, "
                                "not to a ruleset)")
@@ -559,7 +559,7 @@ def main():
                                "ids to disable all of them there")
     p_packs.set_defaults(func=cmd_packs)
 
-    p_checks = sub.add_parser("checks", help="list/enable individual checks for a ruleset")
+    p_checks = sub.add_parser("checks", help="list checks for a ruleset, or turn them on and off")
     p_checks.add_argument("--ruleset", help="ruleset id (default: ste100)")
     p_checks.add_argument("--enable", nargs="*", metavar="CHECK_ID",
                            help="set exactly this list of checks as enabled (disables every "

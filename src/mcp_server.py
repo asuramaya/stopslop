@@ -280,7 +280,8 @@ def set_checks(states: dict[str, bool], ruleset: str = "") -> dict:
 
     MERGE semantics, deliberately. This tool replaced an enable_checks that
     set exactly the list it was given and disabled everything else -- so
-    "turn off this one noisy check" was expressed as "enable the other 19",
+    "turn off this one noisy check" was expressed as "turn the other 19
+    back on",
     and getting that list slightly wrong silently disabled real checks. A
     caller here almost never holds the full picture; the CLI's
     `stopslop.py checks --enable a b c` does, and keeps replace semantics

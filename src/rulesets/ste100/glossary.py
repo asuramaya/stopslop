@@ -61,7 +61,7 @@ def validate_term(term, force):
                 "message": f"'{term}' is explicitly forbidden by the real ASD-STE100 "
                             f"dictionary{hint}. Registering it as a project term would "
                             f"silently override that rule, not fill a genuine coverage "
-                            f"gap. If this is really intended, call again with "
+                            f"gap. If this is intended anyway, call again with "
                             f"override_unapproved set to a reason."}, {}
     return None, {"overrides_unapproved": is_forbidden}
 
