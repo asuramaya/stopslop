@@ -23,6 +23,7 @@ from types import SimpleNamespace
 
 import stopslop
 import rulesets
+from core import config as core_config
 from core import terms as _core_terms
 from rulesets import slopwatch as _slopwatch
 
@@ -39,9 +40,16 @@ class ResolveTests(unittest.TestCase):
         ruleset = stopslop._resolve(None, stopslop.REPO_ROOT + "/notes.md")
         self.assertEqual(ruleset.RULESET_ID, "ste100")
 
-    def test_root_readme_resolves_to_slopwatch(self):
-        ruleset = stopslop._resolve(None, stopslop.REPO_ROOT + "/README.md")
-        self.assertEqual(ruleset.RULESET_ID, "slopwatch")
+    def test_root_readme_resolves_to_slopwatch_by_default(self):
+        # Asserted against the built-in DEFAULT_RULES, not the live
+        # stopslop.config.json -- the live file is the operator's working
+        # state and may route README anywhere while they experiment. This
+        # test used to read it and became a hostage of exactly such an
+        # experiment (README.md -> codewatch, set from the dashboard).
+        ruleset_id = core_config.resolve_ruleset_id(
+            stopslop.REPO_ROOT + "/README.md", stopslop.REPO_ROOT,
+            config_file=os.path.join(stopslop.REPO_ROOT, "no-such.config.json"))
+        self.assertEqual(ruleset_id, "slopwatch")
 
     def test_py_resolves_to_codewatch(self):
         ruleset = stopslop._resolve(None, stopslop.REPO_ROOT + "/somefile.py")

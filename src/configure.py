@@ -1,64 +1,32 @@
 #!/usr/bin/env python3
-"""The Configure page: what happens to this file?
+"""The Configure page: pick a path, and every control over what the gate
+does to it is on one screen.
 
-One path at the top, and everything below is an attribute of that path's
-ruleset. Three sections, not six, because the previous six were not six
-CONCEPTS -- they were one concept, split by which config-file key happened
-to store each piece of it.
+The order of the page is the order of the question. A Path selector
+picks a routing rule; the editable first-match-wins table stays visible
+under it because rule ORDER is load-bearing and invisible in any view
+that only shows the winner; the focused rule's vocabulary packs sit
+below the table (_rule_packs_editor). Then the resolved ruleset: the
+deny line, whose numbers ARE the controls (_deny_policy); the
+playground, beside the checks it exercises (_playground); one editable
+table of every check with its switch and its own numbers in the row
+(_by_check); and the words behind the few checks that have any
+(_check_contents). The single search box reaches checks AND every word
+in every list (_word_matches) -- "is `leverage` banned, and where" was
+always a search, never a view.
 
-A check can have an on/off switch, a numeric parameter, and a word list.
-Those lived in `Checks`, `Thresholds` and `Terms` respectively, so
-understanding one check (`filler_verb`, say) meant reading a row in one
-section, scrolling past a second, and filtering a third -- with nothing on
-screen connecting them. `slopwatch.em_dash_threshold` is consumed inside
-the `em_dash_cluster` check and nowhere else; six checks ARE term lists,
-under the same id, listed twice in two disconnected tables. Now a check is
-one row, and its parameter and its words are inside it.
-
-What that split was hiding entirely: the deny policy. The page said which
-checks fire and which words are known, and never what BLOCKS a write --
-the one thing the product exists to do. `block_flag_count_threshold` was a
-row in a table called Thresholds, between two unrelated numbers, and two
-checks in the fleet (slopwatch's em_dash_cluster, codewatch's
-swallowed_exception) deny on their own while rendering identically to
-every other row. Each ruleset now states its own policy (DENY_POLICY) and
-the rows that deny alone say so.
-
-Packs attach to a ROUTING RULE, not to a check. That used to mean a
-control buried inside whichever check happened to read the list a pack
-feeds -- a remnant of ste100 being the only ruleset, with exactly one
-pack-eligible list, when that placement was still one hop from "the rule
-this pack is actually bound to." Once other rulesets and other lists
-existed the hop stopped being obvious. A pack is bulk vocabulary bound to
-a PATH (which text it covers), and the routing table is where paths and
-their rules live -- so packs are edited where the rule is focused, not
-inside whichever check happens to consume the words.
-
-One thing is deliberately NOT folded: the full routing table stays
-visible with the focused rule, because rule ORDER is load-bearing (first
-match wins) and order is invisible in a view that only shows the winner.
-The flat all-words view is no longer a mode of its own -- "is this word
-banned, and where" was always a SEARCH, so the one search box now reaches
-every word in every list, and the old mode pill is gone (_word_matches).
-
-The checks table is EDITABLE, and shows one ruleset -- the one governing
-the focused path. It was a read-only grid over all 43 fleet checks, with
-a detail pane below carrying the toggle and settings for the selected
-row. Both halves of that were wrong. Showing every ruleset's checks meant
-two thirds of the rows did not apply to the path the page is configured
-for, and needed a ruleset column, a ruleset filter, a dimming convention
-and an explanatory caption to undo the confusion of showing them. And
-34 of those 43 checks hold NOTHING but an on/off switch, so the pane was
-empty-but-for-the-toggle four times in five. The switch and every numeric
-setting are cells now; only word lists and set-valued settings, which
-have no cell shape, remain below -- reachable for the 9 checks that have
-them, absent for the rest.
-
-Every edit applies immediately -- the same promise the page makes about
-reaching the next gate call. Anything that cannot be inferred back from
-the result (deleting a rule, renaming a glob, removing selected words)
+Every edit applies immediately, the same promise the page makes about
+reaching the next gate call. Anything that cannot be read back off the
+result (deleting a rule, renaming a glob, removing selected words)
 confirms first, and the last write is always undoable, because every
-mutation on this page lands in one file.
+mutation on this page lands in one file (_snapshot / _undo_bar).
+
+Two Streamlit constraints shaped more of this layout than taste did,
+and each is documented where it bites: a grid cannot be editable AND
+selectable (_routing_section), and a keyed widget outlives the data it
+mirrors (the apply-on-change block below, and _undo_bar's key
+clearing). The page's own prose is gated by the same product it
+configures -- see docs/embedded-prose.md.
 """
 import os
 import re
@@ -580,12 +548,11 @@ def _by_check(repo_root, probe, full, ruleset_id):
 
     This was master/detail -- a read-only grid, and a pane below carrying
     the toggle and any settings for whichever row you clicked. Streamlit
-    forces that shape on anything needing both selection and editing
-    (st.dataframe selects but cannot edit; st.data_editor edits but
-    cannot select, still true in 1.60), and the cost landed exactly where
-    it hurt: 34 of the fleet's 43 checks have NOTHING inside them but an
-    on/off switch, so four rows in five made you click into a pane that
-    was empty except for the toggle you came for. Worse, the pane's
+    forces that shape on anything needing both selection and editing (see
+    _routing_section for the constraint), and the cost landed exactly
+    where it hurt: 34 of the fleet's 44 checks have NOTHING inside them
+    but an on/off switch, so four rows in five made you click into a pane
+    that was empty except for the toggle you came for. Worse, the pane's
     toggle sat under a table whose leftmost column was Streamlit's own
     selection checkbox -- two checkbox-shaped controls for one row, the
     inert-looking one being the real selector.
@@ -769,11 +736,10 @@ def _check_contents(repo_root, full, rows, ruleset_id):
     """The words and set-valued settings behind a check, for the checks
     that have any.
 
-    Every row used to open a pane like this, and for 34 of the fleet's 43
-    checks it held nothing but the on/off toggle -- which is now a cell in
-    the row. So the selector lists only the checks with something actually
-    inside, and says how many there are rather than presenting itself as
-    the way to reach a check at all. With none, it does not render."""
+    Every row used to open a pane like this, and for most it held nothing
+    but the on/off toggle -- now a cell in the row (see _by_check for the
+    numbers). So the selector lists only the checks with something
+    actually inside, and with none it does not render at all."""
     have = [r for r in rows if r["lists"]
             or any("choices" in i for i in r["options"].values())]
     if not have:

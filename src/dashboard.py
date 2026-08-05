@@ -8,17 +8,15 @@ happen to be laid out on disk:
 - Watch is passive: what did the gate just do, and why. Denials pulled
   out into their own callout, since a deny is the one event a human
   actually wants explained -- everything else is routine.
-- Configure is deliberate, and answers ONE question: what happens to this
-  file? A path at the top, then routing, checks, thresholds, vocabulary
-  and a playground, each answering its own part of that question for that
-  path. Sections do not re-ask it -- there is one path box on the page
-  and no ruleset dropdown anywhere, because a path already implies its
-  ruleset and two controls for one idea can disagree.
+- Configure is deliberate: pick a path, and every control over what the
+  gate does to it is on one screen -- see configure.py's own docstring
+  for the layout. There is one path box on the page and no ruleset
+  dropdown anywhere, because a path already implies its ruleset and two
+  controls for one idea can disagree.
 
-A live-status pulse sits in the sidebar, outside both pages, so it stays
-visible regardless of which one you're on -- the whole point of a *live*
-dashboard is that liveness shouldn't be trapped inside one tab you have
-to be looking at.
+A status footer sits below both pages, outside the navigation, so the
+same ambient "is everything okay" line is there regardless of which page
+is open.
 
 Not a second gate, not a second config store -- the same distinction the
 MCP server's own docstring already draws for itself. This reads and
