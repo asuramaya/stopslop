@@ -34,12 +34,12 @@ a PATH (which text it covers), and the routing table is where paths and
 their rules live -- so packs are edited where the rule is focused, not
 inside whichever check happens to consume the words.
 
-Two things are deliberately NOT folded. `by check / all words` keeps the
-flat 2830-row vocabulary view, because "show me every word this path
-knows" is a real question that a check-keyed layout cannot answer. And the
-full routing table stays reachable below the focused rule, because rule
-ORDER is load-bearing (first match wins) and order is invisible in a view
-that only shows the winner.
+One thing is deliberately NOT folded: the full routing table stays
+visible with the focused rule, because rule ORDER is load-bearing (first
+match wins) and order is invisible in a view that only shows the winner.
+The flat all-words view is no longer a mode of its own -- "is this word
+banned, and where" was always a SEARCH, so the one search box now reaches
+every word in every list, and the old mode pill is gone (_word_matches).
 
 The checks table is EDITABLE, and shows one ruleset -- the one governing
 the focused path. It was a read-only grid over all 43 fleet checks, with
@@ -425,13 +425,7 @@ def _rules_section(repo_root, probe, full, ruleset_id):
     # without asking for text before showing any state.
     with st.expander("Try it — paste text, see what the gate does"):
         _playground(repo_root, probe, full, ruleset_id)
-    mode = st.segmented_control(
-        "View", ["by check", "all words"], default="by check",
-        key="rules_mode", label_visibility="collapsed")
-    if mode == "all words":
-        _all_words(repo_root, probe, full, ruleset_id)
-    else:
-        _by_check(repo_root, probe, full, ruleset_id)
+    _by_check(repo_root, probe, full, ruleset_id)
 
 
 def _deny_policy(repo_root, ruleset_id):
@@ -571,12 +565,19 @@ def _by_check(repo_root, probe, full, ruleset_id):
     off = sum(1 for r in rows if not r["enabled"])
     st.caption(f"{len(rows)} checks run on `{probe}`"
                + (f", {off} turned off." if off else "."))
-    needle = st.text_input("Search", key="rules_q").strip().lower()
+    needle = st.text_input(
+        "Search", key="rules_q",
+        placeholder="a check, or any word in any list",
+        help="Matches checks by name and description, and every word in "
+             "every ruleset's lists -- ste100's whole dictionary lives "
+             "under one check, so \"is 'leverage' banned\" is a word "
+             "search, not a row in this table.").strip().lower()
     shown = [r for r in rows
              if not needle or needle in r["check"].lower()
              or needle in r["catches"].lower() or needle in r["instead"].lower()]
     if not shown:
-        st.caption("Nothing matches.")
+        st.caption("No check matches.")
+        _word_matches(repo_root, full, needle)
         return
 
     numeric = _numeric_option_columns(rows)
@@ -639,6 +640,7 @@ def _by_check(repo_root, probe, full, ruleset_id):
                       "words", "denies alone", "last fired"])
     _apply_check_edits(repo_root, module, shown, table, edited, numeric)
     _check_contents(repo_root, full, shown, ruleset_id)
+    _word_matches(repo_root, full, needle)
 
 
 def _blocks_alone_label(row):
@@ -982,15 +984,21 @@ def _override_prompt(repo_root):
             st.rerun()
 
 
-# --- all words: the flat view a check-keyed layout cannot give ------------
+# --- word search: the answer a check-keyed table cannot give --------------
 
-def _all_words(repo_root, probe, full, ruleset_id):
-    """Every word this path knows, in one table.
+def _word_matches(repo_root, full, needle):
+    """Words matching the search, across every ruleset's lists.
 
-    Kept as a second VIEW rather than a second section. "Show me every word
-    that reaches this file" is a real question, and a layout keyed on
-    checks cannot answer it -- ste100's 2830 words sit under one check
-    while codewatch's 12 sit under another."""
+    "Is 'leverage' banned, and where" is a real question a check-keyed
+    table cannot answer -- ste100's 2830 words sit under ONE check while
+    codewatch's 12 sit under another. This used to be a whole second view
+    behind a "by check / all words" mode pill; browsing 2830 rows was
+    inventory, not a control panel, but SEARCHING them is the real use,
+    so the flat table now appears only when the one search box matches
+    words. Selection keeps the remove/restore operations the old view
+    carried; the CLI's terms listing remains the way to dump everything."""
+    if not needle:
+        return
     rows = core_terms.term_index(rulesets, repo_root, file_path=full)
     for row in rows:
         row["list"] = f"{row['ruleset']}.{row['list']}"
@@ -998,39 +1006,20 @@ def _all_words(repo_root, probe, full, ruleset_id):
         rows.append({"term": row["term"], "ruleset": row["ruleset"],
                       "list": f"{row['ruleset']}.{row['list']}",
                       "source": "suppressed", "polarity": "", "note": ""})
-    # Same idiom as _by_check's caption: state the global total, then call
-    # out how much of it is actually scoped to this path -- not "2124
-    # words reach README.md", which reads as if all 2124 apply here when
-    # this table is deliberately every ruleset's lists, project-wide.
-    here = sum(1 for r in rows if r["ruleset"] == ruleset_id)
-    scope_note = (f"**{here}** belong to {ruleset_id}, the ruleset gating `{probe}`."
-                  if ruleset_id else f"`{probe}` is out of scope, so none of these gate it.")
-    st.caption(f"{len(rows)} words across every ruleset's lists, project-wide, "
-               f"including any suppressed. {scope_note}")
-
-    cols = st.columns([3, 2, 2])
-    needle = cols[0].text_input("Search", key="aw_q").strip().lower()
-    lists = cols[1].multiselect("List", sorted({r["list"] for r in rows}),
-                                 key="aw_list", placeholder="All lists")
-    sources = cols[2].multiselect("Source", sorted({r["source"] for r in rows}),
-                                   key="aw_src", placeholder="All sources")
-    shown = [r for r in rows
-             if (not needle or needle in r["term"].lower() or needle in r["note"].lower())
-             and (not lists or r["list"] in lists)
-             and (not sources or r["source"] in sources)]
-    if len(shown) != len(rows):
-        st.caption(f"{len(shown)} of {len(rows)} shown")
-    if not shown:
-        st.caption("Nothing matches.")
+    hits = [r for r in rows
+            if needle in r["term"].lower() or needle in r["note"].lower()]
+    if not hits:
         return
 
+    st.caption(f"{len(hits)} matching word(s), in every ruleset's lists "
+               f"project-wide -- the list column says which gate each one "
+               f"belongs to.")
     event = st.dataframe(
-        [{k: r[k] for k in ("term", "list", "source", "note")} for r in shown],
-        width="stretch", hide_index=True, height=420,
-        on_select="rerun", selection_mode="multi-row", key="all_words")
-    chosen = [shown[i] for i in event.selection.rows]
+        [{k: r[k] for k in ("term", "list", "source", "note")} for r in hits],
+        width="stretch", hide_index=True, height=min(420, 40 + 35 * len(hits)),
+        on_select="rerun", selection_mode="multi-row", key="word_matches")
+    chosen = [hits[i] for i in event.selection.rows]
     if not chosen:
-        st.caption("Select rows to remove them, or to restore a suppressed word.")
         return
 
     restore = [r for r in chosen if r["source"] == "suppressed"]
@@ -1042,8 +1031,8 @@ def _all_words(repo_root, probe, full, ruleset_id):
                                                          r["term"])
         st.rerun()
     if remove and _confirm("aw_rm", f"Remove {len(remove)} selected word(s)",
-                            "A shipped word is suppressed rather than deleted, "
-                            "and stays restorable."):
+                            "A built-in or pack word is suppressed rather than "
+                            "deleted, and stays restorable."):
         _snapshot(repo_root, f"removed {len(remove)} word(s)")
         for r in remove:
             try:
