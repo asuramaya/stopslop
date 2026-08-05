@@ -161,9 +161,6 @@ def configure_page(repo_root):
     with st.container(border=True):
         _rules_section(repo_root, probe, full, ruleset_id)
 
-    with st.container(border=True):
-        _playground(repo_root, probe, full, ruleset_id)
-
 
 def _synthetic_path_for_glob(glob):
     """A literal path fnmatch would actually match against `glob` -- for
@@ -215,12 +212,12 @@ def _routing_section(repo_root):
         probe = _synthetic_path_for_glob(glob)
         full = os.path.join(repo_root, probe)
 
+        _routing_table(repo_root)
+
         if ruleset_id:
             _rule_packs_editor(repo_root, rule)
         else:
             st.caption("Out of scope — nothing is checked here.")
-
-        _routing_table(repo_root)
     return probe, full, rule
 
 
@@ -233,7 +230,13 @@ def _rule_packs_editor(repo_root, rule):
     why this reads TERM_LISTS rather than naming a list: a control that
     only knew about ste100's one would already be wrong for the other
     two. Then the packs actually bound to the chosen list. See the module
-    docstring for why this moved here from inside a check's detail view."""
+    docstring for why this moved here from inside a check's detail view.
+
+    Renders BELOW the routing table, not above it: it used to be the
+    second control on the whole page, which handed the rarest operation
+    (bulk vocabulary attachment) the best real estate, before a stranger
+    had met a check or a word. The label names the focused glob so the
+    control cannot be misread as ruleset-wide -- packs bind to one rule."""
     module = rulesets.get_ruleset(rule["ruleset"])
     lists = getattr(module, "TERM_LISTS", {})
     pack_lists = sorted(lid for lid, spec in lists.items() if spec.get("accepts_packs"))
@@ -258,9 +261,9 @@ def _rule_packs_editor(repo_root, rule):
     # check) -- the checks grid below is searchable by check id, not list
     # id, and the two only happen to match for rulesets with 1:1 lists.
     feeds = spec.get("feeds")
-    label = f"Packs feeding `{list_id}`"
+    label = f"Packs feeding `{list_id}` on `{rule['glob']}`"
     if feeds and feeds != list_id:
-        label += f", the `{feeds}` check"
+        label += f" (the `{feeds}` check)"
     st.multiselect(
         label, attachable, default=current, key=key,
         placeholder="No packs attached",
@@ -350,7 +353,7 @@ def _routing_table(repo_root):
             "packs": st.column_config.NumberColumn(
                 "packs", disabled=True, width="small",
                 help="Vocabulary bound to this rule. Attach and detach these "
-                      "inside the check whose words they feed -- they are "
+                      "in the packs control under this table -- the count is "
                       "shown here so a glob edit cannot silently drop them."),
         })
 
@@ -393,10 +396,21 @@ def _routing_table(repo_root):
 # --- Rules: every check, with its parameter and its words inside it -------
 
 def _rules_section(repo_root, probe, full, ruleset_id):
+    _deny_policy(repo_root, ruleset_id)
+    if not ruleset_id:
+        # Out of scope: the info line above said it all. Rendering the
+        # checks machinery would also crash -- get_ruleset(None) raises.
+        return
+    # The playground sits WITH the checks it exercises, not at the bottom
+    # of the page below the add-word form, where the only element that
+    # demonstrates the system working was the last thing anyone found.
+    # An expander rather than an open panel: visible and one click away
+    # without asking for text before showing any state.
+    with st.expander("Try it — paste text, see what the gate does"):
+        _playground(repo_root, probe, full, ruleset_id)
     mode = st.segmented_control(
         "View", ["by check", "all words"], default="by check",
         key="rules_mode", label_visibility="collapsed")
-    _deny_policy(repo_root, ruleset_id)
     if mode == "all words":
         _all_words(repo_root, probe, full, ruleset_id)
     else:
@@ -793,6 +807,15 @@ def _term_list_block(repo_root, row, list_id, full):
 
     _word_table(repo_root, module, list_id, layers, suppressed, active, key)
     _add_vocabulary(repo_root, module, list_id, spec)
+    # A refusal (ste100 validating against the real standard) surfaces
+    # right under the Add control that caused it -- it used to render
+    # inside the playground at the bottom of the page, a screen away from
+    # the word it was refusing. Guarded to this list so a check with
+    # several lists shows the prompt once, under the right one.
+    pending = st.session_state.get("refused")
+    if (pending and pending["list"] == list_id
+            and pending["ruleset"] == module.RULESET_ID):
+        _override_prompt(repo_root)
 
 
 def _word_table(repo_root, module, list_id, layers, suppressed, active, key):
@@ -988,14 +1011,14 @@ def _all_words(repo_root, probe, full, ruleset_id):
 # --- Try it ---------------------------------------------------------------
 
 def _playground(repo_root, probe, full, ruleset_id):
-    """Text as if written to the scoped path -- the real gate call."""
-    st.subheader("Try it")
-    _override_prompt(repo_root)
-    if not ruleset_id:
-        st.caption(f"`{probe}` is out of scope, so the gate would not run.")
-        return
-    st.caption(f"Linted exactly as the gate would lint `{probe}`: "
-               f"**{ruleset_id}**, with that path's own vocabulary.")
+    """Text as if written to the scoped path -- the real gate call.
+
+    Rendered inside the Try-it expander in _rules_section, which guards
+    the out-of-scope case before this is ever reached. No title of its
+    own: the expander carries it, and the deny line directly above
+    already names the ruleset this lints with."""
+    st.caption(f"Linted exactly as the gate would lint `{probe}`, "
+               f"with that path's own vocabulary.")
     text = st.text_area("Text", height=120, key="playground_text",
                          placeholder="Paste a sentence or a snippet...")
     if not (st.button("Lint it", type="primary", key="lint_btn") and text.strip()):
