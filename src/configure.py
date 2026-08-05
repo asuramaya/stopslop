@@ -783,8 +783,8 @@ def _check_contents(repo_root, full, rows, ruleset_id):
     if len(have) == 1:
         # A selectbox offering one choice is a control that does nothing.
         row = have[0]
-        st.caption(f"Words and lists — of these {len(rows)} checks, only "
-                   f"`{row['check']}` has any.")
+        st.caption(f"Words and lists — `{row['check']}` is the only one "
+                   f"of these checks with any.")
     else:
         labels = {r["check"]: f"{r['check']} — " + ", ".join(
             filter(None, [f"{len(r['lists'])} word list(s)" if r["lists"] else "",
@@ -826,7 +826,12 @@ def _option_control(repo_root, row, name, info):
                               on_change=_option_changed, args=args)
     with cols[1]:
         st.caption("")
-        st.caption(f"built-in default {info['default']}")
+        # A list-valued default joins into plain words -- an f-string
+        # would render its Python repr, brackets and quotes on screen.
+        default = info["default"]
+        if isinstance(default, list):
+            default = ", ".join(default)
+        st.caption(f"built-in default: {default}")
 
 
 def _list_counts(repo_root, row, full):
