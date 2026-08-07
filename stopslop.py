@@ -26,6 +26,7 @@ second, separately-maintained default that could quietly drift from it.
 import argparse
 import json
 import os
+import subprocess
 import sys
 import webbrowser
 
@@ -178,6 +179,36 @@ def cmd_precommit(args):
     return 0
 
 
+def _bootstrap_venv(venv_dir, requirements_path, run=subprocess.run):
+    """Best-effort: create the venv and install requirements, printing
+    progress as it goes. Any failure (no network, no python3-venv package,
+    a pip error) prints the exact manual fallback and returns False rather
+    than leaving someone stuck with a bare traceback for a step that is
+    always allowed to fail -- init's own settings write already succeeded
+    by the time this runs, so a failure here must not read as init itself
+    having failed. `run` is injectable so tests can verify both branches
+    without a real subprocess or network access."""
+    venv_python = dashboard_launch.venv_python_path(os.path.dirname(venv_dir))
+    print(f"\nSetting up a virtual environment at {venv_dir} "
+          f"(for the optional MCP tools and dashboard)...")
+    try:
+        run([sys.executable, "-m", "venv", venv_dir], check=True)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        print(f"  could not create the venv ({exc}). Set it up by hand:")
+        print(f"    python3 -m venv {venv_dir}")
+        print(f"    {venv_python} -m pip install -r {requirements_path}")
+        return False
+    print("Installing requirements (mcp, streamlit)...")
+    try:
+        run([venv_python, "-m", "pip", "install", "-q", "-r", requirements_path], check=True)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        print(f"  pip install failed ({exc}). Finish it by hand:")
+        print(f"    {venv_python} -m pip install -r {requirements_path}")
+        return False
+    print("Virtual environment ready.")
+    return True
+
+
 def cmd_init(args):
     # Before the settings guard, not after: the commit gate is idempotent
     # and self-guarded, and a repo initialized before it existed should
@@ -215,17 +246,28 @@ def cmd_init(args):
         f.write("\n")
     print(f"Wrote {SETTINGS_REAL}")
     print("Start (or restart) a Claude Code session in this directory to pick it up.")
+    print("The first time you do, Claude Code will ask whether to allow this "
+          "project's MCP servers (.mcp.json) -- say yes, or the MCP tools and the dashboard they "
+          "auto-start won't connect. Run `stopslop.py status` afterward to confirm "
+          "everything is actually wired up.")
 
     # The gate itself needs nothing beyond the above -- it's stdlib-only.
     # The optional MCP tools (.mcp.json, already checked into this repo)
     # and `stopslop.py dashboard` share one venv, since that's a real
-    # dependency, not stdlib.
-    venv_python = os.path.join(REPO_ROOT, ".venv", "bin", "python3")
+    # dependency, not stdlib. Set up automatically so `init` is the one
+    # command that gets everything running -- --no-venv opts back out to
+    # the old print-only behavior, for a minimal gate-only install.
+    venv_python = dashboard_launch.venv_python_path(REPO_ROOT)
     if not os.path.exists(venv_python):
-        print("\nOptional: the MCP convenience tools (.mcp.json) and `stopslop.py dashboard` "
-              "need a venv. Not required for the gate itself. To set one up:")
-        print(f"  python3 -m venv {os.path.join(REPO_ROOT, '.venv')}")
-        print(f"  {venv_python} -m pip install -r {os.path.join(REPO_ROOT, 'requirements.txt')}")
+        if args.no_venv:
+            print("\nSkipped venv setup (--no-venv). The MCP convenience tools and "
+                  "`stopslop.py dashboard` need one; not required for the gate itself. "
+                  "To set one up later:")
+            print(f"  python3 -m venv {os.path.join(REPO_ROOT, '.venv')}")
+            print(f"  {venv_python} -m pip install -r {os.path.join(REPO_ROOT, 'requirements.txt')}")
+        else:
+            _bootstrap_venv(os.path.join(REPO_ROOT, ".venv"),
+                             os.path.join(REPO_ROOT, "requirements.txt"))
 
     if not os.path.exists(core_config.config_path(REPO_ROOT)):
         print(f"\nOptional: {core_config.config_path(REPO_ROOT)} controls which ruleset lints "
@@ -630,8 +672,11 @@ def main():
     parser.add_argument("--version", action="version", version=f"stopslop {VERSION}")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_init = sub.add_parser("init", help="wire up .claude/settings.local.json for this clone")
+    p_init = sub.add_parser("init", help="wire up .claude/settings.local.json for this clone, "
+                                          "and set up the venv the MCP tools/dashboard need")
     p_init.add_argument("--force", action="store_true", help="overwrite an existing settings file")
+    p_init.add_argument("--no-venv", action="store_true",
+                         help="skip auto-installing the optional MCP/dashboard virtual environment")
     p_init.set_defaults(func=cmd_init)
 
     p_lint = sub.add_parser("lint", help="check text or a file without writing it anywhere")

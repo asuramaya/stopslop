@@ -46,17 +46,20 @@ Run `python3 stopslop.py list-rulesets` to see every registered ruleset, and whi
 - **Bash bypass detection.** The most obvious way around a `Write`/`Edit`-only gate is `cat > file.md <<EOF`. stopslop detects this. It detects a heredoc write through `cat` or `tee`, in either direction. It detects a quoted `echo`/`printf` write too. It also detects one piped through `tee`.
 - **Integrity checks.** At each session start, the gate hashes its own code and every registered ruleset's own enforcement data. It compares the hash against the last known value. This makes an unexpected change to any of it visible.
 
-## Setup
+## Quickstart
 
-1. Run `python3 stopslop.py init`. This writes `.claude/settings.local.json` for your own clone location. It does not need any manual edit.
-2. Start a Claude Code session inside the repository. The `SessionStart` hook reports any integrity problem. It also reports memory context from prior gate activity, for every ruleset with any.
-3. Write something. If it is clean, it goes through. If it is not, the gate tells you right away, not later, in review.
+1. Clone the repository, then run `python3 stopslop.py init`. This writes `.claude/settings.local.json` for your own clone location, installs a git pre-commit gate, and sets up the virtual environment the optional MCP tools and dashboard need (`python3 -m venv .venv`, then `pip install -r requirements.txt`) -- no manual edit needed for any of it. Pass `--no-venv` to skip that last, optional part.
+2. Start (or restart) a Claude Code session inside the repository. **The first time, Claude Code asks whether to allow this project's MCP servers (`.mcp.json`) -- say yes.** Miss this and the MCP tools, and the dashboard they auto-start, silently never connect; nothing else in this setup depends on it. The `SessionStart` hook also reports any integrity problem, and memory context from prior gate activity, for every ruleset with any.
+3. Run `python3 stopslop.py status` afterward. It reports the hook, the pre-commit gate, the virtualenv, and MCP trust each as their own state, with the exact command to fix anything not there yet. Inside the session, `/mcp` should list `stopslop` as connected too.
+4. Write something. If it is clean, it goes through. If it is not, the gate tells you right away, not later, in review.
+
+Only the gate itself (step 1's settings write, step 2, step 4) is required. The venv, the dashboard, and the MCP tools are convenience layers on top of it -- see below.
 
 ## Commands
 
 Once you wire up the gate, it runs on its own. You do not run it by hand. `stopslop.py` covers the other actions a person does directly. Every command below takes an optional `--ruleset ID`. Leave it out, and the command resolves a ruleset the same way the live gate does: from `stopslop.config.json`, or from the built-in defaults.
 
-- `python3 stopslop.py init` sets up the hook for your own clone, and installs a git pre-commit gate (`.git/hooks/pre-commit`). Pass `--force` to replace the current settings; the pre-commit gate installs on any plain re-run and never clobbers a hook that is not stopslop's.
+- `python3 stopslop.py init` sets up the hook for your own clone, installs a git pre-commit gate (`.git/hooks/pre-commit`), and sets up the venv the MCP tools and dashboard need. Pass `--force` to replace the current settings; the pre-commit gate installs on any plain re-run and never clobbers a hook that is not stopslop's. Pass `--no-venv` to skip the venv step.
 - `python3 stopslop.py precommit` gates the staged tree the way the live hook gates a write: each staged file is judged in its staged state, ratcheted against its HEAD version, so a commit is refused only for a file that is deniable and worse than it was. This is the one gate every writer shares -- an editor, a script, a session running outside this directory. Bypass once with `git commit --no-verify`.
 - `python3 stopslop.py lint "some text"` checks text against the resolved ruleset. It does not write the text to any file. Use `--file PATH` to check a real file instead. Add `--all` to see every flag the engine can produce, not just the ones that will actually block a write today.
 - `python3 stopslop.py scan [PATH ...]` bulk-checks an existing tree of files, no live write -- for adopting stopslop onto a codebase that already exists, not just files edited going forward. With no `--ruleset`, it resolves each file through `stopslop.config.json`, the same as a live write, and skips anything out of scope. Pass `--ruleset ID` to force every matched file through one ruleset regardless of routing (add `--glob PATTERN` to narrow which filenames get included) -- this is how to test, say, `slopwatch` against an entire existing `docs/` tree before ever adding a routing rule for it. Add `--all` for every flag per file, `--quiet` for only the summary, `--json` for machine-readable output. Exits non-zero if anything would fail a live write.
@@ -73,11 +76,9 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 
 `python3 stopslop.py dashboard` opens a local page at `http://localhost:8501`, built with Streamlit. It shows live gate activity and per-ruleset stats. It has two pages. `Watch` is the live activity feed. `Configure` answers one question -- what happens to this file? -- for a path you name at the top of the page. It states which rule routes that path, what actually denies a write there -- the number in that sentence is the control -- and then every check in one table: a check's on/off switch, its numeric tuning and its word list are one row, because they are one thing. Those used to be three separate sections, so understanding a single check meant reading three of them. The search box covers vocabulary too: type any word to see where it is banned or allowed across every list, suppressions included. Edits apply immediately; anything that cannot be read back off the result asks first, and the last change is undoable. It reads and writes the exact files the hook, the CLI, and an agent already use: `.claude/stopslop-history.log` and `stopslop.config.json`. One shared source of truth, not a second config store. A change here reaches the next gate call right away, with no session restart.
 
-Setup shares the MCP tools' own venv (`requirements.txt` lists both dependencies):
+It also starts on its own the first time an MCP session loads (see `src/dashboard_launch.py`), headless, in the background -- no need to run the command by hand unless a Claude Code session was never started. Concurrent sessions loading MCP at once still produce exactly one dashboard process, not one per session: a health probe against Streamlit's own `/_stcore/health` endpoint and a file lock (`.claude/stopslop-dashboard.lock`) together guarantee only the first one to get there actually spawns it.
 
-1. If you have not already set one up for the MCP tools, run `python3 -m venv .venv`.
-2. Run `.venv/bin/pip install -r requirements.txt`.
-3. Run `python3 stopslop.py dashboard`.
+Uses the venv `stopslop.py init` already sets up (see Quickstart) -- nothing further to install.
 
 ## MCP tools (optional)
 
@@ -85,11 +86,9 @@ Setup shares the MCP tools' own venv (`requirements.txt` lists both dependencies
 
 This is a different kind of tool from the hook, on purpose, not a second gate. The hook sits in front of `Write` and `Edit`. It can deny a call before the write happens. The model must choose to call an MCP tool, or it never runs. A model can still write a file directly instead. No rule stops that. The MCP layer exists to cut down on denied attempts, not to replace the hook.
 
-Setup needs a virtual environment, since `mcp` is this project's only external dependency:
+Uses the venv `stopslop.py init` already sets up (see Quickstart). `.mcp.json` is already in this repository, so a Claude Code session started inside it wires the server up on its own -- once the project's MCP servers are trusted (the prompt Quickstart step 2 covers). If `/mcp` does not list `stopslop` after that, run `stopslop.py status` and check its `MCP trust` line first.
 
-1. Run `python3 -m venv .venv`.
-2. Run `.venv/bin/pip install -r requirements.txt`.
-3. Start a Claude Code session. `.mcp.json` is already in this repository. It wires the server up on its own.
+`.mcp.json` is project-scoped. It only connects when Claude Code's own working directory is this repository. For a session rooted elsewhere (a separate tool that reaches this repo by absolute path, say) to see these tools too, register it at user scope instead: `claude mcp add stopslop --scope user -- python3 /absolute/path/to/stopslop/src/mcp_launch.py`.
 
 ## What it does not do
 

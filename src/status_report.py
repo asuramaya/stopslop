@@ -17,13 +17,78 @@ count_consecutive_denials() already did, silently inflating activity counts
 whenever a near-simultaneous duplicate log entry occurred. Both now go
 through core.history.read_history_deduped(), so they can't diverge again.
 """
+import functools
+import json
 import os
+import subprocess
 from collections import Counter
 
+import dashboard_launch
 from core import config as core_config
 from core import history, paths
 from core.version import VERSION
 import rulesets
+
+_PRECOMMIT_MARKER = "installed by stopslop.py init"
+
+
+def _precommit_hook_installed(project_root):
+    hook_path = os.path.join(project_root, ".git", "hooks", "pre-commit")
+    if not os.path.exists(hook_path):
+        return False
+    try:
+        with open(hook_path) as f:
+            return _PRECOMMIT_MARKER in f.read()
+    except OSError:
+        return False
+
+
+def _importable(venv_python, module_name, timeout=5):
+    try:
+        result = subprocess.run([venv_python, "-c", f"import {module_name}"],
+                                 capture_output=True, timeout=timeout)
+        return result.returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+@functools.lru_cache(maxsize=8)
+def _venv_status(project_root):
+    """`(venv_present, mcp_installed, streamlit_installed)` -- checked by
+    actually asking the venv's own interpreter to import each package,
+    not by guessing from whether the directory exists, since a `pip
+    install` interrupted partway through (no network, disk full) is a
+    real state a directory-exists check alone would miss.
+
+    Cached, unlike everything else this module reads -- `build_status_report`
+    runs on every dashboard render (dashboard.py's status footer and
+    first-run notice both call it, on every page interaction, not just on
+    a timer), and this is the one fact here that a running process can't
+    see change out from under it: nothing re-runs `pip install` mid-session.
+    Two subprocess spawns per render would be a real, silent latency
+    regression on a UI that renders on every interaction -- everything
+    else in this report (config, gate activity, hook wiring) stays
+    uncached on purpose, same reasoning core/config.py's own module
+    docstring already gives for rereading fresh."""
+    venv_python = dashboard_launch.venv_python_path(project_root)
+    if not os.path.exists(venv_python):
+        return False, False, False
+    return True, _importable(venv_python, "mcp"), _importable(venv_python, "streamlit")
+
+
+def _mcp_trust_status(project_root):
+    settings_path = os.path.join(project_root, ".claude", "settings.local.json")
+    if not os.path.exists(settings_path):
+        return "hook not wired up yet -- run `stopslop.py init`"
+    try:
+        with open(settings_path) as f:
+            settings = json.load(f)
+    except (OSError, ValueError):
+        return "unknown -- .claude/settings.local.json unreadable"
+    if "stopslop" in settings.get("enabledMcpjsonServers", []):
+        return "trusted"
+    return ("not yet approved -- Claude Code asks whether to allow this project's "
+            "MCP servers the first time you start a session here; say yes")
 
 
 def build_status_report(project_root=None):
@@ -53,6 +118,7 @@ def build_status_report(project_root=None):
     integrity_path = os.path.join(project_root, ".claude", "stopslop-integrity.json")
     settings_path = os.path.join(project_root, ".claude", "settings.local.json")
     config_path = core_config.config_path(project_root)
+    venv_present, mcp_installed, streamlit_installed = _venv_status(project_root)
 
     return {
         "version": VERSION,
@@ -62,6 +128,12 @@ def build_status_report(project_root=None):
         "integrity_baseline_recorded": os.path.exists(integrity_path),
         "hook_configured": os.path.exists(settings_path),
         "config_file_present": os.path.exists(config_path),
+        "precommit_hook_installed": _precommit_hook_installed(project_root),
+        "venv_present": venv_present,
+        "mcp_package_installed": mcp_installed,
+        "streamlit_installed": streamlit_installed,
+        "mcp_trust": _mcp_trust_status(project_root),
+        "dashboard_reachable": dashboard_launch.is_alive(),
     }
 
 
@@ -90,4 +162,22 @@ def format_status_report(report):
                   f"{'baseline recorded' if report['integrity_baseline_recorded'] else 'not established yet -- start a session to record one'}")
     lines.append(f"Hook wiring:     "
                   f"{'configured' if report['hook_configured'] else 'NOT SET UP -- run `stopslop.py init`'}")
+
+    lines.append("\nInstallation (optional pieces -- the gate above works without any of this):")
+    lines.append(f"  Pre-commit gate:  "
+                  f"{'installed' if report['precommit_hook_installed'] else 'NOT INSTALLED -- run `stopslop.py init`'}")
+    if not report["venv_present"]:
+        lines.append("  Virtualenv:       NOT SET UP -- needed for MCP tools and the dashboard. "
+                      "Run `stopslop.py init` (or by hand: python3 -m venv .venv && "
+                      ".venv/bin/pip install -r requirements.txt)")
+    elif not (report["mcp_package_installed"] and report["streamlit_installed"]):
+        missing = [name for name, ok in (("mcp", report["mcp_package_installed"]),
+                                          ("streamlit", report["streamlit_installed"])) if not ok]
+        lines.append(f"  Virtualenv:       present, but missing: {', '.join(missing)} -- "
+                      f"run .venv/bin/pip install -r requirements.txt")
+    else:
+        lines.append("  Virtualenv:       ready (mcp, streamlit both installed)")
+    lines.append(f"  MCP trust:        {report['mcp_trust']}")
+    lines.append(f"  Dashboard:        "
+                  f"{'reachable at http://localhost:8501' if report['dashboard_reachable'] else 'not running -- starts automatically from an MCP session, or run `stopslop.py dashboard`'}")
     return "\n".join(lines)

@@ -128,13 +128,111 @@ class CmdInitTests(unittest.TestCase):
             original = stopslop.SETTINGS_REAL
             stopslop.SETTINGS_REAL = real_path
             try:
-                stopslop.cmd_init(SimpleNamespace(force=True))
+                # no_venv=True: this test only cares about the settings
+                # merge -- it must never trigger a real venv bootstrap
+                # (network/subprocess) as a side effect.
+                stopslop.cmd_init(SimpleNamespace(force=True, no_venv=True))
                 with open(real_path) as f:
                     written = json.load(f)
             finally:
                 stopslop.SETTINGS_REAL = original
         self.assertEqual(written["enabledMcpjsonServers"], ["stopslop"])
         self.assertIn("PreToolUse", written["hooks"])
+
+
+class CmdInitVenvBootstrapTests(unittest.TestCase):
+    """`cmd_init`'s venv step, in isolation from the settings-write logic
+    above -- a fake `venv_python_path` and a stubbed `_bootstrap_venv`, so
+    these never touch a real venv or the network."""
+
+    def _patch(self, obj, name, value):
+        original = getattr(obj, name)
+        setattr(obj, name, value)
+        self.addCleanup(setattr, obj, name, original)
+
+    def _run_init(self, tmp, fake_venv_python, no_venv):
+        real_path = os.path.join(tmp, "settings.local.json")
+        self._patch(stopslop, "SETTINGS_REAL", real_path)
+        self._patch(stopslop.dashboard_launch, "venv_python_path", lambda repo_root: fake_venv_python)
+        calls = []
+        self._patch(stopslop, "_bootstrap_venv", lambda *a, **k: calls.append(a))
+        with redirect_stdout(io.StringIO()) as out:
+            stopslop.cmd_init(SimpleNamespace(force=True, no_venv=no_venv))
+        return calls, out.getvalue()
+
+    def test_no_venv_flag_skips_bootstrap_and_prints_manual_instructions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = os.path.join(tmp, ".venv", "bin", "python3")
+            calls, out = self._run_init(tmp, missing, no_venv=True)
+        self.assertEqual(calls, [])
+        self.assertIn("Skipped venv setup (--no-venv)", out)
+        self.assertIn("python3 -m venv", out)
+
+    def test_default_bootstraps_when_venv_is_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = os.path.join(tmp, ".venv", "bin", "python3")
+            calls, out = self._run_init(tmp, missing, no_venv=False)
+        self.assertEqual(len(calls), 1)
+
+    def test_does_not_bootstrap_when_venv_already_exists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            existing = os.path.join(tmp, "python3")
+            open(existing, "w").close()
+            calls, out = self._run_init(tmp, existing, no_venv=False)
+        self.assertEqual(calls, [])
+
+    def test_start_instructions_mention_the_mcp_trust_prompt(self):
+        # The undocumented-trust-prompt landmine (a stranger's session
+        # silently never connects to MCP if they miss this) -- init's own
+        # output is the one place that can warn about it before it bites.
+        with tempfile.TemporaryDirectory() as tmp:
+            existing = os.path.join(tmp, "python3")
+            open(existing, "w").close()
+            _, out = self._run_init(tmp, existing, no_venv=False)
+        self.assertIn("allow this project's MCP servers", out)
+        self.assertIn("stopslop.py status", out)
+
+
+class BootstrapVenvTests(unittest.TestCase):
+    def test_success_prints_ready_and_returns_true(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            venv_dir = os.path.join(tmp, ".venv")
+            with redirect_stdout(io.StringIO()) as out:
+                result = stopslop._bootstrap_venv(
+                    venv_dir, os.path.join(tmp, "requirements.txt"),
+                    run=lambda *a, **k: None)
+        self.assertTrue(result)
+        self.assertIn("Virtual environment ready.", out.getvalue())
+
+    def test_venv_creation_failure_prints_fallback_and_returns_false(self):
+        def _fake_run(argv, **k):
+            if "venv" in argv:
+                raise subprocess.CalledProcessError(1, argv)
+            return None
+
+        with tempfile.TemporaryDirectory() as tmp:
+            venv_dir = os.path.join(tmp, ".venv")
+            with redirect_stdout(io.StringIO()) as out:
+                result = stopslop._bootstrap_venv(
+                    venv_dir, os.path.join(tmp, "requirements.txt"), run=_fake_run)
+        self.assertFalse(result)
+        self.assertIn("could not create the venv", out.getvalue())
+        self.assertIn("python3 -m venv", out.getvalue())
+
+    def test_pip_install_failure_prints_fallback_and_returns_false(self):
+        def _fake_run(argv, **k):
+            if "pip" in argv:
+                raise subprocess.CalledProcessError(1, argv)
+            return None
+
+        with tempfile.TemporaryDirectory() as tmp:
+            venv_dir = os.path.join(tmp, ".venv")
+            with redirect_stdout(io.StringIO()) as out:
+                result = stopslop._bootstrap_venv(
+                    venv_dir, os.path.join(tmp, "requirements.txt"), run=_fake_run)
+        self.assertFalse(result)
+        self.assertIn("pip install failed", out.getvalue())
+        self.assertIn("pip install -r", out.getvalue())
 
 
 def _scan_args(**overrides):
@@ -276,7 +374,7 @@ class CmdTermsTests(unittest.TestCase):
         with redirect_stderr(io.StringIO()) as err:
             code = stopslop.cmd_terms(_terms_args(add="reportedly"))
         self.assertEqual(code, 1)
-        self.assertIn("--add needs --list", err.getvalue())
+        self.assertIn("`--add` needs `--list LIST_ID`", err.getvalue())
 
     def test_unknown_list_id_errors_cleanly(self):
         with redirect_stderr(io.StringIO()) as err:
