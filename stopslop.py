@@ -314,7 +314,13 @@ def cmd_lint(args):
               f"would be denied:\n")
         for f in embedded_blocking:
             label = f.get("label") or f["detail"].get("rule", "?")
-            print(f"  line {f['embedded_line']}: [{f['kind']}] {label!r}")
+            # A document-level check (em_dash_cluster) has no single
+            # sentence of its own to attribute a line to -- see
+            # core/extract.py's embedded_prose_pool docstring. Printing
+            # nothing there beats a KeyError from assuming every flag
+            # carries one.
+            where = f"line {f['embedded_line']}: " if "embedded_line" in f else ""
+            print(f"  {where}[{f['kind']}] {label!r}")
         print()
 
     return 1 if (semantic or embedded_blocking) else 0
