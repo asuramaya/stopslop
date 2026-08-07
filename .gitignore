@@ -2,6 +2,8 @@
 .claude/stopslop-history.log
 .claude/*-memory.md
 .claude/stopslop-integrity.json
+.claude/stopslop-dashboard.lock
+.claude/stopslop-dashboard.log
 __pycache__/
 *.pyc
 .venv/

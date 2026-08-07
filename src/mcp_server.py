@@ -34,8 +34,10 @@ Configured for Claude Code via .mcp.json at the repo root.
 """
 import os
 import sys
+import threading
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import dashboard_launch
 import rulesets
 import status_report
 from core import config as core_config
@@ -474,4 +476,11 @@ def get_status() -> dict:
 
 
 if __name__ == "__main__":
+    # Daemon thread: ensure_running does its own locking/probing and can
+    # block up to _SPAWN_TIMEOUT_SECONDS on a slow boot, but nothing here
+    # should ever delay the stdio handshake below it -- see
+    # dashboard_launch.py's module docstring for why this is safe to fire
+    # from every session without piling up duplicate Streamlit processes.
+    threading.Thread(target=dashboard_launch.ensure_running, args=(REPO_ROOT,),
+                      daemon=True).start()
     mcp.run(transport="stdio")

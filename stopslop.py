@@ -27,11 +27,13 @@ import argparse
 import json
 import os
 import sys
+import webbrowser
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC_DIR = os.path.join(REPO_ROOT, "src")
 sys.path.insert(0, SRC_DIR)
 
+import dashboard_launch
 import rulesets
 from core import config as core_config
 from core import extract as core_extract
@@ -588,9 +590,8 @@ def cmd_list_rulesets(args):
 def cmd_dashboard(args):
     # Same "clear stderr message instead of an opaque exec failure" pattern
     # mcp_launch.py already established -- see that file's own docstring.
-    venv_streamlit = os.path.join(REPO_ROOT, ".venv", "bin", "streamlit")
-    if not os.path.exists(venv_streamlit):
-        venv_python = os.path.join(REPO_ROOT, ".venv", "bin", "python3")
+    venv_python = dashboard_launch.venv_python_path(REPO_ROOT)
+    if not os.path.exists(venv_python):
         print(
             "stopslop dashboard: no virtual environment at .venv -- it needs one, "
             "the same as the MCP tools. Set it up, then re-run this command:\n"
@@ -599,8 +600,19 @@ def cmd_dashboard(args):
             file=sys.stderr,
         )
         return 1
-    dashboard_path = os.path.join(SRC_DIR, "dashboard.py")
-    os.execv(venv_streamlit, [venv_streamlit, "run", dashboard_path])
+    # An MCP session may have already auto-started this (see
+    # dashboard_launch.py) -- re-execing streamlit into an occupied port
+    # would just crash on bind, so point the browser at the live one
+    # instead of trying to start a second, competing copy.
+    if dashboard_launch.is_alive():
+        url = dashboard_launch.dashboard_url()
+        print(f"stopslop dashboard: already running at {url}")
+        webbrowser.open(url)
+        return 0
+    argv = dashboard_launch.streamlit_argv(
+        venv_python, dashboard_launch.dashboard_path(),
+        dashboard_launch.DASHBOARD_PORT, headless=False)
+    os.execv(venv_python, argv)
 
 
 def main():
