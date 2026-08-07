@@ -64,6 +64,7 @@ CAPABILITY_ATTRS = {
     "word_lookup": ("check_word",),
     "checks": ("list_checks", "set_enabled_checks", "set_checks_enabled"),
     "options": ("list_options", "set_options"),
+    "check_config": ("list_check_config", "set_check_config"),
 }
 
 

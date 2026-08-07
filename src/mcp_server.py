@@ -307,6 +307,45 @@ def set_checks(states: dict[str, bool], ruleset: str = "") -> dict:
 
 
 @mcp.tool()
+def list_check_config(ruleset: str = "") -> dict:
+    """Every check's own {threshold, action}: how many times it has to
+    fire in a document before it counts as triggered, and whether a
+    triggered check denies the write on its own (block) or is only shown
+    (warn) -- if that ruleset supports per-check config at all (see
+    list_rulesets). Replaces one shared ruleset-wide flag-count number
+    with real, per-check settings.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "list_check_config"):
+        return _unsupported(active, "check_config", "list per-check threshold/action for")
+    return {"ruleset": active.RULESET_ID, "check_config": active.list_check_config()}
+
+
+@mcp.tool()
+def set_check_config(check_id: str, threshold: int = 0, action: str = "",
+                      ruleset: str = "") -> dict:
+    """Set one check's threshold and/or action, leaving whatever you don't
+    pass alone. threshold: how many times this check has to fire before
+    it counts as triggered. action: "block" (denies the write once
+    triggered) or "warn" (shown, never denies by itself). Leave a
+    parameter at its default (threshold=0, action="") to not change it --
+    0 is never a valid threshold, so it doubles as "not set" here.
+    """
+    active = _resolve(ruleset or None)
+    if not hasattr(active, "set_check_config"):
+        return _unsupported(active, "check_config", "set per-check threshold/action for")
+    try:
+        active.set_check_config(check_id, threshold=threshold or None, action=action or None)
+    except Exception as exc:
+        return {"ok": False, "status": "refused", "message": str(exc)}
+    return {"ok": True, "status": "saved",
+            "message": f"{check_id}: " + ", ".join(
+                p for p in (f"threshold={threshold}" if threshold else "",
+                            f"action={action}" if action else "") if p),
+            "check_config": active.list_check_config()}
+
+
+@mcp.tool()
 def list_options(ruleset: str = "") -> dict:
     """Every tunable option a ruleset exposes (e.g. slopwatch's block-flag-
     count threshold), its current effective value, and its built-in

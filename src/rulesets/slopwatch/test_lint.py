@@ -157,14 +157,26 @@ class BinaryContrastTests(unittest.TestCase):
 
 
 class EmDashClusterTests(unittest.TestCase):
-    def test_above_threshold_flags_once(self):
+    """The check itself no longer gates on a threshold -- it reports the
+    raw count unconditionally, and whether that's enough to actually
+    TRIGGER (and whether triggering denies a write) is
+    blocking_semantic_flags's job now, against this check's own
+    configured {threshold, action}. See CheckToggleAndOptionsTests for
+    the threshold/action behavior itself."""
+
+    def test_reports_raw_count(self):
         hits = lint.check_em_dash_cluster("one — two — three — four — five")
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits[0]["count"], 4)
+        self.assertEqual(hits[0]["occurrences"], 4)
 
-    def test_at_or_below_threshold_not_flagged(self):
-        self.assertEqual(lint.check_em_dash_cluster("one — two — three"), [])
-        self.assertEqual(lint.check_em_dash_cluster("one — two"), [])
+    def test_a_single_em_dash_still_reports(self):
+        hits = lint.check_em_dash_cluster("one — two")
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]["count"], 1)
+
+    def test_no_em_dash_reports_nothing(self):
+        self.assertEqual(lint.check_em_dash_cluster("one two three"), [])
 
 
 class EntityEncodedPunctuationTests(unittest.TestCase):
@@ -352,12 +364,18 @@ class BlockingFlagsTests(unittest.TestCase):
         r = lint.lint_and_gate("Needless to say, this matters.")
         self.assertEqual(lint.blocking_semantic_flags(r["semantic_flags"]), [])
 
-    def test_four_or_more_flags_block(self):
+    def test_many_different_warn_checks_together_still_do_not_block(self):
+        # The old shared aggregate ("N flags total, from ANY checks,
+        # denies") is retired -- each check's own {threshold, action}
+        # decides now, independently. A document full of different
+        # one-off "warn" tics still passes, by design: see
+        # CheckToggleAndOptionsTests for turning a specific check to
+        # "block" instead.
         text = ("Needless to say, this matters. Studies show it works. "
                 "The best part: it learns. This is not a bug. It's a feature.")
         r = lint.lint_and_gate(text)
         self.assertGreaterEqual(len(r["semantic_flags"]), 4)
-        self.assertEqual(lint.blocking_semantic_flags(r["semantic_flags"]), r["semantic_flags"])
+        self.assertEqual(lint.blocking_semantic_flags(r["semantic_flags"]), [])
 
     def test_em_dash_cluster_alone_blocks(self):
         r = lint.lint_and_gate("one — two — three — four — five plain sentence here.")
@@ -442,42 +460,61 @@ class CheckToggleAndOptionsTests(unittest.TestCase):
             slopwatch.set_enabled_checks(["__not_a_real_check__"])
         self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
 
-    def test_default_options_before_any_override(self):
-        opts = slopwatch.list_options()
-        self.assertEqual(opts["em_dash_threshold"], {"value": 3, "default": 3})
-        self.assertEqual(opts["block_flag_count_threshold"], {"value": 4, "default": 4})
+    def test_default_check_config_before_any_override(self):
+        cfg = slopwatch.list_check_config()
+        self.assertEqual(cfg["em_dash_cluster"],
+                          {"threshold": 4, "action": "block",
+                           "default_threshold": 4, "default_action": "block"})
+        self.assertEqual(cfg["vague_intensifier"],
+                          {"threshold": 1, "action": "warn",
+                           "default_threshold": 1, "default_action": "warn"})
 
-    def test_em_dash_threshold_override_changes_check_em_dash_cluster(self):
-        two_dashes = "a—b—c."
-        self.assertEqual(lint.check_em_dash_cluster(two_dashes), [])  # default threshold=3, 2 <= 3
-        slopwatch.set_options({"em_dash_threshold": 1})
-        self.assertEqual(len(lint.check_em_dash_cluster(two_dashes)), 1)  # now 2 > 1
-
-    def test_block_flag_count_threshold_override_changes_blocking_semantic_flags(self):
+    def test_action_override_changes_blocking_semantic_flags(self):
         flags = [{"kind": "vague_intensifier", "label": f"w{i}", "detail": {}, "text": ""}
-                  for i in range(4)]
-        self.assertEqual(len(lint.blocking_semantic_flags(flags)), 4)  # default threshold=4
-        slopwatch.set_options({"block_flag_count_threshold": 10})
-        self.assertEqual(lint.blocking_semantic_flags(flags), [])
+                  for i in range(3)]
+        self.assertEqual(lint.blocking_semantic_flags(flags), [])  # default action=warn
+        slopwatch.set_check_config("vague_intensifier", threshold=3, action="block")
+        self.assertEqual(len(lint.blocking_semantic_flags(flags)), 3)
 
-    def test_unknown_option_raises_and_does_not_write(self):
+    def test_threshold_override_changes_when_a_check_fires(self):
+        flags = [{"kind": "em_dash_cluster", "label": None,
+                  "detail": {"occurrences": 2}, "text": None}]
+        self.assertEqual(lint.blocking_semantic_flags(flags), [])  # 2 < default threshold 4
+        slopwatch.set_check_config("em_dash_cluster", threshold=2)
+        self.assertEqual(len(lint.blocking_semantic_flags(flags)), 1)
+
+    def test_unknown_check_id_in_set_check_config_raises_and_does_not_write(self):
         with self.assertRaises(ValueError):
-            slopwatch.set_options({"__not_a_real_option__": 1})
+            slopwatch.set_check_config("__not_a_real_check__", threshold=1)
         self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
 
-    def test_wrong_type_option_raises(self):
+    def test_invalid_threshold_raises(self):
         with self.assertRaises(ValueError):
-            slopwatch.set_options({"em_dash_threshold": "three"})
+            slopwatch.set_check_config("vague_intensifier", threshold=0)
+        with self.assertRaises(ValueError):
+            slopwatch.set_check_config("vague_intensifier", threshold="three")
 
-    def test_set_options_merges_rather_than_replaces(self):
-        # Regression guard: a CLI `--set KEY=VALUE` naturally sets one
-        # option at a time -- a second set_options() call for a different
-        # key must not silently reset the first key back to its default.
-        slopwatch.set_options({"em_dash_threshold": 7})
-        slopwatch.set_options({"block_flag_count_threshold": 8})
-        opts = slopwatch.list_options()
-        self.assertEqual(opts["em_dash_threshold"]["value"], 7)
-        self.assertEqual(opts["block_flag_count_threshold"]["value"], 8)
+    def test_invalid_action_raises(self):
+        with self.assertRaises(ValueError):
+            slopwatch.set_check_config("vague_intensifier", action="deny")
+
+    def test_set_check_config_merges_rather_than_replaces(self):
+        # Regression guard: a CLI/dashboard edit naturally sets one field
+        # at a time -- a second set_check_config() call for the other
+        # field must not silently reset the first back to its default.
+        slopwatch.set_check_config("vague_intensifier", threshold=7)
+        slopwatch.set_check_config("vague_intensifier", action="block")
+        cfg = slopwatch.list_check_config()["vague_intensifier"]
+        self.assertEqual(cfg["threshold"], 7)
+        self.assertEqual(cfg["action"], "block")
+
+    def test_setting_one_check_leaves_others_at_default(self):
+        slopwatch.set_check_config("vague_intensifier", threshold=9)
+        cfg = slopwatch.list_check_config()
+        self.assertEqual(cfg["vague_intensifier"]["threshold"], 9)
+        self.assertEqual(cfg["filler_opener"],
+                          {"threshold": 1, "action": "warn",
+                           "default_threshold": 1, "default_action": "warn"})
 
 
 class WordlistExtensibilityDirectTests(unittest.TestCase):

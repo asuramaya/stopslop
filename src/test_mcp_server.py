@@ -209,6 +209,7 @@ class _FakeChecksAndOptions:
         self.CAPABILITIES = frozenset()
         self._disabled = set()
         self._options = {"threshold": 4}
+        self._check_config = {c: {"threshold": 1, "action": "warn"} for c in self.ALL_CHECKS}
 
     def list_checks(self):
         return {c: {"catches": f"{c} catches", "instead": f"{c} instead",
@@ -236,6 +237,20 @@ class _FakeChecksAndOptions:
         if unknown:
             raise ValueError(f"unknown option(s): {sorted(unknown)}")
         self._options.update(options)
+
+    def list_check_config(self):
+        return {c: dict(spec) for c, spec in self._check_config.items()}
+
+    def set_check_config(self, check_id, threshold=None, action=None):
+        if check_id not in self.ALL_CHECKS:
+            raise ValueError(f"unknown check id {check_id!r}")
+        if action is not None and action not in ("block", "warn"):
+            raise ValueError(f"action must be 'block' or 'warn', got {action!r}")
+        spec = self._check_config.setdefault(check_id, {"threshold": 1, "action": "warn"})
+        if threshold is not None:
+            spec["threshold"] = threshold
+        if action is not None:
+            spec["action"] = action
 
 
 @unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
@@ -283,6 +298,33 @@ class ChecksAndOptionsToolsTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "refused")
 
+    def test_set_check_config_threshold_then_list_reflects_it(self):
+        result = mcp_server.set_check_config("foo_check", threshold=3)
+        self.assertTrue(result["ok"])
+        self.assertEqual(mcp_server.list_check_config()["check_config"]["foo_check"]["threshold"], 3)
+
+    def test_set_check_config_action_then_list_reflects_it(self):
+        result = mcp_server.set_check_config("foo_check", action="block")
+        self.assertTrue(result["ok"])
+        self.assertEqual(mcp_server.list_check_config()["check_config"]["foo_check"]["action"], "block")
+
+    def test_set_check_config_leaving_threshold_at_zero_does_not_change_it(self):
+        # threshold=0 doubles as "not set" -- see set_check_config's own
+        # docstring on why 0 is never a valid real threshold.
+        mcp_server.set_check_config("foo_check", threshold=5)
+        mcp_server.set_check_config("foo_check", action="block")
+        self.assertEqual(mcp_server.list_check_config()["check_config"]["foo_check"]["threshold"], 5)
+
+    def test_set_check_config_refuses_unknown_check(self):
+        result = mcp_server.set_check_config("__not_real__", threshold=1)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "refused")
+
+    def test_set_check_config_refuses_invalid_action(self):
+        result = mcp_server.set_check_config("foo_check", action="deny")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "refused")
+
     def test_capability_gate_refuses_a_ruleset_without_checks(self):
         mcp_server._resolve = lambda ruleset_id=None: types.SimpleNamespace(
             RULESET_ID="no_checks", CAPABILITIES=frozenset())
@@ -290,6 +332,8 @@ class ChecksAndOptionsToolsTests(unittest.TestCase):
         self.assertEqual(mcp_server.set_checks({})["status"], "unsupported")
         self.assertEqual(mcp_server.list_options()["status"], "unsupported")
         self.assertEqual(mcp_server.set_ruleset_options({})["status"], "unsupported")
+        self.assertEqual(mcp_server.list_check_config()["status"], "unsupported")
+        self.assertEqual(mcp_server.set_check_config("x", threshold=1)["status"], "unsupported")
 
 
 if __name__ == "__main__":

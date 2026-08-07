@@ -331,6 +331,44 @@ def save_ruleset_options(project_root, ruleset_id, options, config_file=None):
         f.write("\n")
 
 
+def check_config(project_root, ruleset_id, config_file=None):
+    """Per-check {"threshold": N, "action": "block"|"warn"} overrides for
+    `ruleset_id`, per stopslop.config.json's "check_config" key:
+    {"<ruleset_id>": {"<check_id>": {"threshold": N, "action": ...}}}.
+    Empty with no config file, or no entry -- a ruleset's own hardcoded
+    per-check defaults keep governing an unconfigured clone, the same
+    invariant every other knob in this file gives.
+
+    Replaces the old shared ruleset-wide block_flag_count_threshold plus
+    a hardcoded, non-configurable BLOCKS_ALONE_AT: every check now owns
+    its own threshold and its own block/warn action, both real project
+    settings instead of one shared number and one thing only code could
+    change."""
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        return {}
+    with open(path) as f:
+        data = json.load(f)
+    return data.get("check_config", {}).get(ruleset_id, {})
+
+
+def save_check_config(project_root, ruleset_id, check_id, spec, config_file=None):
+    """Write ONE check's {threshold, action} override, merging into
+    whatever the ruleset already has for its OTHER checks -- never a
+    replace-the-whole-ruleset write, since a caller edits one row (one
+    check) at a time and every other row's override must survive, same
+    clobber-avoidance shape as save_disabled_checks/save_ruleset_options."""
+    path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    data.setdefault("check_config", {}).setdefault(ruleset_id, {})[check_id] = spec
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
 def _relative_posix_path(file_path, project_root):
     """The path relative to project_root, using '/' regardless of platform
     (fnmatch patterns in config files are always written with '/'). Returns

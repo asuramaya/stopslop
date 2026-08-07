@@ -132,29 +132,46 @@ def _lexicon_terms(file_path=None):
         return {}
 
 
-DEFAULT_OPTIONS = {
-    "em_dash_threshold": 3,
-    "block_flag_count_threshold": 4,
-}
+# Every check's own {occurrence threshold, block-or-warn action} --
+# replaces the old shared block_flag_count_threshold (one ruleset-wide
+# number, no per-check say) plus the hardcoded, non-configurable
+# BLOCKS_ALONE_AT (only em_dash_cluster could ever "deny alone", and a
+# project had no way to change that). Every check defaults to threshold=1,
+# action="warn": it fires (and is visible) on its very first occurrence,
+# but never denies a write by itself -- the safe, no-surprise migration
+# default, since nothing that passed before should start failing without
+# a project explicitly choosing that for a specific check. em_dash_cluster
+# is the one exception, carried over at its exact prior behavior (4+ em
+# dashes denies, alone, same as today's em_dash_threshold=3 + blocks-alone
+# combination).
+DEFAULT_CHECK_CONFIG = {check_id: {"threshold": 1, "action": "warn"}
+                        for check_id in ALL_CHECK_IDS}
+DEFAULT_CHECK_CONFIG["em_dash_cluster"] = {"threshold": 4, "action": "block"}
 
 
-def _options():
-    """DEFAULT_OPTIONS with any valid override from stopslop.config.json's
-    "options" key layered on top. An override with the wrong type, or an
-    unresolvable project root (e.g. a lint call against free text with no
-    real project on disk), silently falls back to the default rather than
-    breaking the gate -- same never-break-the-gate posture as
-    _enabled_check_ids()."""
-    opts = dict(DEFAULT_OPTIONS)
+def _check_config():
+    """DEFAULT_CHECK_CONFIG with any valid override from
+    stopslop.config.json's "check_config" key layered on top, per check.
+    An override naming an unknown check, an invalid action, or a
+    non-integer threshold is ignored for that field -- same
+    never-break-the-gate posture as _enabled_check_ids()."""
+    merged = {check_id: dict(spec) for check_id, spec in DEFAULT_CHECK_CONFIG.items()}
     try:
         project_root = _paths.find_project_root(__file__)
-        overrides = _core_config.ruleset_options(project_root, "slopwatch")
+        overrides = _core_config.check_config(project_root, "slopwatch")
     except Exception:
-        return opts
-    for key, value in overrides.items():
-        if key in opts and isinstance(value, type(opts[key])):
-            opts[key] = value
-    return opts
+        return merged
+    for check_id, override in overrides.items():
+        if check_id not in merged or not isinstance(override, dict):
+            continue
+        spec = dict(merged[check_id])
+        threshold = override.get("threshold")
+        if isinstance(threshold, int) and not isinstance(threshold, bool) and threshold >= 1:
+            spec["threshold"] = threshold
+        if override.get("action") in ("block", "warn"):
+            spec["action"] = override["action"]
+        merged[check_id] = spec
+    return merged
 
 # --- filler_opener (semantic) ------------------------------------------
 FILLER_OPENERS = [
@@ -282,13 +299,18 @@ _ENTITY_EM_DASH_RE = re.compile(r"&mdash;|&#0*8212;|&#[xX]0*2014;")
 
 
 def check_em_dash_cluster(text):
-    threshold = _options()["em_dash_threshold"]
+    """Reports the raw count unconditionally -- whether that count is
+    enough to actually TRIGGER this check (and whether triggering it
+    denies the write) is this check's own configured {threshold, action}
+    now, applied centrally in blocking_semantic_flags, the same as every
+    other check. `occurrences` carries the count so a document with 6 em
+    dashes weighs six times what one with 1 does against the threshold,
+    not the same -- see core.flags.flag_weight."""
     count = text.count("—") + len(_ENTITY_EM_DASH_RE.findall(text))
-    if count > threshold:
-        return [{"count": count, "rule": "slopwatch.em_dash_cluster", "auto_fix": False,
-                  "note": f"{count} em dashes in this document -- most drafts need "
-                          f"{threshold} or fewer; use commas, periods, or parentheses for the rest"}]
-    return []
+    if count == 0:
+        return []
+    return [{"count": count, "occurrences": count, "rule": "slopwatch.em_dash_cluster",
+              "auto_fix": False, "note": f"{count} em dash(es) in this document"}]
 
 
 # --- entity_encoded_punctuation (mechanical) -- ported from deslopper (MIT) -
@@ -762,33 +784,31 @@ def lint_and_gate(text, context=None, file_path=None):
     }
 
 
-# Checks that deny on their own once THEIR OWN flags in this call reach a
-# declared count, bypassing the shared pool below -- a general per-check
-# mechanism, not a name check against one hardcoded id. See
-# rulesets/slopwatch/__init__.py's DENY_POLICY["blocks_alone_at"], the same
-# fact restated for the UI; DenyPolicyMatchesBehaviourTests in
-# test_check_text.py holds the two in step.
-BLOCKS_ALONE_AT = {"em_dash_cluster": 1}
-
-
 def blocking_semantic_flags(semantic_flags):
     """A different POLICY from ste100's exclusion-list approach -- see the
-    module docstring. Individual flags never block alone (except a check
-    named in BLOCKS_ALONE_AT, once its own count is reached); a write is
-    otherwise denied only when the text reads as densely formulaic: the
-    configured flag-count threshold is reached (4 by default, see
-    DEFAULT_OPTIONS)."""
-    # Occurrences, not deduped length: dedup collapses fifty repeats of
-    # one banned word into a single display entry, and a policy that
-    # counted the collapsed list scored monotonous slop below varied
-    # slop. See core.flags.flag_weight.
-    for check_id, threshold in BLOCKS_ALONE_AT.items():
-        own = [f for f in semantic_flags if f["kind"] == check_id]
-        if flag_weight(own) >= threshold:
-            return semantic_flags
-    if flag_weight(semantic_flags) >= _options()["block_flag_count_threshold"]:
-        return semantic_flags
-    return []
+    module docstring. No shared ruleset-wide flag-count pool anymore
+    (that used to live here as block_flag_count_threshold): each check's
+    own occurrence-weight is compared against its OWN threshold
+    (DEFAULT_CHECK_CONFIG, project-overridable via "check_config" in
+    stopslop.config.json), and a check that reaches its threshold denies
+    the write on its own if its action is "block" -- never, if "warn".
+    A document can carry any number of triggered "warn" checks and still
+    pass; that is the point of per-check granularity replacing one shared
+    density number nobody could tune per check."""
+    config = _check_config()
+    grouped = {}
+    for f in semantic_flags:
+        grouped.setdefault(f["kind"], []).append(f)
+    blocking = []
+    for check_id, flags in grouped.items():
+        spec = config.get(check_id, {"threshold": 1, "action": "warn"})
+        # Occurrences, not deduped length: dedup collapses fifty repeats
+        # of one banned word into a single display entry, and a policy
+        # that counted the collapsed list scored monotonous slop below
+        # varied slop. See core.flags.flag_weight.
+        if flag_weight(flags) >= spec["threshold"] and spec["action"] == "block":
+            blocking.extend(flags)
+    return blocking
 
 
 def fix_sentence(sentence, enabled=None, extra_stock_adverbs=None):

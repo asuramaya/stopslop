@@ -233,7 +233,12 @@ class BlockingFlagsTests(unittest.TestCase):
         blocking = lint.blocking_semantic_flags(r["semantic_flags"])
         self.assertTrue(any(f["kind"] == "swallowed_exception" for f in blocking))
 
-    def test_four_or_more_flags_block(self):
+    def test_many_different_warn_checks_together_still_do_not_block(self):
+        # The old shared aggregate ("N flags total, from ANY checks,
+        # denies") is retired -- each check's own {threshold, action}
+        # decides now, independently. See slopwatch's identical test and
+        # CheckToggleAndOptionsTests below for turning a specific check
+        # to "block" instead.
         code = (
             "# Return the processed result\n"
             "def f(items=[]):\n"
@@ -243,7 +248,7 @@ class BlockingFlagsTests(unittest.TestCase):
         )
         r = lint.lint_and_gate(code)
         self.assertGreaterEqual(len(r["semantic_flags"]), 4)
-        self.assertEqual(lint.blocking_semantic_flags(r["semantic_flags"]), r["semantic_flags"])
+        self.assertEqual(lint.blocking_semantic_flags(r["semantic_flags"]), [])
 
 
 class LintAndGateIntegrationTests(unittest.TestCase):
@@ -334,25 +339,36 @@ class CheckToggleAndOptionsTests(unittest.TestCase):
             codewatch.set_enabled_checks(["__not_a_real_check__"])
         self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
 
-    def test_default_options_before_any_override(self):
-        opts = codewatch.list_options()
-        self.assertEqual(opts["block_flag_count_threshold"], {"value": 4, "default": 4})
+    def test_default_check_config_before_any_override(self):
+        cfg = codewatch.list_check_config()
+        self.assertEqual(cfg["swallowed_exception"],
+                          {"threshold": 1, "action": "block",
+                           "default_threshold": 1, "default_action": "block"})
+        self.assertEqual(cfg["generic_naming"],
+                          {"threshold": 1, "action": "warn",
+                           "default_threshold": 1, "default_action": "warn"})
 
-    def test_block_flag_count_threshold_override_changes_blocking_semantic_flags(self):
+    def test_action_override_changes_blocking_semantic_flags(self):
         flags = [{"kind": "generic_naming", "label": f"w{i}", "detail": {}, "text": ""}
-                  for i in range(4)]
-        self.assertEqual(len(lint.blocking_semantic_flags(flags)), 4)  # default threshold=4
-        codewatch.set_options({"block_flag_count_threshold": 10})
-        self.assertEqual(lint.blocking_semantic_flags(flags), [])
+                  for i in range(3)]
+        self.assertEqual(lint.blocking_semantic_flags(flags), [])  # default action=warn
+        codewatch.set_check_config("generic_naming", threshold=3, action="block")
+        self.assertEqual(len(lint.blocking_semantic_flags(flags)), 3)
 
-    def test_unknown_option_raises_and_does_not_write(self):
+    def test_unknown_check_id_in_set_check_config_raises_and_does_not_write(self):
         with self.assertRaises(ValueError):
-            codewatch.set_options({"__not_a_real_option__": 1})
+            codewatch.set_check_config("__not_a_real_check__", threshold=1)
         self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
 
-    def test_wrong_type_option_raises(self):
+    def test_invalid_threshold_raises(self):
         with self.assertRaises(ValueError):
-            codewatch.set_options({"block_flag_count_threshold": "ten"})
+            codewatch.set_check_config("generic_naming", threshold=0)
+        with self.assertRaises(ValueError):
+            codewatch.set_check_config("generic_naming", threshold="ten")
+
+    def test_invalid_action_raises(self):
+        with self.assertRaises(ValueError):
+            codewatch.set_check_config("generic_naming", action="deny")
 
 
 class TermListExtensibilityEndToEndTests(unittest.TestCase):

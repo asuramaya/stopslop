@@ -392,6 +392,95 @@ class CmdTermsTests(unittest.TestCase):
         self.assertIn("allow", out.getvalue())
 
 
+def _checks_args(**overrides):
+    defaults = dict(ruleset="slopwatch", enable=None, set_threshold=None, set_action=None)
+    defaults.update(overrides)
+    return SimpleNamespace(**defaults)
+
+
+class CmdChecksTests(unittest.TestCase):
+    """Same isolation technique as CmdTermsTests above -- a temp project
+    root so this never touches the repo's own config file."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
+        self._orig_find_root = _slopwatch.paths.find_project_root
+        _slopwatch.paths.find_project_root = lambda _file: self._tmp.name
+
+    def tearDown(self):
+        _slopwatch.paths.find_project_root = self._orig_find_root
+        self._tmp.cleanup()
+
+    def test_no_args_lists_every_check(self):
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args())
+        self.assertEqual(code, 0)
+        self.assertIn("em_dash_cluster", out.getvalue())
+
+    def test_listing_shows_threshold_and_action_for_check_config_rulesets(self):
+        with redirect_stdout(io.StringIO()) as out:
+            stopslop.cmd_checks(_checks_args())
+        text = out.getvalue()
+        self.assertIn("threshold=4, action=block", text)  # em_dash_cluster's default
+
+    def test_enable_disables_every_other_check(self):
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(enable=["em_dash_cluster"]))
+        self.assertEqual(code, 0)
+        self.assertIn("Enabled: em_dash_cluster", out.getvalue())
+
+    def test_set_threshold_then_listing_reflects_it(self):
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(set_threshold=["vague_intensifier=3"]))
+        self.assertEqual(code, 0)
+        self.assertIn("Set vague_intensifier threshold=3", out.getvalue())
+        with redirect_stdout(io.StringIO()) as out2:
+            stopslop.cmd_checks(_checks_args())
+        self.assertIn("threshold=3", out2.getvalue())
+
+    def test_set_action_then_listing_reflects_it(self):
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(set_action=["vague_intensifier=block"]))
+        self.assertEqual(code, 0)
+        self.assertIn("Set vague_intensifier action=block", out.getvalue())
+        with redirect_stdout(io.StringIO()) as out2:
+            stopslop.cmd_checks(_checks_args())
+        self.assertIn("action=block", out2.getvalue())
+
+    def test_set_threshold_malformed_item_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(set_threshold=["not-a-pair"]))
+        self.assertEqual(code, 1)
+        self.assertIn("CHECK_ID=VALUE", err.getvalue())
+
+    def test_set_threshold_non_integer_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(set_threshold=["vague_intensifier=many"]))
+        self.assertEqual(code, 1)
+        self.assertIn("whole number", err.getvalue())
+
+    def test_set_action_invalid_value_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(set_action=["vague_intensifier=deny"]))
+        self.assertEqual(code, 1)
+        self.assertIn("block", err.getvalue())
+        self.assertIn("warn", err.getvalue())
+
+    def test_unknown_check_id_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(set_threshold=["__not_real__=3"]))
+        self.assertEqual(code, 1)
+        self.assertIn("unknown check id", err.getvalue())
+
+    def test_set_threshold_on_a_ruleset_without_check_config_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(
+                ruleset="ste100", set_threshold=["length=3"]))
+        self.assertEqual(code, 1)
+        self.assertIn("no per-check threshold/action", err.getvalue())
+
+
 class CmdPacksTests(unittest.TestCase):
     """Packs attach to a path glob, so the command reports per rule."""
 

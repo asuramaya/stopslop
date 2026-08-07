@@ -198,79 +198,70 @@ class CheckToConfigLinksTests(unittest.TestCase):
 
 
 class DenyPolicyMatchesBehaviourTests(unittest.TestCase):
-    """DENY_POLICY is prose describing what blocking_semantic_flags does.
-    Two statements of one fact, kept in step by hand -- exactly the shape
-    that produced every other drift in this project. So the prose is not
-    trusted: it is checked against the function.
+    """Per-check {threshold, action} is real project config now (see
+    core.config.check_config), not prose describing a shared formula --
+    but the same "do not trust it, check it against the function"
+    discipline still applies: a check's declared threshold/action must
+    actually match what blocking_semantic_flags does with it."""
 
-    This does not remove the duplication, it makes it falsifiable. A policy
-    sentence is worth having (it is the only place the page can state what
-    blocks a write), and a policy sentence nobody verifies is worse than
-    none, because it reads as authoritative."""
-
-    def _flags(self, n, kind="filler_verb"):
+    def _flags(self, n, kind):
         return [{"kind": kind, "label": f"w{i}", "detail": {}, "text": ""}
                 for i in range(n)]
 
-    def test_a_declared_count_threshold_is_the_real_threshold(self):
+    def test_every_check_has_a_declared_default(self):
+        """The drift this catches: a check added to a ruleset's own
+        ALL_CHECK_IDS with no matching DEFAULT_CHECK_CONFIG entry would
+        silently fall back to blocking_semantic_flags's own hardcoded
+        {"threshold": 1, "action": "warn"} instead of an intentional,
+        visible default -- exactly the class of thing list_check_config()
+        exists to make impossible to miss."""
         for module in rulesets.list_rulesets():
-            policy = module.DENY_POLICY
-            if "{block_flag_count_threshold}" not in policy["text"]:
+            if "check_config" not in module.CAPABILITIES:
                 continue
-            threshold = module.list_options()["block_flag_count_threshold"]["value"]
-            neutral = next((c for c in module.list_checks()
-                            if c not in policy["blocks_alone_at"]), None)
-            self.assertIsNotNone(neutral)
             with self.subTest(ruleset=module.RULESET_ID):
-                below = module.blocking_semantic_flags(
-                    self._flags(threshold - 1, neutral))
-                at = module.blocking_semantic_flags(self._flags(threshold, neutral))
-                self.assertEqual(below, [],
-                                  f"policy says it denies AT {threshold}, but "
-                                  f"{threshold - 1} flags already blocked")
-                self.assertTrue(at,
-                                 f"policy says it denies at {threshold}, but "
-                                 f"{threshold} flags did not block")
+                self.assertEqual(set(module.list_checks()), set(module.list_check_config()))
 
-    def test_every_blocks_alone_check_denies_at_its_declared_count(self):
-        """Not just "one flag blocks" -- the count itself is the contract
-        now, so this proves both ends: AT the declared count it blocks,
-        one BELOW it it does not (still relying on the shared pool, which
-        stays out of reach at these small counts)."""
+    def test_a_block_configured_check_denies_at_its_threshold_not_below(self):
+        """Not just "reaching threshold blocks" -- the exact count is the
+        contract, so this proves both ends: AT the declared threshold it
+        blocks, one BELOW it it does not."""
         for module in rulesets.list_rulesets():
-            for check_id, threshold in module.DENY_POLICY["blocks_alone_at"].items():
+            if "check_config" not in module.CAPABILITIES:
+                continue
+            for check_id, spec in module.list_check_config().items():
+                if spec["action"] != "block":
+                    continue
                 with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
-                    at = module.blocking_semantic_flags(self._flags(threshold, check_id))
+                    at = module.blocking_semantic_flags(
+                        self._flags(spec["threshold"], check_id))
                     self.assertTrue(
-                        at, f"{check_id} is declared blocks_alone_at={threshold} "
-                            f"and the page warns a user about it, but "
-                            f"{threshold} of them did not block")
-                    if threshold > 1:
+                        at, f"{check_id} is configured to block at threshold="
+                            f"{spec['threshold']}, but that many did not block")
+                    if spec["threshold"] > 1:
                         below = module.blocking_semantic_flags(
-                            self._flags(threshold - 1, check_id))
+                            self._flags(spec["threshold"] - 1, check_id))
                         self.assertEqual(
                             below, [],
-                            f"{check_id} is declared blocks_alone_at={threshold}, "
-                            f"but {threshold - 1} already blocked")
+                            f"{check_id} is configured to block at threshold="
+                            f"{spec['threshold']}, but {spec['threshold'] - 1} "
+                            f"already blocked")
 
-    def test_no_undeclared_check_blocks_alone(self):
+    def test_a_warn_configured_check_never_blocks_alone(self):
         """The inverse, and the one that catches drift in the direction
         nobody looks: a check that gained always-block behaviour in code
-        without being declared would show on the page as an ordinary row."""
+        without its action being flipped to "block" would show on the
+        page as a harmless warn row while actually denying writes."""
         for module in rulesets.list_rulesets():
-            declared = set(module.DENY_POLICY["blocks_alone_at"])
-            threshold_based = "{block_flag_count_threshold}" in module.DENY_POLICY["text"]
-            if not threshold_based:
-                continue          # ste100 blocks on any non-excluded flag by design
-            for check_id in module.list_checks():
-                if check_id in declared:
+            if "check_config" not in module.CAPABILITIES:
+                continue
+            for check_id, spec in module.list_check_config().items():
+                if spec["action"] != "warn":
                     continue
                 with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
                     self.assertEqual(
-                        module.blocking_semantic_flags(self._flags(1, check_id)), [],
-                        f"{check_id} blocks on its own but is not in "
-                        f"DENY_POLICY['blocks_alone_at'], so the page shows it "
-                        f"as an ordinary row and the warning never appears")
+                        module.blocking_semantic_flags(
+                            self._flags(spec["threshold"] + 5, check_id)),
+                        [], f"{check_id} is configured to warn, but blocked anyway")
 
 
 class RemedyDerivationTests(unittest.TestCase):

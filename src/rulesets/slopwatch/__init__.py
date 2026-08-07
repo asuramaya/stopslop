@@ -23,7 +23,7 @@ TERM_LISTS = lint.TERM_LISTS
 
 RULESET_ID = "slopwatch"
 RULESET_NAME = "slopwatch"
-CAPABILITIES = frozenset({"terms", "checks", "options"})
+CAPABILITIES = frozenset({"terms", "checks", "check_config"})
 
 TRACKED_FILES = ["lint.py"]
 
@@ -108,32 +108,16 @@ CHECKS = {
 
 
 # See rulesets/ste100/__init__.py's DENY_POLICY for why this lives on the
-# ruleset. `blocks_alone_at` maps a check id to how many of ITS OWN flags
-# deny a write on their own, ignoring the shared count -- a fact the checks
-# table cannot show without being told, since such a row is otherwise
-# identical to the other nineteen. A general per-check mechanism, not a
-# name check against one hardcoded id: any check could carry a count here,
-# it happens that only one currently does.
-# Which tunable option belongs to which check. Declared, never inferred: an
-# option name that happens to share a prefix with a check id is a
-# coincidence, and a UI that pairs them by prefix will eventually pair the
-# wrong two. block_flag_count_threshold is deliberately absent -- it is not
-# any check's parameter, it is the ruleset's deny policy (see DENY_POLICY).
-CHECK_OPTIONS = {
-    "em_dash_cluster": ("em_dash_threshold",),
-}
-
+# ruleset. No more shared ruleset-wide flag-count pool, and no more
+# hardcoded, non-configurable BLOCKS_ALONE_AT -- every check owns its own
+# {threshold, action} now (see lint.DEFAULT_CHECK_CONFIG), a real project
+# setting on every row instead of one shared number nobody could tune per
+# check and one exception only code could grant.
 DENY_POLICY = {
-    # The rationale for the threshold (why density, not any single flag,
-    # is what should block a write) belongs in blocking_semantic_flags's
-    # own docstring below -- this is the UI-facing text, completing the
-    # sentence "<ruleset> denies a write ...", so it states the policy
-    # and stops there. The old opener "No single flag denies on its own"
-    # is gone because it was FALSE: em_dash_cluster, one line down,
-    # denies alone at 1 -- the checks table's denies-alone column is
-    # where that exception lives.
-    "text": "at {block_flag_count_threshold} flags or more.",
-    "blocks_alone_at": {"em_dash_cluster": 1},
+    "text": "when a check's own threshold is reached and that check is "
+            "configured to block -- each check's own threshold and "
+            "action are set on its own row below.",
+    "blocks_alone_at": {},  # retired -- see each check's own "action" instead
 }
 
 def lint_and_gate(text, *, context=None, file_path=None):
@@ -204,36 +188,41 @@ def set_checks_enabled(states):
     _core_config.merge_disabled_checks(project_root, RULESET_ID, states)
 
 
-def list_options():
-    """Every tunable option this ruleset exposes, its current effective
-    value, and its built-in default -- read fresh each call, same as
-    list_checks() (see lint._options()'s own docstring for why no
-    caching is needed here)."""
-    current = lint._options()
-    return {name: {"value": current[name], "default": default}
-            for name, default in lint.DEFAULT_OPTIONS.items()}
+def list_check_config():
+    """Every check's own {threshold, action}: its current effective value
+    and its built-in default -- read fresh each call, same as
+    list_checks() (see lint._check_config()'s own docstring for why no
+    caching is needed here). The modularity surface the dashboard's
+    Checks table (threshold/action columns) and `stopslop.py checks`
+    both read."""
+    current = lint._check_config()
+    return {check_id: {"threshold": spec["threshold"], "action": spec["action"],
+                        "default_threshold": lint.DEFAULT_CHECK_CONFIG[check_id]["threshold"],
+                        "default_action": lint.DEFAULT_CHECK_CONFIG[check_id]["action"]}
+            for check_id, spec in current.items()}
 
 
-def set_options(options):
-    """Merge `options` into the stored overrides for this project -- unlike
-    set_enabled_checks (a small, fully-enumerable set the caller always
-    submits in full), a CLI `--set KEY=VALUE` naturally sets one option at
-    a time, so a key this call doesn't mention must keep whatever value it
-    already had, not silently fall back to its built-in default. Validated
-    against the known option names and each default's own type before
-    anything is written."""
-    unknown = set(options) - set(lint.DEFAULT_OPTIONS)
-    if unknown:
-        raise ValueError(f"unknown option(s): {sorted(unknown)} -- "
-                          f"known: {sorted(lint.DEFAULT_OPTIONS)}")
-    for key, value in options.items():
-        expected = type(lint.DEFAULT_OPTIONS[key])
-        if not isinstance(value, expected):
-            raise ValueError(f"option {key!r} must be a {expected.__name__}, got {value!r}")
+def set_check_config(check_id, threshold=None, action=None):
+    """Set one check's threshold and/or action, leaving whatever it
+    doesn't name alone -- a caller tuning one field shouldn't have to
+    already know or resend the other. Validated against the real check
+    registry and the closed block/warn choice before anything is
+    written."""
+    if check_id not in lint.ALL_CHECK_IDS:
+        raise ValueError(f"unknown check id {check_id!r} -- "
+                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
+    if threshold is not None and (not isinstance(threshold, int)
+                                   or isinstance(threshold, bool) or threshold < 1):
+        raise ValueError(f"threshold must be a whole number >= 1, got {threshold!r}")
+    if action is not None and action not in ("block", "warn"):
+        raise ValueError(f"action must be 'block' or 'warn', got {action!r}")
     project_root = paths.find_project_root(__file__)
-    merged = dict(_core_config.ruleset_options(project_root, RULESET_ID))
-    merged.update(options)
-    _core_config.save_ruleset_options(project_root, RULESET_ID, merged)
+    spec = dict(_core_config.check_config(project_root, RULESET_ID).get(check_id, {}))
+    if threshold is not None:
+        spec["threshold"] = threshold
+    if action is not None:
+        spec["action"] = action
+    _core_config.save_check_config(project_root, RULESET_ID, check_id, spec)
 
 
 def list_term_lists(file_path=None):

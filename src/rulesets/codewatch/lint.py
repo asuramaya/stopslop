@@ -85,22 +85,39 @@ def _custom_terms(list_id, file_path=None):
         return []
 
 
-DEFAULT_OPTIONS = {
-    "block_flag_count_threshold": 4,
-}
+# Every check's own {occurrence threshold, block-or-warn action} --
+# replaces the old shared block_flag_count_threshold plus the hardcoded,
+# non-configurable BLOCKS_ALONE_AT (only swallowed_exception could ever
+# "deny alone"). See rulesets/slopwatch/lint.py's DEFAULT_CHECK_CONFIG
+# for the identical shape and the safe-migration reasoning: every check
+# defaults to threshold=1/action="warn" except swallowed_exception,
+# carried over at its exact prior behavior (always denies, alone).
+DEFAULT_CHECK_CONFIG = {check_id: {"threshold": 1, "action": "warn"}
+                        for check_id in ALL_CHECK_IDS}
+DEFAULT_CHECK_CONFIG["swallowed_exception"] = {"threshold": 1, "action": "block"}
 
 
-def _options():
-    opts = dict(DEFAULT_OPTIONS)
+def _check_config():
+    """See rulesets/slopwatch/lint.py's _check_config() -- identical
+    shape and validation."""
+    merged = {check_id: dict(spec) for check_id, spec in DEFAULT_CHECK_CONFIG.items()}
     try:
         project_root = _paths.find_project_root(__file__)
-        overrides = _core_config.ruleset_options(project_root, "codewatch")
+        overrides = _core_config.check_config(project_root, "codewatch")
     except Exception:
-        return opts
-    for key, value in overrides.items():
-        if key in opts and isinstance(value, type(opts[key])):
-            opts[key] = value
-    return opts
+        return merged
+    for check_id, override in overrides.items():
+        if check_id not in merged or not isinstance(override, dict):
+            continue
+        spec = dict(merged[check_id])
+        threshold = override.get("threshold")
+        if isinstance(threshold, int) and not isinstance(threshold, bool) and threshold >= 1:
+            spec["threshold"] = threshold
+        if override.get("action") in ("block", "warn"):
+            spec["action"] = override["action"]
+        merged[check_id] = spec
+    return merged
+
 
 # --- trivial_comment (semantic) -- ported from scanaislop/aislop (MIT) -----
 _TRIVIAL_VERB_STEMS = (
@@ -437,28 +454,25 @@ def lint_and_gate(text, context=None, file_path=None):
     }
 
 
-# See rulesets/slopwatch/lint.py's BLOCKS_ALONE_AT for the general shape.
-# swallowed_exception denies on its own because it is a real correctness
-# risk, not a style preference; everything else blocks only past the
-# configured density threshold.
-BLOCKS_ALONE_AT = {"swallowed_exception": 1}
-
-
 def blocking_semantic_flags(semantic_flags):
     """A third distinct policy, alongside ste100's exclusion list and
-    slopwatch's pure count threshold: a check named in BLOCKS_ALONE_AT
-    denies once its own flags reach the declared count; everything else
-    blocks only past the configured density threshold (4 by default, see
-    DEFAULT_OPTIONS)."""
-    # Occurrences, not deduped length -- see core.flags.flag_weight and
-    # the same note in rulesets/slopwatch/lint.py.
-    for check_id, threshold in BLOCKS_ALONE_AT.items():
-        own = [f for f in semantic_flags if f["kind"] == check_id]
-        if flag_weight(own) >= threshold:
-            return semantic_flags
-    if flag_weight(semantic_flags) >= _options()["block_flag_count_threshold"]:
-        return semantic_flags
-    return []
+    slopwatch's per-check threshold+action -- identical mechanism to
+    slopwatch's own blocking_semantic_flags now, see that function's
+    docstring. swallowed_exception denies on its own by default (a real
+    correctness risk, not a style preference); everything else defaults
+    to warn, project-tunable per check via check_config."""
+    config = _check_config()
+    grouped = {}
+    for f in semantic_flags:
+        grouped.setdefault(f["kind"], []).append(f)
+    blocking = []
+    for check_id, flags in grouped.items():
+        spec = config.get(check_id, {"threshold": 1, "action": "warn"})
+        # Occurrences, not deduped length -- see core.flags.flag_weight and
+        # the same note in rulesets/slopwatch/lint.py.
+        if flag_weight(flags) >= spec["threshold"] and spec["action"] == "block":
+            blocking.extend(flags)
+    return blocking
 
 
 def apply_mechanical_fixes(text, file_path=None):

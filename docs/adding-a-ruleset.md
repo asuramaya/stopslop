@@ -76,21 +76,28 @@ Add these names only for a ruleset that needs them:
   it catches, and what to do instead. A `kind` with no entry still shows up
   everywhere, with generic text.
 - `DENY_POLICY = {"text": ..., "blocks_alone_at": {...}}` -- what actually
-  denies a write, in your own words.
+  denies a write, in your own words. `blocks_alone_at` is legacy. Declare
+  the key as `{}` on every ruleset. ste100 always does. A ruleset with the
+  newer `"check_config"` capability declares it too. See that capability's
+  own entry below for the shape that replaced a hardcoded, ruleset-wide
+  `blocks_alone_at` dict. The new shape is a real, project-editable
+  per-check setting. slopwatch and codewatch both moved to it. A fourth
+  ruleset can go straight to `"check_config"`.
 
-  The `text` is format()ed with your live option values. A placeholder
-  prints the number in force. `blocks_alone_at` maps a check id to how
-  many of ITS OWN flags deny a write on their own, bypassing any shared
-  pool -- `{"em_dash_cluster": 1}` denies the instant that check fires
-  once; a check absent from the dict relies on the pool alone. Declare
-  the dict on every ruleset, even if it is empty.
+  format() fills the `text` with your live option values, where it names
+  any. A `"check_config"` ruleset's text is usually plain prose instead.
+  There is no longer one shared number to fill in.
 
-  Tests hold both to what `blocking_semantic_flags` does. A policy sentence
-  that nothing verifies still carries the authority of one that does. That
-  makes it worse than no sentence. See `src/test_check_text.py`.
-- `CHECK_OPTIONS = {"check_id": ("option_name", ...)}` -- which tunable
-  option belongs to which check. Declare it. Never let a caller infer the
-  link from a shared name prefix.
+  Tests check this against what `blocking_semantic_flags` actually does.
+  A policy sentence that nothing verifies still carries the authority of
+  one that does. That makes it worse than no sentence at all. See
+  `src/test_check_text.py`.
+- `CHECK_OPTIONS = {"check_id": ("option_name", ...)}` -- for a ruleset
+  with the older `"options"` capability (ste100): which tunable option
+  belongs to which check. Declare it. Never let a caller infer the link
+  from a shared name prefix. A `"check_config"` ruleset needs none of
+  this. Every check gets the same `{threshold, action}` pair. There is no
+  per-check option-ownership map to declare.
 - `stats()` -- a dict of short strings. `stopslop.py status` and the
   `get_status` MCP tool show these under your ruleset's own name.
 
@@ -173,8 +180,33 @@ dashboard did exactly that. It saved a search-filtered table, and it turned
 off 18 of slopwatch's 20 checks, with a success message. Delegate to
 `core.config.save_disabled_checks` and `core.config.merge_disabled_checks`.
 
-**`"options"`** -- your ruleset has tunable numeric thresholds. Define
-`list_options()` and `set_options(options)`. `set_options` merges.
+**`"options"`** -- your ruleset has tunable numeric thresholds that are not
+per-check (or belong to a `CHECK_OPTIONS`-declared check, ste100's shape).
+Define `list_options()` and `set_options(options)`. `set_options` merges.
+
+**`"check_config"`** -- every check gets its own `{threshold, action}`. This
+replaces one shared, ruleset-wide density number. slopwatch and codewatch
+both use it. See either's `lint.py` for `DEFAULT_CHECK_CONFIG` and
+`_check_config()`. See `core.config.check_config` and `save_check_config`
+for the storage. `threshold` is the occurrence count a check needs before
+it counts as triggered. `core.flags.flag_weight` weighs those occurrences.
+It does not use the deduped count. `action` is `"block"` or `"warn"`. A
+`"block"` check denies the write on its own, once triggered. A `"warn"`
+check only shows. It never denies a write by itself. Define:
+
+```python
+def list_check_config(): ...                      # {id: {threshold, action, default_threshold, default_action}}
+def set_check_config(check_id, threshold=None, action=None): ...   # merge: only the fields passed change
+```
+
+`blocking_semantic_flags` groups the raw flags by check id. It compares
+each group's weight against that check's own threshold. A group returns
+only if the check triggered, and its action is `"block"`. There is no
+ruleset-wide aggregate left to sum across different checks. A document can
+carry any number of triggered `"warn"` checks, and it still passes. Give
+every check in `ALL_CHECK_IDS` an entry in `DEFAULT_CHECK_CONFIG`.
+`src/test_check_text.py`'s `DenyPolicyMatchesBehaviourTests` fails the
+build on a missing one.
 
 ## How to register it
 

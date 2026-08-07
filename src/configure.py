@@ -502,18 +502,27 @@ def _check_rows(ruleset_id):
     module = rulesets.get_ruleset(ruleset_id)
     if "checks" not in module.CAPABILITIES:
         return module, []
+    # Two genuinely different shapes, not one hardcoded pair of options
+    # sitting alongside a new one: check_config-capable rulesets
+    # (slopwatch, codewatch) give EVERY check the same {threshold,
+    # action} pair, dense on every row -- ste100's CHECK_OPTIONS stays
+    # sparse by design (a word limit only means something on `length`,
+    # excluded_vocab_types only on `vocabulary`), because that sparsity
+    # is real, not an artifact of a bad shared column. See _by_check.
+    check_config = module.list_check_config() if "check_config" in module.CAPABILITIES else {}
     options = ({n: i for n, i in module.list_options().items()}
                if "options" in module.CAPABILITIES else {})
-    blocks_alone_at = getattr(module, "DENY_POLICY", {}).get("blocks_alone_at", {})
     owned = getattr(module, "CHECK_OPTIONS", {})
     lists = getattr(module, "TERM_LISTS", {})
     rows = []
     for check_id, meta in sorted(module.list_checks().items()):
+        spec = check_config.get(check_id)
         rows.append({
             "module": module, "check": check_id, "ruleset": module.RULESET_ID,
             "catches": meta["catches"], "instead": meta["instead"],
             "enabled": meta["enabled"],
-            "blocks_alone_at": blocks_alone_at.get(check_id),
+            "threshold": spec["threshold"] if spec else None,
+            "action": spec["action"] if spec else None,
             # A check's own parameter, from the ruleset's own
             # declaration -- the link the separate Thresholds table
             # never drew. Never inferred from the names: see
@@ -592,37 +601,46 @@ def _by_check(repo_root, probe, full, ruleset_id):
         _word_matches(repo_root, full, needle)
         return
 
-    numeric = _numeric_option_columns(rows)
+    # check_config-capable rulesets (slopwatch, codewatch) get one dense
+    # pair of columns -- threshold and action are real settings on EVERY
+    # row now, so a NumberColumn's blank-renders-as-"None" problem (the
+    # reason the old sparse columns used TextColumn) no longer applies;
+    # there is no blank cell left to render badly. ste100 keeps its
+    # sparse CHECK_OPTIONS columns exactly as before -- its sparsity is
+    # real (a word limit only means something on `length`), not an
+    # artifact of a bad shared column.
+    has_check_config = "check_config" in module.CAPABILITIES
+    numeric = [] if has_check_config else _numeric_option_columns(rows)
     table, config = [], {
         "on": st.column_config.CheckboxColumn("on", width="small"),
         "check": st.column_config.TextColumn("check", width="medium", disabled=True),
         "what it catches": st.column_config.TextColumn(
             "what it catches", width="large", disabled=True),
     }
-    # TextColumn, not NumberColumn, for a display reason that survived
-    # two attempts at the numeric one: an empty cell in a NumberColumn
-    # renders the literal "None" (object, float and pandas' nullable
-    # Int64 all do it in 1.60), and these columns are SPARSE by design --
-    # twelve of ste100's thirteen rows would read "None None" beside the
-    # one row that has word limits. A text cell can be genuinely empty.
-    # The value is still validated as an integer on the way back in.
-    for name in numeric:
-        config[name] = st.column_config.TextColumn(
-            name.replace("_", " "), width="small",
-            help=f"{name.replace('_', ' ')}, on the checks that have one. "
-                 f"Blank means this check takes no such setting.")
-    # Text, not a number: a check with no word list has no count, and an
-    # empty NumberColumn cell renders the literal "None" -- which read as
-    # a value on 9 of codewatch's 10 rows. Blank says "nothing here"
-    # without saying it in a word.
-    config["words"] = st.column_config.TextColumn(
-        "words", width="small", disabled=True,
-        help="Vocabulary this check matches against. Edit it below.")
-    config["denies alone"] = st.column_config.TextColumn(
-        "denies alone", width="small", disabled=True,
-        help="This check denies a write by itself once it fires this many "
-             "times, whatever the total flag count. Blank means it only "
-             "counts toward the ruleset's shared threshold above.")
+    if has_check_config:
+        config["threshold"] = st.column_config.NumberColumn(
+            "threshold", width="small", min_value=1, step=1,
+            help="How many times this check has to fire in a document "
+                 "before it counts as triggered.")
+        config["action"] = st.column_config.SelectboxColumn(
+            "action", width="small", options=["warn", "block"],
+            help="warn: shown, never denies a write by itself. block: "
+                 "denies the write once this check's own threshold above "
+                 "is reached.")
+    else:
+        # TextColumn, not NumberColumn, for a display reason that
+        # survived two attempts at the numeric one: an empty cell in a
+        # NumberColumn renders the literal "None" (object, float and
+        # pandas' nullable Int64 all do it in 1.60), and these columns
+        # are SPARSE by design -- twelve of ste100's thirteen rows would
+        # read "None None" beside the one row that has word limits. A
+        # text cell can be genuinely empty. The value is still validated
+        # as an integer on the way back in.
+        for name in numeric:
+            config[name] = st.column_config.TextColumn(
+                name.replace("_", " "), width="small",
+                help=f"{name.replace('_', ' ')}, on the checks that have one. "
+                     f"Blank means this check takes no such setting.")
     config["last fired"] = st.column_config.TextColumn(
         "last fired", width="small", disabled=True,
         help="The newest gate event in this repo where this check flagged "
@@ -630,16 +648,17 @@ def _by_check(repo_root, probe, full, ruleset_id):
 
     fired = _last_fired(repo_root, ruleset_id)
     for r in shown:
-        counts = _list_counts(repo_root, r, full)
         entry = {"on": r["enabled"], "check": r["check"],
                  "what it catches": r["catches"],
-                 "words": str(sum(counts.values())) if counts else "",
-                 "denies alone": _blocks_alone_label(r),
                  "last fired": (relative_time(fired[r["check"]])
                                  if r["check"] in fired else "")}
-        for name in numeric:
-            info = r["options"].get(name)
-            entry[name] = str(int(info["value"])) if info else ""
+        if has_check_config:
+            entry["threshold"] = r["threshold"]
+            entry["action"] = r["action"]
+        else:
+            for name in numeric:
+                info = r["options"].get(name)
+                entry[name] = str(int(info["value"])) if info else ""
         table.append(entry)
 
     # Keyed per ruleset: switching Path swaps every row underneath, and a
@@ -648,16 +667,12 @@ def _by_check(repo_root, probe, full, ruleset_id):
     edited = st.data_editor(
         table, width="stretch", hide_index=True, height=380, num_rows="fixed",
         key=f"checks_editor::{ruleset_id}", column_config=config,
-        column_order=["on", "check", "what it catches", *numeric,
-                      "words", "denies alone", "last fired"])
-    _apply_check_edits(repo_root, module, shown, table, edited, numeric)
+        column_order=["on", "check", "what it catches",
+                      *(["threshold", "action"] if has_check_config else numeric),
+                      "last fired"])
+    _apply_check_edits(repo_root, module, shown, table, edited, numeric, has_check_config)
     _check_contents(repo_root, full, shown, ruleset_id)
     _word_matches(repo_root, full, needle)
-
-
-def _blocks_alone_label(row):
-    n = row["blocks_alone_at"]
-    return "" if not n else ("⚠️ on sight" if n == 1 else f"⚠️ at {n}")
 
 
 def _last_fired(repo_root, ruleset_id):
@@ -713,26 +728,74 @@ def check_edits(rows, before, after, numeric):
     return toggles, options, None
 
 
-def _apply_check_edits(repo_root, module, rows, before, after, numeric):
-    """Write whatever check_edits found, and nothing else. Only genuine
-    differences are written, so a rerun triggered by anything else on the
-    page (a Path change, an undo) writes nothing."""
-    toggles, options, error = check_edits(rows, before, after, numeric)
+def check_config_edits(rows, before, after):
+    """(toggles, check_config_changes, error) for a check_config-capable
+    ruleset's table -- threshold and action are real per-CHECK settings
+    now, not a shared ruleset-wide options dict, so a change is keyed by
+    check id rather than by option name. Same pure-and-separate-from-
+    writing shape as check_edits, and the same reason (see that
+    function's own docstring); `check_config_changes` is
+    {check_id: {"threshold": N, "action": ...}}, only the fields that
+    actually moved on that row."""
+    toggles, changes = {}, {}
+    for row, was, now in zip(rows, before, after):
+        if bool(now.get("on")) != bool(was["on"]):
+            toggles[row["check"]] = bool(now["on"])
+        row_changes = {}
+        now_threshold = now.get("threshold")
+        # None means the cell was left alone or cleared -- never write a
+        # "no threshold" that has no meaning here; the check keeps
+        # whatever it already had.
+        if now_threshold is not None:
+            try:
+                now_threshold = int(now_threshold)
+            except (TypeError, ValueError):
+                return {}, {}, (f"{row['check']}: threshold must be a whole "
+                                 f"number, not {now_threshold!r}")
+            if now_threshold < 1:
+                return {}, {}, f"{row['check']}: threshold must be at least 1"
+            if now_threshold != was["threshold"]:
+                row_changes["threshold"] = now_threshold
+        now_action = now.get("action")
+        if now_action and now_action != was["action"]:
+            row_changes["action"] = now_action
+        if row_changes:
+            changes[row["check"]] = row_changes
+    return toggles, changes, None
+
+
+def _apply_check_edits(repo_root, module, rows, before, after, numeric, has_check_config):
+    """Write whatever check_edits/check_config_edits found, and nothing
+    else. Only genuine differences are written, so a rerun triggered by
+    anything else on the page (a Path change, an undo) writes nothing."""
+    if has_check_config:
+        toggles, changes, error = check_config_edits(rows, before, after)
+    else:
+        toggles, changes, error = check_edits(rows, before, after, numeric)
     if error:
         st.session_state["write_error"] = error
         return
-    if not toggles and not options:
+    if not toggles and not changes:
         return
 
+    if has_check_config:
+        field_labels = [f"set {check_id} {field} to {value}"
+                         for check_id, fields in changes.items()
+                         for field, value in fields.items()]
+    else:
+        field_labels = [f"set {module.RULESET_ID} {n.replace('_', ' ')} to {v}"
+                         for n, v in changes.items()]
     labels = ([f"{'enabled' if on else 'disabled'} {c}" for c, on in toggles.items()]
-              + [f"set {module.RULESET_ID} {n.replace('_', ' ')} to {v}"
-                 for n, v in options.items()])
+              + field_labels)
     _snapshot(repo_root, "; ".join(labels))
     try:
         if toggles:
             module.set_checks_enabled(toggles)
-        if options:
-            module.set_options(options)
+        if has_check_config:
+            for check_id, fields in changes.items():
+                module.set_check_config(check_id, **fields)
+        elif changes:
+            module.set_options(changes)
     except Exception as exc:
         st.session_state["write_error"] = str(exc)
         return
@@ -805,16 +868,6 @@ def _option_control(repo_root, row, name, info):
         if isinstance(default, list):
             default = ", ".join(default)
         st.caption(f"built-in default: {default}")
-
-
-def _list_counts(repo_root, row, full):
-    """{source: count} for every list this check owns, or {} for a check
-    with no vocabulary behind it."""
-    out = {}
-    for list_id in row["lists"]:
-        for source, n in _resolve_counts(repo_root, row["module"], list_id, full).items():
-            out[source] = out.get(source, 0) + n
-    return out
 
 
 def _resolve_counts(repo_root, module, list_id, full):

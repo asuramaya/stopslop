@@ -573,6 +573,66 @@ class RulesetOptionsConfigTests(unittest.TestCase):
             self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
 
 
+class CheckConfigConfigTests(unittest.TestCase):
+    """Per-check {threshold, action} overrides -- one level deeper than
+    ruleset_options above (ruleset -> check_id -> spec, not ruleset ->
+    option_name -> value), since every check owns its own pair now
+    instead of one shared ruleset-wide number."""
+
+    def test_no_config_file_returns_empty_dict(self):
+        self.assertEqual(
+            config.check_config(PROJECT_ROOT, "slopwatch",
+                                 config_file="/nonexistent/stopslop.config.json"),
+            {})
+
+    def test_round_trips_through_save_and_load(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_check_config(tmp, "slopwatch", "em_dash_cluster",
+                                      {"threshold": 5, "action": "block"}, config_file=path)
+            self.assertEqual(
+                config.check_config(tmp, "slopwatch", config_file=path),
+                {"em_dash_cluster": {"threshold": 5, "action": "block"}})
+
+    def test_a_second_check_does_not_clobber_the_first(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_check_config(tmp, "slopwatch", "em_dash_cluster",
+                                      {"threshold": 5, "action": "block"}, config_file=path)
+            config.save_check_config(tmp, "slopwatch", "vague_intensifier",
+                                      {"threshold": 3, "action": "warn"}, config_file=path)
+            saved = config.check_config(tmp, "slopwatch", config_file=path)
+            self.assertEqual(saved["em_dash_cluster"], {"threshold": 5, "action": "block"})
+            self.assertEqual(saved["vague_intensifier"], {"threshold": 3, "action": "warn"})
+
+    def test_ruleset_not_mentioned_returns_empty_dict(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_check_config(tmp, "slopwatch", "em_dash_cluster",
+                                      {"threshold": 5, "action": "block"}, config_file=path)
+            self.assertEqual(config.check_config(tmp, "codewatch", config_file=path), {})
+
+    def test_preserves_rulesets_key_already_in_the_file(self):
+        import json
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [{"glob": "*.md", "ruleset": "ste100"}]}, f)
+            config.save_check_config(tmp, "slopwatch", "em_dash_cluster",
+                                      {"threshold": 5, "action": "block"}, config_file=path)
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
+
+
 class ResolveRulesetIdDefaultRulesTests(unittest.TestCase):
     """resolve_ruleset_id() against DEFAULT_RULES (no config file) --
     codewatch (*.py) and slopwatch (the repo-root README.md) are now real,

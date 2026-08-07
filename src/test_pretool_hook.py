@@ -180,11 +180,22 @@ class RatchetSubprocessTests(unittest.TestCase):
                          ignore=shutil.ignore_patterns("__pycache__"))
         open(os.path.join(cls.tmp, "stopslop.py"), "w").close()
         with open(os.path.join(cls.tmp, "stopslop.config.json"), "w") as f:
-            json.dump({"rulesets": [
-                {"glob": "*.md", "ruleset": "slopwatch"},
-                {"glob": "*.py", "ruleset": "codewatch",
-                 "embedded_prose": "slopwatch"},
-            ]}, f)
+            json.dump({
+                "rulesets": [
+                    {"glob": "*.md", "ruleset": "slopwatch"},
+                    {"glob": "*.py", "ruleset": "codewatch",
+                     "embedded_prose": "slopwatch"},
+                ],
+                # Every check defaults to action="warn" now -- the ratchet
+                # cases below need a check that actually denies once its
+                # own threshold is crossed, the same way em_dash_cluster
+                # already does by default; these two are the checks the
+                # fixture text below happens to exercise.
+                "check_config": {"slopwatch": {
+                    "vague_intensifier": {"threshold": 4, "action": "block"},
+                    "marketing_adjective": {"threshold": 4, "action": "block"},
+                }},
+            }, f)
         cls.hook_path = os.path.join(cls.tmp, "src", "pretool_hook.py")
 
     @classmethod

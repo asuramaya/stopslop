@@ -558,6 +558,29 @@ def cmd_packs(args):
     return 0
 
 
+def _parse_check_id_value(item, value_kind, valid_values=None):
+    """CHECK_ID=VALUE -> (check_id, value), or None with a printed error.
+    Shared by --set-threshold (an int) and --set-action (one of a closed
+    set) -- same KEY=VALUE shape stopslop.py options --set already uses,
+    just per-check instead of per-ruleset."""
+    if "=" not in item:
+        print(f"Not saved: {item!r} isn't in CHECK_ID=VALUE form.", file=sys.stderr)
+        return None
+    check_id, raw_value = item.split("=", 1)
+    if value_kind is int:
+        try:
+            return check_id, int(raw_value)
+        except ValueError:
+            print(f"Not saved: {raw_value!r} isn't a whole number for {check_id!r}.",
+                  file=sys.stderr)
+            return None
+    if raw_value not in valid_values:
+        print(f"Not saved: {raw_value!r} isn't one of {sorted(valid_values)} for {check_id!r}.",
+              file=sys.stderr)
+        return None
+    return check_id, raw_value
+
+
 def cmd_checks(args):
     ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
     if not hasattr(ruleset, "list_checks"):
@@ -573,9 +596,42 @@ def cmd_checks(args):
             return 1
         print(f"Enabled: {', '.join(sorted(args.enable)) or '(none)'}")
 
+    has_check_config = "check_config" in ruleset.CAPABILITIES
+    if not has_check_config and (args.set_threshold or args.set_action):
+        print(f"'{ruleset.RULESET_ID}' ruleset has no per-check threshold/action to set.",
+              file=sys.stderr)
+        return 1
+    for item in args.set_threshold or []:
+        parsed = _parse_check_id_value(item, int)
+        if not parsed:
+            return 1
+        check_id, threshold = parsed
+        try:
+            ruleset.set_check_config(check_id, threshold=threshold)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Set {check_id} threshold={threshold}")
+    for item in args.set_action or []:
+        parsed = _parse_check_id_value(item, str, valid_values={"block", "warn"})
+        if not parsed:
+            return 1
+        check_id, action = parsed
+        try:
+            ruleset.set_check_config(check_id, action=action)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Set {check_id} action={action}")
+
+    check_config = ruleset.list_check_config() if has_check_config else {}
     for check_id, meta in sorted(ruleset.list_checks().items()):
         state = "ON " if meta["enabled"] else "off"
-        print(f"[{state}] {check_id} -- {meta['catches']}")
+        tuning = ""
+        if check_id in check_config:
+            spec = check_config[check_id]
+            tuning = f" (threshold={spec['threshold']}, action={spec['action']})"
+        print(f"[{state}] {check_id}{tuning} -- {meta['catches']}")
         if meta["instead"]:
             print(f"{'':<7} instead: {meta['instead']}")
     return 0
@@ -742,11 +798,18 @@ def main():
                             help="gate staged files (the git pre-commit hook target)")
     p_pre.set_defaults(func=cmd_precommit)
 
-    p_checks = sub.add_parser("checks", help="list checks for a ruleset, or turn them on and off")
+    p_checks = sub.add_parser("checks", help="list checks for a ruleset, turn them on and off, "
+                                              "and tune each one's own threshold/action")
     p_checks.add_argument("--ruleset", help="ruleset id (default: ste100)")
     p_checks.add_argument("--enable", nargs="*", metavar="CHECK_ID",
                            help="set exactly this list of checks as enabled (disables every "
                                 "other known check); pass with no ids to disable all")
+    p_checks.add_argument("--set-threshold", nargs="+", metavar="CHECK_ID=N",
+                           help="how many times a check has to fire in a document before it "
+                                "counts as triggered (rulesets with per-check config only)")
+    p_checks.add_argument("--set-action", nargs="+", metavar="CHECK_ID=block|warn",
+                           help="whether a triggered check denies the write on its own "
+                                "(block) or is only shown (warn)")
     p_checks.set_defaults(func=cmd_checks)
 
     p_options = sub.add_parser("options", help="list/set tunable options for a ruleset")

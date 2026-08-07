@@ -145,5 +145,89 @@ class CheckEditsTests(unittest.TestCase):
         self.assertIn("whole number", error)
 
 
+@unittest.skipUnless(_STREAMLIT_AVAILABLE, "streamlit not installed -- see README's MCP setup section")
+class CheckConfigEditsTests(unittest.TestCase):
+    """check_config's threshold/action columns are dense on every row
+    (unlike check_edits' sparse numeric columns above), so a change is
+    keyed by check id, not by option name -- same
+    diff-the-rendered-against-the-returned-rows shape and the same
+    reason: see CheckEditsTests' own docstring."""
+
+    def _rows(self, *checks):
+        return [{"check": c} for c in checks]
+
+    def test_an_untouched_table_writes_nothing(self):
+        rows = self._rows("em_dash_cluster", "vague_intensifier")
+        table = [{"on": True, "threshold": 4, "action": "block"},
+                 {"on": True, "threshold": 1, "action": "warn"}]
+        toggles, changes, error = configure.check_config_edits(
+            rows, table, [dict(r) for r in table])
+        self.assertEqual((toggles, changes, error), ({}, {}, None))
+
+    def test_a_toggled_check_is_reported_by_its_own_id(self):
+        rows = self._rows("em_dash_cluster", "vague_intensifier")
+        before = [{"on": True, "threshold": 4, "action": "block"},
+                  {"on": True, "threshold": 1, "action": "warn"}]
+        after = [{"on": False, "threshold": 4, "action": "block"},
+                 {"on": True, "threshold": 1, "action": "warn"}]
+        toggles, changes, _ = configure.check_config_edits(rows, before, after)
+        self.assertEqual(toggles, {"em_dash_cluster": False})
+        self.assertEqual(changes, {})
+
+    def test_a_changed_threshold_is_reported_under_its_own_check(self):
+        rows = self._rows("vague_intensifier")
+        before = [{"on": True, "threshold": 1, "action": "warn"}]
+        after = [{"on": True, "threshold": 3, "action": "warn"}]
+        _toggles, changes, error = configure.check_config_edits(rows, before, after)
+        self.assertEqual(changes, {"vague_intensifier": {"threshold": 3}})
+        self.assertIsNone(error)
+
+    def test_a_changed_action_is_reported_under_its_own_check(self):
+        rows = self._rows("vague_intensifier")
+        before = [{"on": True, "threshold": 1, "action": "warn"}]
+        after = [{"on": True, "threshold": 1, "action": "block"}]
+        _toggles, changes, error = configure.check_config_edits(rows, before, after)
+        self.assertEqual(changes, {"vague_intensifier": {"action": "block"}})
+        self.assertIsNone(error)
+
+    def test_both_fields_changing_on_one_row_report_together(self):
+        rows = self._rows("vague_intensifier")
+        before = [{"on": True, "threshold": 1, "action": "warn"}]
+        after = [{"on": True, "threshold": 5, "action": "block"}]
+        _toggles, changes, error = configure.check_config_edits(rows, before, after)
+        self.assertEqual(changes, {"vague_intensifier": {"threshold": 5, "action": "block"}})
+        self.assertIsNone(error)
+
+    def test_a_cleared_threshold_is_left_alone_not_an_error(self):
+        """Every row has a real threshold now (the column is dense, not
+        sparse like check_edits' numeric columns) -- a cleared cell
+        reverts on the next rerun rather than writing "no threshold",
+        which has no meaning here either."""
+        rows = self._rows("vague_intensifier")
+        before = [{"on": True, "threshold": 1, "action": "warn"}]
+        after = [{"on": True, "threshold": None, "action": "warn"}]
+        _toggles, changes, error = configure.check_config_edits(rows, before, after)
+        self.assertEqual(changes, {})
+        self.assertIsNone(error)
+
+    def test_a_threshold_below_one_is_rejected(self):
+        rows = self._rows("vague_intensifier")
+        before = [{"on": True, "threshold": 1, "action": "warn"}]
+        after = [{"on": True, "threshold": 0, "action": "warn"}]
+        toggles, changes, error = configure.check_config_edits(rows, before, after)
+        self.assertEqual((toggles, changes), ({}, {}))
+        self.assertIn("at least 1", error)
+
+    def test_nonsense_threshold_reports_an_error_and_writes_nothing(self):
+        rows = self._rows("passive", "vague_intensifier")
+        before = [{"on": True, "threshold": 4, "action": "block"},
+                  {"on": True, "threshold": 1, "action": "warn"}]
+        after = [{"on": False, "threshold": 4, "action": "block"},
+                 {"on": True, "threshold": "many", "action": "warn"}]
+        toggles, changes, error = configure.check_config_edits(rows, before, after)
+        self.assertEqual((toggles, changes), ({}, {}))
+        self.assertIn("whole number", error)
+
+
 if __name__ == "__main__":
     unittest.main()
