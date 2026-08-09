@@ -107,29 +107,48 @@ def _first_run_notice():
         "Until then, use `Try it` on Checks to see what the gate would do.")
 
 
-def _stray_config_notice():
-    """Say when stopslop.config.json carries a top-level key nothing reads
-    anymore -- a removed feature's old on-disk setting, still sitting
-    there looking active while it tunes nothing. This already happened
-    silently once: the "options" capability's ruleset-wide threshold was
-    deleted in favor of per-check config, and a project's own config kept
-    its dead "options" key with no reader left to say so. One click here
-    removes exactly those keys and nothing else, through the same
+def _config_hygiene_notice():
+    """Say when stopslop.config.json carries data nothing reads anymore --
+    ONE mechanism for two shapes of the same problem, not two special
+    cases: a top-level key a removed feature used to own (the "options"
+    capability's ruleset-wide threshold is the real example that
+    motivated this), and a per-rule pack or disable entry orphaned when
+    that rule's "ruleset" or "embedded_prose" cell changed underneath it
+    without revalidating what it was carrying. Both are "still there,
+    still looks live, reads nothing" -- the same failure, found and
+    cleared the same way, not two banners with two buttons. One click
+    here removes everything found and nothing else, through the same
     snapshot/undo every other write on these pages gets."""
     report = status_report.build_status_report(REPO_ROOT)
     stray = report["stray_config_keys"]
-    if not stray:
+    orphaned = report["orphaned_rule_extras"]
+    if not stray and not orphaned:
         return
+
+    lines = []
+    if stray:
+        lines.append(f"top-level key(s) {', '.join(f'`{k}`' for k in stray)}")
+    for entry in orphaned:
+        bits = []
+        if "packs" in entry:
+            bits.append(f"packs on `{', '.join(entry['packs'])}`")
+        if "disable" in entry:
+            bits.append(f"disable `{', '.join(entry['disable'])}`")
+        lines.append(f"`{entry['glob']}`'s {' and '.join(bits)}")
+
     cols = st.columns([5, 1])
     cols[0].warning(
-        f"**stopslop.config.json has a dead key:** "
-        f"{', '.join(f'`{k}`' for k in stray)} -- left over from a "
-        f"removed feature. Nothing reads it; it is tuning nothing.")
+        "**stopslop.config.json has dead weight:** " + "; ".join(lines) +
+        " -- left over from a removed feature or a routing change that "
+        "was never revalidated. Nothing reads any of it.")
     with cols[1]:
         st.write("")
-        if st.button("Remove", key="clean_stray_config"):
-            _configure._snapshot(REPO_ROOT, f"removed dead config key(s): {', '.join(stray)}")
-            core_config.strip_top_level_keys(REPO_ROOT, stray)
+        if st.button("Remove", key="clean_config_hygiene"):
+            _configure._snapshot(REPO_ROOT, f"removed dead config: {'; '.join(lines)}")
+            if stray:
+                core_config.strip_top_level_keys(REPO_ROOT, stray)
+            if orphaned:
+                core_config.prune_orphaned_rule_extras(REPO_ROOT, rulesets)
             st.rerun()
 
 
@@ -161,7 +180,7 @@ def watch_page():
     """What the gate did, filterable by path and by ruleset -- "what
     happened to MY file" is the question anyone opens this page with."""
     _first_run_notice()
-    _stray_config_notice()
+    _config_hygiene_notice()
     cols = st.columns([3, 2])
     cols[0].text_input("Filter by path", key="watch_path",
                         placeholder="any part of a path, e.g. docs/ or README")
@@ -218,19 +237,19 @@ def _watch_activity():
 
 def checks_page():
     _first_run_notice()
-    _stray_config_notice()
+    _config_hygiene_notice()
     _configure.checks_page(REPO_ROOT)
 
 
 def vocabulary_page():
     _first_run_notice()
-    _stray_config_notice()
+    _config_hygiene_notice()
     _configure.vocabulary_page(REPO_ROOT)
 
 
 def routing_page():
     _first_run_notice()
-    _stray_config_notice()
+    _config_hygiene_notice()
     _configure.routing_page(REPO_ROOT)
 
 

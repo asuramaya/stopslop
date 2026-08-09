@@ -22,10 +22,14 @@ import rulesets
 PROJECT_ROOT = "/fake/project/root"
 
 
-def _fake_ruleset(ruleset_id, capabilities=frozenset()):
+def _fake_ruleset(ruleset_id, capabilities=frozenset(), check_ids=(), term_lists=None):
     """A minimal module-shaped object satisfying the required contract
     surface, for registry conformance tests -- never touches real linting
-    logic, just needs the right attribute names to exist."""
+    logic, just needs the right attribute names to exist. `check_ids` and
+    `term_lists` let a caller give this fake real-looking checks/lists
+    (default empty, the original behavior) for tests that need
+    save_rules/orphaned_rule_extras to see something concrete to
+    validate against."""
     mod = types.SimpleNamespace()
     mod.__name__ = f"fake_{ruleset_id}"
     mod.RULESET_ID = ruleset_id
@@ -34,6 +38,8 @@ def _fake_ruleset(ruleset_id, capabilities=frozenset()):
     mod.lint_and_gate = lambda text, context=None, file_path=None: {"mechanical": [], "semantic": []}
     mod.blocking_semantic_flags = lambda semantic_flags: []
     mod.apply_mechanical_fixes = lambda text, file_path=None: text
+    if term_lists is not None:
+        mod.TERM_LISTS = term_lists
     if "terms" in capabilities:
         mod.list_term_lists = lambda file_path=None: {}
         mod.add_term = lambda list_id, term, note="", force=False: {}
@@ -41,7 +47,7 @@ def _fake_ruleset(ruleset_id, capabilities=frozenset()):
     if "word_lookup" in capabilities:
         mod.check_word = lambda word: {}
     if "checks" in capabilities:
-        mod.list_checks = lambda: {}
+        mod.list_checks = lambda: {c: {} for c in check_ids}
         mod.set_enabled_checks = lambda check_ids: None
         mod.set_checks_enabled = lambda states: None
     if "check_config" in capabilities:
@@ -192,9 +198,10 @@ class LoadRulesTests(unittest.TestCase):
 
 
 class SaveRulesTests(unittest.TestCase):
-    def _fake_registry(self, known_ids=("ste100",)):
+    def _fake_registry(self, known_ids=("ste100",), modules=None):
+        modules = modules or {rid: _fake_ruleset(rid) for rid in known_ids}
         return types.SimpleNamespace(
-            get_ruleset=lambda rid: rid if rid in known_ids else (_ for _ in ()).throw(
+            get_ruleset=lambda rid: modules[rid] if rid in modules else (_ for _ in ()).throw(
                 rulesets.UnknownRulesetError(rid)),
         )
 
@@ -302,6 +309,194 @@ class SaveRulesTests(unittest.TestCase):
             rules = [{"glob": "*.py", "ruleset": "ste100"}]
             config.save_rules(tmp, rules, self._fake_registry(), config_file=path)
             self.assertEqual(config.load_rules(tmp, config_file=path), rules)
+
+    def test_changing_a_rules_ruleset_drops_packs_the_new_ruleset_never_heard_of(self):
+        """The bug this guards: *.txt routed to ste100 (packs bound to its
+        "project_terms" list), then a routing edit repoints it at
+        slopwatch (no "project_terms" list at all) without touching
+        packs -- the old packs must not survive as dead weight the new
+        ruleset can never read."""
+        import json
+        import os
+        import tempfile
+        registry = self._fake_registry(modules={
+            "ste100": _fake_ruleset("ste100", term_lists={"project_terms": {}}),
+            "slopwatch": _fake_ruleset("slopwatch", term_lists={"terminology": {}}),
+        })
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.txt", "ruleset": "ste100",
+                     "packs": {"project_terms": ["mdn-glossary"]}},
+                ]}, f)
+            config.save_rules(tmp, [{"glob": "*.txt", "ruleset": "slopwatch"}],
+                               registry, config_file=path)
+            with open(path) as f:
+                rule = json.load(f)["rulesets"][0]
+            self.assertNotIn("packs", rule)
+
+    def test_changing_a_rules_ruleset_keeps_packs_the_new_ruleset_still_has(self):
+        import json
+        import os
+        import tempfile
+        registry = self._fake_registry(modules={
+            "codewatch": _fake_ruleset("codewatch", term_lists={"generic_naming": {}}),
+            "slopwatch": _fake_ruleset("slopwatch", term_lists={"generic_naming": {}}),
+        })
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.txt", "ruleset": "codewatch",
+                     "packs": {"generic_naming": ["mdn-glossary"]}},
+                ]}, f)
+            config.save_rules(tmp, [{"glob": "*.txt", "ruleset": "slopwatch"}],
+                               registry, config_file=path)
+            with open(path) as f:
+                rule = json.load(f)["rulesets"][0]
+            self.assertEqual(rule["packs"], {"generic_naming": ["mdn-glossary"]})
+
+    def test_changing_embedded_prose_drops_disable_entries_the_new_one_lacks(self):
+        import json
+        import os
+        import tempfile
+        registry = self._fake_registry(modules={
+            "codewatch": _fake_ruleset("codewatch", capabilities=frozenset({"checks"}),
+                                        check_ids=("todo_stub",)),
+            "slopwatch": _fake_ruleset("slopwatch", capabilities=frozenset({"checks"}),
+                                        check_ids=("colon_reveal",)),
+            "ste100": _fake_ruleset("ste100", capabilities=frozenset({"checks"}),
+                                     check_ids=("passive",)),
+        })
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.py", "ruleset": "codewatch",
+                     "embedded_prose": "slopwatch", "disable": ["colon_reveal"]},
+                ]}, f)
+            config.save_rules(
+                tmp, [{"glob": "*.py", "ruleset": "codewatch", "embedded_prose": "ste100"}],
+                registry, config_file=path)
+            with open(path) as f:
+                rule = json.load(f)["rulesets"][0]
+            self.assertNotIn("disable", rule)  # colon_reveal belongs to neither codewatch nor ste100
+
+    def test_unchanged_ruleset_never_revalidates_extras(self):
+        """A routing edit that leaves ruleset and embedded_prose alone
+        must not touch packs/disable at all, even against a registry that
+        would call them all orphaned -- this path is "did anything that
+        determines validity change", not "revalidate on every save"."""
+        import json
+        import os
+        import tempfile
+        registry = self._fake_registry(modules={"ste100": _fake_ruleset("ste100")})
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.md", "ruleset": "ste100",
+                     "packs": {"project_terms": ["mdn-glossary"]},
+                     "disable": ["some_check"]},
+                ]}, f)
+            config.save_rules(tmp, [{"glob": "*.md", "ruleset": "ste100"}],
+                               registry, config_file=path)
+            with open(path) as f:
+                rule = json.load(f)["rulesets"][0]
+            self.assertEqual(rule["packs"], {"project_terms": ["mdn-glossary"]})
+            self.assertEqual(rule["disable"], ["some_check"])
+
+
+class OrphanedRuleExtrasTests(unittest.TestCase):
+    def _registry(self):
+        return types.SimpleNamespace(get_ruleset=lambda rid: {
+            "ste100": _fake_ruleset("ste100", term_lists={"project_terms": {}}),
+            "slopwatch": _fake_ruleset("slopwatch", capabilities=frozenset({"checks"}),
+                                        check_ids=("colon_reveal",),
+                                        term_lists={"terminology": {}}),
+            "codewatch": _fake_ruleset("codewatch", capabilities=frozenset({"checks"}),
+                                        check_ids=("todo_stub",),
+                                        term_lists={"generic_naming": {}}),
+        }[rid])
+
+    def test_no_config_file_returns_empty_list(self):
+        self.assertEqual(
+            config.orphaned_rule_extras(
+                PROJECT_ROOT, self._registry(),
+                config_file="/nonexistent/stopslop.config.json"),
+            [])
+
+    def test_a_pack_list_the_ruleset_never_declared_is_orphaned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.txt", "ruleset": "slopwatch",
+                     "packs": {"project_terms": ["mdn-glossary"]}},
+                ]}, f)
+            found = config.orphaned_rule_extras(tmp, self._registry(), config_file=path)
+            self.assertEqual(found, [{"glob": "*.txt",
+                                       "packs": {"project_terms": ["mdn-glossary"]}}])
+
+    def test_a_pack_list_the_ruleset_does_declare_is_not_orphaned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.md", "ruleset": "ste100",
+                     "packs": {"project_terms": ["mdn-glossary"]}},
+                ]}, f)
+            self.assertEqual(config.orphaned_rule_extras(tmp, self._registry(), config_file=path), [])
+
+    def test_a_disable_entry_only_the_embedded_ruleset_recognizes_is_not_orphaned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.py", "ruleset": "codewatch", "embedded_prose": "slopwatch",
+                     "disable": ["colon_reveal"]},
+                ]}, f)
+            self.assertEqual(config.orphaned_rule_extras(tmp, self._registry(), config_file=path), [])
+
+    def test_a_disable_entry_no_invoked_ruleset_recognizes_is_orphaned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.py", "ruleset": "codewatch", "disable": ["colon_reveal"]},
+                ]}, f)
+            found = config.orphaned_rule_extras(tmp, self._registry(), config_file=path)
+            self.assertEqual(found, [{"glob": "*.py", "disable": ["colon_reveal"]}])
+
+    def test_out_of_scope_rule_is_never_orphaned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [{"glob": ".claude/*", "ruleset": None}]}, f)
+            self.assertEqual(config.orphaned_rule_extras(tmp, self._registry(), config_file=path), [])
+
+    def test_prune_removes_only_the_orphaned_part_and_keeps_the_rest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [
+                    {"glob": "*.txt", "ruleset": "slopwatch",
+                     "packs": {"project_terms": ["mdn-glossary"], "terminology": ["nist-security"]}},
+                ]}, f)
+            removed = config.prune_orphaned_rule_extras(tmp, self._registry(), config_file=path)
+            self.assertEqual(removed, [{"glob": "*.txt",
+                                         "packs": {"project_terms": ["mdn-glossary"]}}])
+            with open(path) as f:
+                rule = json.load(f)["rulesets"][0]
+            self.assertEqual(rule["packs"], {"terminology": ["nist-security"]})
+
+    def test_prune_with_nothing_orphaned_is_a_no_op(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [{"glob": "*.md", "ruleset": "ste100"}]}, f)
+            self.assertEqual(config.prune_orphaned_rule_extras(tmp, self._registry(), config_file=path), [])
 
 
 class SetRuleDisableTests(unittest.TestCase):

@@ -506,16 +506,29 @@ def save_rules(project_root, rules, registry, config_file=None):
     only an explicit key changes it. Generalized from a packs-only
     carve-out after "embedded_prose" arrived and would have been the
     second key to hit the identical bug ("disable" was already exposed,
-    unnoticed)."""
+    unnoticed).
+
+    A carried-forward pack or disable entry is a list_id or check_id that
+    belonged to whatever ruleset this glob pointed at BEFORE. If this
+    call is also the one changing the glob's ruleset or embedded_prose
+    cell, that entry may name a list or check the rule's NEW ruleset(s)
+    have never heard of -- inert the instant it lands, the same "still
+    there, still looks live, reads nothing" shape orphaned_rule_extras
+    detects after the fact. Re-validated here, at the one write path
+    that can actually cause it, rather than left for that read-side
+    check to find later: only entries that still fit survive the
+    carry-forward."""
     from core import extract as core_extract
 
     existing_extras = {}
+    existing_scope = {}
     path = config_file or config_path(project_root)
     data = {}
     if os.path.exists(path):
         with open(path) as f:
             data = json.load(f)
         for rule in data.get("rulesets", []):
+            existing_scope[rule["glob"]] = (rule.get("ruleset"), rule.get("embedded_prose"))
             extras = {k: v for k, v in rule.items() if k not in ("glob", "ruleset")}
             if extras:
                 existing_extras[rule["glob"]] = extras
@@ -529,8 +542,6 @@ def save_rules(project_root, rules, registry, config_file=None):
         rule = dict(rule)
         for key, value in existing_extras.get(rule["glob"], {}).items():
             rule.setdefault(key, value)
-        if not rule.get("packs"):
-            rule.pop("packs", None)
         embedded = rule.get("embedded_prose")
         if embedded:
             registry.get_ruleset(embedded)  # same loud-on-typo guarantee
@@ -540,12 +551,102 @@ def save_rules(project_root, rules, registry, config_file=None):
                     f"that extension -- supported: "
                     f"{sorted(core_extract.SUPPORTED_EXTENSIONS)}. A binding "
                     f"that can never fire is a gate quietly off.")
+        if existing_scope.get(rule["glob"]) != (rule["ruleset"], embedded):
+            known_lists, known_checks = _rule_known_lists_and_checks(rule, registry)
+            if rule.get("packs"):
+                rule["packs"] = {lid: ids for lid, ids in rule["packs"].items()
+                                  if lid in known_lists}
+            if rule.get("disable"):
+                rule["disable"] = [c for c in rule["disable"] if c in known_checks]
+        if not rule.get("packs"):
+            rule.pop("packs", None)
+        if not rule.get("disable"):
+            rule.pop("disable", None)
         merged.append(rule)
 
     data["rulesets"] = merged
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
         f.write("\n")
+
+
+def _rule_known_lists_and_checks(rule, registry):
+    module = registry.get_ruleset(rule["ruleset"]) if rule.get("ruleset") else None
+    known_lists = set(getattr(module, "TERM_LISTS", {})) if module else set()
+    known_checks = set()
+    for ruleset_id in (rule.get("ruleset"), rule.get("embedded_prose")):
+        if not ruleset_id:
+            continue
+        try:
+            m = registry.get_ruleset(ruleset_id)
+        except Exception:
+            continue  # an unknown ruleset id here is caught loudly by save_rules
+        if "checks" in m.CAPABILITIES:
+            known_checks |= set(m.list_checks())
+    return known_lists, known_checks
+
+
+def orphaned_rule_extras(project_root, registry, config_file=None):
+    """Packs and disable entries on a routing rule that no list or check
+    the rule actually invokes still recognizes -- dead weight left behind
+    when a rule's "ruleset" or "embedded_prose" cell changes but the
+    packs and disable entries it carries, written for the ruleset it
+    used to name, are never revalidated against the new one. save_rules
+    now closes the write side of this gap for its own edits (see its
+    docstring); this is the read side, for whatever a config already
+    carries -- hand-edited, or written before that fix existed.
+
+    Returns [{"glob":, "packs": {list_id: [pack_id, ...]}, "disable": [check_id, ...]}, ...],
+    one entry per rule with anything orphaned, naming only the orphaned
+    part -- a pack binding or disable entry that still fits is not
+    repeated here. Empty list with no config file, same baseline every
+    other knob in this module gives."""
+    out = []
+    for rule in load_rules(project_root, config_file):
+        if not rule.get("ruleset"):
+            continue  # an out-of-scope rule (ruleset: null) invokes nothing to check against
+        known_lists, known_checks = _rule_known_lists_and_checks(rule, registry)
+        dead_packs = {lid: ids for lid, ids in (rule.get("packs") or {}).items()
+                      if lid not in known_lists and ids}
+        dead_disable = [c for c in (rule.get("disable") or []) if c not in known_checks]
+        if dead_packs or dead_disable:
+            entry = {"glob": rule["glob"]}
+            if dead_packs:
+                entry["packs"] = dead_packs
+            if dead_disable:
+                entry["disable"] = dead_disable
+            out.append(entry)
+    return out
+
+
+def prune_orphaned_rule_extras(project_root, registry, config_file=None):
+    """Remove exactly what orphaned_rule_extras just found, leaving every
+    still-valid pack binding and disable entry on every rule untouched.
+    Returns what it removed, same shape as orphaned_rule_extras."""
+    dead = orphaned_rule_extras(project_root, registry, config_file)
+    if not dead:
+        return dead
+    path = config_file or config_path(project_root)
+    with open(path) as f:
+        data = json.load(f)
+    by_glob = {entry["glob"]: entry for entry in dead}
+    for rule in data.get("rulesets", []):
+        entry = by_glob.get(rule.get("glob"))
+        if not entry:
+            continue
+        if "packs" in entry and isinstance(rule.get("packs"), dict):
+            for list_id in entry["packs"]:
+                rule["packs"].pop(list_id, None)
+            if not rule["packs"]:
+                rule.pop("packs", None)
+        if "disable" in entry and isinstance(rule.get("disable"), list):
+            rule["disable"] = [c for c in rule["disable"] if c not in entry["disable"]]
+            if not rule["disable"]:
+                rule.pop("disable", None)
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+    return dead
 
 
 def known_extensions(project_root, config_file=None):
