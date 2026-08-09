@@ -650,6 +650,55 @@ class CheckConfigConfigTests(unittest.TestCase):
             self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
 
 
+class StrayTopLevelKeysTests(unittest.TestCase):
+    """A top-level config key nothing reads anymore -- a removed feature's
+    old on-disk setting (the "options" capability's ruleset-wide
+    threshold is the real example that motivated this) sitting there
+    looking active while it tunes nothing."""
+
+    def test_no_config_file_returns_empty_list(self):
+        self.assertEqual(
+            config.stray_top_level_keys(
+                PROJECT_ROOT, config_file="/nonexistent/stopslop.config.json"),
+            [])
+
+    def test_every_known_key_is_not_stray(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({k: {} for k in config.KNOWN_TOP_LEVEL_KEYS}, f)
+            self.assertEqual(config.stray_top_level_keys(tmp, config_file=path), [])
+
+    def test_an_unread_key_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [], "options": {"codewatch": {}}}, f)
+            self.assertEqual(config.stray_top_level_keys(tmp, config_file=path), ["options"])
+
+    def test_strip_removes_only_the_named_keys(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": [{"glob": "*.md", "ruleset": "ste100"}],
+                           "options": {"codewatch": {"block_flag_count_threshold": 3}},
+                           "another_dead_key": 1}, f)
+            config.strip_top_level_keys(tmp, ["options", "another_dead_key"], config_file=path)
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written, {"rulesets": [{"glob": "*.md", "ruleset": "ste100"}]})
+
+    def test_strip_tolerates_a_key_already_gone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with open(path, "w") as f:
+                json.dump({"rulesets": []}, f)
+            config.strip_top_level_keys(tmp, ["options"], config_file=path)  # does not raise
+            with open(path) as f:
+                written = json.load(f)
+            self.assertEqual(written, {"rulesets": []})
+
+
 class ResolveRulesetIdDefaultRulesTests(unittest.TestCase):
     """resolve_ruleset_id() against DEFAULT_RULES (no config file) --
     codewatch (*.py) and slopwatch (the repo-root README.md) are now real,

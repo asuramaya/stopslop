@@ -107,6 +107,32 @@ def _first_run_notice():
         "Until then, use `Try it` on Checks to see what the gate would do.")
 
 
+def _stray_config_notice():
+    """Say when stopslop.config.json carries a top-level key nothing reads
+    anymore -- a removed feature's old on-disk setting, still sitting
+    there looking active while it tunes nothing. This already happened
+    silently once: the "options" capability's ruleset-wide threshold was
+    deleted in favor of per-check config, and a project's own config kept
+    its dead "options" key with no reader left to say so. One click here
+    removes exactly those keys and nothing else, through the same
+    snapshot/undo every other write on these pages gets."""
+    report = status_report.build_status_report(REPO_ROOT)
+    stray = report["stray_config_keys"]
+    if not stray:
+        return
+    cols = st.columns([5, 1])
+    cols[0].warning(
+        f"**stopslop.config.json has a dead key:** "
+        f"{', '.join(f'`{k}`' for k in stray)} -- left over from a "
+        f"removed feature. Nothing reads it; it is tuning nothing.")
+    with cols[1]:
+        st.write("")
+        if st.button("Remove", key="clean_stray_config"):
+            _configure._snapshot(REPO_ROOT, f"removed dead config key(s): {', '.join(stray)}")
+            core_config.strip_top_level_keys(REPO_ROOT, stray)
+            st.rerun()
+
+
 def _status_footer():
     # Deliberately no per-event detail here (ruleset/action/file) -- that's
     # already what Watch's own Full activity table shows, in full, one
@@ -135,6 +161,7 @@ def watch_page():
     """What the gate did, filterable by path and by ruleset -- "what
     happened to MY file" is the question anyone opens this page with."""
     _first_run_notice()
+    _stray_config_notice()
     cols = st.columns([3, 2])
     cols[0].text_input("Filter by path", key="watch_path",
                         placeholder="any part of a path, e.g. docs/ or README")
@@ -191,16 +218,19 @@ def _watch_activity():
 
 def checks_page():
     _first_run_notice()
+    _stray_config_notice()
     _configure.checks_page(REPO_ROOT)
 
 
 def vocabulary_page():
     _first_run_notice()
+    _stray_config_notice()
     _configure.vocabulary_page(REPO_ROOT)
 
 
 def routing_page():
     _first_run_notice()
+    _stray_config_notice()
     _configure.routing_page(REPO_ROOT)
 
 

@@ -664,6 +664,13 @@ def cmd_checks(args):
 
 def cmd_status(args):
     import status_report
+    if args.clean_config:
+        stray = core_config.stray_top_level_keys(REPO_ROOT)
+        if not stray:
+            print("No stray config keys to remove.")
+        else:
+            core_config.strip_top_level_keys(REPO_ROOT, stray)
+            print(f"Removed: {', '.join(stray)}")
     print(status_report.format_status_report(status_report.build_status_report()))
     return 0
 
@@ -804,6 +811,10 @@ def main():
 
 
     p_status = sub.add_parser("status", help="per-ruleset stats and gate-activity summary")
+    p_status.add_argument("--clean-config", action="store_true",
+                           help="remove stopslop.config.json top-level keys no reader "
+                                "consumes anymore (left over from a removed feature), "
+                                "before printing the report")
     p_status.set_defaults(func=cmd_status)
 
     p_list_rulesets = sub.add_parser("list-rulesets", help="show every registered ruleset and what routes to it")

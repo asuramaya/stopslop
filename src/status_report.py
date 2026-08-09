@@ -128,6 +128,7 @@ def build_status_report(project_root=None):
         "integrity_baseline_recorded": os.path.exists(integrity_path),
         "hook_configured": os.path.exists(settings_path),
         "config_file_present": os.path.exists(config_path),
+        "stray_config_keys": core_config.stray_top_level_keys(project_root),
         "precommit_hook_installed": _precommit_hook_installed(project_root),
         "venv_present": venv_present,
         "mcp_package_installed": mcp_installed,
@@ -158,6 +159,10 @@ def format_status_report(report):
 
     lines.append(f"\nConfig:          "
                   f"{'stopslop.config.json present' if report['config_file_present'] else 'not present -- using default rules (ste100 on .md/.txt/.rst)'}")
+    if report["stray_config_keys"]:
+        lines.append(f"  WARNING: no reader consumes: {', '.join(report['stray_config_keys'])} "
+                      f"-- left over from a removed feature, tuning nothing. "
+                      f"Run `stopslop.py status --clean-config` to drop them.")
     lines.append(f"Integrity:       "
                   f"{'baseline recorded' if report['integrity_baseline_recorded'] else 'not established yet -- start a session to record one'}")
     lines.append(f"Hook wiring:     "

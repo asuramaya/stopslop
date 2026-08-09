@@ -377,6 +377,49 @@ def save_check_config(project_root, ruleset_id, check_id, spec, config_file=None
         f.write("\n")
 
 
+# Every top-level key a current reader in this module actually consumes.
+# A key outside this set is not "extra" -- it is DEAD: something used to
+# read it, stopped, and the write side that produced it (an old CLI flag,
+# an old dashboard control) is gone too, so nothing will ever write it
+# again either. `stray_top_level_keys` exists because this already
+# happened silently once: the "options" capability (a ruleset-wide
+# {block_flag_count_threshold: N} knob) was deleted in favor of per-check
+# {threshold, action}, and a project's own `stopslop.config.json` kept its
+# old "options" key -- sitting there looking active, tuning nothing,
+# with no reader anywhere left to warn its owner it had gone inert.
+KNOWN_TOP_LEVEL_KEYS = frozenset({"rulesets", "terms", "disabled_checks", "check_config"})
+
+
+def stray_top_level_keys(project_root, config_file=None):
+    """Top-level keys in stopslop.config.json that no reader in this
+    module consumes -- see KNOWN_TOP_LEVEL_KEYS. Empty list with no config
+    file, the same no-config-means-nothing-to-warn-about baseline every
+    other knob here gives."""
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        data = json.load(f)
+    return sorted(set(data) - KNOWN_TOP_LEVEL_KEYS)
+
+
+def strip_top_level_keys(project_root, keys, config_file=None):
+    """Delete the named top-level keys from stopslop.config.json, leaving
+    everything else untouched. For discarding exactly what
+    stray_top_level_keys just found -- never called with a key still in
+    KNOWN_TOP_LEVEL_KEYS, so this does not need to re-validate that."""
+    path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    for key in keys:
+        data.pop(key, None)
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
 def _relative_posix_path(file_path, project_root):
     """The path relative to project_root, using '/' regardless of platform
     (fnmatch patterns in config files are always written with '/'). Returns
