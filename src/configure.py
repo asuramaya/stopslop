@@ -455,7 +455,7 @@ def _check_contents(repo_root, rows, ruleset_id):
         layers = core_terms.resolve(spec, repo_root, module.RULESET_ID, list_id)
         polarity = spec.get("polarity")
         st.caption(f"**{spec.get('label') or list_id}**: "
-                   f"{len(layers['effective'])} words; "
+                   f"{len(layers['effective'])} word(s); "
                    + ("a word here stops being flagged. "
                       if polarity == "allow" else "a word here gets flagged. ")
                    + "Curate it on Vocabulary.")
@@ -650,7 +650,7 @@ def _term_list_block(repo_root, module, list_id):
     # on the list DOES, in plain words.
     polarity = spec.get("polarity")
     st.markdown(f"**{spec.get('label') or list_id}**: "
-                f"{len(layers['effective'])} words; "
+                f"{len(layers['effective'])} word(s); "
                 + ("a word here stops being flagged." if polarity == "allow"
                    else "a word here gets flagged."),
                 help=f"list id: `{list_id}`")

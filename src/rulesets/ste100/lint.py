@@ -624,7 +624,8 @@ def check_progressive(sentence):
 
 def check_passive(sentence):
     return [{"phrase": f"{a} {b}", "rule": "3.6", "auto_fix": False,
-              "note": "agent-unknown passive -- requires semantic flag per doc 5.3/10"}
+              "note": "the actor isn't recoverable from a regex match -- "
+                      "flagged for a person to name it, not guessed"}
             for a, b in re.findall(r"\b(is|are|was|were|be|been|being)\s+(\w+ed)\b", sentence, re.IGNORECASE)]
 
 
