@@ -52,6 +52,7 @@ import rulesets
 import status_report
 from core import config as core_config
 from core import history, paths
+from core import text as core_text
 
 REPO_ROOT = paths.find_project_root(__file__)
 HISTORY_PATH = history.history_log_path(REPO_ROOT)
@@ -127,7 +128,8 @@ def _config_hygiene_notice():
 
     lines = []
     if stray:
-        lines.append(f"top-level key(s) {', '.join(f'`{k}`' for k in stray)}")
+        lines.append(f"{core_text.n(len(stray), 'top-level key')} "
+                     f"{', '.join(f'`{k}`' for k in stray)}")
     for entry in orphaned:
         bits = []
         if "packs" in entry:

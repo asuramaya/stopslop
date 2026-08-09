@@ -26,6 +26,7 @@ from collections import Counter
 import dashboard_launch
 from core import config as core_config
 from core import history, paths
+from core import text as core_text
 from core.version import VERSION
 import rulesets
 
@@ -152,7 +153,7 @@ def format_status_report(report):
                           f"{rs['coaching_memory_pattern_count']} (.claude/{rs['id']}-memory.md)")
         lines.append("")
 
-    lines.append(f"Gate activity:   {report['gate_event_count']} event(s) logged")
+    lines.append(f"Gate activity:   {core_text.n(report['gate_event_count'], 'event')} logged")
     for action in ("deny", "auto_fix", "clean", "unscoped_write", "register_term", "unregister_term"):
         count = report["gate_event_counts_by_action"].get(action)
         if count:
@@ -167,7 +168,8 @@ def format_status_report(report):
     for entry in report["orphaned_rule_extras"]:
         bits = []
         if "packs" in entry:
-            bits.append(f"packs on list(s) {', '.join(entry['packs'])}")
+            bits.append(f"packs on {core_text.n(len(entry['packs']), 'list')}: "
+                        f"{', '.join(entry['packs'])}")
         if "disable" in entry:
             bits.append(f"disable {', '.join(entry['disable'])}")
         lines.append(f"  WARNING: {entry['glob']} carries {'; '.join(bits)} that no ruleset "

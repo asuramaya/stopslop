@@ -21,6 +21,7 @@ import sys
 from collections import Counter
 
 from core import history, paths
+from core import text as core_text
 import rulesets
 
 
@@ -62,7 +63,7 @@ def regenerate(ruleset_id, project_root=None):
 
     lines = [
         f"# {ruleset.RULESET_NAME} Coaching Memory (auto-generated)",
-        f"# Based on {len(events)} gate event(s) in .claude/stopslop-history.log",
+        f"# Based on {core_text.n(len(events), 'gate event')} in .claude/stopslop-history.log",
         "",
         "## Recurring patterns (highest frequency first)",
         "",

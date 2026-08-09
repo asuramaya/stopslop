@@ -31,6 +31,7 @@ from core import config as core_config
 from core import extract as core_extract
 from core import flags as flags_mod
 from core import history, paths
+from core import text as core_text
 
 PROJECT_ROOT = paths.find_project_root(__file__)
 HISTORY_LOG = history.history_log_path(PROJECT_ROOT)
@@ -285,16 +286,16 @@ def main():
         if any(f.get("embedded") for f in flags):
             gate_name += f" + {embedded.RULESET_NAME} on embedded prose"
         reason = (
-            f"{gate_name} gate: {file_path} has {len(flags)} flag(s) "
+            f"{gate_name} gate: {file_path} has {core_text.n(len(flags), 'flag')} "
             f"requiring human/model resolution before this can be written.\n"
             + "\n".join(summary_lines) + more
         )
         if before_weight is not None:
             reason += (
-                f"\n\nRatchet: the file carries {before_weight} "
-                f"blocking flag-occurrence(s) before this write and "
-                f"{after_weight} after it. A write that does not add "
-                f"blocking flags passes."
+                f"\n\nRatchet: the file carries "
+                f"{core_text.n(before_weight, 'blocking flag-occurrence')} "
+                f"before this write and {after_weight} after it. A write "
+                f"that does not add blocking flags passes."
             )
         # Say what can be DONE, not only what is wrong. A deny used to list
         # its flags and stop there, so an agent blocked on a legitimate
@@ -316,8 +317,8 @@ def main():
         if attempt_number >= RETRY_CAP:
             reason += (
                 f"\n\nThis is denial #{attempt_number} in a row on this file. Stop "
-                f"retrying -- ask the user directly how to resolve the remaining "
-                f"flag(s) instead of attempting another rewrite."
+                f"retrying -- ask the user directly how to resolve what remains "
+                f"instead of attempting another rewrite."
             )
         _log_and_regenerate({"file": file_path, "action": "deny",
                               "kinds": [f["kind"] for f in flags]}, ruleset.RULESET_ID)
@@ -344,8 +345,9 @@ def main():
                 "permissionDecision": "deny",
                 "permissionDecisionReason": (
                     f"{ruleset.RULESET_NAME} gate: this Bash command would write "
-                    f"{len(result['mechanical_violations'])} mechanically-fixable violation(s) "
-                    f"({', '.join(sorted(set(kinds)))}) to {file_path}. "
+                    + core_text.n(len(result['mechanical_violations']),
+                                  "mechanically-fixable violation")
+                    + f" ({', '.join(sorted(set(kinds)))}) to {file_path}. "
                     f"Auto-fix isn't supported for Bash writes -- use the Write or Edit tool instead, "
                     f"where these get corrected automatically."
                 ),
@@ -367,8 +369,9 @@ def main():
                 "hookEventName": "PreToolUse",
                 "permissionDecision": "allow",
                 "permissionDecisionReason": (
-                    f"{ruleset.RULESET_NAME} gate: auto-fixed {len(result['mechanical_violations'])} "
-                    f"mechanical violation(s) before write ({', '.join(sorted(set(kinds)))})."
+                    f"{ruleset.RULESET_NAME} gate: auto-fixed "
+                    + core_text.n(len(result['mechanical_violations']), "mechanical violation")
+                    + f" before write ({', '.join(sorted(set(kinds)))})."
                 ),
                 "updatedInput": updated_input,
             }

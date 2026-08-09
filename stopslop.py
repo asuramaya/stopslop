@@ -39,6 +39,7 @@ import rulesets
 from core import config as core_config
 from core import extract as core_extract
 from core import flags as core_flags
+from core import text as core_text
 from core.version import VERSION
 
 SETTINGS_EXAMPLE = os.path.join(REPO_ROOT, ".claude", "settings.local.json.example")
@@ -167,13 +168,13 @@ def cmd_precommit(args):
         else:
             before_weight = 0
         failures += 1
-        print(f"stopslop: {rel}: {len(blocking)} blocking flag(s), "
-              f"{after_weight} occurrence(s) vs {before_weight} at HEAD")
+        print(f"stopslop: {rel}: {core_text.n(len(blocking), 'blocking flag')}, "
+              f"{core_text.n(after_weight, 'occurrence')} vs {before_weight} at HEAD")
         for f in blocking[:6]:
             where = f" (line {f['embedded_line']})" if "embedded_line" in f else ""
             print(f"  [{f['kind']}] {core_flags.display_label(f)}{where}")
     if failures:
-        print(f"stopslop: commit blocked ({failures} file(s)). Fix the "
+        print(f"stopslop: commit blocked ({core_text.n(failures, 'file')}). Fix the "
               f"additions, or bypass once with `git commit --no-verify`.")
         return 1
     return 0
@@ -325,13 +326,14 @@ def cmd_lint(args):
             # copied straight from ste100's own wording, and was actively
             # misleading the first time it printed for a different ruleset.
             print(f"PASS -- would go through the live gate unchanged "
-                  f"({excluded_count} non-blocking note(s) hidden, see --all).")
+                  f"({core_text.n(excluded_count, 'non-blocking note')} hidden, see --all).")
         else:
             print("PASS -- clean, no violations.")
         return 0
 
     if semantic:
-        print(f"FAIL -- {len(semantic)} issue(s) need a person's judgment:\n")
+        verb = "needs" if len(semantic) == 1 else "need"
+        print(f"FAIL -- {core_text.n(len(semantic), 'issue')} {verb} a person's judgment:\n")
         for f in semantic:
             d = f["detail"]
             label = f.get("label") or d.get("rule", "?")
@@ -342,7 +344,8 @@ def cmd_lint(args):
         print()
 
     if mechanical:
-        print(f"{len(mechanical)} mechanical fix(es) would be applied automatically on a real write:\n")
+        fixes = core_text.n(len(mechanical), "mechanical fix", plural="mechanical fixes")
+        print(f"{fixes} would be applied automatically on a real write:\n")
         for m in mechanical:
             d = m["detail"]
             label = m.get("label") or d.get("rule", "?")
@@ -352,7 +355,7 @@ def cmd_lint(args):
 
     if embedded_blocking:
         print(f"Embedded prose ({embedded_module.RULESET_NAME}): "
-              f"{len(embedded_blocking)} blocking flag(s) -- a real write "
+              f"{core_text.n(len(embedded_blocking), 'blocking flag')} -- a real write "
               f"would be denied:\n")
         for f in embedded_blocking:
             label = f.get("label") or f["detail"].get("rule", "?")
@@ -406,11 +409,11 @@ def cmd_scan(args):
             n_notes = len(r["all_semantic_flags"]) - n_blocking
             bits = []
             if n_blocking:
-                bits.append(f"{n_blocking} blocking issue(s)")
+                bits.append(core_text.n(n_blocking, "blocking issue"))
             if n_mech:
-                bits.append(f"{n_mech} mechanical fix(es)")
+                bits.append(core_text.n(n_mech, "mechanical fix", plural="mechanical fixes"))
             if n_notes and args.all:
-                bits.append(f"{n_notes} non-blocking note(s)")
+                bits.append(core_text.n(n_notes, "non-blocking note"))
             print(f"{status}  {rel} [{r['ruleset']}]  " + ", ".join(bits))
             if args.all:
                 for f in r["all_semantic_flags"]:
@@ -432,7 +435,7 @@ def cmd_scan(args):
         for f in r["all_semantic_flags"] + r["mechanical_flags"]:
             kind_counts[f["kind"]] = kind_counts.get(f["kind"], 0) + 1
 
-    print(f"Scanned {report['scanned']} file(s) "
+    print(f"Scanned {core_text.n(report['scanned'], 'file')} "
           f"({report['skipped_out_of_scope']} out of scope, "
           f"{report['skipped_unreadable']} unreadable/binary, skipped).")
     print(f"  {clean_count} clean")
@@ -469,8 +472,8 @@ def _print_term_list(list_id, view):
         note = info.get("note", "")
         print(f"    {term}{flag}" + (f" -- {note}" if note else ""))
     if view["rejected"]:
-        print(f"  {len(view['rejected'])} pack term(s) refused by this ruleset's own "
-              f"prohibitions: {', '.join(sorted(view['rejected'])[:8])}")
+        print(f"  {core_text.n(len(view['rejected']), 'pack term')} refused by this "
+              f"ruleset's own prohibitions: {', '.join(sorted(view['rejected'])[:8])}")
 
 
 def cmd_terms(args):
@@ -543,7 +546,7 @@ def cmd_packs(args):
     print("Available packs (any of these can feed any term list):")
     for pack_id, meta in sorted(glossary_packs.list_packs().items()):
         print(f"  {pack_id} -- {meta['name']} "
-              f"({meta['license']}, {meta['term_count']} term(s))")
+              f"({meta['license']}, {core_text.n(meta['term_count'], 'term')})")
         print(f"      {meta['source']}")
 
     print("\nEnabled per routing rule:")
@@ -668,7 +671,7 @@ def cmd_status(args):
         stray = core_config.stray_top_level_keys(REPO_ROOT)
         if stray:
             core_config.strip_top_level_keys(REPO_ROOT, stray)
-            print(f"Removed top-level key(s): {', '.join(stray)}")
+            print(f"Removed {core_text.n(len(stray), 'top-level key')}: {', '.join(stray)}")
         orphaned = core_config.prune_orphaned_rule_extras(REPO_ROOT, rulesets)
         for entry in orphaned:
             bits = []
@@ -754,7 +757,7 @@ def main():
     p_scan = sub.add_parser("scan", help="bulk-check an existing tree of files against a ruleset, "
                                           "with no live write -- for adopting stopslop onto a "
                                           "codebase that already exists, not just files edited going forward")
-    p_scan.add_argument("paths", nargs="*", help="file(s)/directory(ies) to scan (default: this project's whole tree)")
+    p_scan.add_argument("paths", nargs="*", help="files or directories to scan (default: this project's whole tree)")
     p_scan.add_argument("--ruleset", help="force every matched file through this one ruleset id, "
                                            "ignoring stopslop.config.json's routing (default: resolve "
                                            "each file's ruleset from config, same as a live write -- "

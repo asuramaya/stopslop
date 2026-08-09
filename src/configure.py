@@ -41,6 +41,7 @@ import streamlit as st
 import rulesets
 from core import config as core_config
 from core import glossary_packs, history as core_history, terms as core_terms
+from core import text as core_text
 
 
 def relative_time(ts):
@@ -57,6 +58,11 @@ def relative_time(ts):
     if delta < 86400:
         return f"{int(delta // 3600)}h ago"
     return f"{int(delta // 86400)}d ago"
+
+
+# "1 word" / "12 words" -- see core/text.py. Every count on these pages
+# used to hand-roll its own "{n} word(s)", eighteen times over.
+_n = core_text.n
 
 
 # --- undo: one config file, so one mechanism covers every mutation --------
@@ -434,7 +440,7 @@ def _check_contents(repo_root, rows, ruleset_id):
                    f"of these checks with any.")
     else:
         labels = {r["check"]: f"{r['check']}: " + ", ".join(
-            filter(None, [f"{len(r['lists'])} word list(s)" if r["lists"] else "",
+            filter(None, [_n(len(r['lists']), "word list") if r["lists"] else "",
                           ", ".join(n.replace("_", " ") for n in r["params"])]))
             for r in have}
         picked = st.selectbox(
@@ -455,7 +461,7 @@ def _check_contents(repo_root, rows, ruleset_id):
         layers = core_terms.resolve(spec, repo_root, module.RULESET_ID, list_id)
         polarity = spec.get("polarity")
         st.caption(f"**{spec.get('label') or list_id}**: "
-                   f"{len(layers['effective'])} word(s); "
+                   f"{_n(len(layers['effective']), 'word')}; "
                    + ("a word here stops being flagged. "
                       if polarity == "allow" else "a word here gets flagged. ")
                    + "Curate it on Vocabulary.")
@@ -508,7 +514,8 @@ def _playground(repo_root, ruleset_id):
     result = ruleset.lint_and_gate(text, file_path=full)
     blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
     if blocking:
-        st.error(f"Would DENY: {len(blocking)} flag(s) need a person's judgment")
+        verb = "needs" if len(blocking) == 1 else "need"
+        st.error(f"Would DENY: {_n(len(blocking), 'flag')} {verb} a person's judgment")
         # Same per-flag format the hook's own deny message uses -- and no
         # bolded [tag] opening each item, which is slopwatch's own
         # bold_bullet_lead pattern, caught here by the dogfooding pass.
@@ -517,14 +524,14 @@ def _playground(repo_root, ruleset_id):
             st.write(f"- [{f['kind']}] {f.get('label') or ''}"
                      + (f": {note}" if note else ""))
     elif result["mechanical_violations"]:
-        st.warning(f"Would AUTO-FIX: {len(result['mechanical_violations'])} "
-                   f"mechanical violation(s)")
+        st.warning(f"Would AUTO-FIX: "
+                   + _n(len(result['mechanical_violations']), "mechanical violation"))
         st.code(ruleset.apply_mechanical_fixes(text, file_path=full))
     else:
         st.success("Would PASS unchanged")
     non_blocking = [f for f in result["semantic_flags"] if f not in blocking]
     if non_blocking:
-        with st.expander(f"{len(non_blocking)} non-blocking note(s)"):
+        with st.expander(_n(len(non_blocking), "non-blocking note")):
             for f in non_blocking:
                 st.write(f"- [{f['kind']}] {f.get('label') or ''}")
 
@@ -581,7 +588,7 @@ def _word_matches(repo_root, needle):
     if not hits:
         return False
 
-    st.caption(f"{len(hits)} matching word(s), in every ruleset's lists "
+    st.caption(f"{_n(len(hits), 'matching word')}, in every ruleset's lists "
                f"project-wide -- the list column says which gate each one "
                f"belongs to.")
     event = st.dataframe(
@@ -595,15 +602,15 @@ def _word_matches(repo_root, needle):
     restore = [r for r in chosen if r["source"] == "suppressed"]
     remove = [r for r in chosen if r["source"] != "suppressed"]
     if restore and st.button(f"Restore {len(restore)}", key="aw_restore"):
-        _snapshot(repo_root, f"restored {len(restore)} word(s)")
+        _snapshot(repo_root, f"restored {_n(len(restore), 'word')}")
         for r in restore:
             rulesets.get_ruleset(r["ruleset"]).add_term(r["list"].split(".", 1)[1],
                                                          r["term"])
         st.rerun()
-    if remove and _confirm("aw_rm", f"Remove {len(remove)} selected word(s)",
+    if remove and _confirm("aw_rm", f"Remove {_n(len(remove), 'selected word')}",
                             "A built-in or pack word is suppressed rather than "
                             "deleted, and stays restorable."):
-        _snapshot(repo_root, f"removed {len(remove)} word(s)")
+        _snapshot(repo_root, f"removed {_n(len(remove), 'word')}")
         for r in remove:
             try:
                 rulesets.get_ruleset(r["ruleset"]).remove_term(
@@ -650,7 +657,7 @@ def _term_list_block(repo_root, module, list_id):
     # on the list DOES, in plain words.
     polarity = spec.get("polarity")
     st.markdown(f"**{spec.get('label') or list_id}**: "
-                f"{len(layers['effective'])} word(s); "
+                f"{_n(len(layers['effective']), 'word')}; "
                 + ("a word here stops being flagged." if polarity == "allow"
                    else "a word here gets flagged."),
                 help=f"list id: `{list_id}`")
@@ -740,18 +747,20 @@ def _word_table(repo_root, module, list_id, layers, suppressed, active, key):
         return
     if active == "suppressed":
         if st.button(f"Restore {len(chosen)}", key=f"restore_{key}"):
-            _snapshot(repo_root, f"restored {len(chosen)} word(s) to {list_id}")
+            _snapshot(repo_root, f"restored {_n(len(chosen), 'word')} to {list_id}")
             for r in chosen:
                 module.add_term(list_id, r["term"])
             st.rerun()
         return
     not_yours = [r for r in chosen if r["source"] != "yours"]
-    detail = (f"{len(chosen)} word(s) go. "
-              + (f"{len(not_yours)} of them come from a built-in list or a "
+    verb = "goes" if len(chosen) == 1 else "go"
+    not_yours_verb = "comes" if len(not_yours) == 1 else "come"
+    detail = (f"{_n(len(chosen), 'word')} {verb}. "
+              + (f"{len(not_yours)} of them {not_yours_verb} from a built-in list or a "
                  f"pack, so they are suppressed rather than deleted and stay "
                  f"restorable." if not_yours else "All are your own, so they are deleted."))
-    if _confirm(f"rm_{key}", f"Remove {len(chosen)} selected word(s)", detail):
-        _snapshot(repo_root, f"removed {len(chosen)} word(s) from {list_id}")
+    if _confirm(f"rm_{key}", f"Remove {_n(len(chosen), 'selected word')}", detail):
+        _snapshot(repo_root, f"removed {_n(len(chosen), 'word')} from {list_id}")
         for r in chosen:
             try:
                 module.remove_term(list_id, r["term"])
@@ -887,7 +896,7 @@ def _path_probe(repo_root):
         parts.append("off here: " + ", ".join(f"`{c}`" for c in rule["disable"]))
     n_packs = _pack_count(rule)
     if n_packs:
-        parts.append(f"{n_packs} pack binding(s)")
+        parts.append(_n(n_packs, "pack binding"))
     st.caption("; ".join(parts) + ".")
 
 
@@ -981,11 +990,11 @@ def _routing_table(repo_root):
     detail = f"These rules go: {', '.join(f'`{g}`' for g in gone)}."
     if lost:
         detail += (" That also drops " +
-                   ", ".join(f"{n} pack binding(s) on `{g}`" for g, n in lost.items()) +
+                   ", ".join(f"{_n(n, 'pack binding')} on `{g}`" for g, n in lost.items()) +
                    ". Re-attach them on the rule that replaces each one.")
-    if _confirm("routing_del", f"Apply routing change ({len(gone)} rule(s) removed)",
+    if _confirm("routing_del", f"Apply routing change ({_n(len(gone), 'rule')} removed)",
                  detail):
-        _snapshot(repo_root, f"removed {len(gone)} routing rule(s)")
+        _snapshot(repo_root, f"removed {_n(len(gone), 'routing rule')}")
         try:
             core_config.save_rules(repo_root, incoming, rulesets)
             st.rerun()
