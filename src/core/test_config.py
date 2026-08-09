@@ -304,6 +304,62 @@ class SaveRulesTests(unittest.TestCase):
             self.assertEqual(config.load_rules(tmp, config_file=path), rules)
 
 
+class SetRuleDisableTests(unittest.TestCase):
+    """The per-rule "disable" list disabled_checks_for_path unions into
+    every gate call -- writable through one function with the same
+    guarantees as set_rule_packs: loud on an unknown glob or check id,
+    and an empty list removes the key instead of writing an empty one."""
+
+    def _write(self, tmp, rules):
+        path = os.path.join(tmp, "stopslop.config.json")
+        with open(path, "w") as f:
+            json.dump({"rulesets": rules}, f)
+        return path
+
+    def test_round_trips_through_matching_rule(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(tmp, [{"glob": "*.py", "ruleset": "codewatch"}])
+            config.set_rule_disable(tmp, "*.py", ["colon_reveal"], config_file=path)
+            rule = config.matching_rule(os.path.join(tmp, "a.py"), tmp,
+                                          config_file=path)
+            self.assertEqual(rule["disable"], ["colon_reveal"])
+
+    def test_empty_list_removes_the_key(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(tmp, [{"glob": "*.py", "ruleset": "codewatch",
+                                        "disable": ["colon_reveal"]}])
+            config.set_rule_disable(tmp, "*.py", [], config_file=path)
+            with open(path) as f:
+                rules = json.load(f)["rulesets"]
+            self.assertNotIn("disable", rules[0])
+
+    def test_unknown_glob_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(tmp, [{"glob": "*.py", "ruleset": "codewatch"}])
+            with self.assertRaises(ValueError):
+                config.set_rule_disable(tmp, "*.nope", ["x"], config_file=path)
+
+    def test_unknown_check_id_raises_when_known_checks_given(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(tmp, [{"glob": "*.py", "ruleset": "codewatch"}])
+            with self.assertRaises(ValueError):
+                config.set_rule_disable(tmp, "*.py", ["not_a_check"],
+                                          known_checks={"colon_reveal"},
+                                          config_file=path)
+
+    def test_preserves_every_other_rule_key(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(tmp, [
+                {"glob": "*.py", "ruleset": "codewatch",
+                 "embedded_prose": "slopwatch",
+                 "packs": {"generic_naming": ["mdn-glossary"]}}])
+            config.set_rule_disable(tmp, "*.py", ["colon_reveal"], config_file=path)
+            with open(path) as f:
+                rule = json.load(f)["rulesets"][0]
+            self.assertEqual(rule["embedded_prose"], "slopwatch")
+            self.assertEqual(rule["packs"], {"generic_naming": ["mdn-glossary"]})
+
+
 class PathScopedPacksConfigTests(unittest.TestCase):
     """Packs hang off the routing RULE that matches a path, and the rule
     also names which term list each pack feeds. The old shape

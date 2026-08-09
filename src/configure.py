@@ -100,7 +100,8 @@ def _undo_bar():
         # file alone would leave the toggles and numbers displaying what was
         # just undone -- and the next interaction would write THAT back.
         for key in [k for k in st.session_state
-                    if k.startswith(("param::", "pack::", "checks_editor::"))]:
+                    if k.startswith(("param::", "pack::", "checks_editor::",
+                                      "ruledisable::"))]:
             del st.session_state[key]
         st.toast("Reverted", icon="↩️")
         st.rerun()
@@ -173,18 +174,40 @@ def checks_page(repo_root):
 
 
 def _routed_caption(repo_root, ruleset_id):
-    """One line of routing context, read-only -- which files this
-    ruleset's checks actually run on. Editing that fact lives on the
-    Routing page; stating it here keeps "does this even apply to
-    anything" answerable without a page switch."""
-    globs = [g for g, r, _p in core_config.rule_packs(repo_root)
-             if r == ruleset_id]
+    """Routing context, read-only -- which files this ruleset's checks
+    actually run on, and any check a RULE turns off on its own paths.
+    Editing both facts lives on the Routing page; stating them here keeps
+    "does this even apply, and why did it not fire there" answerable
+    without a page switch. Without the second line, a check a rule
+    disables shows as plain "on" in the table below, which is exactly the
+    kind of true-but-incomplete display that reads as a lie the day the
+    check fails to fire."""
+    rules = [r for r in core_config.load_rules(repo_root)
+             if ruleset_id in (r.get("ruleset"), r.get("embedded_prose"))]
+    globs = [r["glob"] for r in rules if r.get("ruleset") == ruleset_id]
     if globs:
         st.caption("Runs on " + ", ".join(f"`{g}`" for g in globs)
                    + " (edit on Routing).")
     else:
         st.caption("Routed to no path in the current config -- add a rule "
                    "on Routing to use this ruleset.")
+    embedded = [r["glob"] for r in rules if r.get("embedded_prose") == ruleset_id]
+    if embedded:
+        st.caption("Also runs on the prose EMBEDDED in "
+                   + ", ".join(f"`{g}`" for g in embedded)
+                   + " (strings, comments).")
+    # A rule's disable list applies to every ruleset it invokes, so name
+    # only the entries that are THIS ruleset's checks -- slopwatch's
+    # colon_reveal disabled on *.py is noise on codewatch's page.
+    own = set(rulesets.get_ruleset(ruleset_id).list_checks())
+    exempt = [(r["glob"], [c for c in r["disable"] if c in own])
+              for r in rules if r.get("disable")]
+    exempt = [(g, checks) for g, checks in exempt if checks]
+    if exempt:
+        st.caption("Off per rule: "
+                   + "; ".join(f"{', '.join(f'`{c}`' for c in checks)} on `{g}`"
+                                for g, checks in exempt)
+                   + " (edit on Routing).")
 
 
 def _check_rows(ruleset_id):
@@ -390,13 +413,15 @@ def _apply_check_edits(repo_root, module, rows, before, after):
 
 
 def _check_contents(repo_root, rows, ruleset_id):
-    """The words and extra settings behind a check, for the checks that
-    have any.
+    """The extra settings behind a check, for the checks that have any --
+    and a POINTER, never an editor, for a check's word lists.
 
-    Every row used to open a pane like this, and for most it held nothing
-    but the on/off toggle -- now a cell in the row (see _by_check for the
-    numbers). So the selector lists only the checks with something
-    actually inside, and with none it does not render at all."""
+    Words used to be curated right here too, which put the whole
+    word-table/add/override machinery on two pages at once (this one and
+    Vocabulary) with separate widget state each. One home per act now:
+    tuning a check's behaviour happens here; changing what words feed it
+    happens on Vocabulary, and this pane says so with the list's name
+    and live count rather than duplicating the controls."""
     have = [r for r in rows if r["lists"] or r["params"]]
     if not have:
         return
@@ -424,8 +449,16 @@ def _check_contents(repo_root, rows, ruleset_id):
     st.caption(f"{row['catches']}. Instead, {row['instead']}.")
     for name, info in row["params"].items():
         _param_control(repo_root, row, name, info)
+    module = row["module"]
     for list_id in row["lists"]:
-        _term_list_block(repo_root, row["module"], list_id)
+        spec = module.TERM_LISTS[list_id]
+        layers = core_terms.resolve(spec, repo_root, module.RULESET_ID, list_id)
+        polarity = spec.get("polarity")
+        st.caption(f"**{spec.get('label') or list_id}**: "
+                   f"{len(layers['effective'])} words; "
+                   + ("a word here stops being flagged. "
+                      if polarity == "allow" else "a word here gets flagged. ")
+                   + "Curate it on Vocabulary.")
 
 
 def _param_control(repo_root, row, name, info):
@@ -463,7 +496,9 @@ def _playground(repo_root, ruleset_id):
     glob = next((g for g, r, _p in stored if r == ruleset_id), None)
     full = (os.path.join(repo_root, _synthetic_path_for_glob(glob))
             if glob else None)
-    st.caption(f"Linted with `{ruleset_id}`, exactly as the gate would.")
+    st.caption(f"Linted with `{ruleset_id}`, exactly as the gate would"
+               + (f" -- with the vocabulary the `{glob}` rule carries."
+                  if glob else "."))
     text = st.text_area("Text", height=120, key="playground_text",
                          placeholder="Paste a sentence or a snippet...")
     if not (st.button("Lint it", type="primary", key="lint_btn") and text.strip()):
@@ -792,31 +827,109 @@ def _override_prompt(repo_root):
 # --- Routing --------------------------------------------------------------
 
 def routing_page(repo_root):
-    """Which files go to which ruleset, and each rule's vocabulary packs.
+    """Which files go to which ruleset, and everything else a rule
+    carries: its vocabulary packs, its embedded-prose ruleset, and the
+    checks it turns off on its own paths.
 
     The one page where a PATH is genuinely the subject. Rule ORDER is
     load-bearing (first match wins) and invisible in any view that only
     shows a winner, so the whole table is the control -- editable in
-    place, always fully visible."""
+    place, always fully visible. The probe box below it answers the
+    question the order exists to settle: which single rule decides a
+    given file."""
     _undo_bar()
     st.caption("First match wins; order matters. An empty ruleset cell "
                "means out of scope entirely (like `.claude/*`).")
     _routing_table(repo_root)
+    _path_probe(repo_root)
 
-    stored = core_config.rule_packs(repo_root)
-    scoped = [(g, r, p) for g, r, p in stored if r]
+    scoped = [r for r in core_config.load_rules(repo_root) if r.get("ruleset")]
     if not scoped:
         return
     st.divider()
-    labels = [f"{g} → {r}" for g, r, _p in scoped]
+    labels = [f"{r['glob']} → {r['ruleset']}" for r in scoped]
     idx = st.selectbox("Rule", range(len(scoped)), key="routing_focus",
                         format_func=lambda i: labels[i],
-                        help="Vocabulary packs bind to a rule, not to a "
-                             "ruleset: two rules routed to the same ruleset "
-                             "can feed it different packs.")
-    glob, ruleset_id, packs = scoped[idx]
-    _rule_packs_editor(repo_root, {"glob": glob, "ruleset": ruleset_id,
-                                     "packs": packs})
+                        help="Everything below binds to this one rule, not "
+                             "to its ruleset: two rules routed to the same "
+                             "ruleset can carry different packs and "
+                             "different exemptions.")
+    rule = scoped[idx]
+    if rule.get("embedded_prose"):
+        st.caption(f"Also runs `{rule['embedded_prose']}` on the prose "
+                   f"embedded in these files (strings, comments).")
+    _rule_packs_editor(repo_root, rule)
+    _rule_disable_editor(repo_root, rule)
+
+
+def _path_probe(repo_root):
+    """Type a path, get the one rule that decides it -- the gate's own
+    resolver, not a lookalike. "What happens to this file" is the
+    question first-match-wins exists to settle, and the table alone
+    makes the reader run the match in their head."""
+    probe = st.text_input(
+        "Test a path", key="route_probe",
+        placeholder="which rule wins for e.g. docs/notes.md?").strip()
+    if not probe:
+        return
+    rule = core_config.matching_rule(os.path.join(repo_root, probe), repo_root)
+    if rule is None:
+        st.caption(f"`{probe}`: no rule matches -- the gate never runs on it.")
+        return
+    if rule.get("ruleset") is None:
+        st.caption(f"`{probe}`: rule `{rule['glob']}` puts it out of scope. "
+                   f"Nothing is checked.")
+        return
+    parts = [f"`{probe}`: rule `{rule['glob']}` wins → `{rule['ruleset']}`"]
+    if rule.get("embedded_prose"):
+        parts.append(f"embedded prose → `{rule['embedded_prose']}`")
+    if rule.get("disable"):
+        parts.append("off here: " + ", ".join(f"`{c}`" for c in rule["disable"]))
+    n_packs = _pack_count(rule)
+    if n_packs:
+        parts.append(f"{n_packs} pack binding(s)")
+    st.caption("; ".join(parts) + ".")
+
+
+def _rule_disable_editor(repo_root, rule):
+    """Which checks this rule turns off on its own paths -- the per-path
+    exemption disabled_checks_for_path unions into every gate call, which
+    used to exist only as hand-written JSON. One direction only: a rule
+    can turn a check off for its paths, never back on past a project-wide
+    disable (see core.config.disabled_checks_for_path).
+
+    Offers the checks of every ruleset the rule invokes -- the host and
+    the embedded-prose ruleset -- because the disable list applies to
+    both."""
+    known = {}
+    for ruleset_id in {rule.get("ruleset"), rule.get("embedded_prose")} - {None}:
+        module = rulesets.get_ruleset(ruleset_id)
+        if "checks" in module.CAPABILITIES:
+            for check_id in module.list_checks():
+                known[check_id] = ruleset_id
+    if not known:
+        return
+    current = [c for c in (rule.get("disable") or []) if c in known]
+    key = f"ruledisable::{rule['glob']}"
+    st.multiselect(
+        f"Checks turned off on `{rule['glob']}`", sorted(known),
+        default=current, key=key,
+        format_func=lambda c: f"{c} ({known[c]})",
+        placeholder="No per-rule exemptions",
+        on_change=_rule_disable_changed,
+        args=(repo_root, rule["glob"], sorted(known), key),
+        help="These checks do not run on this rule's paths. Everywhere "
+             "else they keep their setting from the Checks page.")
+
+
+def _rule_disable_changed(repo_root, glob, known, key):
+    chosen = st.session_state[key]
+    _snapshot(repo_root, f"set per-rule exemptions on {glob} to "
+                          f"{', '.join(chosen) or '(none)'}")
+    try:
+        core_config.set_rule_disable(repo_root, glob, chosen, known_checks=known)
+    except Exception as exc:
+        st.session_state["write_error"] = str(exc)
 
 
 def _routing_table(repo_root):

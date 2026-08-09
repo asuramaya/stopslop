@@ -204,6 +204,44 @@ def set_rule_packs(project_root, glob, list_id, pack_ids, known_packs=None,
         f.write("\n")
 
 
+def set_rule_disable(project_root, glob, check_ids, known_checks=None,
+                      config_file=None):
+    """Replace the "disable" list on the routing rule with this exact glob
+    -- the per-path check exemptions disabled_checks_for_path unions in.
+    Same shape and same guarantees as set_rule_packs: loud on an unknown
+    glob, loud on an unknown check id when the caller supplies
+    `known_checks` (this module deliberately has no ruleset registry of
+    its own), and an empty list removes the key rather than writing an
+    empty one."""
+    check_ids = list(check_ids)
+    if known_checks is not None:
+        for check_id in check_ids:
+            if check_id not in known_checks:
+                raise ValueError(
+                    f"no check registered as {check_id!r} on this rule's "
+                    f"ruleset(s) -- known: {sorted(known_checks)}")
+    path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    rules = [dict(r) for r in data.get("rulesets", DEFAULT_RULES)]
+    if not any(r["glob"] == glob for r in rules):
+        raise ValueError(f"no routing rule with glob {glob!r} -- "
+                          f"known: {[r['glob'] for r in rules]}")
+    for rule in rules:
+        if rule["glob"] != glob:
+            continue
+        if check_ids:
+            rule["disable"] = check_ids
+        else:
+            rule.pop("disable", None)
+    data["rulesets"] = rules
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
 def disabled_checks(project_root, ruleset_id, config_file=None):
     """Which individual checks are turned off for `ruleset_id`, per
     stopslop.config.json's "disabled_checks" key: {"<ruleset_id>":
