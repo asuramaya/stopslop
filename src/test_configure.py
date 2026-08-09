@@ -63,7 +63,9 @@ class PackCountTests(unittest.TestCase):
 
 
 @unittest.skipUnless(_STREAMLIT_AVAILABLE, "streamlit not installed -- see README's MCP setup section")
-class CheckEditsTests(unittest.TestCase):
+
+@unittest.skipUnless(_STREAMLIT_AVAILABLE, "streamlit not installed -- see README's MCP setup section")
+class CheckConfigEditsTests(unittest.TestCase):
     """The checks table writes what this function says changed, so a
     false positive here is a config write nobody asked for, and a false
     negative is an edit that silently does not save.
@@ -72,86 +74,8 @@ class CheckEditsTests(unittest.TestCase):
     table -- so the diff IS the change detection, and it runs on EVERY
     rerun, including reruns nothing to do with this table (a Path change,
     an Undo). "No edit" therefore has to be the reliable case, not the
-    lucky one."""
-
-    def _rows(self, *checks):
-        return [{"check": c} for c in checks]
-
-    def test_an_untouched_table_writes_nothing(self):
-        rows = self._rows("passive", "length")
-        table = [{"on": True, "procedure_word_limit": ""},
-                 {"on": True, "procedure_word_limit": "20"}]
-        toggles, options, error = configure.check_edits(
-            rows, table, [dict(r) for r in table], ["procedure_word_limit"])
-        self.assertEqual((toggles, options, error), ({}, {}, None))
-
-    def test_a_toggled_check_is_reported_by_its_own_id(self):
-        rows = self._rows("passive", "length")
-        before = [{"on": True, "procedure_word_limit": ""},
-                  {"on": True, "procedure_word_limit": "20"}]
-        after = [{"on": False, "procedure_word_limit": ""},
-                 {"on": True, "procedure_word_limit": "20"}]
-        toggles, options, _ = configure.check_edits(
-            rows, before, after, ["procedure_word_limit"])
-        self.assertEqual(toggles, {"passive": False})
-        self.assertEqual(options, {})
-
-    def test_a_changed_number_is_parsed_off_the_text_cell(self):
-        rows = self._rows("length")
-        before = [{"on": True, "procedure_word_limit": "20"}]
-        after = [{"on": True, "procedure_word_limit": "18"}]
-        _toggles, options, error = configure.check_edits(
-            rows, before, after, ["procedure_word_limit"])
-        self.assertEqual(options, {"procedure_word_limit": 18})
-        self.assertIsNone(error)
-
-    def test_typing_into_a_blank_sparse_cell_is_ignored(self):
-        """The column exists for the one check that has the setting;
-        every other row's cell is blank because the option is not that
-        check's to carry. A value typed there names no option, so
-        writing it would set the limit of a check that has none."""
-        rows = self._rows("passive")
-        before = [{"on": True, "procedure_word_limit": ""}]
-        after = [{"on": True, "procedure_word_limit": "99"}]
-        _toggles, options, error = configure.check_edits(
-            rows, before, after, ["procedure_word_limit"])
-        self.assertEqual(options, {})
-        self.assertIsNone(error)
-
-    def test_clearing_a_real_value_is_not_a_write(self):
-        """A ruleset declares an option or it does not -- there is no
-        "no threshold" state to save, so a blanked cell reverts on the
-        next rerun rather than writing an empty value into the config."""
-        rows = self._rows("length")
-        before = [{"on": True, "procedure_word_limit": "20"}]
-        after = [{"on": True, "procedure_word_limit": ""}]
-        _toggles, options, error = configure.check_edits(
-            rows, before, after, ["procedure_word_limit"])
-        self.assertEqual(options, {})
-        self.assertIsNone(error)
-
-    def test_nonsense_reports_an_error_and_writes_nothing(self):
-        """A text cell accepts anything. The error has to suppress the
-        WHOLE batch, including a valid toggle in the same edit -- a
-        half-applied table is worse than a refused one."""
-        rows = self._rows("passive", "length")
-        before = [{"on": True, "procedure_word_limit": ""},
-                  {"on": True, "procedure_word_limit": "20"}]
-        after = [{"on": False, "procedure_word_limit": ""},
-                 {"on": True, "procedure_word_limit": "twenty"}]
-        toggles, options, error = configure.check_edits(
-            rows, before, after, ["procedure_word_limit"])
-        self.assertEqual((toggles, options), ({}, {}))
-        self.assertIn("whole number", error)
-
-
-@unittest.skipUnless(_STREAMLIT_AVAILABLE, "streamlit not installed -- see README's MCP setup section")
-class CheckConfigEditsTests(unittest.TestCase):
-    """check_config's threshold/action columns are dense on every row
-    (unlike check_edits' sparse numeric columns above), so a change is
-    keyed by check id, not by option name -- same
-    diff-the-rendered-against-the-returned-rows shape and the same
-    reason: see CheckEditsTests' own docstring."""
+    lucky one. The threshold/action columns are dense on every row, so a
+    change is keyed by check id, never by a shared option name."""
 
     def _rows(self, *checks):
         return [{"check": c} for c in checks]
@@ -199,10 +123,9 @@ class CheckConfigEditsTests(unittest.TestCase):
         self.assertIsNone(error)
 
     def test_a_cleared_threshold_is_left_alone_not_an_error(self):
-        """Every row has a real threshold now (the column is dense, not
-        sparse like check_edits' numeric columns) -- a cleared cell
-        reverts on the next rerun rather than writing "no threshold",
-        which has no meaning here either."""
+        """Every row has a real threshold (the column is dense, never
+        sparse) -- a cleared cell reverts on the next rerun rather than
+        writing "no threshold", which has no meaning here."""
         rows = self._rows("vague_intensifier")
         before = [{"on": True, "threshold": 1, "action": "warn"}]
         after = [{"on": True, "threshold": None, "action": "warn"}]

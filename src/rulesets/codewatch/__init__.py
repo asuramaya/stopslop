@@ -52,19 +52,6 @@ CHECKS = {
 }
 
 
-# See rulesets/ste100/__init__.py's DENY_POLICY. The text completes the
-# sentence "<ruleset> denies a write ..." -- the dashboard renders that
-# lead, so opening with "A write is denied ..." here would say the same
-# clause twice in its own line (it did, for a while). No more shared
-# ruleset-wide flag-count pool or hardcoded BLOCKS_ALONE_AT -- see
-# rulesets/slopwatch/__init__.py's identical DENY_POLICY shape.
-DENY_POLICY = {
-    "text": "when a check's own threshold is reached and that check is "
-            "configured to block -- each check's own threshold and "
-            "action are set on its own row below.",
-    "blocks_alone_at": {},  # retired -- see each check's own "action" instead
-}
-
 def lint_and_gate(text, *, context=None, file_path=None):
     return lint.lint_and_gate(text, context=context, file_path=file_path)
 
@@ -109,7 +96,7 @@ def set_enabled_checks(check_ids):
 
 def set_checks_enabled(states):
     """Turn the named checks on or off, leaving every other check alone --
-    {check_id: bool}. Merge semantics, the same shape set_options has, and
+    {check_id: bool}. Merge semantics, the same shape set_check_config has, and
     the counterpart to set_enabled_checks's replace semantics: see
     core.config.merge_disabled_checks for which callers need which, and for
     the silent-mass-disable bug that made the distinction worth a second

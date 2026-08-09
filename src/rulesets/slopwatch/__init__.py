@@ -107,19 +107,6 @@ CHECKS = {
 }
 
 
-# See rulesets/ste100/__init__.py's DENY_POLICY for why this lives on the
-# ruleset. No more shared ruleset-wide flag-count pool, and no more
-# hardcoded, non-configurable BLOCKS_ALONE_AT -- every check owns its own
-# {threshold, action} now (see lint.DEFAULT_CHECK_CONFIG), a real project
-# setting on every row instead of one shared number nobody could tune per
-# check and one exception only code could grant.
-DENY_POLICY = {
-    "text": "when a check's own threshold is reached and that check is "
-            "configured to block -- each check's own threshold and "
-            "action are set on its own row below.",
-    "blocks_alone_at": {},  # retired -- see each check's own "action" instead
-}
-
 def lint_and_gate(text, *, context=None, file_path=None):
     return lint.lint_and_gate(text, context=context, file_path=file_path)
 
@@ -175,7 +162,7 @@ def set_enabled_checks(check_ids):
 
 def set_checks_enabled(states):
     """Turn the named checks on or off, leaving every other check alone --
-    {check_id: bool}. Merge semantics, the same shape set_options has, and
+    {check_id: bool}. Merge semantics, the same shape set_check_config has, and
     the counterpart to set_enabled_checks's replace semantics: see
     core.config.merge_disabled_checks for which callers need which, and for
     the silent-mass-disable bug that made the distinction worth a second

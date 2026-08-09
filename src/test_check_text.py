@@ -30,7 +30,6 @@ from collections import Counter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rulesets
-from core import flags as core_flags
 
 
 def _all_checks():
@@ -145,55 +144,6 @@ class CheckToConfigLinksTests(unittest.TestCase):
                     self.assertTrue(feeds, "no 'feeds' key: the Configure page "
                                             "would never show this list anywhere")
                     self.assertIn(feeds, checks)
-
-    def test_every_declared_check_option_exists(self):
-        for module in rulesets.list_rulesets():
-            options = set(module.list_options()) if "options" in module.CAPABILITIES else set()
-            checks = set(module.list_checks()) if "checks" in module.CAPABILITIES else set()
-            for check_id, names in getattr(module, "CHECK_OPTIONS", {}).items():
-                with self.subTest(check=f"{module.RULESET_ID}.{check_id}"):
-                    self.assertIn(check_id, checks)
-                    for name in names:
-                        self.assertIn(name, options)
-
-    def test_the_deny_policy_names_only_real_checks_and_real_options(self):
-        for module in rulesets.list_rulesets():
-            policy = getattr(module, "DENY_POLICY", None)
-            with self.subTest(ruleset=module.RULESET_ID):
-                self.assertIsNotNone(policy, "no DENY_POLICY: the page cannot "
-                                              "state what blocks a write")
-                checks = set(module.list_checks()) if "checks" in module.CAPABILITIES else set()
-                for check_id in policy["blocks_alone_at"]:
-                    self.assertIn(check_id, checks)
-                # The text is format()ed with live option values, so a
-                # placeholder with no option behind it renders as a stray
-                # brace or raises, depending on the caller.
-                policy["text"].format(**core_flags.display_options(module))
-
-    def test_every_option_is_owned_by_a_check_or_is_the_deny_threshold(self):
-        """No option may be orphaned. Configure EDITS an option either
-        inside its check's row (CHECK_OPTIONS) or beside the deny-policy
-        sentence (_deny_policy renders a control for every option no check
-        claims), so an option in neither place would be unreachable.
-
-        This once asserted only that an option was SHOWN somewhere, and
-        the deny-policy sentence counted -- which let
-        block_flag_count_threshold pass while being rendered as read-only
-        markdown, uneditable on the whole page. Visible is not editable.
-        See ConfigureRendersEveryOptionTests, which holds the rendering
-        side of this."""
-        for module in rulesets.list_rulesets():
-            if "options" not in module.CAPABILITIES:
-                continue
-            owned = {n for names in getattr(module, "CHECK_OPTIONS", {}).values()
-                     for n in names}
-            policy_text = getattr(module, "DENY_POLICY", {}).get("text", "")
-            for name in module.list_options():
-                with self.subTest(option=f"{module.RULESET_ID}.{name}"):
-                    self.assertTrue(name in owned or ("{" + name + "}") in policy_text,
-                                     f"{name} is in no check's CHECK_OPTIONS and is "
-                                     f"not named in DENY_POLICY, so nothing on the "
-                                     f"Configure page would ever show it")
 
 
 

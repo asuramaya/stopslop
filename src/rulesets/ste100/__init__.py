@@ -15,11 +15,14 @@ RULESET_ID = "ste100"
 # byte-for-byte to satisfy this refactor's own backward-compatibility bar
 # (see docs/incidents/ and the hook-output diff run during migration).
 RULESET_NAME = "STE100"
-# "options" arrived late. The claim that ste100 had no tunable numbers was
-# never true -- rule 5.1's sentence limits (20 words in a procedure, 25 in a
-# description) were hardcoded inside check_length the whole time. See
-# lint.DEFAULT_OPTIONS.
-CAPABILITIES = frozenset({"terms", "word_lookup", "checks", "options"})
+# The same per-check {threshold, action} surface as slopwatch and
+# codewatch. ste100 was the last ruleset on the older ruleset-wide
+# "options" mechanism, and its leftovers (excluded_vocab_types, a
+# format()ed DENY_POLICY sentence, sparse CHECK_OPTIONS columns) were the
+# special cases every consumer had to branch around. Rule 5.1's word
+# limits live on the `length` check's own config entry now -- see
+# lint.DEFAULT_CHECK_CONFIG.
+CAPABILITIES = frozenset({"terms", "word_lookup", "checks", "check_config"})
 
 # Relative to this package's own directory -- integrity_check.py resolves
 # these against the ruleset's install location, not the repo root.
@@ -83,28 +86,6 @@ def _history_path():
     return history.history_log_path(paths.find_project_root(__file__))
 
 
-# What actually denies a write, in the ruleset's own words. The dashboard
-# renders this beside the checks rather than leaving the single most
-# consequential setting in the product unstated: the page used to say which
-# checks fire and which words are known, and never what blocks.
-# `text` is format()ed with this ruleset's live option values, so a tunable
-# number in the sentence shows what it is right now, not its default.
-DENY_POLICY = {
-    # {excluded_vocab_types} is filled in from the LIVE option value, not
-    # hardcoded prose -- excluded_vocab_types is a tunable set now, and a
-    # project that narrows or widens it deserves a policy sentence that
-    # still describes what the gate actually does. The text completes
-    # "<ruleset> denies a write ..." (see codewatch's DENY_POLICY note).
-    "text": "on every flag. Vocabulary of an excluded type "
-            "({excluded_vocab_types}) is reported and let through; the "
-            "dictionary cannot know a project's own domain words.",
-    # Empty by design: ste100 blocks by default and names exceptions,
-    # the opposite shape from slopwatch/codewatch's shared-pool-plus-
-    # per-check-count. Declared anyway so every ruleset carries the same
-    # key -- see rulesets/slopwatch/__init__.py's DENY_POLICY.
-    "blocks_alone_at": {},
-}
-
 def lint_and_gate(text, *, context=None, file_path=None):
     """context: "procedure" (20-word limit, step-by-step instructions) or
     "description" (25-word limit, whole documents). Any other value
@@ -126,58 +107,61 @@ def apply_mechanical_fixes(text, file_path=None):
 TERM_LISTS = lint.TERM_LISTS
 
 
-# Which tunable option belongs to which check. Declared, never inferred:
-# see rulesets/slopwatch/__init__.py's CHECK_OPTIONS.
-CHECK_OPTIONS = {
-    "length": ("procedure_word_limit", "description_word_limit"),
-    "vocabulary": ("excluded_vocab_types",),
-}
-
-# Options whose value is a closed set of choices rather than a free scalar.
-# isinstance(value, list) alone (set_options's base type check) accepts a
-# list of ANYTHING; a typo'd type name would silently stop being excluded
-# with no error anywhere, one drift-goes-off-in-the-quiet-direction bug
-# away from a project that thinks it widened blocking and did nothing.
-# check_vocabulary is the only source of "type" values on a vocabulary
-# flag's detail dict -- these three are the whole domain, not a sample.
-_OPTION_CHOICES = {
-    "excluded_vocab_types": {"unknown_vocabulary", "unapproved_no_replacement",
-                              "unapproved_synonym"},
-}
-
-
-def list_options():
-    current = lint._options()
+def list_check_config():
+    """Every check's own {threshold, action}, current effective value and
+    built-in default -- the same shape slopwatch and codewatch return (see
+    slopwatch's own docstring). A check with extra numbers of its own
+    (`length`'s two word limits) also carries a "params" dict:
+    {name: {"value": N, "default": N}} -- read by whatever renders that
+    check's own detail, never a column shared across checks."""
+    current = lint._check_config()
     out = {}
-    for name, default in lint.DEFAULT_OPTIONS.items():
-        entry = {"value": current[name], "default": default}
-        if name in _OPTION_CHOICES:
-            entry["choices"] = sorted(_OPTION_CHOICES[name])
-        out[name] = entry
+    for check_id, spec in current.items():
+        defaults = lint.DEFAULT_CHECK_CONFIG[check_id]
+        entry = {"threshold": spec["threshold"], "action": spec["action"],
+                 "default_threshold": defaults["threshold"],
+                 "default_action": defaults["action"]}
+        params = {name: {"value": spec[name], "default": defaults[name]}
+                  for name in defaults if name not in ("threshold", "action")}
+        if params:
+            entry["params"] = params
+        out[check_id] = entry
     return out
 
 
-def set_options(options):
-    """See rulesets/slopwatch/__init__.py's set_options() -- identical
-    merge-not-replace semantics and rationale."""
-    unknown = set(options) - set(lint.DEFAULT_OPTIONS)
+def set_check_config(check_id, threshold=None, action=None, **params):
+    """Set one check's threshold, action, and/or extra params, leaving
+    whatever it doesn't name alone -- same merge semantics as slopwatch's.
+    Extra params are validated against the check's own declared defaults:
+    only `length` takes procedure_word_limit/description_word_limit, and
+    an unknown name on any check raises rather than silently writing a
+    field nothing reads."""
+    if check_id not in lint.ALL_CHECK_IDS:
+        raise ValueError(f"unknown check id {check_id!r} -- "
+                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
+    defaults = lint.DEFAULT_CHECK_CONFIG[check_id]
+    known_params = set(defaults) - {"threshold", "action"}
+    unknown = set(params) - known_params
     if unknown:
-        raise ValueError(f"unknown option(s): {sorted(unknown)} -- "
-                          f"known: {sorted(lint.DEFAULT_OPTIONS)}")
-    for key, value in options.items():
-        expected = type(lint.DEFAULT_OPTIONS[key])
-        if not isinstance(value, expected):
-            raise ValueError(f"option {key!r} must be a {expected.__name__}, got {value!r}")
-        choices = _OPTION_CHOICES.get(key)
-        if choices is not None:
-            bad = sorted(set(value) - choices)
-            if bad:
-                raise ValueError(f"option {key!r} has unknown value(s) {bad} -- "
-                                  f"known: {sorted(choices)}")
+        raise ValueError(f"unknown setting(s) for {check_id!r}: {sorted(unknown)}"
+                          + (f" -- known: {sorted(known_params)}" if known_params
+                             else " -- this check has only threshold and action"))
+    if threshold is not None and (not isinstance(threshold, int)
+                                   or isinstance(threshold, bool) or threshold < 1):
+        raise ValueError(f"threshold must be a whole number >= 1, got {threshold!r}")
+    if action is not None and action not in ("block", "warn"):
+        raise ValueError(f"action must be 'block' or 'warn', got {action!r}")
+    for name, value in params.items():
+        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+            raise ValueError(f"{name} must be a whole number >= 1, got {value!r}")
     project_root = paths.find_project_root(__file__)
-    merged = dict(_core_config.ruleset_options(project_root, RULESET_ID))
-    merged.update(options)
-    _core_config.save_ruleset_options(project_root, RULESET_ID, merged)
+    spec = dict(_core_config.check_config(project_root, RULESET_ID).get(check_id, {}))
+    if threshold is not None:
+        spec["threshold"] = threshold
+    if action is not None:
+        spec["action"] = action
+    spec.update(params)
+    _core_config.save_check_config(project_root, RULESET_ID, check_id, spec)
 
 
 def list_term_lists(file_path=None):
@@ -304,7 +288,7 @@ def set_enabled_checks(check_ids):
 
 def set_checks_enabled(states):
     """Turn the named checks on or off, leaving every other check alone --
-    {check_id: bool}. Merge semantics, the same shape set_options has, and
+    {check_id: bool}. Merge semantics, the same shape set_check_config has, and
     the counterpart to set_enabled_checks's replace semantics: see
     core.config.merge_disabled_checks for which callers need which, and for
     the silent-mass-disable bug that made the distinction worth a second

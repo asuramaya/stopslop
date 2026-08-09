@@ -561,8 +561,7 @@ def cmd_packs(args):
 def _parse_check_id_value(item, value_kind, valid_values=None):
     """CHECK_ID=VALUE -> (check_id, value), or None with a printed error.
     Shared by --set-threshold (an int) and --set-action (one of a closed
-    set) -- same KEY=VALUE shape stopslop.py options --set already uses,
-    just per-check instead of per-ruleset."""
+    set) -- one KEY=VALUE shape across the checks command."""
     if "=" not in item:
         print(f"Not saved: {item!r} isn't in CHECK_ID=VALUE form.", file=sys.stderr)
         return None
@@ -597,7 +596,7 @@ def cmd_checks(args):
         print(f"Enabled: {', '.join(sorted(args.enable)) or '(none)'}")
 
     has_check_config = "check_config" in ruleset.CAPABILITIES
-    if not has_check_config and (args.set_threshold or args.set_action):
+    if not has_check_config and (args.set_threshold or args.set_action or args.set_param):
         print(f"'{ruleset.RULESET_ID}' ruleset has no per-check threshold/action to set.",
               file=sys.stderr)
         return 1
@@ -623,6 +622,28 @@ def cmd_checks(args):
             print(f"Not saved: {exc}", file=sys.stderr)
             return 1
         print(f"Set {check_id} action={action}")
+    for item in args.set_param or []:
+        # CHECK_ID.PARAM=N -- a check's own extra number, e.g.
+        # length.procedure_word_limit=20. Only checks that declare the
+        # param accept it; set_check_config validates and says which.
+        if "=" not in item or "." not in item.split("=", 1)[0]:
+            print(f"Not saved: {item!r} isn't in CHECK_ID.PARAM=N form.",
+                  file=sys.stderr)
+            return 1
+        target, raw_value = item.split("=", 1)
+        check_id, param = target.split(".", 1)
+        try:
+            value = int(raw_value)
+        except ValueError:
+            print(f"Not saved: {raw_value!r} isn't a whole number for {target!r}.",
+                  file=sys.stderr)
+            return 1
+        try:
+            ruleset.set_check_config(check_id, **{param: value})
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Set {check_id} {param}={value}")
 
     check_config = ruleset.list_check_config() if has_check_config else {}
     for check_id, meta in sorted(ruleset.list_checks().items()):
@@ -631,47 +652,13 @@ def cmd_checks(args):
         if check_id in check_config:
             spec = check_config[check_id]
             tuning = f" (threshold={spec['threshold']}, action={spec['action']})"
+            params = spec.get("params", {})
+            if params:
+                tuning = tuning[:-1] + ", " + ", ".join(
+                    f"{n}={i['value']}" for n, i in sorted(params.items())) + ")"
         print(f"[{state}] {check_id}{tuning} -- {meta['catches']}")
         if meta["instead"]:
             print(f"{'':<7} instead: {meta['instead']}")
-    return 0
-
-
-def cmd_options(args):
-    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
-    if not hasattr(ruleset, "list_options"):
-        print(f"'{ruleset.RULESET_ID}' ruleset has no tunable options.", file=sys.stderr)
-        return 1
-
-    if args.set is not None:
-        current = ruleset.list_options()
-        overrides = {}
-        for item in args.set:
-            if "=" not in item:
-                print(f"Not saved: {item!r} isn't in KEY=VALUE form.", file=sys.stderr)
-                return 1
-            key, raw_value = item.split("=", 1)
-            if key not in current:
-                print(f"Not saved: unknown option {key!r} -- known: "
-                      f"{sorted(current)}", file=sys.stderr)
-                return 1
-            expected_type = type(current[key]["default"])
-            try:
-                overrides[key] = expected_type(raw_value)
-            except ValueError:
-                print(f"Not saved: {raw_value!r} isn't a valid {expected_type.__name__} "
-                      f"for {key!r}", file=sys.stderr)
-                return 1
-        try:
-            ruleset.set_options(overrides)
-        except Exception as exc:
-            print(f"Not saved: {exc}", file=sys.stderr)
-            return 1
-        print(f"Set: {', '.join(f'{k}={v}' for k, v in overrides.items())}")
-
-    for name, info in sorted(ruleset.list_options().items()):
-        marker = "" if info["value"] == info["default"] else f" (default: {info['default']})"
-        print(f"{name} = {info['value']}{marker}")
     return 0
 
 
@@ -810,14 +797,11 @@ def main():
     p_checks.add_argument("--set-action", nargs="+", metavar="CHECK_ID=block|warn",
                            help="whether a triggered check denies the write on its own "
                                 "(block) or is only shown (warn)")
+    p_checks.add_argument("--set-param", nargs="+", metavar="CHECK_ID.PARAM=N",
+                           help="a check's own extra number, e.g. "
+                                "length.procedure_word_limit=20 (ste100)")
     p_checks.set_defaults(func=cmd_checks)
 
-    p_options = sub.add_parser("options", help="list/set tunable options for a ruleset")
-    p_options.add_argument("--ruleset", help="ruleset id (default: ste100)")
-    p_options.add_argument("--set", nargs="*", metavar="KEY=VALUE",
-                            help="set one or more options; an option not mentioned keeps "
-                                 "its current value")
-    p_options.set_defaults(func=cmd_options)
 
     p_status = sub.add_parser("status", help="per-ruleset stats and gate-activity summary")
     p_status.set_defaults(func=cmd_status)

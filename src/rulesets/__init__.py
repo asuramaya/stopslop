@@ -28,14 +28,16 @@ REQUIRED_ATTRS = (
 # to provide. A ruleset with no term lists at all simply omits "terms" from
 # CAPABILITIES and implements none of these -- no stub methods required.
 #
-# "checks"/"options" were, until now, informal: every ruleset happened to
-# expose list_checks()/set_enabled_checks() (or not) and callers guessed
-# with hasattr() across stopslop.py/dashboard.py/mcp_server.py, with
-# nothing to stop a ruleset from declaring half a contract (e.g.
-# list_checks with no set_enabled_checks) and only finding out the hard
-# way, deep inside a live call. Promoted to real, registry-enforced
-# capabilities -- the actual inconsistency across ste100/slopwatch/
-# codewatch was in the CONTRACT, not just in which checks each shipped.
+# "checks" was, until now, informal: every ruleset happened to expose
+# list_checks()/set_enabled_checks() (or not) and callers guessed with
+# hasattr() across stopslop.py/dashboard.py/mcp_server.py, with nothing
+# to stop a ruleset from declaring half a contract (e.g. list_checks with
+# no set_enabled_checks) and only finding out the hard way, deep inside a
+# live call. Promoted to real, registry-enforced capabilities -- the
+# actual inconsistency across ste100/slopwatch/codewatch was in the
+# CONTRACT, not just in which checks each shipped. ("options", the old
+# ruleset-wide tunables dict, died when ste100 -- its last user --
+# migrated to per-check "check_config" like the other two.)
 #
 # "terms" replaces what used to be TWO capabilities: "glossary"
 # (register_term/unregister_term/list_terms, ste100 only) and "wordlists"
@@ -63,7 +65,6 @@ CAPABILITY_ATTRS = {
     "terms": ("list_term_lists", "add_term", "remove_term"),
     "word_lookup": ("check_word",),
     "checks": ("list_checks", "set_enabled_checks", "set_checks_enabled"),
-    "options": ("list_options", "set_options"),
     "check_config": ("list_check_config", "set_check_config"),
 }
 

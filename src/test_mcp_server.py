@@ -196,20 +196,22 @@ class SetPathPacksRefusalTests(unittest.TestCase):
         self.assertEqual(result["status"], "refused")
 
 
-class _FakeChecksAndOptions:
-    """In-memory checks/options-capable ruleset -- mirrors
-    rulesets/slopwatch's real list_checks/set_enabled_checks/list_options/
-    set_options shape without ever touching a real stopslop.config.json,
-    same isolation principle as _FakeGlossary above."""
+class _FakeChecks:
+    """In-memory checks-capable ruleset -- mirrors rulesets/slopwatch's
+    real list_checks/set_enabled_checks/list_check_config shape without
+    ever touching a real stopslop.config.json, same isolation principle
+    as _FakeGlossary above. foo_check declares one extra param, mirroring
+    ste100's length and its word limits."""
 
     ALL_CHECKS = {"foo_check", "bar_check"}
+    PARAMS = {"foo_check": {"word_limit"}}
 
     def __init__(self):
         self.RULESET_ID = "fake_checks"
         self.CAPABILITIES = frozenset()
         self._disabled = set()
-        self._options = {"threshold": 4}
         self._check_config = {c: {"threshold": 1, "action": "warn"} for c in self.ALL_CHECKS}
+        self._check_config["foo_check"]["params"] = {"word_limit": {"value": 20, "default": 20}}
 
     def list_checks(self):
         return {c: {"catches": f"{c} catches", "instead": f"{c} instead",
@@ -229,34 +231,30 @@ class _FakeChecksAndOptions:
         for check_id, on in states.items():
             self._disabled.discard(check_id) if on else self._disabled.add(check_id)
 
-    def list_options(self):
-        return {"threshold": {"value": self._options["threshold"], "default": 4}}
-
-    def set_options(self, options):
-        unknown = set(options) - {"threshold"}
-        if unknown:
-            raise ValueError(f"unknown option(s): {sorted(unknown)}")
-        self._options.update(options)
-
     def list_check_config(self):
         return {c: dict(spec) for c, spec in self._check_config.items()}
 
-    def set_check_config(self, check_id, threshold=None, action=None):
+    def set_check_config(self, check_id, threshold=None, action=None, **params):
         if check_id not in self.ALL_CHECKS:
             raise ValueError(f"unknown check id {check_id!r}")
         if action is not None and action not in ("block", "warn"):
             raise ValueError(f"action must be 'block' or 'warn', got {action!r}")
+        unknown = set(params) - self.PARAMS.get(check_id, set())
+        if unknown:
+            raise ValueError(f"unknown setting(s) for {check_id!r}: {sorted(unknown)}")
         spec = self._check_config.setdefault(check_id, {"threshold": 1, "action": "warn"})
         if threshold is not None:
             spec["threshold"] = threshold
         if action is not None:
             spec["action"] = action
+        for name, value in params.items():
+            spec["params"][name]["value"] = value
 
 
 @unittest.skipUnless(_MCP_AVAILABLE, "mcp package not installed -- see README's MCP setup section")
-class ChecksAndOptionsToolsTests(unittest.TestCase):
+class ChecksToolsTests(unittest.TestCase):
     def setUp(self):
-        self.fake = _FakeChecksAndOptions()
+        self.fake = _FakeChecks()
         self._original_resolve = mcp_server._resolve
         mcp_server._resolve = lambda ruleset_id=None: self.fake
 
@@ -288,13 +286,14 @@ class ChecksAndOptionsToolsTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "refused")
 
-    def test_set_options_then_list_reflects_it(self):
-        result = mcp_server.set_ruleset_options({"threshold": 9})
+    def test_set_check_config_param_then_list_reflects_it(self):
+        result = mcp_server.set_check_config("foo_check", params={"word_limit": 9})
         self.assertTrue(result["ok"])
-        self.assertEqual(mcp_server.list_options()["options"]["threshold"]["value"], 9)
+        config = mcp_server.list_check_config()["check_config"]
+        self.assertEqual(config["foo_check"]["params"]["word_limit"]["value"], 9)
 
-    def test_set_options_refuses_unknown_key(self):
-        result = mcp_server.set_ruleset_options({"__not_real__": 1})
+    def test_set_check_config_refuses_unknown_param(self):
+        result = mcp_server.set_check_config("bar_check", params={"word_limit": 9})
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "refused")
 
@@ -330,8 +329,6 @@ class ChecksAndOptionsToolsTests(unittest.TestCase):
             RULESET_ID="no_checks", CAPABILITIES=frozenset())
         self.assertEqual(mcp_server.list_checks()["status"], "unsupported")
         self.assertEqual(mcp_server.set_checks({})["status"], "unsupported")
-        self.assertEqual(mcp_server.list_options()["status"], "unsupported")
-        self.assertEqual(mcp_server.set_ruleset_options({})["status"], "unsupported")
         self.assertEqual(mcp_server.list_check_config()["status"], "unsupported")
         self.assertEqual(mcp_server.set_check_config("x", threshold=1)["status"], "unsupported")
 

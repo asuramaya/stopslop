@@ -99,8 +99,9 @@ class ContractDocTests(unittest.TestCase):
         """The other direction, and the one that actually bit: the doc kept
         describing `glossary` and `wordlists` for a while after `terms`
         replaced both."""
-        for dead in ('"glossary"', '"wordlists"', "PRINCIPLE_TEXT",
-                      "add_wordlist_term", "list_wordlists"):
+        for dead in ('"glossary"', '"wordlists"', '"options"', "PRINCIPLE_TEXT",
+                      "add_wordlist_term", "list_wordlists", "DENY_POLICY",
+                      "CHECK_OPTIONS", "list_options", "set_options"):
             with self.subTest(dead=dead):
                 # A HISTORICAL mention is fine and useful; a mention in the
                 # contract sections is not. The capabilities section is where

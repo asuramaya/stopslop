@@ -385,50 +385,66 @@ class CheckToggleTests(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
 
 
-class VocabExclusionOptionTests(unittest.TestCase):
-    """excluded_vocab_types used to be a fixed module constant
-    (EXCLUDED_VOCAB_TYPES) -- a project had no way to say "actually, start
-    blocking on genuinely unknown words" without editing lint.py itself.
-    Same isolation technique as CheckToggleTests: a throwaway project root,
-    never the real repo's stopslop.config.json."""
+class CheckConfigTests(unittest.TestCase):
+    """ste100 carries the same per-check {threshold, action} surface as
+    slopwatch and codewatch now. The defaults must reproduce the old
+    hardcoded policy exactly: every flag blocked, vocabulary reported and
+    let through (the old excluded_vocab_types option, collapsed into one
+    action field). Same isolation technique as CheckToggleTests: a
+    throwaway project root, never the real repo's stopslop.config.json."""
 
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
         self._orig_find_root = ste100.paths.find_project_root
+        self._orig_lint_root = lint._paths.find_project_root
         ste100.paths.find_project_root = lambda _file: self._tmp.name
+        lint._paths.find_project_root = lambda _file: self._tmp.name
 
     def tearDown(self):
         ste100.paths.find_project_root = self._orig_find_root
+        lint._paths.find_project_root = self._orig_lint_root
         self._tmp.cleanup()
 
-    def test_narrowing_the_set_makes_a_previously_staged_type_block(self):
+    def test_vocabulary_warns_by_default(self):
         r = lint.lint_and_gate("kubernetes", context="description")
-        self.assertEqual(ste100.blocking_semantic_flags(r["semantic_flags"]), [],
-                          "unknown_vocabulary is excluded by default")
-        ste100.set_options({"excluded_vocab_types": ["unapproved_no_replacement",
-                                                       "unapproved_synonym"]})
+        self.assertTrue(any(f["kind"] == "vocabulary" for f in r["semantic_flags"]))
+        self.assertEqual(ste100.blocking_semantic_flags(r["semantic_flags"]), [])
+
+    def test_every_other_check_blocks_by_default(self):
+        r = lint.lint_and_gate("The valve should be opened.", context="procedure")
+        blocking = ste100.blocking_semantic_flags(r["semantic_flags"])
+        kinds = {f["kind"] for f in blocking}
+        self.assertIn("modal", kinds)
+
+    def test_setting_vocabulary_to_block_makes_it_deny(self):
+        ste100.set_check_config("vocabulary", action="block")
         r = lint.lint_and_gate("kubernetes", context="description")
         blocking = ste100.blocking_semantic_flags(r["semantic_flags"])
         self.assertTrue(any(f["kind"] == "vocabulary" for f in blocking))
 
-    def test_list_options_exposes_the_closed_choice_set(self):
-        info = ste100.list_options()["excluded_vocab_types"]
-        self.assertEqual(set(info["choices"]),
-                          {"unknown_vocabulary", "unapproved_no_replacement",
-                           "unapproved_synonym"})
+    def test_length_word_limits_live_on_the_check(self):
+        spec = ste100.list_check_config()["length"]
+        self.assertEqual(spec["params"]["procedure_word_limit"]["value"], 20)
+        self.assertEqual(spec["params"]["description_word_limit"]["value"], 25)
 
-    def test_an_unknown_choice_raises_and_does_not_write(self):
+    def test_setting_a_word_limit_changes_check_length(self):
+        sentence = "one two three four five six seven eight"     # 8 words
+        self.assertIsNone(lint.check_length(sentence, context="procedure"))
+        ste100.set_check_config("length", procedure_word_limit=5)
+        hit = lint.check_length(sentence, context="procedure")
+        self.assertEqual(hit["limit"], 5)
+
+    def test_an_unknown_param_raises_and_does_not_write(self):
         with self.assertRaises(ValueError):
-            ste100.set_options({"excluded_vocab_types": ["not_a_real_vocab_type"]})
+            ste100.set_check_config("length", not_a_real_param=5)
+        with self.assertRaises(ValueError):
+            ste100.set_check_config("modal", procedure_word_limit=5)
         self.assertFalse(os.path.exists(os.path.join(self._tmp.name, "stopslop.config.json")))
 
-    def test_deny_policy_text_reflects_the_live_set(self):
-        from core import flags as core_flags
-        ste100.set_options({"excluded_vocab_types": ["unapproved_synonym"]})
-        text = ste100.DENY_POLICY["text"].format(**core_flags.display_options(ste100))
-        self.assertIn("unapproved_synonym", text)
-        self.assertNotIn("unknown_vocabulary", text)
+    def test_every_check_has_a_config_entry(self):
+        config = ste100.list_check_config()
+        self.assertEqual(set(config), set(lint.ALL_CHECK_IDS))
 
 
 class DictionaryAsTermListsTests(unittest.TestCase):

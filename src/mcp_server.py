@@ -323,57 +323,32 @@ def list_check_config(ruleset: str = "") -> dict:
 
 @mcp.tool()
 def set_check_config(check_id: str, threshold: int = 0, action: str = "",
-                      ruleset: str = "") -> dict:
-    """Set one check's threshold and/or action, leaving whatever you don't
-    pass alone. threshold: how many times this check has to fire before
-    it counts as triggered. action: "block" (denies the write once
-    triggered) or "warn" (shown, never denies by itself). Leave a
-    parameter at its default (threshold=0, action="") to not change it --
-    0 is never a valid threshold, so it doubles as "not set" here.
+                      params: dict = None, ruleset: str = "") -> dict:
+    """Set one check's threshold, action, and/or extra params, leaving
+    whatever you don't pass alone. threshold: how many times this check
+    has to fire before it counts as triggered. action: "block" (denies
+    the write once triggered) or "warn" (shown, never denies by itself).
+    params: a check's own extra numbers, where it declares any --
+    ste100's length takes {"procedure_word_limit": N,
+    "description_word_limit": N}; an unknown name refuses. Leave a
+    parameter at its default (threshold=0, action="", params=None) to not
+    change it -- 0 is never a valid threshold, so it doubles as "not set"
+    here.
     """
     active = _resolve(ruleset or None)
     if not hasattr(active, "set_check_config"):
         return _unsupported(active, "check_config", "set per-check threshold/action for")
     try:
-        active.set_check_config(check_id, threshold=threshold or None, action=action or None)
+        active.set_check_config(check_id, threshold=threshold or None,
+                                 action=action or None, **(params or {}))
     except Exception as exc:
         return {"ok": False, "status": "refused", "message": str(exc)}
     return {"ok": True, "status": "saved",
             "message": f"{check_id}: " + ", ".join(
                 p for p in (f"threshold={threshold}" if threshold else "",
-                            f"action={action}" if action else "") if p),
+                            f"action={action}" if action else "",
+                            *(f"{k}={v}" for k, v in (params or {}).items())) if p),
             "check_config": active.list_check_config()}
-
-
-@mcp.tool()
-def list_options(ruleset: str = "") -> dict:
-    """Every tunable option a ruleset exposes (e.g. slopwatch's block-flag-
-    count threshold), its current effective value, and its built-in
-    default, if that ruleset has any tunable options at all.
-    """
-    active = _resolve(ruleset or None)
-    if not hasattr(active, "list_options"):
-        return _unsupported(active, "options", "list tunable options for")
-    return {"ruleset": active.RULESET_ID, "options": active.list_options()}
-
-
-@mcp.tool()
-def set_ruleset_options(options: dict, ruleset: str = "") -> dict:
-    """Set one or more tunable options for a ruleset. An option this call
-    doesn't mention keeps its current value -- this merges, it does not
-    replace the whole set. Validated against the known option names and
-    each one's real type first: an unknown option or a wrong type refuses
-    instead of silently doing nothing.
-    """
-    active = _resolve(ruleset or None)
-    if not hasattr(active, "set_options"):
-        return _unsupported(active, "options", "set tunable options for")
-    try:
-        active.set_options(options)
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "set",
-            "message": f"set: {', '.join(f'{k}={v}' for k, v in options.items()) or '(none)'}"}
 
 
 @mcp.tool()
@@ -427,17 +402,18 @@ def explain(file_path: str) -> dict:
     """Everything that will happen to one file, in one call.
 
     The rest of this surface is organised by CONFIG KEY -- list_checks,
-    list_options, list_term_lists, list_path_packs -- which is the shape of
-    the storage, not the shape of the question. An agent about to write a
-    file wants one answer: what gates this, what would block me, and what
-    can I do about it. Getting that from the other tools meant knowing to
-    call list_rulesets, guessing which ruleset applies, then four more
-    calls; and only one of those tools even took a file path.
+    list_check_config, list_term_lists, list_path_packs -- which is the
+    shape of the storage, not the shape of the question. An agent about to
+    write a file wants one answer: what gates this, what would block me,
+    and what can I do about it. Getting that from the other tools meant
+    knowing to call list_rulesets, guessing which ruleset applies, then
+    four more calls; and only one of those tools even took a file path.
 
-    Returns the matched routing rule, the ruleset, its deny policy in
-    words, the checks that actually run on this path (with the ones that
-    deny on their own marked), the vocabulary reaching it, and the tools
-    that resolve each kind of flag.
+    Returns the matched routing rule, the ruleset, each check that
+    actually runs on this path with its own {threshold, action} (a
+    "block" check denies the write on its own once its threshold is
+    reached; a "warn" check only shows), the vocabulary reaching it, and
+    the tools that resolve each kind of flag.
     """
     full = file_path if os.path.isabs(file_path) else os.path.join(REPO_ROOT, file_path)
     rule = core_config.matching_rule(full, REPO_ROOT)
@@ -453,37 +429,30 @@ def explain(file_path: str) -> dict:
                             f"scope deliberately. Nothing is checked here."}
 
     module = rulesets.get_ruleset(rule["ruleset"])
-    options = core_flags.display_options(module)
-    policy = getattr(module, "DENY_POLICY", {})
-    try:
-        policy_text = policy.get("text", "").format(**options)
-    except KeyError:
-        policy_text = policy.get("text", "")
-
     disabled = set(core_config.disabled_checks_for_path(
         REPO_ROOT, module.RULESET_ID, full))
-    blocks_alone_at = policy.get("blocks_alone_at", {})
+    check_config = (module.list_check_config()
+                    if "check_config" in module.CAPABILITIES else {})
     checks = {}
     if "checks" in module.CAPABILITIES:
         for check_id, meta in sorted(module.list_checks().items()):
             if check_id in disabled:
                 continue
+            spec = check_config.get(check_id, {})
             checks[check_id] = {"catches": meta["catches"],
                                  "instead": meta["instead"],
-                                 # Occurrences of THIS check alone that deny a
-                                 # write, or null if it only ever contributes
-                                 # to the ruleset's shared flag-count pool.
-                                 # A bare "denies_alone: true/false" would lie
-                                 # for any check declared at N > 1.
-                                 "denies_alone_at": blocks_alone_at.get(check_id),
+                                 "threshold": spec.get("threshold"),
+                                 "action": spec.get("action"),
+                                 "params": {n: i["value"] for n, i in
+                                            spec.get("params", {}).items()},
                                  "remedies": core_flags.remedies_for(module, check_id)}
     return {
         "ok": True, "status": "gated", "file": file_path,
         "rule": rule["glob"], "ruleset": module.RULESET_ID,
-        "denies_when": policy_text,
+        "denies_when": "a check whose action is 'block' reaches its own "
+                        "threshold -- see each check's threshold/action below",
         "checks_that_run": checks,
         "checks_disabled_here": sorted(disabled),
-        "options": options,
         "vocabulary": (module.list_term_lists(file_path=full)
                        if "terms" in module.CAPABILITIES else {}),
     }

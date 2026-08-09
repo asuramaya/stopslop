@@ -5,7 +5,7 @@ ruleset's own package: a pack is "approved-vocabulary content a project
 can opt into," not an ste100-specific concept -- ste100's Tier-2 glossary
 is simply the first (and so far only) real consumer, the same way core/
 config.py's other generic project-config helpers (disabled_checks,
-ruleset_options, custom wordlist terms) aren't owned by whichever ruleset
+check_config, custom wordlist terms) aren't owned by whichever ruleset
 happens to use them. Moved here from rulesets/ste100/glossary_packs/
 during this session's modularity-consistency pass -- git history is
 preserved (a rename, not a delete+recreate).

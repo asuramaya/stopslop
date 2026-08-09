@@ -22,7 +22,7 @@ from core.blocks import (
     tokenize_sentences, words, split_into_blocks,
     HEADER_RE as _HEADER_RE, LIST_ITEM_RE as _LIST_ITEM_RE, FENCE_RE as _FENCE_RE,
 )
-from core.flags import dedup_flags, default_label as _label
+from core.flags import dedup_flags, flag_weight, default_label as _label
 from core import config as _core_config, paths as _paths, terms as _terms
 from core import glossary_packs
 
@@ -380,53 +380,10 @@ CONTRACTION_EXPANSIONS = {
 }
 
 
-# The two numbers ASD-STE100 rule 5.1 fixes, exposed as options like every
-# other ruleset's thresholds. They were hardcoded inside check_length, which
-# left ste100 the only ruleset declaring no "options" capability at all --
-# an asymmetry with no reason behind it, and one the folded Configure page
-# made visible: em_dash_cluster showed a tunable number and `length` showed
-# none, side by side, as though one check were more configurable in kind.
-#
-# The defaults ARE the standard. A project lowering them is tightening its
-# own house style; raising them is departing from ASD-STE100 knowingly,
-# which is a choice the tool should let a project make and record in its
-# config, not one it should silently prevent.
-DEFAULT_OPTIONS = {
-    "procedure_word_limit": 20,
-    "description_word_limit": 25,
-    # Which vocabulary "type"s (see check_vocabulary's "type" field --
-    # unknown_vocabulary/unapproved_no_replacement/unapproved_synonym are
-    # the only three that ever occur) are reported but never block a
-    # write. See blocking_semantic_flags below for why this exists at all;
-    # this used to be a fixed module constant (EXCLUDED_VOCAB_TYPES) --
-    # a project narrowing or widening the staged set had no way to say so.
-    "excluded_vocab_types": ["unknown_vocabulary", "unapproved_no_replacement",
-                              "unapproved_synonym"],
-}
-
-
-def _options():
-    """DEFAULT_OPTIONS with any valid override from stopslop.config.json's
-    "options" key layered on top. Same never-break-the-gate posture as
-    slopwatch's: a bad type or an unresolvable project root falls back to
-    the default rather than raising inside a live gate call."""
-    opts = dict(DEFAULT_OPTIONS)
-    try:
-        project_root = _paths.find_project_root(__file__)
-        overrides = _core_config.ruleset_options(project_root, "ste100")
-    except Exception as unresolvable:  # no project on disk: use the standard
-        del unresolvable
-        return opts
-    for key, value in overrides.items():
-        if key in opts and isinstance(value, type(opts[key])):
-            opts[key] = value
-    return opts
-
-
 def check_length(sentence, context="procedure"):
-    opts = _options()
-    limit = (opts["description_word_limit"] if context == "description"
-             else opts["procedure_word_limit"])
+    spec = _check_config()["length"]
+    limit = (spec["description_word_limit"] if context == "description"
+             else spec["procedure_word_limit"])
     n = len(sentence.split())
     if n > limit:
         return {"rule": "5.1", "word_count": n, "limit": limit}
@@ -875,6 +832,58 @@ ALL_CHECK_IDS = frozenset({
     "latin_abbrev", "inclusive_language", "synonym_rotation",
 })
 
+# Per-check {threshold, action}, the same shape slopwatch and codewatch
+# carry -- ste100 was the last ruleset on the older ruleset-wide "options"
+# mechanism, and every consumer (dashboard, CLI, MCP) had to branch around
+# it. The defaults reproduce the old behaviour exactly: ste100 blocked on
+# every flag, except vocabulary, whose three "type"s were all excluded by
+# default (the old excluded_vocab_types option) -- which was only ever a
+# long way of saying vocabulary warns instead of blocking. The per-TYPE
+# granularity is gone with it; nobody narrowed that set, and a project
+# that wants vocabulary to block says so with one action field now.
+#
+# `length` carries two extra per-check numbers, the word limits ASD-STE100
+# rule 5.1 fixes. The defaults ARE the standard: a project lowering them
+# tightens its own house style; raising them departs from ASD-STE100
+# knowingly, a choice the tool lets a project make and record in its
+# config rather than silently prevent.
+DEFAULT_CHECK_CONFIG = {check_id: {"threshold": 1, "action": "block"}
+                        for check_id in ALL_CHECK_IDS}
+DEFAULT_CHECK_CONFIG["vocabulary"] = {"threshold": 1, "action": "warn"}
+DEFAULT_CHECK_CONFIG["length"] = {"threshold": 1, "action": "block",
+                                   "procedure_word_limit": 20,
+                                   "description_word_limit": 25}
+
+
+def _check_config():
+    """DEFAULT_CHECK_CONFIG with any valid override from
+    stopslop.config.json's "check_config" key layered on top, per check.
+    An override naming an unknown check, an invalid action, or a
+    non-integer number is ignored for that field -- same
+    never-break-the-gate posture as _enabled_check_ids(). Extra numeric
+    fields beyond {threshold, action} (length's word limits) take the
+    same validation as threshold: a whole number, at least 1."""
+    merged = {check_id: dict(spec) for check_id, spec in DEFAULT_CHECK_CONFIG.items()}
+    try:
+        project_root = _paths.find_project_root(__file__)
+        overrides = _core_config.check_config(project_root, "ste100")
+    except Exception:
+        return merged
+    for check_id, override in overrides.items():
+        if check_id not in merged or not isinstance(override, dict):
+            continue
+        spec = dict(merged[check_id])
+        for field in spec:
+            if field == "action":
+                if override.get("action") in ("block", "warn"):
+                    spec["action"] = override["action"]
+                continue
+            value = override.get(field)
+            if isinstance(value, int) and not isinstance(value, bool) and value >= 1:
+                spec[field] = value
+        merged[check_id] = spec
+    return merged
+
 
 def _enabled_check_ids(file_path=None):
     """Same never-cache-it, read-fresh-every-call shape as slopwatch's/
@@ -1043,30 +1052,39 @@ def lint_and_gate(text, context="procedure", file_path=None):
     }
 
 
-# Vocabulary is deliberately held out of the deny decision for now, staged
-# rather than flipped on wholesale: unknown_vocabulary and
-# unapproved_no_replacement (a real dictionary word with no given
-# substitute, e.g. "product") would deny on ordinary software vocabulary
-# the aviation-scoped standard was never going to cover.
-# unapproved_synonym reaches semantic_flags at all now only because ALL
-# vocabulary auto-fix is disabled (see UNAPPROVED_NO_AUTOFIX above) -- it's
-# excluded here too, for the same staging reason, not because it's unsafe
-# to report. Re-enabling any of these as a denial reason needs a real
+# Vocabulary defaults to "warn" in DEFAULT_CHECK_CONFIG -- deliberately
+# held out of the deny decision, staged rather than flipped on wholesale:
+# unknown_vocabulary and unapproved_no_replacement (a real dictionary word
+# with no given substitute, e.g. "product") would deny on ordinary
+# software vocabulary the aviation-scoped standard was never going to
+# cover. Flipping vocabulary to "block" as a denial reason needs a real
 # PROJECT_TERMS starter glossary (exists now, see glossary.py's register())
 # plus a first-occurrence registration flow (glossary.py, but nothing calls
 # it automatically yet) to mature first.
-#
-# Which types are actually staged out is DEFAULT_OPTIONS["excluded_vocab_types"],
-# not a fixed set -- a project can narrow it (start blocking on genuinely
-# unknown words) or widen it, the same as any other tunable option.
 #
 # THE SINGLE SOURCE OF TRUTH for "does this flag actually block a write" --
 # every caller (the hook, the CLI, the MCP server) goes through
 # blocking_semantic_flags() rather than keeping its own copy of this filter.
 def blocking_semantic_flags(semantic_flags):
-    excluded = _options()["excluded_vocab_types"]
-    return [f for f in semantic_flags
-            if not (f["kind"] == "vocabulary" and f["detail"]["type"] in excluded)]
+    """Group the flags by check, weigh each check's own occurrences
+    against its own threshold, and return the flags of every check that
+    is both triggered and set to block -- the same per-check contract
+    slopwatch and codewatch carry (see either's own docstring). With
+    every ste100 check defaulting to {threshold: 1, action: "block"}
+    except vocabulary (warn), this reproduces the old behaviour exactly:
+    every flag blocked, vocabulary reported and let through."""
+    config = _check_config()
+    by_check = {}
+    for f in semantic_flags:
+        by_check.setdefault(f["kind"], []).append(f)
+    blocking = []
+    for check_id, flags in by_check.items():
+        spec = config.get(check_id)
+        if spec is None:
+            continue
+        if flag_weight(flags) >= spec["threshold"] and spec["action"] == "block":
+            blocking.extend(flags)
+    return blocking
 
 
 def fix_sentence(sentence, project_terms=None, suppressed=None):

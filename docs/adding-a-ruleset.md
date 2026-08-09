@@ -60,11 +60,11 @@ ASD-STE100. `slopwatch` proves it: `stock_adverb` is a real mechanical
 check with no vocabulary tiers or dictionary behind it at all.
 
 `blocking_semantic_flags(semantic_flags)` decides which of those flags
-actually deny a write. This is YOUR ruleset's own policy, not a shared
-mechanism. `ste100` excludes a fixed list of vocabulary flag types.
-`slopwatch` uses a count threshold instead. Pick whatever policy fits the
-problem your ruleset targets. The gate itself never inspects a flag's
-content to decide this. It only calls your function.
+actually deny a write. This is YOUR ruleset's own function, not a shared
+mechanism. All three shipped rulesets implement it the same way: each
+check's own `{threshold, action}` decides, per check -- see the
+`"check_config"` capability below. The gate itself never inspects a
+flag's content to decide this. It only calls your function.
 
 ## Optional names
 
@@ -75,31 +75,14 @@ Add these names only for a ruleset that needs them:
 - `CHECKS = {"kind": (catches, instead), ...}` -- two facts per check: what
   it catches, and what to do instead. A `kind` with no entry still shows up
   everywhere, with generic text.
-- `DENY_POLICY = {"text": ..., "blocks_alone_at": {...}}` -- what actually
-  denies a write, in your own words. `blocks_alone_at` is legacy. Declare
-  the key as `{}` on every ruleset. ste100 always does. A ruleset with the
-  newer `"check_config"` capability declares it too. See that capability's
-  own entry below for the shape that replaced a hardcoded, ruleset-wide
-  `blocks_alone_at` dict. The new shape is a real, project-editable
-  per-check setting. slopwatch and codewatch both moved to it. A fourth
-  ruleset can go straight to `"check_config"`.
-
-  format() fills the `text` with your live option values, where it names
-  any. A `"check_config"` ruleset's text is usually plain prose instead.
-  There is no longer one shared number to fill in.
-
-  Tests check this against what `blocking_semantic_flags` actually does.
-  A policy sentence that nothing verifies still carries the authority of
-  one that does. That makes it worse than no sentence at all. See
-  `src/test_check_text.py`.
-- `CHECK_OPTIONS = {"check_id": ("option_name", ...)}` -- for a ruleset
-  with the older `"options"` capability (ste100): which tunable option
-  belongs to which check. Declare it. Never let a caller infer the link
-  from a shared name prefix. A `"check_config"` ruleset needs none of
-  this. Every check gets the same `{threshold, action}` pair. There is no
-  per-check option-ownership map to declare.
 - `stats()` -- a dict of short strings. `stopslop.py status` and the
   `get_status` MCP tool show these under your ruleset's own name.
+
+There is no separate deny-policy declaration. Each check's own `action`
+field is the whole policy -- see `"check_config"` below. Two older
+declarations are gone: a prose policy sentence with format() slots, and
+a check-to-option ownership map for a ruleset-wide options dict. ste100
+was the last ruleset on both.
 
 Write the two `CHECKS` fields as bare facts. Do not join them into one
 sentence. Do not write either one in the voice of a single screen. Each
@@ -180,19 +163,15 @@ dashboard did exactly that. It saved a search-filtered table, and it turned
 off 18 of slopwatch's 20 checks, with a success message. Delegate to
 `core.config.save_disabled_checks` and `core.config.merge_disabled_checks`.
 
-**`"options"`** -- your ruleset has tunable numeric thresholds that are not
-per-check (or belong to a `CHECK_OPTIONS`-declared check, ste100's shape).
-Define `list_options()` and `set_options(options)`. `set_options` merges.
-
-**`"check_config"`** -- every check gets its own `{threshold, action}`. This
-replaces one shared, ruleset-wide density number. slopwatch and codewatch
-both use it. See either's `lint.py` for `DEFAULT_CHECK_CONFIG` and
-`_check_config()`. See `core.config.check_config` and `save_check_config`
-for the storage. `threshold` is the occurrence count a check needs before
-it counts as triggered. `core.flags.flag_weight` weighs those occurrences.
-It does not use the deduped count. `action` is `"block"` or `"warn"`. A
-`"block"` check denies the write on its own, once triggered. A `"warn"`
-check only shows. It never denies a write by itself. Define:
+**`"check_config"`** -- every check gets its own `{threshold, action}`.
+All three shipped rulesets use it. See any `lint.py` for
+`DEFAULT_CHECK_CONFIG` and `_check_config()`. See
+`core.config.check_config` and `save_check_config` for the storage.
+`threshold` is the occurrence count a check needs before it counts as
+triggered. `core.flags.flag_weight` weighs those occurrences. It does not
+use the deduped count. `action` is `"block"` or `"warn"`. A `"block"`
+check denies the write on its own, once triggered. A `"warn"` check only
+shows. It never denies a write by itself. Define:
 
 ```python
 def list_check_config(): ...                      # {id: {threshold, action, default_threshold, default_action}}
@@ -200,13 +179,21 @@ def set_check_config(check_id, threshold=None, action=None): ...   # merge: only
 ```
 
 `blocking_semantic_flags` groups the raw flags by check id. It compares
-each group's weight against that check's own threshold. A group returns
-only if the check triggered, and its action is `"block"`. There is no
-ruleset-wide aggregate left to sum across different checks. A document can
+each group's weight against that check's own threshold. Only a triggered
+check whose action is `"block"` returns its group. There is no
+ruleset-wide aggregate to sum across different checks. A document can
 carry any number of triggered `"warn"` checks, and it still passes. Give
 every check in `ALL_CHECK_IDS` an entry in `DEFAULT_CHECK_CONFIG`.
 `src/test_check_text.py`'s `DenyPolicyMatchesBehaviourTests` fails the
 build on a missing one.
+
+A check with extra numbers of its own declares them as extra fields on
+its `DEFAULT_CHECK_CONFIG` entry. ste100's `length` carries its two
+word limits this way. `list_check_config` reports them under a
+`"params"` dict on that check. `set_check_config` takes them as keyword
+arguments and refuses an unknown name. A parameter belongs to its check.
+No ruleset-wide options dict exists for it to land in, and no shared
+table column carries it.
 
 ## How to register it
 

@@ -301,36 +301,6 @@ def merge_disabled_checks(project_root, ruleset_id, states, config_file=None):
     return ordered
 
 
-def ruleset_options(project_root, ruleset_id, config_file=None):
-    """Per-ruleset tunable option overrides (e.g. slopwatch's block-flag-
-    count threshold), per stopslop.config.json's "options" key:
-    {"<ruleset_id>": {"<option_name>": <value>}}. Empty with no config
-    file, or no entry for this ruleset -- a ruleset's own hardcoded
-    defaults keep governing an unconfigured clone, the same invariant
-    every other knob in this file gives."""
-    path = config_file or config_path(project_root)
-    if not os.path.exists(path):
-        return {}
-    with open(path) as f:
-        data = json.load(f)
-    return data.get("options", {}).get(ruleset_id, {})
-
-
-def save_ruleset_options(project_root, ruleset_id, options, config_file=None):
-    """Write tunable option overrides for `ruleset_id`, preserving every
-    other top-level key already in the file -- same clobber-avoidance
-    shape as the other save_* helpers here."""
-    path = config_file or config_path(project_root)
-    data = {}
-    if os.path.exists(path):
-        with open(path) as f:
-            data = json.load(f)
-    data.setdefault("options", {})[ruleset_id] = options
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
-
-
 def check_config(project_root, ruleset_id, config_file=None):
     """Per-check {"threshold": N, "action": "block"|"warn"} overrides for
     `ruleset_id`, per stopslop.config.json's "check_config" key:
@@ -357,7 +327,7 @@ def save_check_config(project_root, ruleset_id, check_id, spec, config_file=None
     whatever the ruleset already has for its OTHER checks -- never a
     replace-the-whole-ruleset write, since a caller edits one row (one
     check) at a time and every other row's override must survive, same
-    clobber-avoidance shape as save_disabled_checks/save_ruleset_options."""
+    clobber-avoidance shape as save_disabled_checks."""
     path = config_file or config_path(project_root)
     data = {}
     if os.path.exists(path):

@@ -44,9 +44,9 @@ def _fake_ruleset(ruleset_id, capabilities=frozenset()):
         mod.list_checks = lambda: {}
         mod.set_enabled_checks = lambda check_ids: None
         mod.set_checks_enabled = lambda states: None
-    if "options" in capabilities:
-        mod.list_options = lambda: {}
-        mod.set_options = lambda options: None
+    if "check_config" in capabilities:
+        mod.list_check_config = lambda: {}
+        mod.set_check_config = lambda check_id, threshold=None, action=None: None
     return mod
 
 
@@ -534,50 +534,11 @@ class DisabledChecksConfigTests(unittest.TestCase):
             self.assertEqual(written["glossary_packs"], {"ste100": ["nist-security"]})
 
 
-class RulesetOptionsConfigTests(unittest.TestCase):
-    def test_no_config_file_returns_empty_dict(self):
-        self.assertEqual(
-            config.ruleset_options(PROJECT_ROOT, "slopwatch",
-                                    config_file="/nonexistent/stopslop.config.json"),
-            {})
-
-    def test_round_trips_through_save_and_load(self):
-        import os
-        import tempfile
-        with tempfile.TemporaryDirectory() as tmp:
-            path = os.path.join(tmp, "stopslop.config.json")
-            config.save_ruleset_options(tmp, "slopwatch", {"em_dash_threshold": 5}, config_file=path)
-            self.assertEqual(
-                config.ruleset_options(tmp, "slopwatch", config_file=path),
-                {"em_dash_threshold": 5})
-
-    def test_ruleset_not_mentioned_returns_empty_dict(self):
-        import os
-        import tempfile
-        with tempfile.TemporaryDirectory() as tmp:
-            path = os.path.join(tmp, "stopslop.config.json")
-            config.save_ruleset_options(tmp, "slopwatch", {"em_dash_threshold": 5}, config_file=path)
-            self.assertEqual(config.ruleset_options(tmp, "codewatch", config_file=path), {})
-
-    def test_preserves_rulesets_key_already_in_the_file(self):
-        import json
-        import os
-        import tempfile
-        with tempfile.TemporaryDirectory() as tmp:
-            path = os.path.join(tmp, "stopslop.config.json")
-            with open(path, "w") as f:
-                json.dump({"rulesets": [{"glob": "*.md", "ruleset": "ste100"}]}, f)
-            config.save_ruleset_options(tmp, "slopwatch", {"em_dash_threshold": 5}, config_file=path)
-            with open(path) as f:
-                written = json.load(f)
-            self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
-
 
 class CheckConfigConfigTests(unittest.TestCase):
-    """Per-check {threshold, action} overrides -- one level deeper than
-    ruleset_options above (ruleset -> check_id -> spec, not ruleset ->
-    option_name -> value), since every check owns its own pair now
-    instead of one shared ruleset-wide number."""
+    """Per-check {threshold, action} overrides: ruleset -> check_id ->
+    spec, since every check owns its own pair instead of one shared
+    ruleset-wide number."""
 
     def test_no_config_file_returns_empty_dict(self):
         self.assertEqual(

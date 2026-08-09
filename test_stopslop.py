@@ -393,7 +393,8 @@ class CmdTermsTests(unittest.TestCase):
 
 
 def _checks_args(**overrides):
-    defaults = dict(ruleset="slopwatch", enable=None, set_threshold=None, set_action=None)
+    defaults = dict(ruleset="slopwatch", enable=None, set_threshold=None,
+                     set_action=None, set_param=None)
     defaults.update(overrides)
     return SimpleNamespace(**defaults)
 
@@ -473,12 +474,33 @@ class CmdChecksTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("unknown check id", err.getvalue())
 
-    def test_set_threshold_on_a_ruleset_without_check_config_is_rejected(self):
-        with redirect_stderr(io.StringIO()) as err:
+    def test_ste100_takes_per_check_settings_like_every_other_ruleset(self):
+        """ste100 was the last ruleset without check_config -- the one
+        this command used to reject with "no per-check threshold/action".
+        That special case is gone; a fourth ruleset shipping without the
+        capability still gets the rejection (cmd_checks gates on
+        CAPABILITIES), but nothing shipped exercises it any more."""
+        with redirect_stdout(io.StringIO()) as out:
             code = stopslop.cmd_checks(_checks_args(
                 ruleset="ste100", set_threshold=["length=3"]))
+        self.assertEqual(code, 0)
+        self.assertIn("Set length threshold=3", out.getvalue())
+
+    def test_set_param_reaches_a_checks_own_extra_number(self):
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(
+                ruleset="ste100", set_param=["length.procedure_word_limit=18"]))
+        self.assertEqual(code, 0)
+        text = out.getvalue()
+        self.assertIn("Set length procedure_word_limit=18", text)
+        self.assertIn("procedure_word_limit=18", text.split("\n", 1)[1])
+
+    def test_set_param_on_a_check_without_that_param_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(
+                ruleset="ste100", set_param=["modal.procedure_word_limit=18"]))
         self.assertEqual(code, 1)
-        self.assertIn("no per-check threshold/action", err.getvalue())
+        self.assertIn("unknown setting", err.getvalue())
 
 
 class CmdPacksTests(unittest.TestCase):
