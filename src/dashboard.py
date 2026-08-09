@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """Local live dashboard for stopslop, run with `stopslop.py dashboard`.
 
-Two destinations, not five -- Watch and Configure, chosen because that's
-the actual split in how a human uses this, not how stopslop's own files
-happen to be laid out on disk:
+Four destinations, one per subject -- not one per config key, and not
+one Configure funnel threaded through a path selector (the previous
+shape, which welded checks, words and routing into a single flow scoped
+to one probed path):
 
 - Watch is passive: what did the gate just do, and why. Denials pulled
   out into their own callout, since a deny is the one event a human
   actually wants explained -- everything else is routine.
-- Configure is deliberate: pick a path, and every control over what the
-  gate does to it is on one screen -- see configure.py's own docstring
-  for the layout. There is one path box on the page and no ruleset
-  dropdown anywhere, because a path already implies its ruleset and two
-  controls for one idea can disagree.
+- Checks: pick a ruleset, tune each of its checks in place.
+- Vocabulary: search every word in every list; curate any one list.
+- Routing: which files go to which ruleset, and each rule's packs.
+See configure.py's own docstring for the three config pages' layouts.
 
-A status footer sits below both pages, outside the navigation, so the
+A status footer sits below every page, outside the navigation, so the
 same ambient "is everything okay" line is there regardless of which page
 is open.
 
@@ -104,7 +104,7 @@ def _first_run_notice():
         "**The gate is not installed yet.** Everything here reads and edits "
         "config, but no write is being checked. Run `python3 stopslop.py "
         "init` in this repo, then restart Claude Code to pick up the hook. "
-        "Until then, use `Try it` on Configure to see what the gate would do.")
+        "Until then, use `Try it` on Checks to see what the gate would do.")
 
 
 def _status_footer():
@@ -132,12 +132,8 @@ def _status_footer():
 # --- Watch --------------------------------------------------------------
 
 def watch_page():
-    """Configure answers "what happens to this file?". Watch answers the
-    same question in the past tense, so it filters the same way.
-
-    It carried only a ruleset dropdown -- the exact control deleted from
-    Configure -- and could not answer "what happened to MY file", which is
-    the question anyone opens this page with."""
+    """What the gate did, filterable by path and by ruleset -- "what
+    happened to MY file" is the question anyone opens this page with."""
     _first_run_notice()
     cols = st.columns([3, 2])
     cols[0].text_input("Filter by path", key="watch_path",
@@ -171,7 +167,7 @@ def _watch_activity():
     events = events[:50]
     if not events:
         st.info("No matching activity yet -- write something through the hook, "
-                 "or use `Try it` on Configure to see what it would do.")
+                 "or use `Try it` on Checks to see what it would do.")
         return
     st.dataframe(
         [{
@@ -185,28 +181,43 @@ def _watch_activity():
     )
 
 
-# --- Configure -----------------------------------------------------------
+# --- config pages ---------------------------------------------------------
 
-# The whole page lives in configure.py: it is the bulk of this dashboard,
-# and keeping it here left one module carrying two unrelated jobs (a live
-# activity feed and a config editor) with only a comment between them.
+# The three config pages live in configure.py: they are the bulk of this
+# dashboard, and keeping them here left one module carrying unrelated
+# jobs (a live activity feed and a config editor) with only a comment
+# between them.
 
 
-def configure_page():
+def checks_page():
     _first_run_notice()
-    _configure.configure_page(REPO_ROOT)
+    _configure.checks_page(REPO_ROOT)
+
+
+def vocabulary_page():
+    _first_run_notice()
+    _configure.vocabulary_page(REPO_ROOT)
+
+
+def routing_page():
+    _first_run_notice()
+    _configure.routing_page(REPO_ROOT)
 
 
 # --- entry point: one header row (brand + nav + pulse), no sidebar ---
 
 watch = st.Page(watch_page, title="Watch", icon="👁", default=True)
-configure = st.Page(configure_page, title="Configure", icon="⚙️")
-nav = st.navigation([watch, configure], position="hidden")
+checks = st.Page(checks_page, title="Checks", icon="🚦")
+vocabulary = st.Page(vocabulary_page, title="Vocabulary", icon="📖")
+routing = st.Page(routing_page, title="Routing", icon="🗺")
+nav = st.navigation([watch, checks, vocabulary, routing], position="hidden")
 
 with st.container(border=True, horizontal=True, vertical_alignment="center"):
     st.markdown("#### 🛑 stopslop")
     st.page_link(watch)
-    st.page_link(configure)
+    st.page_link(checks)
+    st.page_link(vocabulary)
+    st.page_link(routing)
 
 nav.run()  # runs the selected page's body inline, right here
 
