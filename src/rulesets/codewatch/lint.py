@@ -365,9 +365,7 @@ def check_constant_condition(line):
 
 
 # Every check's declared identity: id, unit, matcher function, user-facing
-# text, and default {threshold, action} -- see core/checks.py. Replaces
-# the old ALL_CHECK_IDS/DEFAULT_CHECK_CONFIG pair here plus the CHECKS
-# (catches/instead) dict that used to live separately in __init__.py.
+# text, and default {threshold, action} -- see core/checks.py.
 # swallowed_exception is the one real correctness risk here (a silently
 # eaten exception), so it alone defaults to blocking on its own;
 # everything else defaults to threshold=1/action="warn", project-tunable
@@ -404,7 +402,9 @@ CHECKS_TABLE = {
         instead="link an issue, or resolve it now"),
     "generic_naming": _checks.Check(
         id="generic_naming", unit=_checks.Unit.LINE, fn=check_generic_naming,
-        catches="Generic, numbered names: helper_1, data2, temp1",
+        catches=(
+            "Generic, numbered names: helper_1, data2, temp1"
+        ),
         instead="say what the value actually is",
         terms_list="generic_naming"),
     "tautological_assert": _checks.Check(

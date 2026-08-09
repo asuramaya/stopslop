@@ -52,13 +52,10 @@ REQUIRED_ATTRS = (
 # ruleset-wide tunables dict, died when ste100 -- its last user --
 # migrated to per-check "check_config" like the other two.)
 #
-# "terms" replaces what used to be TWO capabilities: "glossary"
-# (register_term/unregister_term/list_terms, ste100 only) and "wordlists"
-# (add_wordlist_term/remove_wordlist_term/list_wordlists, slopwatch and
-# codewatch). Those were never different concepts -- only different
-# POLARITIES of one concept, allow vs deny, given different names because
-# ste100 was written first. See core/terms.py for the full argument and for
-# the layered built_in -> packs -> project model that replaced both.
+# "terms" is one capability, not two: ste100's allow list and slopwatch's/
+# codewatch's deny lists are never different concepts, only different
+# POLARITIES of one concept. See core/terms.py for the full argument and
+# for the layered built_in -> packs -> project model behind it.
 #
 # Vocabulary PACKS are deliberately NOT in this table. A pack is enabled on
 # a path glob, not on a ruleset (core.config.set_rule_packs), so pack

@@ -455,8 +455,7 @@ def check_terminology(sentence, lexicon=None):
 # now uses (see core/terms.py). All five are DENY lists: the terms are the
 # thing being flagged, the opposite polarity from ste100's project
 # vocabulary, which is an ALLOW list. Both are term lists; polarity is a
-# field, not a different concept with a different name and a different API,
-# which is what it used to be.
+# field, not a different concept with its own name and its own API.
 #
 # accepts_packs is True even though no pack targets these today. A pack
 # declares which (ruleset, list) it feeds, so a corporate banned-phrase
@@ -626,16 +625,13 @@ def check_negative_listing(sentences):
 _DEDUP_EXCLUDE_KINDS = {"em_dash_cluster"}  # document-level, one flag total -- nothing to collapse
 
 
-# Every check's declared identity -- see core/checks.py. Replaces the old
-# ALL_CHECK_IDS/DEFAULT_CHECK_CONFIG pair here plus the CHECKS
-# (catches/instead) dict that used to live separately in __init__.py.
-# Every check defaults to threshold=1/action="warn" (fires, and is
-# visible, on its first occurrence, but never denies alone) except
-# em_dash_cluster, carried over at its exact prior behavior (4+ em dashes
-# denies, alone). bold_bullet_lead/id_label_lead operate on the raw
-# list-item line (marker included), not a tokenized sentence -- LINE is
-# the closest fit until a future run-loop unification adds a dedicated
-# unit for that (see the architecture-unification plan's design risks).
+# Every check's declared identity -- see core/checks.py. Every check
+# defaults to threshold=1/action="warn" (fires, and is visible, on its
+# first occurrence, but never denies alone) except em_dash_cluster,
+# which denies alone once 4 or more em dashes appear in one document.
+# bold_bullet_lead/id_label_lead operate on the raw list-item line
+# (marker included), not a tokenized sentence -- LINE is the closest
+# fit until a future run-loop unification adds a dedicated unit for that.
 CHECKS_TABLE = {
     "filler_opener": _checks.Check(
         id="filler_opener", unit=_checks.Unit.SENTENCE, fn=check_filler_opener,

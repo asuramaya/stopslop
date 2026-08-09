@@ -42,14 +42,13 @@ import rulesets
 _LEGACY_REGISTRY_NAME = "ste100-integrity.json"
 _REGISTRY_NAME = "stopslop-integrity.json"
 
-# Relative to src/ (this file's own directory). Matches the pre-
-# refactor scope exactly (the live write-time enforcement path), plus the
-# core/ modules that used to be part of pretool_hook.py/ste100_lint.py
-# directly and were already tracked implicitly as part of those files.
-# core/glossary_packs/*: moved here from rulesets/ste100/'s own
-# TRACKED_FILES when packs became ruleset-agnostic -- still real
+# Relative to src/ (this file's own directory): the live write-time
+# enforcement path -- pretool_hook.py, bash_write_detect.py, and the
+# core/ modules those two depend on for the actual gate decision.
+# core/glossary_packs/* is here rather than under any one ruleset's own
+# TRACKED_FILES because packs are ruleset-agnostic: still real
 # enforcement data (suppresses real vocabulary flags once a project
-# enables one), just no longer owned by any one ruleset's package.
+# enables one), owned by no single ruleset's package.
 CORE_TRACKED_FILES = ["pretool_hook.py", "bash_write_detect.py",
                        "core/blocks.py", "core/flags.py", "core/config.py",
                        "core/history.py", "core/paths.py", "core/terms.py",

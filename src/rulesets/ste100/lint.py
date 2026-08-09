@@ -821,9 +821,7 @@ def check_safety_instruction(block_text):
     return hits
 
 
-# Every check's declared identity -- see core/checks.py. Replaces the old
-# ALL_CHECK_IDS/DEFAULT_CHECK_CONFIG pair here plus the CHECKS
-# (catches/instead) dict that used to live separately in __init__.py.
+# Every check's declared identity -- see core/checks.py.
 # Every check defaults to block except vocabulary (warn -- see the note
 # above blocking_semantic_flags for why). `length` carries the two word
 # limits ASD-STE100 rule 5.1 fixes as real, project-tunable params -- the
