@@ -44,30 +44,17 @@ slopwatch already established.
 """
 import re
 
-from core import config as _core_config, paths as _paths, terms as _terms
-from core.flags import flag_weight
+from core import checks as _checks, paths as _paths, terms as _terms
 
 TRACKED_EXTENSIONS = (".py",)
-
-# Every "kind" string this ruleset's checks can produce -- see
-# rulesets/slopwatch/lint.py's ALL_CHECK_IDS for the identical pattern and
-# rationale. rulesets/codewatch/__init__.py's list_checks()/
-# set_enabled_checks() expose this as the modularity surface.
-ALL_CHECK_IDS = frozenset({
-    "trivial_comment", "narrative_comment", "meta_comment", "swallowed_exception",
-    "mutable_default_arg", "print_debug", "todo_stub", "generic_naming",
-    "tautological_assert", "constant_condition",
-})
 
 
 def _enabled_check_ids(file_path=None):
     try:
         project_root = _paths.find_project_root(__file__)
-        disabled = set(_core_config.disabled_checks_for_path(
-            project_root, "codewatch", file_path))
     except Exception:
-        return set(ALL_CHECK_IDS)
-    return ALL_CHECK_IDS - disabled
+        return set(_checks.all_check_ids(CHECKS_TABLE))
+    return _checks.enabled_check_ids(CHECKS_TABLE, project_root, "codewatch", file_path)
 
 
 def _custom_terms(list_id, file_path=None):
@@ -83,40 +70,6 @@ def _custom_terms(list_id, file_path=None):
         return sorted(set(layers["packs"]) | set(layers["project"]))
     except Exception:
         return []
-
-
-# Every check's own {occurrence threshold, block-or-warn action} --
-# replaces the old shared block_flag_count_threshold plus the hardcoded,
-# non-configurable BLOCKS_ALONE_AT (only swallowed_exception could ever
-# "deny alone"). See rulesets/slopwatch/lint.py's DEFAULT_CHECK_CONFIG
-# for the identical shape and the safe-migration reasoning: every check
-# defaults to threshold=1/action="warn" except swallowed_exception,
-# carried over at its exact prior behavior (always denies, alone).
-DEFAULT_CHECK_CONFIG = {check_id: {"threshold": 1, "action": "warn"}
-                        for check_id in ALL_CHECK_IDS}
-DEFAULT_CHECK_CONFIG["swallowed_exception"] = {"threshold": 1, "action": "block"}
-
-
-def _check_config():
-    """See rulesets/slopwatch/lint.py's _check_config() -- identical
-    shape and validation."""
-    merged = {check_id: dict(spec) for check_id, spec in DEFAULT_CHECK_CONFIG.items()}
-    try:
-        project_root = _paths.find_project_root(__file__)
-        overrides = _core_config.check_config(project_root, "codewatch")
-    except Exception:
-        return merged
-    for check_id, override in overrides.items():
-        if check_id not in merged or not isinstance(override, dict):
-            continue
-        spec = dict(merged[check_id])
-        threshold = override.get("threshold")
-        if isinstance(threshold, int) and not isinstance(threshold, bool) and threshold >= 1:
-            spec["threshold"] = threshold
-        if override.get("action") in ("block", "warn"):
-            spec["action"] = override["action"]
-        merged[check_id] = spec
-    return merged
 
 
 # --- trivial_comment (semantic) -- ported from scanaislop/aislop (MIT) -----
@@ -411,6 +364,65 @@ def check_constant_condition(line):
     return []
 
 
+# Every check's declared identity: id, unit, matcher function, user-facing
+# text, and default {threshold, action} -- see core/checks.py. Replaces
+# the old ALL_CHECK_IDS/DEFAULT_CHECK_CONFIG pair here plus the CHECKS
+# (catches/instead) dict that used to live separately in __init__.py.
+# swallowed_exception is the one real correctness risk here (a silently
+# eaten exception), so it alone defaults to blocking on its own;
+# everything else defaults to threshold=1/action="warn", project-tunable
+# via check_config.
+CHECKS_TABLE = {
+    "trivial_comment": _checks.Check(
+        id="trivial_comment", unit=_checks.Unit.LINE_LOOKAHEAD, fn=check_trivial_comment,
+        catches="Comments that only restate the next line",
+        instead="cut them, or say why the code does this"),
+    "narrative_comment": _checks.Check(
+        id="narrative_comment", unit=_checks.Unit.LINE, fn=check_narrative_comment,
+        catches="Separator bars, \"Phase/Step N\" headers, step-by-step narration",
+        instead="the code already says what it does"),
+    "meta_comment": _checks.Check(
+        id="meta_comment", unit=_checks.Unit.LINE, fn=check_meta_comment,
+        catches="Comments citing the plan/spec/ticket, or narrating before/after state",
+        instead="that belongs in a commit message, not the source"),
+    "swallowed_exception": _checks.Check(
+        id="swallowed_exception", unit=_checks.Unit.LINES_INDEXED, fn=check_swallowed_exception,
+        catches="Bare except-then-pass",
+        instead="log the error, re-raise it, or name why it is safe to ignore",
+        default_action="block"),
+    "mutable_default_arg": _checks.Check(
+        id="mutable_default_arg", unit=_checks.Unit.LINE, fn=check_mutable_default_arg,
+        catches="Mutable default arguments: def f(x=[])",
+        instead="they are shared across every call; use None and build the real default inside the function"),
+    "print_debug": _checks.Check(
+        id="print_debug", unit=_checks.Unit.LINE, fn=check_print_debug,
+        catches="Leftover print() calls",
+        instead="use logging, or remove them before this ships"),
+    "todo_stub": _checks.Check(
+        id="todo_stub", unit=_checks.Unit.LINE, fn=check_todo_stub,
+        catches="TODO/FIXME/HACK comments with no tracking issue",
+        instead="link an issue, or resolve it now"),
+    "generic_naming": _checks.Check(
+        id="generic_naming", unit=_checks.Unit.LINE, fn=check_generic_naming,
+        catches="Generic, numbered names: helper_1, data2, temp1",
+        instead="say what the value actually is",
+        terms_list="generic_naming"),
+    "tautological_assert": _checks.Check(
+        id="tautological_assert", unit=_checks.Unit.LINE, fn=check_tautological_assert,
+        catches="assert True",
+        instead="it can never fail; assert the real condition, or remove it"),
+    "constant_condition": _checks.Check(
+        id="constant_condition", unit=_checks.Unit.LINE, fn=check_constant_condition,
+        catches="if True: / if False:",
+        instead="a dead branch, or leftover debug code"),
+}
+
+# Derived, not hand-typed -- kept as a plain module attribute since
+# test_lint.py and other callers reference it directly as the set of this
+# ruleset's check ids.
+ALL_CHECK_IDS = frozenset(CHECKS_TABLE)
+
+
 def lint_and_gate(text, context=None, file_path=None):
     lines = text.split("\n")
     semantic = []
@@ -455,24 +467,12 @@ def lint_and_gate(text, context=None, file_path=None):
 
 
 def blocking_semantic_flags(semantic_flags):
-    """A third distinct policy, alongside ste100's exclusion list and
-    slopwatch's per-check threshold+action -- identical mechanism to
-    slopwatch's own blocking_semantic_flags now, see that function's
-    docstring. swallowed_exception denies on its own by default (a real
+    """swallowed_exception denies on its own by default (a real
     correctness risk, not a style preference); everything else defaults
-    to warn, project-tunable per check via check_config."""
-    config = _check_config()
-    grouped = {}
-    for f in semantic_flags:
-        grouped.setdefault(f["kind"], []).append(f)
-    blocking = []
-    for check_id, flags in grouped.items():
-        spec = config.get(check_id, {"threshold": 1, "action": "warn"})
-        # Occurrences, not deduped length -- see core.flags.flag_weight and
-        # the same note in rulesets/slopwatch/lint.py.
-        if flag_weight(flags) >= spec["threshold"] and spec["action"] == "block":
-            blocking.extend(flags)
-    return blocking
+    to warn, project-tunable per check via check_config. See
+    core.checks.blocking_semantic_flags for the shared mechanism."""
+    project_root = _paths.find_project_root(__file__)
+    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "codewatch", semantic_flags)
 
 
 def apply_mechanical_fixes(text, file_path=None):

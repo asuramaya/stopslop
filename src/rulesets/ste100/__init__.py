@@ -7,7 +7,7 @@ rulesets/__init__.py's registration check requires, plus the two pieces
 policy rather than generic plumbing.
 """
 from rulesets.ste100 import lint, glossary
-from core import config as _core_config, glossary_packs as _glossary_packs, history, paths, terms as _terms
+from core import checks as _checks, glossary_packs as _glossary_packs, history, paths, terms as _terms
 
 RULESET_ID = "ste100"
 # "STE100", not "ASD-STE100" -- matches the exact prefix the pre-refactor
@@ -36,52 +36,6 @@ CAPABILITIES = frozenset({"terms", "word_lookup", "checks", "check_config"})
 # register a word."
 TRACKED_FILES = ["dictionary.json", "lint.py", "glossary.py", "build_dictionary.py"]
 
-# flag kind -> (what the check catches, what to do instead). ste100-specific:
-# a different ruleset's flag kinds need their own text, not this one. See
-# rulesets/slopwatch/__init__.py's CHECKS for why the two facts stay apart
-# instead of being stored as one prewritten coaching sentence.
-CHECKS = {
-    "modal": ("Hedging modals: should, would, may, might, could",
-              "must for requirements, can for real possibility; delete or "
-              "state as fact for recommendations"),
-    "passive": ("Passive voice with no clear actor",
-                "name the actor, or restructure to active voice"),
-    "ing_form": ("-ing misuse",
-                 "infinitive or simple tense, unless it is one of the ~9 "
-                 "whitelisted -ing nouns and adjectives"),
-    "progressive": ("Progressive tense: is/are/was/were + -ing",
-                    "use simple tense"),
-    "length": ("Sentences over the context's word limit",
-               "split at the clause boundary while drafting, rather than "
-               "writing long and splitting after"),
-    "punctuation": ("Contractions and semicolons",
-                    "write contractions in full; use two sentences instead "
-                    "of a semicolon"),
-    "perfect_tense": ("Present perfect and present perfect passive: "
-                      "has/have/had (been) + V-ed",
-                      "use simple past"),
-    "vocabulary": ("Words outside the approved dictionary: utilize, "
-                   "leverage, seamlessly",
-                   "use the plain approved equivalent"),
-    "trailing_condition": ("A condition trailing after the command",
-                           "put 'if' and 'when' clauses at the start of "
-                           "the sentence"),
-    "synonym_rotation": ("One concept named with rotating synonyms: "
-                         "check, verify, confirm",
-                         "pick one term per concept and stay with it"),
-    "latin_abbrev": ("Latin abbreviations: e.g., i.e., etc., vs.",
-                     "ASD-STE100 forbids them; write the plain English "
-                     "equivalent"),
-    "inclusive_language": ("Gendered pronouns and terms",
-                           "name the actor, use 'they', or use the "
-                           "standard's gender-neutral term"),
-    "safety_instruction": ("A malformed WARNING/CAUTION/NOTE label "
-                           "(rules 7.1-7.3)",
-                           "format only: this cannot detect a MISSING "
-                           "label, only a badly-formed one"),
-}
-
-
 def _history_path():
     return history.history_log_path(paths.find_project_root(__file__))
 
@@ -105,63 +59,16 @@ def apply_mechanical_fixes(text, file_path=None):
 
 
 TERM_LISTS = lint.TERM_LISTS
+CHECKS_TABLE = lint.CHECKS_TABLE
 
 
 def list_check_config():
-    """Every check's own {threshold, action}, current effective value and
-    built-in default -- the same shape slopwatch and codewatch return (see
-    slopwatch's own docstring). A check with extra numbers of its own
-    (`length`'s two word limits) also carries a "params" dict:
-    {name: {"value": N, "default": N}} -- read by whatever renders that
-    check's own detail, never a column shared across checks."""
-    current = lint._check_config()
-    out = {}
-    for check_id, spec in current.items():
-        defaults = lint.DEFAULT_CHECK_CONFIG[check_id]
-        entry = {"threshold": spec["threshold"], "action": spec["action"],
-                 "default_threshold": defaults["threshold"],
-                 "default_action": defaults["action"]}
-        params = {name: {"value": spec[name], "default": defaults[name]}
-                  for name in defaults if name not in ("threshold", "action")}
-        if params:
-            entry["params"] = params
-        out[check_id] = entry
-    return out
+    return _checks.list_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
 
 
 def set_check_config(check_id, threshold=None, action=None, **params):
-    """Set one check's threshold, action, and/or extra params, leaving
-    whatever it doesn't name alone -- same merge semantics as slopwatch's.
-    Extra params are validated against the check's own declared defaults:
-    only `length` takes procedure_word_limit/description_word_limit, and
-    an unknown name on any check raises rather than silently writing a
-    field nothing reads."""
-    if check_id not in lint.ALL_CHECK_IDS:
-        raise ValueError(f"unknown check id {check_id!r} -- "
-                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
-    defaults = lint.DEFAULT_CHECK_CONFIG[check_id]
-    known_params = set(defaults) - {"threshold", "action"}
-    unknown = set(params) - known_params
-    if unknown:
-        raise ValueError(f"unknown setting(s) for {check_id!r}: {sorted(unknown)}"
-                          + (f" -- known: {sorted(known_params)}" if known_params
-                             else " -- this check has only threshold and action"))
-    if threshold is not None and (not isinstance(threshold, int)
-                                   or isinstance(threshold, bool) or threshold < 1):
-        raise ValueError(f"threshold must be a whole number >= 1, got {threshold!r}")
-    if action is not None and action not in ("block", "warn"):
-        raise ValueError(f"action must be 'block' or 'warn', got {action!r}")
-    for name, value in params.items():
-        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
-            raise ValueError(f"{name} must be a whole number >= 1, got {value!r}")
-    project_root = paths.find_project_root(__file__)
-    spec = dict(_core_config.check_config(project_root, RULESET_ID).get(check_id, {}))
-    if threshold is not None:
-        spec["threshold"] = threshold
-    if action is not None:
-        spec["action"] = action
-    spec.update(params)
-    _core_config.save_check_config(project_root, RULESET_ID, check_id, spec)
+    _checks.set_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+                              RULESET_ID, check_id, threshold=threshold, action=action, **params)
 
 
 def list_term_lists(file_path=None):
@@ -261,44 +168,17 @@ def stats():
 
 
 def list_checks():
-    """See rulesets/slopwatch/__init__.py's list_checks() -- identical
-    shape and rationale, now also given to ste100's own 13 rule checks
-    (previously the only ruleset of the three with no per-check toggles
-    at all, the actual gap that made the three rulesets' modularity
-    inconsistent with each other)."""
-    project_root = paths.find_project_root(__file__)
-    disabled = set(_core_config.disabled_checks(project_root, RULESET_ID))
-    return {
-        check_id: {"catches": CHECKS.get(check_id, ("", ""))[0],
-                   "instead": CHECKS.get(check_id, ("", ""))[1],
-                   "enabled": check_id not in disabled}
-        for check_id in sorted(lint.ALL_CHECK_IDS)
-    }
+    return _checks.list_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
 
 
 def set_enabled_checks(check_ids):
-    unknown = set(check_ids) - lint.ALL_CHECK_IDS
-    if unknown:
-        raise ValueError(f"unknown check id(s): {sorted(unknown)} -- "
-                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
-    disabled = sorted(lint.ALL_CHECK_IDS - set(check_ids))
-    project_root = paths.find_project_root(__file__)
-    _core_config.save_disabled_checks(project_root, RULESET_ID, disabled)
+    _checks.set_enabled_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+                                RULESET_ID, check_ids)
 
 
 def set_checks_enabled(states):
-    """Turn the named checks on or off, leaving every other check alone --
-    {check_id: bool}. Merge semantics, the same shape set_check_config has, and
-    the counterpart to set_enabled_checks's replace semantics: see
-    core.config.merge_disabled_checks for which callers need which, and for
-    the silent-mass-disable bug that made the distinction worth a second
-    method rather than a comment."""
-    unknown = set(states) - lint.ALL_CHECK_IDS
-    if unknown:
-        raise ValueError(f"unknown check id(s): {sorted(unknown)} -- "
-                          f"known: {sorted(lint.ALL_CHECK_IDS)}")
-    project_root = paths.find_project_root(__file__)
-    _core_config.merge_disabled_checks(project_root, RULESET_ID, states)
+    _checks.set_checks_enabled(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+                                RULESET_ID, states)
 
 
 # list_glossary_packs()/set_enabled_glossary_packs() USED to live here: two

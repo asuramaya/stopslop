@@ -53,6 +53,7 @@ _REGISTRY_NAME = "stopslop-integrity.json"
 CORE_TRACKED_FILES = ["pretool_hook.py", "bash_write_detect.py",
                        "core/blocks.py", "core/flags.py", "core/config.py",
                        "core/history.py", "core/paths.py", "core/terms.py",
+                       "core/checks.py",
                        "core/glossary_packs/__init__.py",
                        "core/glossary_packs/microsoft_style_guide.json",
                        "core/glossary_packs/mdn_glossary.json",

@@ -72,22 +72,22 @@ Add these names only for a ruleset that needs them:
 
 - `TRACKED_FILES = ["lint.py", ...]` -- file names, relative to your
   package directory, for `integrity_check.py` to hash and watch for drift.
-- `CHECKS = {"kind": (catches, instead), ...}` -- two facts per check: what
-  it catches, and what to do instead. A `kind` with no entry still shows up
-  everywhere, with generic text.
+- `CHECKS_TABLE = lint.CHECKS_TABLE` -- see "checks" below. Re-export it
+  from `__init__.py` the same way `TERM_LISTS` already is. A check with no
+  entry still shows up everywhere, with generic text.
 - `stats()` -- a dict of short strings. `stopslop.py status` and the
   `get_status` MCP tool show these under your ruleset's own name.
 
 There is no separate deny-policy declaration. Each check's own `action`
 field is the whole policy -- see `"check_config"` below. Two older
 declarations are gone: a prose policy sentence with format() slots, and
-a check-to-option ownership map for a ruleset-wide options dict. ste100
-was the last ruleset on both.
+a check-to-option map for a ruleset-wide options dict. Only ste100 ever
+carried either one.
 
-Write the two `CHECKS` fields as bare facts. Do not join them into one
-sentence. Do not write either one in the voice of a single screen. Each
-consumer writes its own prose from them. The dashboard's Checks table
-describes a control. The per-ruleset memory primer
+Write a `Check`'s `catches` and `instead` as bare facts. Do not join them
+into one sentence. Do not write either one in the voice of a single
+screen. Each consumer writes its own prose from them. The dashboard's
+Checks table describes a control. The per-ruleset memory primer
 (`generate_coaching_memory.py`) reports a repeat offence, with a real count
 in front of it.
 
@@ -119,7 +119,7 @@ Delegate all three to `core/terms.py`. That module owns the layered
 `built_in -> packs -> project` resolution. It also owns the tombstone
 subtraction that lets a project remove a shipped word.
 
-Each list declares what it holds and what may be done to it:
+Each list declares what it holds and what can be done to it:
 
 - `built_ins`, the words your ruleset ships for this list. Pass a dict to
   give each entry metadata, or any iterable of strings for bare words.
@@ -146,66 +146,123 @@ least a `"status"` key. Declare this capability only for a ruleset with a
 real external standard behind it, to look one word up against. See
 `rulesets/ste100/__init__.py`.
 
-**`"checks"`** -- a project can turn each of your checks off on its own:
+**`"checks"` and `"check_config"`** -- declare one `CheckTable` in your
+`lint.py`, not a hand-built version of either capability's own machinery.
+The shared engine lives in `src/core/checks.py`. See
+`src/rulesets/codewatch/lint.py` for the smallest real example.
 
 ```python
-def list_checks(): ...                      # {id: {catches, instead, enabled}}
-def set_enabled_checks(check_ids): ...      # REPLACE: these and only these
-def set_checks_enabled(states): ...         # MERGE: {id: bool}, leave the rest
+from core import checks as _checks
+
+CHECKS_TABLE = {
+    "your_check": _checks.Check(
+        id="your_check", unit=_checks.Unit.SENTENCE, fn=check_your_check,
+        catches="What this check catches, in plain words",
+        instead="What to do about it instead",
+        default_threshold=1, default_action="warn"),   # "warn" is the safe default; "block" denies alone once triggered
+    ...
+}
 ```
 
-Define both write shapes. The difference is not cosmetic. A caller with the
-full picture means replace. `stopslop.py checks --enable a b c` is one. A
-caller with only a PARTIAL view means merge. A filtered table is one, and
-so is a single toggle. If a ruleset offers the replace form alone, a
-partial caller eventually saves its partial list as a whole one. The
-dashboard did exactly that. It saved a search-filtered table, and it turned
-off 18 of slopwatch's 20 checks, with a success message. Delegate to
-`core.config.save_disabled_checks` and `core.config.merge_disabled_checks`.
+`unit` names the granularity your check's own function actually reads:
 
-**`"check_config"`** -- every check gets its own `{threshold, action}`.
-All three shipped rulesets use it. See any `lint.py` for
-`DEFAULT_CHECK_CONFIG` and `_check_config()`. See
-`core.config.check_config` and `save_check_config` for the storage.
+- `SENTENCE` -- one sentence at a time (most checks)
+- `SENTENCES` -- the whole list, for a cross-sentence check
+- `LINE` -- one line at a time
+- `LINE_LOOKAHEAD` -- a line, plus the next one
+- `LINES_INDEXED` -- the whole file, plus an index
+- `DOCUMENT` -- the whole assembled text, once per call
+
+This is documentation today. A shared run loop does not read it yet.
+Your own `lint_and_gate` still calls `fn` directly, in whatever order and
+shape it needs.
+
+The `terms_list` field names the `TERM_LISTS` key this check reads from
+-- see "terms" below. Not every check has one. A check with no
+vocabulary binding omits it.
+
+Set `dedup=False` on a check with no meaningful per-occurrence identity.
+An em-dash count is one example. This is the same case
+`core.flags.dedup_flags`'s `exclude_kinds` already covers.
+
+Every `__init__.py` method both capabilities obligate is then a one-line
+delegation:
+
+```python
+def list_checks():
+    return _checks.list_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
+def set_enabled_checks(check_ids):
+    _checks.set_enabled_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID, check_ids)
+def set_checks_enabled(states):
+    _checks.set_checks_enabled(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID, states)
+def list_check_config():
+    return _checks.list_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
+def set_check_config(check_id, threshold=None, action=None, **params):
+    _checks.set_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID,
+                              check_id, threshold=threshold, action=action, **params)
+```
+
+`set_enabled_checks` is REPLACE (these and only these). `set_checks_enabled`
+is MERGE (`{id: bool}`, leave the rest). Define both -- the difference is
+not cosmetic. A caller with the full picture means replace.
+`stopslop.py checks --enable a b c` is one. A caller with only a PARTIAL
+view means merge. A filtered table is one, and so is a single toggle. If a
+ruleset offers the replace form alone, a partial caller eventually saves
+its partial list as a whole one. The dashboard did exactly that once. It
+saved a search-filtered table, and it turned off 18 of slopwatch's 20
+checks, with a success message.
+
 `threshold` is the occurrence count a check needs before it counts as
 triggered. `core.flags.flag_weight` weighs those occurrences. It does not
 use the deduped count. `action` is `"block"` or `"warn"`. A `"block"`
 check denies the write on its own, once triggered. A `"warn"` check only
-shows. It never denies a write by itself. Define:
-
-```python
-def list_check_config(): ...                      # {id: {threshold, action, default_threshold, default_action}}
-def set_check_config(check_id, threshold=None, action=None): ...   # merge: only the fields passed change
-```
+shows. It never denies a write by itself.
 
 `blocking_semantic_flags` groups the raw flags by check id. It compares
-each group's weight against that check's own threshold. Only a triggered
-check whose action is `"block"` returns its group. There is no
-ruleset-wide aggregate to sum across different checks. A document can
-carry any number of triggered `"warn"` checks, and it still passes. Give
-every check in `ALL_CHECK_IDS` an entry in `DEFAULT_CHECK_CONFIG`.
-`src/test_check_text.py`'s `DenyPolicyMatchesBehaviourTests` fails the
-build on a missing one.
+each group's weight against that check's own threshold, and returns only
+the groups of a triggered `"block"` check. There is no ruleset-wide
+aggregate to sum across different checks. A document can carry any
+number of triggered `"warn"` checks and still pass:
 
-A check with extra numbers of its own declares them as extra fields on
-its `DEFAULT_CHECK_CONFIG` entry. ste100's `length` carries its two
-word limits this way. `list_check_config` reports them under a
-`"params"` dict on that check. `set_check_config` takes them as keyword
-arguments and refuses an unknown name. A parameter belongs to its check.
-No ruleset-wide options dict exists for it to land in, and no shared
-table column carries it.
+```python
+def blocking_semantic_flags(semantic_flags):
+    project_root = _paths.find_project_root(__file__)
+    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "your_id", semantic_flags)
+```
+
+A check with extra numbers of its own declares a `params` dict on its
+`Check` entry -- `{"name": default_int, ...}`.
+
+The `length` check in ste100 carries its two word limits this way.
+
+`list_check_config` reports them under a `"params"` key on that check:
+`{name: {"value": N, "default": N}}`.
+
+`set_check_config` takes them as keyword arguments. It refuses an
+unknown name for that check. A parameter belongs to its check. No
+ruleset-wide options dict exists for it to land in, and no shared table
+column carries it.
 
 ## How to register it
 
-Add two lines to `src/rulesets/__init__.py`:
+Nothing to add. `src/rulesets/__init__.py` scans its own subpackages at
+import time (`_discover_and_register`). It registers any that declares
+`RULESET_ID` -- a new package under `src/rulesets/<your_id>/` is enough.
+It silently skips a subpackage with no `RULESET_ID`, as a non-ruleset
+helper. One that declares `RULESET_ID` but fails the required-names
+contract still raises `InvalidRulesetError` at import time, loudly, the
+same as a hand-registered ruleset always has.
 
-```python
-from rulesets import your_id as _your_id
-_register(_your_id)
-```
+This traded away a previously deliberate choice. A hardcoded import list
+kept "what rulesets exist" a single fact, visible in one diff.
 
-Registration is explicit and manual on purpose, not a directory scan. What
-rulesets exist stays a single fact, visible in one diff.
+The safeguard against that loss is a test in `core/test_config.py`. It
+checks the real registry against today's known set. An accidental new
+ruleset -- a stray directory, an experiment left half-done -- still
+fails the build. It fails at test time now, not just at a glance over
+`rulesets/__init__.py`.
+
+When you add a real fourth ruleset, update that test's expected set.
 
 ## Routing files to it
 

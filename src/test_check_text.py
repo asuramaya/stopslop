@@ -33,9 +33,21 @@ import rulesets
 
 
 def _all_checks():
-    """[(ruleset_id, check_id, catches, instead), ...] across the fleet."""
+    """[(ruleset_id, check_id, catches, instead), ...] across the fleet.
+
+    A migrated ruleset declares CHECKS_TABLE (core.checks.Check objects,
+    catches/instead as attributes); one not yet migrated still declares
+    the older CHECKS dict ({check_id: (catches, instead)}). Both read
+    here so this cross-ruleset regression test keeps passing at every
+    point during the CHECKS_TABLE migration, regardless of which
+    rulesets have moved yet."""
     out = []
     for module in rulesets.list_rulesets():
+        table = getattr(module, "CHECKS_TABLE", None)
+        if table is not None:
+            for check_id, check in table.items():
+                out.append((module.RULESET_ID, check_id, check.catches, check.instead))
+            continue
         for check_id, (catches, instead) in getattr(module, "CHECKS", {}).items():
             out.append((module.RULESET_ID, check_id, catches, instead))
     return out
@@ -113,7 +125,11 @@ class CoachingMemoryStillGetsItsVoiceTests(unittest.TestCase):
     def test_generated_line_names_the_pattern_and_the_fix(self):
         import generate_coaching_memory  # noqa: F401 -- import-time smoke
         module = rulesets.get_ruleset("slopwatch")
-        catches, instead = module.CHECKS["filler_verb"]
+        table = getattr(module, "CHECKS_TABLE", None)
+        if table is not None:
+            catches, instead = table["filler_verb"].catches, table["filler_verb"].instead
+        else:
+            catches, instead = module.CHECKS["filler_verb"]
         line = f"- (12x) {catches} -- {instead}."
         self.assertIn("Filler verbs", line)
         self.assertIn("plain verb", line)

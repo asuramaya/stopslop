@@ -34,9 +34,12 @@ SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(SRC_DIR)
 
 # Names the interpreter injects into every module. symtable reports them as
-# global reads, and no source file assigns them.
+# global reads, and no source file assigns them. __path__ is injected only
+# into a PACKAGE's __init__.py (its own subpackage search path) -- absent
+# from a plain module, which is why nothing needed it here before
+# rulesets/__init__.py started scanning its own subpackages with it.
 MODULE_DUNDERS = {"__file__", "__name__", "__doc__", "__package__",
-                   "__spec__", "__loader__", "__builtins__"}
+                   "__spec__", "__loader__", "__builtins__", "__path__"}
 
 
 def undefined_globals(source, path):

@@ -64,38 +64,20 @@ from core.blocks import (
     tokenize_sentences, split_into_blocks,
     HEADER_RE, LIST_ITEM_RE,
 )
-from core.flags import dedup_flags, flag_weight, default_label as _label
-from core import config as _core_config, paths as _paths, terms as _terms
-
-# Every "kind" string this ruleset's checks can produce -- the modularity
-# surface rulesets/slopwatch/__init__.py's list_checks()/set_enabled_checks()
-# expose. A user can turn any of these off individually via
-# stopslop.config.json's "disabled_checks" key; everything runs by default.
-ALL_CHECK_IDS = frozenset({
-    "filler_opener", "stock_adverb", "colon_reveal", "weasel_attribution",
-    "entity_encoded_punctuation", "not_just_x_but_y", "vague_intensifier",
-    "emoji_in_prose", "marketing_adjective", "filler_verb", "marketing_cliche",
-    "solicit_criticism", "unearned_profundity", "dramatic_fragmentation",
-    "bold_bullet_lead", "id_label_lead", "binary_contrast",
-    "canned_question_answer", "negative_listing", "em_dash_cluster",
-    "terminology", "identifier_in_prose",
-})
+from core.flags import dedup_flags, default_label as _label
+from core import checks as _checks, paths as _paths, terms as _terms
 
 
 def _enabled_check_ids(file_path=None):
-    """Every check that should actually run right now: ALL_CHECK_IDS minus
-    whatever stopslop.config.json's "disabled_checks" names for this
-    ruleset. Read fresh every call, not cached -- these are a handful of
-    short strings, cheap enough that a stale in-memory copy (the exact bug
-    class PROJECT_TERMS caching required an explicit-invalidation dance to
-    avoid, see rulesets/ste100/lint.py) buys nothing here."""
+    """Every check that should actually run right now: this ruleset's
+    declared checks minus whatever stopslop.config.json's
+    "disabled_checks" names. Read fresh every call, not cached -- see
+    core.checks.enabled_check_ids."""
     try:
         project_root = _paths.find_project_root(__file__)
-        disabled = set(_core_config.disabled_checks_for_path(
-            project_root, "slopwatch", file_path))
     except Exception:
-        return set(ALL_CHECK_IDS)
-    return ALL_CHECK_IDS - disabled
+        return set(_checks.all_check_ids(CHECKS_TABLE))
+    return _checks.enabled_check_ids(CHECKS_TABLE, project_root, "slopwatch", file_path)
 
 
 def _custom_terms(list_id, file_path=None):
@@ -131,47 +113,6 @@ def _lexicon_terms(file_path=None):
     except Exception:
         return {}
 
-
-# Every check's own {occurrence threshold, block-or-warn action} --
-# replaces the old shared block_flag_count_threshold (one ruleset-wide
-# number, no per-check say) plus the hardcoded, non-configurable
-# BLOCKS_ALONE_AT (only em_dash_cluster could ever "deny alone", and a
-# project had no way to change that). Every check defaults to threshold=1,
-# action="warn": it fires (and is visible) on its very first occurrence,
-# but never denies a write by itself -- the safe, no-surprise migration
-# default, since nothing that passed before should start failing without
-# a project explicitly choosing that for a specific check. em_dash_cluster
-# is the one exception, carried over at its exact prior behavior (4+ em
-# dashes denies, alone, same as today's em_dash_threshold=3 + blocks-alone
-# combination).
-DEFAULT_CHECK_CONFIG = {check_id: {"threshold": 1, "action": "warn"}
-                        for check_id in ALL_CHECK_IDS}
-DEFAULT_CHECK_CONFIG["em_dash_cluster"] = {"threshold": 4, "action": "block"}
-
-
-def _check_config():
-    """DEFAULT_CHECK_CONFIG with any valid override from
-    stopslop.config.json's "check_config" key layered on top, per check.
-    An override naming an unknown check, an invalid action, or a
-    non-integer threshold is ignored for that field -- same
-    never-break-the-gate posture as _enabled_check_ids()."""
-    merged = {check_id: dict(spec) for check_id, spec in DEFAULT_CHECK_CONFIG.items()}
-    try:
-        project_root = _paths.find_project_root(__file__)
-        overrides = _core_config.check_config(project_root, "slopwatch")
-    except Exception:
-        return merged
-    for check_id, override in overrides.items():
-        if check_id not in merged or not isinstance(override, dict):
-            continue
-        spec = dict(merged[check_id])
-        threshold = override.get("threshold")
-        if isinstance(threshold, int) and not isinstance(threshold, bool) and threshold >= 1:
-            spec["threshold"] = threshold
-        if override.get("action") in ("block", "warn"):
-            spec["action"] = override["action"]
-        merged[check_id] = spec
-    return merged
 
 # --- filler_opener (semantic) ------------------------------------------
 FILLER_OPENERS = [
@@ -685,6 +626,120 @@ def check_negative_listing(sentences):
 _DEDUP_EXCLUDE_KINDS = {"em_dash_cluster"}  # document-level, one flag total -- nothing to collapse
 
 
+# Every check's declared identity -- see core/checks.py. Replaces the old
+# ALL_CHECK_IDS/DEFAULT_CHECK_CONFIG pair here plus the CHECKS
+# (catches/instead) dict that used to live separately in __init__.py.
+# Every check defaults to threshold=1/action="warn" (fires, and is
+# visible, on its first occurrence, but never denies alone) except
+# em_dash_cluster, carried over at its exact prior behavior (4+ em dashes
+# denies, alone). bold_bullet_lead/id_label_lead operate on the raw
+# list-item line (marker included), not a tokenized sentence -- LINE is
+# the closest fit until a future run-loop unification adds a dedicated
+# unit for that (see the architecture-unification plan's design risks).
+CHECKS_TABLE = {
+    "filler_opener": _checks.Check(
+        id="filler_opener", unit=_checks.Unit.SENTENCE, fn=check_filler_opener,
+        catches="Throat-clearing openers: \"needless to say\", \"at the end of the day\"",
+        instead="state the point directly from the first sentence"),
+    "stock_adverb": _checks.Check(
+        id="stock_adverb", unit=_checks.Unit.SENTENCE, fn=check_stock_adverb,
+        catches="Standalone filler adverbs: undoubtedly, arguably, notably, importantly, ultimately",
+        instead="most add nothing; cut them unless one is carrying real emphasis",
+        terms_list="stock_adverb", classify="mechanical"),
+    "colon_reveal": _checks.Check(
+        id="colon_reveal", unit=_checks.Unit.SENTENCE, fn=check_colon_reveal,
+        catches="Short buildup, then a reveal: \"The best part: it learns.\"",
+        instead="state it as a plain sentence"),
+    "binary_contrast": _checks.Check(
+        id="binary_contrast", unit=_checks.Unit.SENTENCES, fn=check_binary_contrast,
+        catches="The \"it's not X, it's Y\" construction",
+        instead="just state Y"),
+    "em_dash_cluster": _checks.Check(
+        id="em_dash_cluster", unit=_checks.Unit.DOCUMENT, fn=check_em_dash_cluster,
+        catches="Em dashes clustering in one document",
+        instead="most drafts need 0-2; use commas, periods or parentheses for the rest",
+        default_threshold=4, default_action="block", dedup=False),
+    "weasel_attribution": _checks.Check(
+        id="weasel_attribution", unit=_checks.Unit.SENTENCE, fn=check_weasel_attribution,
+        catches="Unnamed authority: \"studies show\", \"experts agree\"",
+        instead="name the actual source, or cut the claim",
+        terms_list="weasel_attribution"),
+    "entity_encoded_punctuation": _checks.Check(
+        id="entity_encoded_punctuation", unit=_checks.Unit.SENTENCE, fn=check_entity_encoded_punctuation,
+        catches="An em dash, section sign or middle dot written as an HTML entity",
+        instead="write the plain character", classify="mechanical"),
+    "bold_bullet_lead": _checks.Check(
+        id="bold_bullet_lead", unit=_checks.Unit.LINE, fn=check_bold_bullet_lead,
+        catches="A bolded word opening a list item as a per-item tag",
+        instead="reserve bold for a rare callout"),
+    "id_label_lead": _checks.Check(
+        id="id_label_lead", unit=_checks.Unit.LINE, fn=check_id_label_lead,
+        catches="Fake ID tags opening list items: \"R-1.\", \"US-01\"",
+        instead="number the list plainly"),
+    "not_just_x_but_y": _checks.Check(
+        id="not_just_x_but_y", unit=_checks.Unit.SENTENCE, fn=check_not_just_but,
+        catches="The \"not just X but Y\" construction",
+        instead="make the point once"),
+    "vague_intensifier": _checks.Check(
+        id="vague_intensifier", unit=_checks.Unit.SENTENCE, fn=check_vague_intensifier,
+        catches="Vague intensifiers with no number behind them: very, really, quite, significantly",
+        instead="say how much, or cut the word"),
+    "emoji_in_prose": _checks.Check(
+        id="emoji_in_prose", unit=_checks.Unit.SENTENCE, fn=check_emoji,
+        catches="Emoji or decorative checkmarks in body text",
+        instead="cut them", classify="mechanical"),
+    "marketing_adjective": _checks.Check(
+        id="marketing_adjective", unit=_checks.Unit.SENTENCE, fn=check_marketing_adjective,
+        catches="Marketing adjectives: seamless, robust, cutting-edge",
+        instead="say what is actually true",
+        terms_list="marketing_adjective"),
+    "filler_verb": _checks.Check(
+        id="filler_verb", unit=_checks.Unit.SENTENCE, fn=check_filler_verb,
+        catches="Filler verbs: leverages, facilitates, unlocks",
+        instead="use a plain verb, or cut the sentence",
+        terms_list="filler_verb"),
+    "marketing_cliche": _checks.Check(
+        id="marketing_cliche", unit=_checks.Unit.SENTENCE, fn=check_marketing_cliche,
+        catches="Marketing cliches: \"hidden gem\", \"let's dive in\"",
+        instead="say the specific thing",
+        terms_list="marketing_cliche"),
+    "solicit_criticism": _checks.Check(
+        id="solicit_criticism", unit=_checks.Unit.SENTENCE, fn=check_solicit_criticism,
+        catches="Fake-humility feedback requests: \"would love your feedback on this\"",
+        instead="cut them"),
+    "unearned_profundity": _checks.Check(
+        id="unearned_profundity", unit=_checks.Unit.SENTENCE, fn=check_unearned_profundity,
+        catches="Dramatic turning points with nothing concrete behind them: \"Everything changed.\"",
+        instead="name the actual event, or cut it"),
+    "dramatic_fragmentation": _checks.Check(
+        id="dramatic_fragmentation", unit=_checks.Unit.SENTENCE, fn=check_dramatic_fragmentation,
+        catches="One-line dramatic fragments: \"That's it. That's the whole thing.\"",
+        instead="cut them, the preceding sentence already made the point"),
+    "canned_question_answer": _checks.Check(
+        id="canned_question_answer", unit=_checks.Unit.SENTENCES, fn=check_canned_question_answer,
+        catches="A short rhetorical question with a canned answer",
+        instead="collapse into one direct statement"),
+    "negative_listing": _checks.Check(
+        id="negative_listing", unit=_checks.Unit.SENTENCES, fn=check_negative_listing,
+        catches="The \"Not X. Not Y.\" listing construction",
+        instead="state the point once"),
+    "terminology": _checks.Check(
+        id="terminology", unit=_checks.Unit.SENTENCE, fn=check_terminology,
+        catches="A banned synonym of one of this project's canonical terms, per its declared lexicon",
+        instead="one word, one meaning: use the canonical term the word's own note names",
+        terms_list="terminology", terms_arg="lexicon", terms_shape="with_notes"),
+    "identifier_in_prose": _checks.Check(
+        id="identifier_in_prose", unit=_checks.Unit.SENTENCE, fn=check_identifier_in_prose,
+        catches="A snake_case identifier written as plain prose",
+        instead="name it in words, or mark it as inline code"),
+}
+
+# Derived, not hand-typed -- kept as a plain module attribute since
+# test_lint.py and other callers reference it directly as the set of this
+# ruleset's check ids.
+ALL_CHECK_IDS = frozenset(CHECKS_TABLE)
+
+
 def lint_and_gate(text, context=None, file_path=None):
     sentences = []
     mechanical = []
@@ -786,29 +841,16 @@ def lint_and_gate(text, context=None, file_path=None):
 
 def blocking_semantic_flags(semantic_flags):
     """A different POLICY from ste100's exclusion-list approach -- see the
-    module docstring. No shared ruleset-wide flag-count pool anymore
-    (that used to live here as block_flag_count_threshold): each check's
-    own occurrence-weight is compared against its OWN threshold
-    (DEFAULT_CHECK_CONFIG, project-overridable via "check_config" in
+    module docstring. Each check's own occurrence-weight is compared
+    against its OWN threshold (project-overridable via "check_config" in
     stopslop.config.json), and a check that reaches its threshold denies
     the write on its own if its action is "block" -- never, if "warn".
     A document can carry any number of triggered "warn" checks and still
     pass; that is the point of per-check granularity replacing one shared
-    density number nobody could tune per check."""
-    config = _check_config()
-    grouped = {}
-    for f in semantic_flags:
-        grouped.setdefault(f["kind"], []).append(f)
-    blocking = []
-    for check_id, flags in grouped.items():
-        spec = config.get(check_id, {"threshold": 1, "action": "warn"})
-        # Occurrences, not deduped length: dedup collapses fifty repeats
-        # of one banned word into a single display entry, and a policy
-        # that counted the collapsed list scored monotonous slop below
-        # varied slop. See core.flags.flag_weight.
-        if flag_weight(flags) >= spec["threshold"] and spec["action"] == "block":
-            blocking.extend(flags)
-    return blocking
+    density number nobody could tune per check. See
+    core.checks.blocking_semantic_flags for the shared mechanism."""
+    project_root = _paths.find_project_root(__file__)
+    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "slopwatch", semantic_flags)
 
 
 def fix_sentence(sentence, enabled=None, extra_stock_adverbs=None):

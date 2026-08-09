@@ -9,14 +9,36 @@ Run with:
 or, once other ruleset suites exist:
     python3 -m unittest discover -s src -p 'test_*.py'
 """
+import importlib
 import json
 import os
+import pkgutil
+import sys
 import tempfile
+import textwrap
 import types
 import unittest
 
 from core import config
 import rulesets
+
+
+def _register_into(reg, module):
+    """Standalone copy of RegistryConformanceTests._register_into's logic,
+    for DynamicDiscoveryTests below (which needs it outside a TestCase
+    instance) -- mirrors rulesets._register() without ever writing into
+    the real, process-wide rulesets._REGISTRY."""
+    missing = [a for a in rulesets.REQUIRED_ATTRS if not hasattr(module, a)]
+    if missing:
+        raise rulesets.InvalidRulesetError(f"missing {missing}")
+    for cap in module.CAPABILITIES:
+        cap_missing = [a for a in rulesets.CAPABILITY_ATTRS.get(cap, ())
+                        if not hasattr(module, a)]
+        if cap_missing:
+            raise rulesets.InvalidRulesetError(f"missing capability attrs {cap_missing}")
+    if module.RULESET_ID in reg._REGISTRY:
+        raise rulesets.InvalidRulesetError("duplicate id")
+    reg._REGISTRY[module.RULESET_ID] = module
 
 
 PROJECT_ROOT = "/fake/project/root"
@@ -1181,6 +1203,99 @@ class PerPathDisabledChecksTests(unittest.TestCase):
         self.assertEqual(self._for("a.py", ruleset="codewatch"),
                           ["colon_reveal"])
         self.assertEqual(self._for("a.py", ruleset="ste100"), [])
+
+
+class DynamicDiscoveryTests(unittest.TestCase):
+    """rulesets/__init__.py's registry is populated by scanning its own
+    subpackages (_discover_and_register), not by a hardcoded import list
+    -- this proves the discovery MECHANISM: a subpackage declaring
+    RULESET_ID is found and validated through the same conformance gate
+    RegistryConformanceTests exercises directly; one without RULESET_ID
+    is silently skipped as a non-ruleset helper; a loose module (not a
+    package) is skipped too, the same way __init__.py's own docstring
+    says it should be. Runs against a synthetic temp directory added to
+    sys.path, never the real rulesets/ package, so a bad fixture here
+    can't pollute the real, process-wide registry every other test
+    module relies on."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.pkg_root = self._tmp.name
+        sys.path.insert(0, self.pkg_root)
+        self._new_modules = []
+
+    def tearDown(self):
+        sys.path.remove(self.pkg_root)
+        for name in self._new_modules:
+            sys.modules.pop(name, None)
+        self._tmp.cleanup()
+
+    def _write_package(self, name, body):
+        d = os.path.join(self.pkg_root, name)
+        os.makedirs(d)
+        with open(os.path.join(d, "__init__.py"), "w") as f:
+            f.write(textwrap.dedent(body))
+        self._new_modules.append(name)
+
+    def _discover(self, expected_module_name):
+        """The same ispkg-only, RULESET_ID-presence-only filter
+        _discover_and_register uses, against a local registry dict via
+        _register_into -- never the real rulesets._REGISTRY."""
+        reg = types.SimpleNamespace(_REGISTRY={})
+        found = []
+        for info in sorted(pkgutil.iter_modules([self.pkg_root]), key=lambda i: i.name):
+            if not info.ispkg:
+                continue
+            module = importlib.import_module(info.name)
+            if hasattr(module, "RULESET_ID"):
+                _register_into(reg, module)
+                found.append(info.name)
+        return found, reg._REGISTRY
+
+    def test_real_registry_matches_expected_ruleset_set(self):
+        # The compensating control for trading hardcoded imports away:
+        # an accidental new ruleset (a stray directory, an experiment
+        # left half-done) is still caught here, at test time, rather
+        # than only being noticeable from a glance over __init__.py.
+        self.assertEqual({m.RULESET_ID for m in rulesets.list_rulesets()},
+                          {"ste100", "slopwatch", "codewatch"})
+
+    def test_package_with_ruleset_id_is_discovered(self):
+        self._write_package("fake_good_ruleset", """
+            RULESET_ID = "fake_good"
+            RULESET_NAME = "Fake Good"
+            CAPABILITIES = frozenset()
+            def lint_and_gate(text, *, context=None, file_path=None): return {}
+            def blocking_semantic_flags(semantic_flags): return []
+            def apply_mechanical_fixes(text, file_path=None): return text
+        """)
+        found, registry = self._discover("fake_good_ruleset")
+        self.assertIn("fake_good_ruleset", found)
+        self.assertIn("fake_good", registry)
+
+    def test_package_without_ruleset_id_is_skipped(self):
+        self._write_package("fake_helper_pkg", "SOME_CONSTANT = 1\n")
+        found, registry = self._discover("fake_helper_pkg")
+        self.assertNotIn("fake_helper_pkg", found)
+        self.assertEqual(registry, {})
+
+    def test_loose_module_is_not_treated_as_a_ruleset_package(self):
+        with open(os.path.join(self.pkg_root, "fake_loose_module.py"), "w") as f:
+            f.write('RULESET_ID = "fake_loose"\n')
+        self._new_modules.append("fake_loose_module")
+        found, registry = self._discover("fake_loose_module")
+        self.assertNotIn("fake_loose_module", found)
+        self.assertEqual(registry, {})
+
+    def test_malformed_ruleset_id_package_raises_loudly(self):
+        self._write_package("fake_broken_ruleset", """
+            RULESET_ID = "fake_broken"
+            RULESET_NAME = "Fake Broken"
+            CAPABILITIES = frozenset()
+            # missing lint_and_gate/blocking_semantic_flags/apply_mechanical_fixes
+        """)
+        with self.assertRaises(rulesets.InvalidRulesetError):
+            self._discover("fake_broken_ruleset")
 
 
 if __name__ == "__main__":

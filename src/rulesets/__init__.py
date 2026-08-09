@@ -1,17 +1,30 @@
-"""Static ruleset registry.
+"""Dynamic ruleset registry.
 
-Rulesets are discovered by explicit import and registration at the bottom of
-this file -- not by filesystem scanning. Adding a ruleset means adding one
-import and one `_register()` call, kept deliberately manual so "what
-rulesets exist" stays a single, git-diffable fact instead of "whatever
-happens to be sitting in this directory." Revisit if a third or fourth
-ruleset makes that manual step tedious.
+Rulesets are discovered by scanning this package's own subpackages (see
+_discover_and_register at the bottom of this file), not by a hand-
+maintained import list. A new ruleset is a new directory under
+rulesets/ exposing the required contract below -- nothing here needs
+editing to pick it up.
 
-Every ruleset module must expose the required contract surface below --
-checked here at registration time (import time), not on first use, so a
-malformed ruleset fails loudly at startup rather than surfacing as a
-confusing error deep inside a live gate decision.
+This traded away a previously deliberate choice: hardcoded imports kept
+"what rulesets exist" a single, git-diffable fact rather than "whatever
+happens to be sitting in this directory." The compensating control is
+test_config.py's own pinning test, asserting today's real registry
+still resolves to exactly {"ste100", "slopwatch", "codewatch"} -- so an
+accidental new ruleset (a stray directory, an experiment left half-done)
+is still caught, just at test time instead of at a glance over this file.
+
+Every ruleset module must still expose the required contract surface
+below -- checked here at registration time (import time), not on first
+use, so a malformed ruleset fails loudly at startup rather than
+surfacing as a confusing error deep inside a live gate decision. A
+subpackage with no RULESET_ID is silently skipped as a non-ruleset
+helper (there are none today, but core/ style shared code could
+plausibly live under rulesets/ in the future); one that declares
+RULESET_ID but fails the rest of the contract still raises loudly.
 """
+import importlib
+import pkgutil
 
 # lint_and_gate(text, *, context=None, file_path=None) and
 # apply_mechanical_fixes(text, file_path=None). file_path is part of the
@@ -111,12 +124,20 @@ def list_rulesets():
     return [_REGISTRY[k] for k in sorted(_REGISTRY)]
 
 
-# --- Registration -----------------------------------------------------
-from rulesets import ste100 as _ste100
-_register(_ste100)
+# --- Discovery ----------------------------------------------------------
 
-from rulesets import slopwatch as _slopwatch
-_register(_slopwatch)
+def _discover_and_register():
+    """Import every direct subpackage of rulesets/ and register any that
+    declares RULESET_ID, sorted by name for deterministic registration
+    order. Runs once, at import time of this module -- a fresh process
+    always sees the real current contents of the directory, and a
+    malformed ruleset still fails at startup, not mid-gate."""
+    for info in sorted(pkgutil.iter_modules(__path__), key=lambda i: i.name):
+        if not info.ispkg:
+            continue
+        module = importlib.import_module(f"{__name__}.{info.name}")
+        if hasattr(module, "RULESET_ID"):
+            _register(module)
 
-from rulesets import codewatch as _codewatch
-_register(_codewatch)
+
+_discover_and_register()

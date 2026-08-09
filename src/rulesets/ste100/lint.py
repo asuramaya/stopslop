@@ -22,8 +22,8 @@ from core.blocks import (
     tokenize_sentences, words, split_into_blocks,
     HEADER_RE as _HEADER_RE, LIST_ITEM_RE as _LIST_ITEM_RE, FENCE_RE as _FENCE_RE,
 )
-from core.flags import dedup_flags, flag_weight, default_label as _label
-from core import config as _core_config, paths as _paths, terms as _terms
+from core.flags import dedup_flags, default_label as _label
+from core import checks as _checks, paths as _paths, terms as _terms
 from core import glossary_packs
 
 # --- Tier 1: base approved dictionary, loaded from the real ASD-STE100
@@ -821,69 +821,106 @@ def check_safety_instruction(block_text):
     return hits
 
 
-# Every "kind" string this ruleset's checks can produce -- the modularity
-# surface rulesets/ste100/__init__.py's list_checks()/set_enabled_checks()
-# expose, same shape slopwatch/codewatch already have. Previously ste100
-# had no per-check toggles at all (the per-check-toggle work only ever
-# touched the other two rulesets) -- the real gap that made the three
-# rulesets' configurability inconsistent with each other.
-ALL_CHECK_IDS = frozenset({
-    "safety_instruction", "length", "vocabulary", "ing_form", "perfect_tense",
-    "progressive", "passive", "modal", "punctuation", "trailing_condition",
-    "latin_abbrev", "inclusive_language", "synonym_rotation",
-})
-
-# Per-check {threshold, action}, the same shape slopwatch and codewatch
-# carry -- ste100 was the last ruleset on the older ruleset-wide "options"
-# mechanism, and every consumer (dashboard, CLI, MCP) had to branch around
-# it. The defaults reproduce the old behaviour exactly: ste100 blocked on
-# every flag, except vocabulary, whose three "type"s were all excluded by
-# default (the old excluded_vocab_types option) -- which was only ever a
-# long way of saying vocabulary warns instead of blocking. The per-TYPE
-# granularity is gone with it; nobody narrowed that set, and a project
-# that wants vocabulary to block says so with one action field now.
+# Every check's declared identity -- see core/checks.py. Replaces the old
+# ALL_CHECK_IDS/DEFAULT_CHECK_CONFIG pair here plus the CHECKS
+# (catches/instead) dict that used to live separately in __init__.py.
+# Every check defaults to block except vocabulary (warn -- see the note
+# above blocking_semantic_flags for why). `length` carries the two word
+# limits ASD-STE100 rule 5.1 fixes as real, project-tunable params -- the
+# defaults ARE the standard.
 #
-# `length` carries two extra per-check numbers, the word limits ASD-STE100
-# rule 5.1 fixes. The defaults ARE the standard: a project lowering them
-# tightens its own house style; raising them departs from ASD-STE100
-# knowingly, a choice the tool lets a project make and record in its
-# config rather than silently prevent.
-DEFAULT_CHECK_CONFIG = {check_id: {"threshold": 1, "action": "block"}
-                        for check_id in ALL_CHECK_IDS}
-DEFAULT_CHECK_CONFIG["vocabulary"] = {"threshold": 1, "action": "warn"}
-DEFAULT_CHECK_CONFIG["length"] = {"threshold": 1, "action": "block",
-                                   "procedure_word_limit": 20,
-                                   "description_word_limit": 25}
+# `vocabulary` maps THREE term lists onto one check (approved_words,
+# unapproved_words, project_terms all feed it -- see TERM_LISTS above),
+# so it declares no single terms_list here; that fan-in has no clean
+# single-string representation yet. `safety_instruction` runs once per
+# BLOCK (paragraph/list_item), not once per document -- DOCUMENT is the
+# closest available Unit, not a precise fit (see the architecture-
+# unification plan's design risks on this exact check).
+CHECKS_TABLE = {
+    "modal": _checks.Check(
+        id="modal", unit=_checks.Unit.SENTENCE, fn=check_modals,
+        catches="Hedging modals: should, would, may, might, could",
+        instead="must for requirements, can for real possibility; delete or state as fact for recommendations",
+        default_action="block"),
+    "passive": _checks.Check(
+        id="passive", unit=_checks.Unit.SENTENCE, fn=check_passive,
+        catches="Passive voice with no clear actor",
+        instead="name the actor, or restructure to active voice",
+        default_action="block"),
+    "ing_form": _checks.Check(
+        id="ing_form", unit=_checks.Unit.SENTENCE, fn=check_ing,
+        catches="-ing misuse",
+        instead="infinitive or simple tense, unless it is one of the ~9 whitelisted -ing nouns and adjectives",
+        default_action="block"),
+    "progressive": _checks.Check(
+        id="progressive", unit=_checks.Unit.SENTENCE, fn=check_progressive,
+        catches="Progressive tense: is/are/was/were + -ing",
+        instead="use simple tense",
+        default_action="block"),
+    "length": _checks.Check(
+        id="length", unit=_checks.Unit.SENTENCE, fn=check_length,
+        catches="Sentences over the context's word limit",
+        instead="split at the clause boundary while drafting, rather than writing long and splitting after",
+        params={"procedure_word_limit": 20, "description_word_limit": 25},
+        default_action="block", dedup=False),
+    "punctuation": _checks.Check(
+        id="punctuation", unit=_checks.Unit.SENTENCE, fn=check_punctuation,
+        catches="Contractions and semicolons",
+        instead="write contractions in full; use two sentences instead of a semicolon",
+        default_action="block"),
+    "perfect_tense": _checks.Check(
+        id="perfect_tense", unit=_checks.Unit.SENTENCE, fn=check_perfect,
+        catches="Present perfect and present perfect passive: has/have/had (been) + V-ed",
+        instead="use simple past",
+        default_action="block"),
+    "vocabulary": _checks.Check(
+        id="vocabulary", unit=_checks.Unit.SENTENCE, fn=check_vocabulary,
+        catches="Words outside the approved dictionary: utilize, leverage, seamlessly",
+        instead="use the plain approved equivalent",
+        default_action="warn"),
+    "trailing_condition": _checks.Check(
+        id="trailing_condition", unit=_checks.Unit.SENTENCE, fn=check_trailing_condition,
+        catches="A condition trailing after the command",
+        instead="put 'if' and 'when' clauses at the start of the sentence",
+        default_action="block", dedup=False),
+    "synonym_rotation": _checks.Check(
+        id="synonym_rotation", unit=_checks.Unit.DOCUMENT, fn=check_synonym_rotation,
+        catches="One concept named with rotating synonyms: check, verify, confirm",
+        instead="pick one term per concept and stay with it",
+        default_action="block", dedup=False),
+    "latin_abbrev": _checks.Check(
+        id="latin_abbrev", unit=_checks.Unit.SENTENCE, fn=check_latin_abbrev,
+        catches="Latin abbreviations: e.g., i.e., etc., vs.",
+        instead="ASD-STE100 forbids them; write the plain English equivalent",
+        default_action="block"),
+    "inclusive_language": _checks.Check(
+        id="inclusive_language", unit=_checks.Unit.SENTENCE, fn=check_inclusive_language,
+        catches="Gendered pronouns and terms",
+        instead="name the actor, use 'they', or use the standard's gender-neutral term",
+        default_action="block"),
+    "safety_instruction": _checks.Check(
+        id="safety_instruction", unit=_checks.Unit.DOCUMENT, fn=check_safety_instruction,
+        catches="A malformed WARNING/CAUTION/NOTE label (rules 7.1-7.3)",
+        instead="format only: this cannot detect a MISSING label, only a badly-formed one",
+        default_action="block", dedup=False),
+}
+
+# Derived, not hand-typed -- kept as a plain module attribute since
+# test_lint.py and other callers reference it directly as the set of this
+# ruleset's check ids.
+ALL_CHECK_IDS = frozenset(CHECKS_TABLE)
 
 
 def _check_config():
-    """DEFAULT_CHECK_CONFIG with any valid override from
-    stopslop.config.json's "check_config" key layered on top, per check.
-    An override naming an unknown check, an invalid action, or a
-    non-integer number is ignored for that field -- same
-    never-break-the-gate posture as _enabled_check_ids(). Extra numeric
-    fields beyond {threshold, action} (length's word limits) take the
-    same validation as threshold: a whole number, at least 1."""
-    merged = {check_id: dict(spec) for check_id, spec in DEFAULT_CHECK_CONFIG.items()}
+    """The merged {threshold, action, **params} view -- check_length
+    reads its own word limits off this directly (`length` is the one
+    check whose matcher needs live config, not just a pre-resolved
+    `extra`/`lexicon` argument the way vocabulary-bound checks do)."""
     try:
         project_root = _paths.find_project_root(__file__)
-        overrides = _core_config.check_config(project_root, "ste100")
     except Exception:
-        return merged
-    for check_id, override in overrides.items():
-        if check_id not in merged or not isinstance(override, dict):
-            continue
-        spec = dict(merged[check_id])
-        for field in spec:
-            if field == "action":
-                if override.get("action") in ("block", "warn"):
-                    spec["action"] = override["action"]
-                continue
-            value = override.get(field)
-            if isinstance(value, int) and not isinstance(value, bool) and value >= 1:
-                spec[field] = value
-        merged[check_id] = spec
-    return merged
+        return _checks.default_check_config(CHECKS_TABLE)
+    return _checks.check_config(CHECKS_TABLE, project_root, "ste100")
 
 
 def _enabled_check_ids(file_path=None):
@@ -891,11 +928,9 @@ def _enabled_check_ids(file_path=None):
     codewatch's own _enabled_check_ids()."""
     try:
         project_root = _paths.find_project_root(__file__)
-        disabled = set(_core_config.disabled_checks_for_path(
-            project_root, "ste100", file_path))
     except Exception:
-        return set(ALL_CHECK_IDS)
-    return ALL_CHECK_IDS - disabled
+        return set(_checks.all_check_ids(CHECKS_TABLE))
+    return _checks.enabled_check_ids(CHECKS_TABLE, project_root, "ste100", file_path)
 
 
 def lint_sentence(sentence, context="procedure", project_terms=None, suppressed=None):
@@ -1067,25 +1102,14 @@ def lint_and_gate(text, context="procedure", file_path=None):
 # every caller (the hook, the CLI, the MCP server) goes through
 # blocking_semantic_flags() rather than keeping its own copy of this filter.
 def blocking_semantic_flags(semantic_flags):
-    """Group the flags by check, weigh each check's own occurrences
-    against its own threshold, and return the flags of every check that
-    is both triggered and set to block -- the same per-check contract
-    slopwatch and codewatch carry (see either's own docstring). With
-    every ste100 check defaulting to {threshold: 1, action: "block"}
-    except vocabulary (warn), this reproduces the old behaviour exactly:
-    every flag blocked, vocabulary reported and let through."""
-    config = _check_config()
-    by_check = {}
-    for f in semantic_flags:
-        by_check.setdefault(f["kind"], []).append(f)
-    blocking = []
-    for check_id, flags in by_check.items():
-        spec = config.get(check_id)
-        if spec is None:
-            continue
-        if flag_weight(flags) >= spec["threshold"] and spec["action"] == "block":
-            blocking.extend(flags)
-    return blocking
+    """With every ste100 check defaulting to {threshold: 1, action:
+    "block"} except vocabulary (warn), this reproduces the original
+    behaviour exactly: every flag blocked, vocabulary reported and let
+    through. See core.checks.blocking_semantic_flags for the shared
+    mechanism (identical per-check contract slopwatch and codewatch
+    carry)."""
+    project_root = _paths.find_project_root(__file__)
+    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "ste100", semantic_flags)
 
 
 def fix_sentence(sentence, project_terms=None, suppressed=None):
