@@ -63,11 +63,11 @@ CHECKS = {
                            "name the actual source, or cut the claim"),
     "entity_encoded_punctuation": ("An em dash, section sign or middle dot "
                                    "written as an HTML entity",
-                                   "write the plain character instead"),
+                                   "write the plain character"),
     "bold_bullet_lead": ("A bolded word opening a list item as a per-item tag",
                          "reserve bold for a rare callout"),
     "id_label_lead": ("Fake ID tags opening list items: \"R-1.\", \"US-01\"",
-                      "number the list plainly instead"),
+                      "number the list plainly"),
     "not_just_x_but_y": ("The \"not just X but Y\" construction",
                          "make the point once"),
     "vague_intensifier": ("Vague intensifiers with no number behind them: "
@@ -82,7 +82,7 @@ CHECKS = {
                     "use a plain verb, or cut the sentence"),
     "marketing_cliche": ("Marketing cliches: \"hidden gem\", "
                          "\"let's dive in\"",
-                         "say the specific thing instead"),
+                         "say the specific thing"),
     "solicit_criticism": ("Fake-humility feedback requests: \"would love "
                           "your feedback on this\"",
                           "cut them"),

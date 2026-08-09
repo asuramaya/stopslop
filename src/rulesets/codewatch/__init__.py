@@ -25,7 +25,7 @@ TRACKED_FILES = ["lint.py"]
 # this is two fields rather than one prewritten sentence.
 CHECKS = {
     "trivial_comment": ("Comments that only restate the next line",
-                        "cut them, or say why instead"),
+                        "cut them, or say why the code does this"),
     "narrative_comment": ("Separator bars, \"Phase/Step N\" headers, "
                           "step-by-step narration",
                           "the code already says what it does"),

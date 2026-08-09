@@ -419,8 +419,19 @@ def _apply_check_edits(repo_root, module, rows, before, after):
 
 
 def _check_contents(repo_root, rows, ruleset_id):
-    """The extra settings behind a check, for the checks that have any --
-    and a POINTER, never an editor, for a check's word lists.
+    """The extra settings behind a check, split into what they actually
+    are, not lumped under one "Words and settings" picker the way this
+    used to work. That picker mixed two unrelated things: a check with
+    a real editable PARAM (ste100's length gives you a live +/- control
+    the instant you pick it) and a check with only a word LIST (picking
+    codewatch's generic_naming gave you nothing here at all, only a
+    sentence pointing at Vocabulary). Same heading, same selector, same
+    "N of these M checks have any" framing -- and one entry did
+    something while the other was a dead end. A picker whose entries
+    are not the same kind of thing is the bug; split so a picker only
+    ever holds entries that DO something here, and a list pointer --
+    read-only by design, nothing to interact with once read -- is never
+    hidden behind one.
 
     Words used to be curated right here too, which put the whole
     word-table/add/override machinery on two pages at once (this one and
@@ -428,43 +439,63 @@ def _check_contents(repo_root, rows, ruleset_id):
     tuning a check's behaviour happens here; changing what words feed it
     happens on Vocabulary, and this pane says so with the list's name
     and live count rather than duplicating the controls."""
-    have = [r for r in rows if r["lists"] or r["params"]]
-    if not have:
+    tunable = [r for r in rows if r["params"]]
+    listed = [r for r in rows if r["lists"]]
+    if not tunable and not listed:
         return
 
     st.divider()
-    if len(have) == 1:
-        # A selectbox offering one choice is a control that does nothing.
-        row = have[0]
-        st.caption(f"Words and settings: `{row['check']}` is the only one "
-                   f"of these checks with any.")
-    else:
-        labels = {r["check"]: f"{r['check']}: " + ", ".join(
-            filter(None, [_n(len(r['lists']), "word list") if r["lists"] else "",
-                          ", ".join(n.replace("_", " ") for n in r["params"])]))
-            for r in have}
-        picked = st.selectbox(
-            f"Words and settings ({len(have)} of these {len(rows)} checks have any)",
-            [r["check"] for r in have], key=f"check_contents::{ruleset_id}",
-            format_func=lambda c: labels[c])
-        row = next(r for r in have if r["check"] == picked)
+    if tunable:
+        _check_settings(repo_root, tunable, rows, ruleset_id)
+    if listed:
+        if tunable:
+            st.divider()
+        _check_vocabulary_pointers(repo_root, listed)
 
-    # One line, whole story: what the check catches, then the remedy --
-    # the remedy used to float alone as "Instead: ..." with nothing on
-    # screen saying instead of WHAT.
-    st.caption(f"{row['catches']}. Instead, {row['instead']}.")
+
+def _check_settings(repo_root, tunable, rows, ruleset_id):
+    """Checks with a real editable parameter. Every entry here gives you
+    a live control the moment you pick it -- never a pointer elsewhere,
+    which is exactly the mix _check_contents' own docstring explains."""
+    if len(tunable) == 1:
+        # A selectbox offering one choice is a control that does nothing.
+        row = tunable[0]
+        st.caption(f"Settings: `{row['check']}` is the only one of these "
+                   f"checks with any.")
+    else:
+        labels = {r["check"]: f"{r['check']}: "
+                  + ", ".join(n.replace("_", " ") for n in r["params"])
+                  for r in tunable}
+        picked = st.selectbox(
+            f"Settings ({len(tunable)} of these {len(rows)} checks have any)",
+            [r["check"] for r in tunable], key=f"check_contents::{ruleset_id}",
+            format_func=lambda c: labels[c])
+        row = next(r for r in tunable if r["check"] == picked)
+
+    # Only the remedy, not "what it catches" -- that column is already on
+    # every row of the table one scroll above; restating it here duplicated
+    # the table, once per check shown.
+    st.caption(f"Instead, {row['instead']}.")
     for name, info in row["params"].items():
         _param_control(repo_root, row, name, info)
-    module = row["module"]
-    for list_id in row["lists"]:
-        spec = module.TERM_LISTS[list_id]
-        layers = core_terms.resolve(spec, repo_root, module.RULESET_ID, list_id)
-        polarity = spec.get("polarity")
-        st.caption(f"**{spec.get('label') or list_id}**: "
-                   f"{_n(len(layers['effective']), 'word')}; "
-                   + ("a word here stops being flagged. "
-                      if polarity == "allow" else "a word here gets flagged. ")
-                   + "Curate it on Vocabulary.")
+
+
+def _check_vocabulary_pointers(repo_root, listed):
+    """Every check with a word list, named inline -- nothing here to
+    select, only to read, so a reader sees all of them, not one at a
+    time behind a picker that implied there was something to do."""
+    for row in listed:
+        st.caption(f"`{row['check']}`: instead, {row['instead']}.")
+        module = row["module"]
+        for list_id in row["lists"]:
+            spec = module.TERM_LISTS[list_id]
+            layers = core_terms.resolve(spec, repo_root, module.RULESET_ID, list_id)
+            polarity = spec.get("polarity")
+            st.caption(f"{spec.get('label') or list_id}: "
+                       f"{_n(len(layers['effective']), 'word')}; "
+                       + ("a word here stops being flagged. "
+                          if polarity == "allow" else "a word here gets flagged. ")
+                       + "Curate it on Vocabulary.")
 
 
 def _param_control(repo_root, row, name, info):

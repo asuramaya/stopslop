@@ -299,20 +299,33 @@ class CheckParamsRenderAControlTests(unittest.TestCase):
     read-only markdown -- visible and uneditable. That mechanism is gone:
     threshold and action are cells on every row now, and the only
     settings NOT in the table are a check's own extra params (ste100
-    length's two word limits), which _check_contents must surface as real
-    controls for the same reason."""
+    length's two word limits), which _check_contents (by way of
+    _check_settings, since a check's params and its word lists split
+    into their own functions -- a picker mixing "gives you a live
+    control" entries with "points at Vocabulary and does nothing here"
+    entries was the bug a prior round of this file fixed) must surface
+    as real controls for the same reason."""
 
-    def test_check_contents_renders_a_control_for_check_params(self):
+    def _calls(self, func_name):
         path = os.path.join(SRC_DIR, "configure.py")
         with open(path) as f:
             tree = ast.parse(f.read())
         func = next(n for n in ast.walk(tree)
-                    if isinstance(n, ast.FunctionDef) and n.name == "_check_contents")
-        called = {node.func.id for node in ast.walk(func)
-                  if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)}
+                    if isinstance(n, ast.FunctionDef) and n.name == func_name)
+        return {node.func.id for node in ast.walk(func)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)}
+
+    def test_check_contents_reaches_check_settings_for_tunable_checks(self):
         self.assertIn(
-            "_param_control", called,
-            "_check_contents no longer renders a control for a check's own "
+            "_check_settings", self._calls("_check_contents"),
+            "_check_contents no longer delegates a check's own extra params "
+            "anywhere -- length's word limits would be visible in "
+            "list_check_config and editable nowhere on the page")
+
+    def test_check_settings_renders_a_control_for_check_params(self):
+        self.assertIn(
+            "_param_control", self._calls("_check_settings"),
+            "_check_settings no longer renders a control for a check's own "
             "extra params, so length's word limits are visible in "
             "list_check_config and editable nowhere on the page -- the "
             "exact visible-but-uneditable state this test exists to prevent")

@@ -50,7 +50,7 @@ CHECKS = {
                  "infinitive or simple tense, unless it is one of the ~9 "
                  "whitelisted -ing nouns and adjectives"),
     "progressive": ("Progressive tense: is/are/was/were + -ing",
-                    "use simple tense instead"),
+                    "use simple tense"),
     "length": ("Sentences over the context's word limit",
                "split at the clause boundary while drafting, rather than "
                "writing long and splitting after"),
@@ -59,7 +59,7 @@ CHECKS = {
                     "of a semicolon"),
     "perfect_tense": ("Present perfect and present perfect passive: "
                       "has/have/had (been) + V-ed",
-                      "use simple past instead"),
+                      "use simple past"),
     "vocabulary": ("Words outside the approved dictionary: utilize, "
                    "leverage, seamlessly",
                    "use the plain approved equivalent"),
