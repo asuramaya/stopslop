@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Tests for `dashboard_launch.py`'s singleton-spawn mechanism: the lock
-that keeps concurrent MCP sessions from racing to start N Streamlit
+that keeps concurrent MCP sessions from racing to start N dashboard
 processes, and the health probe that tells a real dashboard apart from an
 unrelated service or a crashed one. No import-time dependency on mcp or
-streamlit, so this suite runs under the stdlib-only test command.
+fastapi, so this suite runs under the stdlib-only test command.
 
 Run with `cd src && python3 -m unittest test_dashboard_launch -v`.
 """
@@ -39,7 +39,7 @@ def _stop(server):
 
 class _HealthHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/_stcore/health":
+        if self.path == "/health":
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b"ok")
@@ -135,28 +135,21 @@ class VenvPythonPathTests(unittest.TestCase):
         self.assertEqual(path, os.path.join("/repo", ".venv", "bin", "python3"))
 
 
-class StreamlitArgvTests(unittest.TestCase):
-    def test_headless_appends_the_headless_flags(self):
-        argv = dashboard_launch.streamlit_argv(
-            "/venv/python3", "/repo/src/dashboard.py", 8501, headless=True)
+class UvicornArgvTests(unittest.TestCase):
+    def test_shape(self):
+        argv = dashboard_launch.uvicorn_argv("/venv/python3", "/repo/src", 8501)
         self.assertEqual(argv, [
-            "/venv/python3", "-m", "streamlit", "run", "/repo/src/dashboard.py",
-            "--server.port", "8501", "--server.address", "127.0.0.1",
-            "--server.headless", "true",
+            "/venv/python3", "-m", "uvicorn", "webui.app:app",
+            "--app-dir", "/repo/src", "--port", "8501", "--host", "127.0.0.1",
         ])
 
-    def test_foreground_omits_the_headless_flags(self):
-        argv = dashboard_launch.streamlit_argv(
-            "/venv/python3", "/repo/src/dashboard.py", 8501, headless=False)
-        self.assertNotIn("--server.headless", argv)
+    def test_port_is_stringified(self):
+        argv = dashboard_launch.uvicorn_argv("/venv/python3", "/repo/src", 9000)
+        self.assertIn("9000", argv)
+        self.assertNotIn(9000, argv)
 
 
-class DashboardPathAndUrlTests(unittest.TestCase):
-    def test_dashboard_path_points_at_a_real_file(self):
-        path = dashboard_launch.dashboard_path()
-        self.assertTrue(os.path.isfile(path))
-        self.assertTrue(path.endswith("dashboard.py"))
-
+class DashboardUrlTests(unittest.TestCase):
     def test_dashboard_url_default_port(self):
         self.assertEqual(dashboard_launch.dashboard_url(), "http://localhost:8501")
 
@@ -174,11 +167,11 @@ class EnsureRunningTests(unittest.TestCase):
         setattr(obj, name, value)
         self.addCleanup(setattr, obj, name, original)
 
-    def _force_streamlit_present(self):
+    def _force_fastapi_present(self):
         self._patch(dashboard_launch.importlib.util, "find_spec", lambda name: object())
 
     def test_does_nothing_when_already_alive(self):
-        self._force_streamlit_present()
+        self._force_fastapi_present()
         calls = []
         self._patch(dashboard_launch, "is_alive", lambda *a, **k: True)
         self._patch(dashboard_launch, "_spawn_detached", lambda *a, **k: calls.append(a))
@@ -186,7 +179,7 @@ class EnsureRunningTests(unittest.TestCase):
             dashboard_launch.ensure_running(project_root=d)
         self.assertEqual(calls, [])
 
-    def test_skips_spawn_when_streamlit_is_not_installed(self):
+    def test_skips_spawn_when_fastapi_is_not_installed(self):
         self._patch(dashboard_launch.importlib.util, "find_spec", lambda name: None)
         calls = []
         self._patch(dashboard_launch, "is_alive", lambda *a, **k: False)
@@ -196,7 +189,7 @@ class EnsureRunningTests(unittest.TestCase):
         self.assertEqual(calls, [])
 
     def test_does_not_spawn_when_the_lock_is_already_held(self):
-        self._force_streamlit_present()
+        self._force_fastapi_present()
         calls = []
         self._patch(dashboard_launch, "is_alive", lambda *a, **k: False)
         self._patch(dashboard_launch, "_spawn_detached", lambda *a, **k: calls.append(a))
@@ -213,7 +206,7 @@ class EnsureRunningTests(unittest.TestCase):
         self.assertEqual(calls, [])
 
     def test_spawns_once_and_waits_for_liveness_when_the_lock_is_free(self):
-        self._force_streamlit_present()
+        self._force_fastapi_present()
         calls = []
         # False on the pre-lock probe and the post-lock re-check, True from
         # _wait_until_alive's first poll on -- proves a fresh spawn is
@@ -226,9 +219,9 @@ class EnsureRunningTests(unittest.TestCase):
         self.assertEqual(len(calls), 1)
 
     def test_never_raises_out_of_an_unexpected_failure(self):
-        # ensure_running is called from a daemon thread nobody is watching
-        # -- an unexpected exception must be logged, never propagated.
-        self._force_streamlit_present()
+        # This runs inside a daemon thread nobody is watching -- an
+        # unexpected exception must be logged, never propagated.
+        self._force_fastapi_present()
         self._patch(dashboard_launch, "is_alive", lambda *a, **k: False)
 
         def _boom(*a, **k):

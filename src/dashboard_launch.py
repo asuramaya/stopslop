@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Singleton launcher for dashboard.py -- lets mcp_server.py auto-start the
-dashboard on load without every concurrent session (or harness) racing to
-spawn its own copy and burn CPU on N idle Streamlit processes.
+"""Singleton launcher for webui/app.py -- lets mcp_server.py auto-start
+the dashboard on load without every concurrent session (or harness)
+racing to spawn its own copy and burn CPU on N idle server processes.
 
 Two guards, not one:
 
 - A liveness probe (`is_alive`) answers "is a dashboard already serving
-  this port" by hitting Streamlit's own `/_stcore/health` endpoint, not
-  just checking whether the TCP port is open -- an unrelated process
-  holding the port reads as absent rather than as our dashboard, and a
-  crashed dashboard reads as absent rather than as alive forever the way
-  a stale pidfile would.
+  this port" by hitting the app's own `/health` endpoint, not just
+  checking whether the TCP port is open -- an unrelated process holding
+  the port reads as absent rather than as our dashboard, and a crashed
+  dashboard reads as absent rather than as alive forever the way a stale
+  pidfile would.
 - An flock on `.claude/stopslop-dashboard.lock` closes the race the probe
   alone can't: two sessions loading MCP in the same instant can both see
   "not alive" before either has started listening. Only the lock's winner
@@ -27,7 +27,7 @@ Code window closed, and the next session to load MCP would just restart
 the churn instead of finding a stable, shared server.
 
 POSIX (fcntl.flock) and Windows (msvcrt.locking) both implemented -- this
-module has no import-time dependency on mcp or streamlit, so it stays
+module has no import-time dependency on mcp or fastapi, so it stays
 importable and unit-testable under the stdlib-only suite.
 """
 import importlib.util
@@ -47,10 +47,6 @@ _SPAWN_TIMEOUT_SECONDS = 10
 _POLL_INTERVAL_SECONDS = 0.25
 
 
-def dashboard_path():
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "dashboard.py")
-
-
 def dashboard_url(port=DASHBOARD_PORT):
     return f"http://localhost:{port}"
 
@@ -61,32 +57,35 @@ def venv_python_path(repo_root):
     so `sys.executable` already IS this), the CLI can be invoked by plain
     system python3, so it has to resolve the venv explicitly. `bin/python3`
     vs `Scripts/python.exe` is the one real platform fork here; `-m
-    streamlit` below is what avoids a second one (guessing whether the
-    streamlit entry point is a `bin/streamlit` script, a `Scripts/
-    streamlit.exe`, or something else pip decided to generate)."""
+    uvicorn` below is what avoids a second one (guessing whether the
+    uvicorn entry point is a `bin/uvicorn` script, a `Scripts/
+    uvicorn.exe`, or something else pip decided to generate)."""
     if os.name == "nt":
         return os.path.join(repo_root, ".venv", "Scripts", "python.exe")
     return os.path.join(repo_root, ".venv", "bin", "python3")
 
 
-def streamlit_argv(python_exe, dash_path, port, headless):
-    argv = [python_exe, "-m", "streamlit", "run", dash_path,
-            "--server.port", str(port), "--server.address", "127.0.0.1"]
-    if headless:
-        argv += ["--server.headless", "true"]
-    return argv
+def uvicorn_argv(python_exe, src_dir, port):
+    """`--app-dir` puts `src_dir` on uvicorn's own import path before it
+    resolves `webui.app:app` by dotted name -- the same role a script's
+    own directory being auto-added to sys.path played for `streamlit run
+    dashboard.py` (this project's previous dashboard), just spelled as an
+    explicit flag instead of an implicit one, since uvicorn imports a
+    module rather than running a script."""
+    return [python_exe, "-m", "uvicorn", "webui.app:app",
+            "--app-dir", src_dir, "--port", str(port), "--host", "127.0.0.1"]
 
 
 def is_alive(port=DASHBOARD_PORT, timeout=0.5):
-    """True if something at 127.0.0.1:port answers as a live Streamlit
-    app. HTTPError (a 404, say, from an unrelated service on that port)
-    is raised before the `with` block's __enter__ runs, so it's caught
-    and closed explicitly rather than falling through to the generic
-    OSError branch -- letting it fall through would leak the response's
-    socket instead of releasing it."""
+    """True if something at 127.0.0.1:port answers as a live instance of
+    this app. HTTPError (a 404, say, from an unrelated service on that
+    port) is raised before the `with` block's __enter__ runs, so it's
+    caught and closed explicitly rather than falling through to the
+    generic OSError branch -- letting it fall through would leak the
+    response's socket instead of releasing it."""
     try:
         with urllib.request.urlopen(
-                f"http://127.0.0.1:{port}/_stcore/health", timeout=timeout) as resp:
+                f"http://127.0.0.1:{port}/health", timeout=timeout) as resp:
             return resp.status == 200
     except urllib.error.HTTPError as exc:
         exc.close()
@@ -151,10 +150,11 @@ def _spawn_detached(python_exe, port, log_path, project_root):
         kwargs["creationflags"] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         kwargs["start_new_session"] = True
+    src_dir = os.path.join(project_root, "src")
     log_fh = open(log_path, "a")
     try:
         subprocess.Popen(
-            streamlit_argv(python_exe, dashboard_path(), port, headless=True),
+            uvicorn_argv(python_exe, src_dir, port),
             stdin=subprocess.DEVNULL, stdout=log_fh, stderr=subprocess.STDOUT,
             cwd=project_root, close_fds=True, **kwargs,
         )
@@ -175,10 +175,10 @@ def ensure_running(project_root=None, port=DASHBOARD_PORT, python_exe=None):
     """Start the dashboard if nothing is already serving `port`. Safe to
     call from every session's MCP server on startup: at most one caller,
     across however many concurrent processes call this at once, actually
-    spawns Streamlit -- see the module docstring for the lock+probe
-    mechanism that guarantees it.
+    spawns it -- see the module docstring for the lock+probe mechanism
+    that guarantees it.
 
-    Best-effort and silent on failure (missing streamlit, a port some
+    Best-effort and silent on failure (missing fastapi, a port some
     other process holds, a spawn that never comes up healthy) -- logged
     to .claude/stopslop-dashboard.log rather than raised, because the
     dashboard is a convenience surface and must never be able to take an
@@ -188,8 +188,8 @@ def ensure_running(project_root=None, port=DASHBOARD_PORT, python_exe=None):
     try:
         if is_alive(port):
             return
-        if importlib.util.find_spec("streamlit") is None:
-            _log(project_root, "dashboard auto-start skipped: streamlit not "
+        if importlib.util.find_spec("fastapi") is None:
+            _log(project_root, "dashboard auto-start skipped: fastapi not "
                                 "installed in this interpreter")
             return
         lock_path = _lock_path(project_root)
@@ -204,7 +204,7 @@ def ensure_running(project_root=None, port=DASHBOARD_PORT, python_exe=None):
             if not _wait_until_alive(port):
                 _log(project_root,
                      f"dashboard did not come up healthy on port {port} within "
-                     f"{_SPAWN_TIMEOUT_SECONDS}s -- see this file for streamlit's own output")
+                     f"{_SPAWN_TIMEOUT_SECONDS}s -- see this file for uvicorn's own output")
         finally:
             _release_lock(fd)
             os.close(fd)

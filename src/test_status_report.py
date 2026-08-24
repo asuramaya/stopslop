@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Tests for `status_report.py`'s installation-completeness checks: the
-pre-commit hook marker, the venv/mcp/streamlit importability probe (and
+pre-commit hook marker, the venv/mcp/fastapi importability probe (and
 its caching -- see `_venv_status`'s own docstring for why this one check is
 cached when nothing else in this module is), and the MCP trust-state
 reader.
@@ -53,13 +53,13 @@ class VenvStatusTests(unittest.TestCase):
     def test_present_and_importable_reports_a_real_check(self):
         with tempfile.TemporaryDirectory() as tmp:
             self._patch_venv_python_path(sys.executable)
-            present, mcp_ok, streamlit_ok = status_report._venv_status(tmp)
+            present, mcp_ok, webui_ok = status_report._venv_status(tmp)
             self.assertTrue(present)
-            # mcp/streamlit availability depends on which interpreter runs
+            # mcp/fastapi availability depends on which interpreter runs
             # this suite (stdlib-only vs the real venv) -- just confirm a
             # real check ran, not a fixed answer either way.
             self.assertIsInstance(mcp_ok, bool)
-            self.assertIsInstance(streamlit_ok, bool)
+            self.assertIsInstance(webui_ok, bool)
 
     def test_result_is_cached_across_calls_for_the_same_root(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -142,7 +142,7 @@ class BuildStatusReportIntegrationTests(unittest.TestCase):
         self.assertIsInstance(report["precommit_hook_installed"], bool)
         self.assertIsInstance(report["venv_present"], bool)
         self.assertIsInstance(report["mcp_package_installed"], bool)
-        self.assertIsInstance(report["streamlit_installed"], bool)
+        self.assertIsInstance(report["webui_installed"], bool)
         self.assertIsInstance(report["mcp_trust"], str)
         self.assertIsInstance(report["dashboard_reachable"], bool)
 

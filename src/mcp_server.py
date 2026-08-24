@@ -488,7 +488,7 @@ if __name__ == "__main__":
     # block up to _SPAWN_TIMEOUT_SECONDS on a slow boot, but nothing here
     # should ever delay the stdio handshake below it -- see
     # dashboard_launch.py's module docstring for why this is safe to fire
-    # from every session without piling up duplicate Streamlit processes.
+    # from every session without piling up duplicate dashboard processes.
     threading.Thread(target=dashboard_launch.ensure_running, args=(REPO_ROOT,),
                       daemon=True).start()
     mcp.run(transport="stdio")

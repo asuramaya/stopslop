@@ -1,11 +1,7 @@
 # Only needed for src/mcp_server.py and src/webui/ (the local dashboard) --
 # the gate itself (pretool_hook.py, sessionstart_hook.py) and stopslop.py
 # are pure standard-library Python. They require no install at all.
-#
-# streamlit is on its way out (webui/ is a from-scratch replacement, built
-# alongside it on a dev port until cutover) -- kept here only until then.
 mcp
-streamlit
 fastapi
 uvicorn
 jinja2

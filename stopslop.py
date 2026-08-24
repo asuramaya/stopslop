@@ -199,7 +199,7 @@ def _bootstrap_venv(venv_dir, requirements_path, run=subprocess.run):
         print(f"    python3 -m venv {venv_dir}")
         print(f"    {venv_python} -m pip install -r {requirements_path}")
         return False
-    print("Installing requirements (mcp, streamlit)...")
+    print("Installing requirements (mcp, fastapi, uvicorn, jinja2)...")
     try:
         run([venv_python, "-m", "pip", "install", "-q", "-r", requirements_path], check=True)
     except (OSError, subprocess.CalledProcessError) as exc:
@@ -710,7 +710,7 @@ def cmd_dashboard(args):
         )
         return 1
     # An MCP session may have already auto-started this (see
-    # dashboard_launch.py) -- re-execing streamlit into an occupied port
+    # dashboard_launch.py) -- re-execing uvicorn into an occupied port
     # would just crash on bind, so point the browser at the live one
     # instead of trying to start a second, competing copy.
     if dashboard_launch.is_alive():
@@ -718,9 +718,8 @@ def cmd_dashboard(args):
         print(f"stopslop dashboard: already running at {url}")
         webbrowser.open(url)
         return 0
-    argv = dashboard_launch.streamlit_argv(
-        venv_python, dashboard_launch.dashboard_path(),
-        dashboard_launch.DASHBOARD_PORT, headless=False)
+    argv = dashboard_launch.uvicorn_argv(
+        venv_python, os.path.join(REPO_ROOT, "src"), dashboard_launch.DASHBOARD_PORT)
     os.execv(venv_python, argv)
 
 
