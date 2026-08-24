@@ -1,0 +1,29 @@
+{# Needs `row` and `ruleset_id` in context -- included inline (checks.html's
+   table loop) and returned standalone by the toggle/config POST routes,
+   which is why it's a self-contained <tr>, not a bare set of <td>s. #}
+<tr id="row-{{ row.id }}">
+  <td>
+    <form style="margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/toggle"
+          hx-trigger="change" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+      <input type="checkbox" name="enabled" {{ 'checked' if row.enabled else '' }}>
+    </form>
+  </td>
+  <td><code>{{ row.id }}</code></td>
+  <td>{{ row.catches }}</td>
+  <td>
+    <form style="margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/config"
+          hx-trigger="change" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+      <input type="number" name="threshold" value="{{ row.threshold }}" min="1">
+    </form>
+  </td>
+  <td>
+    <form style="margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/config"
+          hx-trigger="change" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+      <select name="action">
+        <option value="warn" {{ 'selected' if row.action == 'warn' else '' }}>warn</option>
+        <option value="block" {{ 'selected' if row.action == 'block' else '' }}>block</option>
+      </select>
+    </form>
+  </td>
+  <td class="caption">{{ row.last_fired }}</td>
+</tr>

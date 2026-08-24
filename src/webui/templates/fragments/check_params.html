@@ -1,0 +1,13 @@
+{# Needs `row` and `ruleset_id` in context. Inner content only -- the
+   page wraps it in <div id="params-{{ row.id }}">, and that's the div
+   hx-swap="innerHTML" targets, so this partial never repeats the
+   wrapper itself. #}
+{% for name, info in row.params.items() %}
+<form class="param-row" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/param"
+      hx-trigger="change" hx-target="#params-{{ row.id }}" hx-swap="innerHTML">
+  <input type="hidden" name="name" value="{{ name }}">
+  <label><code>{{ row.id }}.{{ name }}</code></label>
+  <input type="number" name="value" value="{{ info.value }}" min="1">
+  <span class="caption">built-in default: {{ info.default }}</span>
+</form>
+{% endfor %}

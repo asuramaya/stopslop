@@ -1,0 +1,25 @@
+{% if empty %}
+<p class="caption">Nothing to check.</p>
+{% elif blocking %}
+<div class="callout deny">
+  <strong>Would DENY:</strong> {{ blocking | length }} flag(s) need a person's judgment
+  <ul>
+  {% for f in blocking %}
+    <li><span class="pill block">{{ f.kind }}</span> {{ f.label or '' }}{% if f.detail.note %} -- {{ f.detail.note }}{% endif %}</li>
+  {% endfor %}
+  </ul>
+</div>
+{% elif mechanical %}
+<div class="callout">
+  <strong>Would AUTO-FIX:</strong> {{ mechanical | length }} mechanical violation(s)
+  <pre>{{ fixed }}</pre>
+</div>
+{% else %}
+<div class="callout"><strong>Would PASS unchanged</strong></div>
+{% endif %}
+{% if non_blocking %}
+<details>
+  <summary>{{ non_blocking | length }} non-blocking note(s)</summary>
+  <ul>{% for f in non_blocking %}<li><span class="pill warn">{{ f.kind }}</span> {{ f.label or '' }}</li>{% endfor %}</ul>
+</details>
+{% endif %}

@@ -151,3 +151,39 @@ button.danger {
 .callout.deny { border-color: var(--danger); }
 
 .htmx-request { opacity: 0.6; }
+
+.ruleset-picker {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.ruleset-picker a {
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 0.85rem;
+}
+
+.ruleset-picker a.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.param-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0.3rem 0;
+}
+
+pre {
+  background: var(--bg-alt);
+  padding: 0.6rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  white-space: pre-wrap;
+}

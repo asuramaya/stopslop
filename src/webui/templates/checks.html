@@ -2,5 +2,68 @@
 {% block title %} - Checks{% endblock %}
 {% block content %}
 <h2>Checks</h2>
-<p class="caption">Coming in Phase 3: per-ruleset check table, inline toggle/threshold/action, and the Try-it playground.</p>
+{% if not ruleset_ids %}
+<p class="caption">No ruleset declares individually-toggleable checks.</p>
+{% else %}
+<nav class="ruleset-picker">
+  {% for id in ruleset_ids %}
+  <a href="/checks?ruleset={{ id }}" class="{{ 'active' if id == ruleset_id else '' }}">{{ id }}</a>
+  {% endfor %}
+</nav>
+
+<p class="caption">
+  {% if routed.globs %}
+  Runs on {% for g in routed.globs %}<code>{{ g }}</code>{% if not loop.last %}, {% endif %}{% endfor %} (edit on Routing).
+  {% else %}
+  Routed to no path in the current config -- add a rule on Routing to use this ruleset.
+  {% endif %}
+</p>
+{% if routed.embedded %}
+<p class="caption">Also runs on the prose embedded in
+  {% for g in routed.embedded %}<code>{{ g }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+  (strings, comments).</p>
+{% endif %}
+{% if routed.exempt %}
+<p class="caption">Off per rule:
+  {% for g, cs in routed.exempt %}
+    {% for c in cs %}<code>{{ c }}</code>{% if not loop.last %}, {% endif %}{% endfor %} on <code>{{ g }}</code>{% if not loop.last %}; {% endif %}
+  {% endfor %}
+  (edit on Routing).</p>
+{% endif %}
+
+<table>
+  <thead>
+    <tr><th>On</th><th>Check</th><th>What it catches</th><th>Threshold</th><th>Action</th><th>Last fired</th></tr>
+  </thead>
+  <tbody id="checks-table-body">
+    {% for row in rows %}
+    {% include "fragments/check_row.html" %}
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if tunable %}
+<h3>Settings</h3>
+{% for row in tunable %}
+<div id="params-{{ row.id }}">
+  {% include "fragments/check_params.html" %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if listed %}
+<h3>Vocabulary</h3>
+{% for row in listed %}
+<p class="caption"><code>{{ row.id }}</code>: instead, {{ row.instead }}.
+  Lists: {{ row.lists | join(', ') }} -- curate on Vocabulary.</p>
+{% endfor %}
+{% endif %}
+
+<h3>Try it</h3>
+<form hx-post="/checks/{{ ruleset_id }}/playground" hx-target="#playground-result" hx-swap="innerHTML">
+  <textarea name="text" rows="4" style="width:100%" placeholder="Paste a sentence or a snippet..."></textarea>
+  <button type="submit" class="primary">Lint it</button>
+</form>
+<div id="playground-result"></div>
+{% endif %}
 {% endblock %}
