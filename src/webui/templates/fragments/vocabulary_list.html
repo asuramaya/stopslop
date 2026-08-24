@@ -1,0 +1,85 @@
+{# Needs `block` (see routes_vocabulary._list_block), `ruleset_id`,
+   `list_id`, and optionally `refused` in context. Returned both inline
+   (vocabulary.html's initial render) and standalone by every mutating
+   route below, so the whole list re-renders itself after every write --
+   the mutate-then-refetch contract, not a client-side row patch. #}
+<div id="vocab-list">
+  <h3>{{ block.spec.label or block.list_id }}
+    <span class="caption">({{ block.rows | length }} words;
+    {{ 'a word here stops being flagged' if block.polarity == 'allow' else 'a word here gets flagged' }})</span>
+  </h3>
+  {% if block.packs_feeding %}
+  <p class="caption">Packs feed this list per routing rule:
+    {% for g, pack_ids in block.packs_feeding %}
+    <code>{{ g }}</code> &larr; {{ pack_ids | join(', ') }}{% if not loop.last %}; {% endif %}
+    {% endfor %}
+    . Attach or detach packs on Routing.
+  </p>
+  {% endif %}
+
+  <table>
+    <thead><tr><th>Term</th><th>Source</th><th>Note</th><th></th></tr></thead>
+    <tbody>
+      {% for row in block.rows %}
+      <tr>
+        <td><code>{{ row.term }}</code></td>
+        <td><span class="pill">{{ row.source }}</span></td>
+        <td class="caption">{{ row.note }}</td>
+        <td>
+          <form style="margin:0" hx-post="/vocabulary/{{ ruleset_id }}/{{ list_id }}/remove"
+                hx-target="#vocab-list" hx-swap="outerHTML"
+                onsubmit="return confirm('Remove {{ row.term }}?')">
+            <input type="hidden" name="term" value="{{ row.term }}">
+            <button type="submit" class="danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if block.accepts_additions %}
+  <form hx-post="/vocabulary/{{ ruleset_id }}/{{ list_id }}/add"
+        hx-target="#vocab-list" hx-swap="outerHTML">
+    <input type="text" name="term" placeholder="Add a word" required>
+    <input type="text" name="note" placeholder="why this project uses it">
+    <button type="submit" class="primary">Add</button>
+  </form>
+  {% else %}
+  <p class="caption">This list takes no new words; it is published reference data.
+    Remove a word above to stop using it here, or add your own to the project list.</p>
+  {% endif %}
+
+  {% if refused %}
+  <div class="callout deny">
+    <p>{{ refused.message }}</p>
+    <form hx-post="/vocabulary/{{ ruleset_id }}/{{ list_id }}/add"
+          hx-target="#vocab-list" hx-swap="outerHTML">
+      <input type="hidden" name="term" value="{{ refused.term }}">
+      <input type="hidden" name="note" value="{{ refused.note }}">
+      <input type="text" name="force" placeholder="Override reason -- goes on the record" required>
+      <button type="submit" class="danger">Override</button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if block.suppressed %}
+  <h4>Suppressed</h4>
+  <table>
+    <tbody>
+      {% for term in block.suppressed %}
+      <tr>
+        <td><code>{{ term }}</code></td>
+        <td>
+          <form style="margin:0" hx-post="/vocabulary/{{ ruleset_id }}/{{ list_id }}/restore"
+                hx-target="#vocab-list" hx-swap="outerHTML">
+            <input type="hidden" name="term" value="{{ term }}">
+            <button type="submit">Restore</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>

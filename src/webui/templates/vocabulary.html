@@ -2,5 +2,27 @@
 {% block title %} - Vocabulary{% endblock %}
 {% block content %}
 <h2>Vocabulary</h2>
-<p class="caption">Coming in Phase 4: cross-list search, and a per-list browser with add/remove/restore.</p>
+{% if not entries %}
+<p class="caption">No ruleset declares a term list.</p>
+{% else %}
+<input type="text" id="vocab-search" placeholder="Search every word, e.g. leverage"
+       hx-get="/vocabulary/search" hx-trigger="keyup changed delay:300ms"
+       hx-target="#search-results-wrap" hx-swap="innerHTML"
+       hx-include="this" name="q" style="width:100%">
+<div id="search-results-wrap"></div>
+
+<hr style="margin:1rem 0">
+
+<select id="vocab-list-picker" name="rl"
+        hx-get="/vocabulary/list" hx-target="#vocab-list" hx-swap="outerHTML"
+        hx-include="this">
+  {% for m, lid, spec in entries %}
+  <option value="{{ m.RULESET_ID }}|{{ lid }}" {{ 'selected' if m.RULESET_ID == ruleset_id and lid == list_id else '' }}>
+    {{ m.RULESET_ID }} &middot; {{ spec.label or lid }}
+  </option>
+  {% endfor %}
+</select>
+
+{% include "fragments/vocabulary_list.html" %}
+{% endif %}
 {% endblock %}

@@ -1,0 +1,24 @@
+{# `hits` is None when the search box is empty (nothing rendered here --
+   the list browser below stays the primary view), an empty list when
+   nothing matched, or the match rows otherwise. #}
+{% if hits is not none %}
+<div id="search-results">
+  {% if not hits %}
+  <p class="caption">No word in any list matches.</p>
+  {% else %}
+  <p class="caption">{{ hits | length }} matching word(s), across every ruleset's lists.</p>
+  <table>
+    <thead><tr><th>Term</th><th>List</th><th>Note</th></tr></thead>
+    <tbody>
+      {% for r in hits %}
+      <tr>
+        <td><code>{{ r.term }}</code></td>
+        <td>{{ r.list_label }}</td>
+        <td class="caption">{{ r.note }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endif %}
