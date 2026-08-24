@@ -1,0 +1,58 @@
+{# Needs `rows` and `focus` (None, or routes_routing._focus_context's
+   dict) in context. Everything below the picker binds to the FOCUSED
+   RULE, not its ruleset -- two rules routed to the same ruleset can
+   carry different packs and different exemptions. #}
+<div id="routing-focus">
+{% set scoped = rows | selectattr('ruleset') | list %}
+{% if scoped %}
+<select name="index" hx-get="/routing/focus" hx-trigger="change" hx-target="#routing-focus" hx-swap="outerHTML">
+  <option value="-1">-- pick a rule to edit its packs/exemptions --</option>
+  {% for row in scoped %}
+  <option value="{{ row.index }}" {{ 'selected' if focus and focus.index == row.index else '' }}>
+    {{ row.glob }} &rarr; {{ row.ruleset }}
+  </option>
+  {% endfor %}
+</select>
+
+{% if focus %}
+{% if focus.rule.embedded_prose %}
+<p class="caption">Also runs <code>{{ focus.rule.embedded_prose }}</code> on the prose embedded in these files.</p>
+{% endif %}
+
+{% if focus.pack_lists %}
+{% for list_id in focus.pack_lists %}
+{% set spec = focus.lists[list_id] %}
+{% set current = ((focus.rule.packs or {}).get(list_id, [])) %}
+<form hx-post="/routing/{{ focus.index }}/packs" hx-trigger="change"
+      hx-target="#routing-focus" hx-swap="outerHTML">
+  <input type="hidden" name="list_id" value="{{ list_id }}">
+  <label>Packs feeding <code>{{ list_id }}</code>{% if spec.feeds and spec.feeds != list_id %} (the <code>{{ spec.feeds }}</code> check){% endif %}:</label>
+  <select name="pack_ids" multiple size="{{ focus.available_packs | length }}">
+    {% for pack_id, meta in focus.available_packs.items() %}
+    <option value="{{ pack_id }}" {{ 'selected' if pack_id in current else '' }}>{{ pack_id }} ({{ meta.content_kind }})</option>
+    {% endfor %}
+  </select>
+</form>
+{% endfor %}
+{% else %}
+<p class="caption">{{ focus.rule.ruleset }} has no term list that accepts packs.</p>
+{% endif %}
+
+{% if focus.known_checks %}
+<form hx-post="/routing/{{ focus.index }}/disable" hx-trigger="change"
+      hx-target="#routing-focus" hx-swap="outerHTML">
+  <label>Checks turned off on <code>{{ focus.rule.glob }}</code>:</label>
+  <select name="check_ids" multiple size="{{ focus.known_checks | length }}">
+    {% for check_id, owner in focus.known_checks.items() | sort %}
+    <option value="{{ check_id }}" {{ 'selected' if check_id in (focus.rule.disable or []) else '' }}>
+      {{ check_id }} ({{ owner }})
+    </option>
+    {% endfor %}
+  </select>
+</form>
+{% endif %}
+{% endif %}
+{% else %}
+<p class="caption">No routed rule to edit yet -- add one above.</p>
+{% endif %}
+</div>

@@ -1,0 +1,62 @@
+{# Needs `rows` and `ruleset_ids` in context. First-match-wins order is
+   the whole point of this page, so it's a real control here: two
+   buttons per row, not a row you drag and hope lands where you meant. #}
+<div id="routing-table">
+<p class="caption">First match wins; order matters. An empty ruleset cell
+  means out of scope entirely (like <code>.claude/*</code>).</p>
+<table>
+  <thead><tr><th></th><th>Glob</th><th>Ruleset</th><th>Packs</th><th></th></tr></thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td style="white-space:nowrap">
+        <form style="display:inline;margin:0" hx-post="/routing/{{ row.index }}/move?direction=up"
+              hx-target="#routing-table" hx-swap="outerHTML">
+          <button type="submit" {{ 'disabled' if loop.first else '' }} title="Move up">&#9650;</button>
+        </form>
+        <form style="display:inline;margin:0" hx-post="/routing/{{ row.index }}/move?direction=down"
+              hx-target="#routing-table" hx-swap="outerHTML">
+          <button type="submit" {{ 'disabled' if loop.last else '' }} title="Move down">&#9660;</button>
+        </form>
+      </td>
+      <td>
+        <form style="margin:0" hx-post="/routing/{{ row.index }}/glob"
+              hx-trigger="change" hx-target="#routing-table" hx-swap="outerHTML">
+          <input type="text" name="glob" value="{{ row.glob }}">
+        </form>
+      </td>
+      <td>
+        <form style="margin:0" hx-post="/routing/{{ row.index }}/ruleset"
+              hx-trigger="change" hx-target="#routing-table" hx-swap="outerHTML">
+          <select name="ruleset">
+            <option value="" {{ 'selected' if not row.ruleset else '' }}>(out of scope)</option>
+            {% for id in ruleset_ids %}
+            <option value="{{ id }}" {{ 'selected' if row.ruleset == id else '' }}>{{ id }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </td>
+      <td>{{ row.packs }}</td>
+      <td>
+        <form style="margin:0" hx-post="/routing/{{ row.index }}/delete"
+              hx-target="#routing-table" hx-swap="outerHTML"
+              onsubmit="return confirm('Remove this rule? Its pack bindings go with it.')">
+          <button type="submit" class="danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form hx-post="/routing/add" hx-target="#routing-table" hx-swap="outerHTML">
+  <input type="text" name="glob" placeholder="e.g. docs/**/*.md" required>
+  <select name="ruleset">
+    <option value="">(out of scope)</option>
+    {% for id in ruleset_ids %}
+    <option value="{{ id }}">{{ id }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="primary">Add rule</button>
+</form>
+</div>

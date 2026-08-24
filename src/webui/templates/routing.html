@@ -2,5 +2,15 @@
 {% block title %} - Routing{% endblock %}
 {% block content %}
 <h2>Routing</h2>
-<p class="caption">Coming in Phase 5: the editable first-match-wins rules table, with real reordering.</p>
+
+{% include "fragments/routing_table.html" %}
+
+<input type="text" placeholder="Test a path -- which rule wins for e.g. docs/notes.md?"
+       hx-get="/routing/probe" hx-trigger="keyup changed delay:300ms"
+       hx-target="#routing-probe" hx-swap="innerHTML" hx-include="this" name="path"
+       style="width:100%; margin-top:0.75rem">
+<div id="routing-probe"></div>
+
+<hr style="margin:1rem 0">
+{% include "fragments/routing_focus.html" %}
 {% endblock %}

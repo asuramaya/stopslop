@@ -1,0 +1,13 @@
+{% if result %}
+<p class="caption">
+  {% if not result.rule %}
+  <code>{{ result.path }}</code>: no rule matches -- the gate never runs on it.
+  {% elif not result.rule.ruleset %}
+  <code>{{ result.path }}</code>: rule <code>{{ result.rule.glob }}</code> puts it out of scope. Nothing is checked.
+  {% else %}
+  <code>{{ result.path }}</code>: rule <code>{{ result.rule.glob }}</code> wins &rarr; <code>{{ result.rule.ruleset }}</code>
+  {% if result.rule.embedded_prose %}; embedded prose &rarr; <code>{{ result.rule.embedded_prose }}</code>{% endif %}
+  {% if result.rule.disable %}; off here: {% for c in result.rule.disable %}<code>{{ c }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}
+  {% endif %}
+</p>
+{% endif %}
