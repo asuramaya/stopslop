@@ -5,10 +5,13 @@
 
 {% include "fragments/routing_table.html" %}
 
+<span style="display:flex; align-items:center; gap:0.4rem; margin-top:0.75rem">
 <input type="text" placeholder="Test a path -- which rule wins for e.g. docs/notes.md?"
        hx-get="/routing/probe" hx-trigger="keyup changed delay:300ms"
        hx-target="#routing-probe" hx-swap="innerHTML" hx-include="this" name="path"
-       style="width:100%; margin-top:0.75rem">
+       hx-indicator="#probe-spinner" style="width:100%">
+<span id="probe-spinner" class="spinner htmx-indicator"></span>
+</span>
 <div id="routing-probe"></div>
 
 <hr style="margin:1rem 0">

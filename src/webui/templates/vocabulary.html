@@ -5,16 +5,19 @@
 {% if not entries %}
 <p class="caption">No ruleset declares a term list.</p>
 {% else %}
+<span style="display:flex; align-items:center; gap:0.4rem">
 <input type="text" id="vocab-search" placeholder="Search every word, e.g. leverage"
        hx-get="/vocabulary/search" hx-trigger="keyup changed delay:300ms"
-       hx-target="#search-results-wrap" hx-swap="innerHTML"
+       hx-target="#search-results-wrap" hx-swap="innerHTML" hx-indicator="#vocab-search-spinner"
        hx-include="this" name="q" style="width:100%">
+<span id="vocab-search-spinner" class="spinner htmx-indicator"></span>
+</span>
 <div id="search-results-wrap"></div>
 
 <hr style="margin:1rem 0">
 
 <select id="vocab-list-picker" name="rl"
-        hx-get="/vocabulary/list" hx-target="#vocab-list" hx-swap="outerHTML"
+        hx-get="/vocabulary/list" hx-target="#vocab-list" hx-swap="outerHTML" hx-indicator="#vocab-list-spinner"
         hx-include="this">
   {% for m, lid, spec in entries %}
   <option value="{{ m.RULESET_ID }}|{{ lid }}" {{ 'selected' if m.RULESET_ID == ruleset_id and lid == list_id else '' }}>
@@ -22,6 +25,7 @@
   </option>
   {% endfor %}
 </select>
+<span id="vocab-list-spinner" class="spinner htmx-indicator"></span>
 
 {% include "fragments/vocabulary_list.html" %}
 {% endif %}

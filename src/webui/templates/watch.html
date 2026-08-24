@@ -12,7 +12,7 @@
 </form>
 <div id="watch-activity"
      hx-get="/watch/fragment"
-     hx-trigger="load, every 2s, keyup changed delay:300ms from:#watch-path, change from:#watch-ruleset"
+     hx-trigger="load, every 2s [document.visibilityState=='visible'], keyup changed delay:300ms from:#watch-path, change from:#watch-ruleset"
      hx-include="#watch-path,#watch-ruleset"
      hx-swap="innerHTML">
 </div>

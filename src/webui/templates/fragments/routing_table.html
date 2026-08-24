@@ -11,23 +11,23 @@
     <tr>
       <td style="white-space:nowrap">
         <form style="display:inline;margin:0" hx-post="/routing/{{ row.index }}/move?direction=up"
-              hx-target="#routing-table" hx-swap="outerHTML">
+              hx-target="#routing-table" hx-swap="outerHTML settle:450ms">
           <button type="submit" {{ 'disabled' if loop.first else '' }} title="Move up">&#9650;</button>
         </form>
         <form style="display:inline;margin:0" hx-post="/routing/{{ row.index }}/move?direction=down"
-              hx-target="#routing-table" hx-swap="outerHTML">
+              hx-target="#routing-table" hx-swap="outerHTML settle:450ms">
           <button type="submit" {{ 'disabled' if loop.last else '' }} title="Move down">&#9660;</button>
         </form>
       </td>
       <td>
         <form style="margin:0" hx-post="/routing/{{ row.index }}/glob"
-              hx-trigger="change" hx-target="#routing-table" hx-swap="outerHTML">
+              hx-trigger="change" onsubmit="return false" hx-target="#routing-table" hx-swap="outerHTML settle:450ms">
           <input type="text" name="glob" value="{{ row.glob }}">
         </form>
       </td>
       <td>
         <form style="margin:0" hx-post="/routing/{{ row.index }}/ruleset"
-              hx-trigger="change" hx-target="#routing-table" hx-swap="outerHTML">
+              hx-trigger="change" onsubmit="return false" hx-target="#routing-table" hx-swap="outerHTML settle:450ms">
           <select name="ruleset">
             <option value="" {{ 'selected' if not row.ruleset else '' }}>(out of scope)</option>
             {% for id in ruleset_ids %}
@@ -36,13 +36,30 @@
           </select>
         </form>
       </td>
-      <td>{{ row.packs }}</td>
       <td>
-        <form style="margin:0" hx-post="/routing/{{ row.index }}/delete"
-              hx-target="#routing-table" hx-swap="outerHTML"
-              onsubmit="return confirm('Remove this rule? Its pack bindings go with it.')">
-          <button type="submit" class="danger">Delete</button>
-        </form>
+        {% if row.packs %}
+        <button type="button" class="link-btn" title="Edit this rule's packs/exemptions below"
+                onclick="document.querySelector('#routing-focus select[name=index]').value='{{ row.index }}';
+                         document.querySelector('#routing-focus select[name=index]').dispatchEvent(new Event('change'));
+                         document.getElementById('routing-focus').scrollIntoView({behavior:'smooth', block:'center'});">
+          {{ row.packs }}
+        </button>
+        {% else %}
+        <span class="caption">0</span>
+        {% endif %}
+      </td>
+      <td>
+        <span class="confirm-wrap">
+          <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Delete</button>
+          <span class="confirm-ask" hidden>
+            Remove this rule?
+            <form style="display:inline;margin:0" hx-post="/routing/{{ row.index }}/delete"
+                  hx-target="#routing-table" hx-swap="outerHTML settle:450ms">
+              <button type="submit" class="danger">Yes</button>
+            </form>
+            <button type="button" onclick="confirmCancel(this)">Cancel</button>
+          </span>
+        </span>
       </td>
     </tr>
     {% endfor %}

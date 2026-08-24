@@ -60,9 +60,11 @@
 {% endif %}
 
 <h3>Try it</h3>
-<form hx-post="/checks/{{ ruleset_id }}/playground" hx-target="#playground-result" hx-swap="innerHTML">
+<form hx-post="/checks/{{ ruleset_id }}/playground" hx-target="#playground-result" hx-swap="innerHTML"
+      hx-indicator="#playground-spinner" hx-disabled-elt="find button[type=submit]">
   <textarea name="text" rows="4" style="width:100%" placeholder="Paste a sentence or a snippet..."></textarea>
   <button type="submit" class="primary">Lint it</button>
+  <span id="playground-spinner" class="spinner htmx-indicator"></span>
 </form>
 <div id="playground-result"></div>
 {% endif %}

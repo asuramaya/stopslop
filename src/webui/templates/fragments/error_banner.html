@@ -1,0 +1,12 @@
+{# Always present in base.html as an empty <div id="error-banner">. Every
+   mutating route swaps this out-of-band on every response -- with a
+   message on failure, empty on success -- so it never shows an error
+   older than the most recent attempt on any control. #}
+<div id="error-banner" hx-swap-oob="true">
+{% if message %}
+<div class="callout deny" role="alert">
+  <strong>Couldn't save:</strong> {{ message }}
+  <button type="button" class="dismiss" aria-label="Dismiss" onclick="this.closest('.callout').remove()">&times;</button>
+</div>
+{% endif %}
+</div>

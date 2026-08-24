@@ -17,12 +17,51 @@
     </nav>
   </header>
   <main>
+    <div id="error-banner"></div>
     {% include "fragments/notices.html" %}
     {% block content %}{% endblock %}
   </main>
   <hr>
-  <footer id="status-footer" hx-get="/status/fragment" hx-trigger="load, every 10s" hx-swap="innerHTML">
+  <footer id="status-footer" hx-get="/status/fragment"
+          hx-trigger="every 10s [document.visibilityState=='visible']" hx-swap="innerHTML">
     {% include "fragments/status_footer.html" %}
   </footer>
+  <script>
+    // Two-step inline confirm for a destructive button -- no
+    // window.confirm(), which blocks the whole page (and this extension's
+    // own tooling avoids it for the same reason) and looks like a native
+    // OS dialog dropped into an otherwise bespoke UI. First click hides
+    // the trigger and reveals "really? [Yes] [Cancel]" in its place; the
+    // real htmx-post lives on the Yes button, untouched by this toggle.
+    function confirmToggle(button) {
+      button.hidden = true;
+      button.nextElementSibling.hidden = false;
+    }
+    function confirmCancel(button) {
+      var ask = button.closest('.confirm-ask');
+      ask.hidden = true;
+      ask.previousElementSibling.hidden = false;
+    }
+    // A route we didn't wrap in a try/except (see fragment_response() in
+    // deps.py for the ones that are) still raises straight through to
+    // FastAPI's default 500 -- this is the backstop so htmx never swaps
+    // that error page's raw HTML into whatever it was targeting.
+    document.body.addEventListener('htmx:responseError', function (evt) {
+      var banner = document.getElementById('error-banner');
+      var status = evt.detail.xhr.status;
+      banner.innerHTML = '<div class="callout deny" role="alert">' +
+        '<strong>Request failed (' + status + ').</strong> Nothing here was saved. ' +
+        'Check the server log, then try again.' +
+        '<button type="button" class="dismiss" aria-label="Dismiss" ' +
+        'onclick="this.closest(\'.callout\').remove()">&times;</button></div>';
+    });
+    document.body.addEventListener('htmx:sendError', function () {
+      var banner = document.getElementById('error-banner');
+      banner.innerHTML = '<div class="callout deny" role="alert">' +
+        '<strong>Couldn\'t reach the dashboard server.</strong> It may have restarted -- reload the page.' +
+        '<button type="button" class="dismiss" aria-label="Dismiss" ' +
+        'onclick="this.closest(\'.callout\').remove()">&times;</button></div>';
+    });
+  </script>
 </body>
 </html>

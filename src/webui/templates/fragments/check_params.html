@@ -4,7 +4,7 @@
    wrapper itself. #}
 {% for name, info in row.params.items() %}
 <form class="param-row" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/param"
-      hx-trigger="change" hx-target="#params-{{ row.id }}" hx-swap="innerHTML">
+      hx-trigger="change" onsubmit="return false" hx-target="#params-{{ row.id }}" hx-swap="innerHTML">
   <input type="hidden" name="name" value="{{ name }}">
   <label><code>{{ row.id }}.{{ name }}</code></label>
   <input type="number" name="value" value="{{ info.value }}" min="1">

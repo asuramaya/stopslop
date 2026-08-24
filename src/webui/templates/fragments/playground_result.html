@@ -1,4 +1,6 @@
-{% if empty %}
+{% if lint_error %}
+<div class="callout deny"><strong>Couldn't lint that:</strong> {{ lint_error }}</div>
+{% elif empty %}
 <p class="caption">Nothing to check.</p>
 {% elif blocking %}
 <div class="callout deny">

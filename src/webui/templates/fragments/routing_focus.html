@@ -23,7 +23,7 @@
 {% for list_id in focus.pack_lists %}
 {% set spec = focus.lists[list_id] %}
 {% set current = ((focus.rule.packs or {}).get(list_id, [])) %}
-<form hx-post="/routing/{{ focus.index }}/packs" hx-trigger="change"
+<form hx-post="/routing/{{ focus.index }}/packs" hx-trigger="change" onsubmit="return false"
       hx-target="#routing-focus" hx-swap="outerHTML">
   <input type="hidden" name="list_id" value="{{ list_id }}">
   <label>Packs feeding <code>{{ list_id }}</code>{% if spec.feeds and spec.feeds != list_id %} (the <code>{{ spec.feeds }}</code> check){% endif %}:</label>
@@ -39,7 +39,7 @@
 {% endif %}
 
 {% if focus.known_checks %}
-<form hx-post="/routing/{{ focus.index }}/disable" hx-trigger="change"
+<form hx-post="/routing/{{ focus.index }}/disable" hx-trigger="change" onsubmit="return false"
       hx-target="#routing-focus" hx-swap="outerHTML">
   <label>Checks turned off on <code>{{ focus.rule.glob }}</code>:</label>
   <select name="check_ids" multiple size="{{ focus.known_checks | length }}">

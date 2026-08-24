@@ -11,7 +11,7 @@ from fastapi import APIRouter, Request
 import rulesets
 from core import config as core_config, glossary_packs, terms as core_terms
 
-from webui.deps import REPO_ROOT, render, templates
+from webui.deps import REPO_ROOT, fragment_response, render, templates
 
 router = APIRouter()
 
@@ -77,15 +77,24 @@ def routing_table_fragment(request: Request):
         request, "fragments/routing_table.html", {"rows": _rows(), "ruleset_ids": _ruleset_ids()})
 
 
+def _table_response(request, error=None):
+    return fragment_response(request, "fragments/routing_table.html",
+                              {"rows": _rows(), "ruleset_ids": _ruleset_ids()}, error=error)
+
+
 @router.post("/routing/{index}/glob")
 async def update_glob(request: Request, index: int):
     rules = core_config.load_rules(REPO_ROOT)
     form = await request.form()
     new_glob = (form.get("glob") or "").strip()
+    error = None
     if new_glob and 0 <= index < len(rules):
         rules[index] = dict(rules[index], glob=new_glob)
-        _save(rules)
-    return routing_table_fragment(request)
+        try:
+            _save(rules)
+        except ValueError as e:
+            error = str(e)
+    return _table_response(request, error=error)
 
 
 @router.post("/routing/{index}/ruleset")
@@ -93,29 +102,41 @@ async def update_ruleset(request: Request, index: int):
     rules = core_config.load_rules(REPO_ROOT)
     form = await request.form()
     new_ruleset = form.get("ruleset") or None
+    error = None
     if 0 <= index < len(rules):
         rules[index] = dict(rules[index], ruleset=new_ruleset)
-        _save(rules)
-    return routing_table_fragment(request)
+        try:
+            _save(rules)
+        except ValueError as e:
+            error = str(e)
+    return _table_response(request, error=error)
 
 
 @router.post("/routing/{index}/move")
 async def move_rule(request: Request, index: int, direction: str = "up"):
     rules = core_config.load_rules(REPO_ROOT)
     other = index - 1 if direction == "up" else index + 1
+    error = None
     if 0 <= index < len(rules) and 0 <= other < len(rules):
         rules[index], rules[other] = rules[other], rules[index]
-        _save(rules)
-    return routing_table_fragment(request)
+        try:
+            _save(rules)
+        except ValueError as e:
+            error = str(e)
+    return _table_response(request, error=error)
 
 
 @router.post("/routing/{index}/delete")
 async def delete_rule(request: Request, index: int):
     rules = core_config.load_rules(REPO_ROOT)
+    error = None
     if 0 <= index < len(rules):
         del rules[index]
-        _save(rules)
-    return routing_table_fragment(request)
+        try:
+            _save(rules)
+        except ValueError as e:
+            error = str(e)
+    return _table_response(request, error=error)
 
 
 @router.post("/routing/add")
@@ -123,10 +144,14 @@ async def add_rule(request: Request):
     rules = core_config.load_rules(REPO_ROOT)
     form = await request.form()
     glob = (form.get("glob") or "").strip()
+    error = None
     if glob:
         rules.append({"glob": glob, "ruleset": form.get("ruleset") or None})
-        _save(rules)
-    return routing_table_fragment(request)
+        try:
+            _save(rules)
+        except ValueError as e:
+            error = str(e)
+    return _table_response(request, error=error)
 
 
 @router.get("/routing/probe")
@@ -144,11 +169,17 @@ def focus(request: Request, index: int = -1):
     return templates.TemplateResponse(request, "fragments/routing_focus.html", {"focus": ctx, "rows": _rows()})
 
 
+def _focus_response(request, index, error=None):
+    ctx = _focus_context(index) if index >= 0 else None
+    return fragment_response(request, "fragments/routing_focus.html",
+                              {"focus": ctx, "rows": _rows()}, error=error)
+
+
 @router.post("/routing/{index}/packs")
 async def set_packs(request: Request, index: int):
     rules = core_config.load_rules(REPO_ROOT)
     if not (0 <= index < len(rules)):
-        return focus(request, index)
+        return _focus_response(request, index)
     rule = rules[index]
     module = rulesets.get_ruleset(rule["ruleset"])
     form = await request.form()
@@ -157,19 +188,27 @@ async def set_packs(request: Request, index: int):
     spec = module.TERM_LISTS.get(list_id, {})
     admissible = lambda pid: core_terms.pack_kind_admissible(
         spec, glossary_packs.AVAILABLE_PACKS.get(pid, {}))
-    core_config.set_rule_packs(REPO_ROOT, rule["glob"], list_id, pack_ids,
-                                known_packs=glossary_packs.AVAILABLE_PACKS, admissible=admissible)
-    return focus(request, index)
+    error = None
+    try:
+        core_config.set_rule_packs(REPO_ROOT, rule["glob"], list_id, pack_ids,
+                                    known_packs=glossary_packs.AVAILABLE_PACKS, admissible=admissible)
+    except ValueError as e:
+        error = str(e)
+    return _focus_response(request, index, error=error)
 
 
 @router.post("/routing/{index}/disable")
 async def set_disable(request: Request, index: int):
     rules = core_config.load_rules(REPO_ROOT)
     if not (0 <= index < len(rules)):
-        return focus(request, index)
+        return _focus_response(request, index)
     rule = rules[index]
     form = await request.form()
     check_ids = form.getlist("check_ids")
     known = _known_checks_for_rule(rule)
-    core_config.set_rule_disable(REPO_ROOT, rule["glob"], check_ids, known_checks=known)
-    return focus(request, index)
+    error = None
+    try:
+        core_config.set_rule_disable(REPO_ROOT, rule["glob"], check_ids, known_checks=known)
+    except ValueError as e:
+        error = str(e)
+    return _focus_response(request, index, error=error)

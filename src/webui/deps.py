@@ -51,3 +51,27 @@ def render(request, template_name, active, extra=None):
     context = {"nav": NAV, "active": active, "status": status()}
     context.update(extra or {})
     return templates.TemplateResponse(request, template_name, context)
+
+
+def error_banner(message=None):
+    """Render the out-of-band #error-banner fragment -- `message=None`
+    renders it empty, which is how a route clears a previous error on its
+    next successful save. Rendered through Jinja (not an f-string) so a
+    ValueError message built from user input -- a term, a glob -- gets
+    the same auto-escaping every other user-supplied string on these
+    pages gets; see fragment_response()'s docstring for why this exists."""
+    return templates.get_template("fragments/error_banner.html").render(message=message)
+
+
+def fragment_response(request, template_name, context, error=None):
+    """What a mutating route returns instead of a plain TemplateResponse:
+    the same fragment a clean save would return, PLUS an out-of-band
+    #error-banner swap -- populated when `error` is set (the write was
+    refused, e.g. a bad threshold or an unknown ruleset id), emptied
+    otherwise (clears whatever error the previous attempt on this same
+    control left showing). This is what stands between a raised
+    ValueError and FastAPI's default 500 -- without it, htmx swaps that
+    500 page's raw HTML straight into the row/table it was targeting."""
+    from fastapi.responses import HTMLResponse
+    body = templates.get_template(template_name).render(context, request=request)
+    return HTMLResponse(body + error_banner(error))

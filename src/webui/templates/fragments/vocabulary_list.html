@@ -26,12 +26,18 @@
         <td><span class="pill">{{ row.source }}</span></td>
         <td class="caption">{{ row.note }}</td>
         <td>
-          <form style="margin:0" hx-post="/vocabulary/{{ ruleset_id }}/{{ list_id }}/remove"
-                hx-target="#vocab-list" hx-swap="outerHTML"
-                onsubmit="return confirm('Remove {{ row.term }}?')">
-            <input type="hidden" name="term" value="{{ row.term }}">
-            <button type="submit" class="danger">Remove</button>
-          </form>
+          <span class="confirm-wrap">
+            <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove</button>
+            <span class="confirm-ask" hidden>
+              Remove <code>{{ row.term }}</code>?
+              <form style="display:inline;margin:0" hx-post="/vocabulary/{{ ruleset_id }}/{{ list_id }}/remove"
+                    hx-target="#vocab-list" hx-swap="outerHTML">
+                <input type="hidden" name="term" value="{{ row.term }}">
+                <button type="submit" class="danger">Yes</button>
+              </form>
+              <button type="button" onclick="confirmCancel(this)">Cancel</button>
+            </span>
+          </span>
         </td>
       </tr>
       {% endfor %}

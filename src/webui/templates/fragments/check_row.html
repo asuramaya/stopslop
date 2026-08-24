@@ -4,7 +4,7 @@
 <tr id="row-{{ row.id }}">
   <td>
     <form style="margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/toggle"
-          hx-trigger="change" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+          hx-trigger="change" onsubmit="return false" hx-target="#row-{{ row.id }}" hx-swap="outerHTML settle:450ms">
       <input type="checkbox" name="enabled" {{ 'checked' if row.enabled else '' }}>
     </form>
   </td>
@@ -12,13 +12,13 @@
   <td>{{ row.catches }}</td>
   <td>
     <form style="margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/config"
-          hx-trigger="change" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+          hx-trigger="change" onsubmit="return false" hx-target="#row-{{ row.id }}" hx-swap="outerHTML settle:450ms">
       <input type="number" name="threshold" value="{{ row.threshold }}" min="1">
     </form>
   </td>
   <td>
     <form style="margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/config"
-          hx-trigger="change" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+          hx-trigger="change" onsubmit="return false" hx-target="#row-{{ row.id }}" hx-swap="outerHTML settle:450ms">
       <select name="action">
         <option value="warn" {{ 'selected' if row.action == 'warn' else '' }}>warn</option>
         <option value="block" {{ 'selected' if row.action == 'block' else '' }}>block</option>

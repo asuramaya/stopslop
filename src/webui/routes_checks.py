@@ -11,7 +11,7 @@ from fastapi import APIRouter, Form, Request
 import rulesets
 from core import config as core_config, history, terms as core_terms
 
-from webui.deps import REPO_ROOT, render, templates
+from webui.deps import REPO_ROOT, fragment_response, render, templates
 from webui.routes_watch import HISTORY_PATH, _relative_time
 
 router = APIRouter()
@@ -98,34 +98,49 @@ def checks_page(request: Request, ruleset: str = ""):
 async def toggle_check(request: Request, ruleset_id: str, check_id: str):
     module = rulesets.get_ruleset(ruleset_id)
     form = await request.form()
-    module.set_checks_enabled({check_id: "enabled" in form})
+    error = None
+    try:
+        module.set_checks_enabled({check_id: "enabled" in form})
+    except ValueError as e:
+        error = str(e)
     module, rows = _rows(ruleset_id)
     row = next(r for r in rows if r["id"] == check_id)
-    return templates.TemplateResponse(request, "fragments/check_row.html", {"row": row, "ruleset_id": ruleset_id})
+    return fragment_response(request, "fragments/check_row.html",
+                              {"row": row, "ruleset_id": ruleset_id}, error=error)
 
 
 @router.post("/checks/{ruleset_id}/{check_id}/config")
 async def set_check_config(request: Request, ruleset_id: str, check_id: str):
     module = rulesets.get_ruleset(ruleset_id)
     form = await request.form()
-    threshold = int(form["threshold"]) if form.get("threshold") else None
-    action = form.get("action") or None
-    module.set_check_config(check_id, threshold=threshold, action=action)
+    error = None
+    try:
+        threshold = int(form["threshold"]) if form.get("threshold") else None
+        action = form.get("action") or None
+        module.set_check_config(check_id, threshold=threshold, action=action)
+    except ValueError as e:
+        error = str(e)
     module, rows = _rows(ruleset_id)
     row = next(r for r in rows if r["id"] == check_id)
-    return templates.TemplateResponse(request, "fragments/check_row.html", {"row": row, "ruleset_id": ruleset_id})
+    return fragment_response(request, "fragments/check_row.html",
+                              {"row": row, "ruleset_id": ruleset_id}, error=error)
 
 
 @router.post("/checks/{ruleset_id}/{check_id}/param")
 async def set_check_param(request: Request, ruleset_id: str, check_id: str):
     module = rulesets.get_ruleset(ruleset_id)
     form = await request.form()
-    name = form["name"]
-    value = int(form["value"])
-    module.set_check_config(check_id, **{name: value})
+    error = None
+    try:
+        name = form["name"]
+        value = int(form["value"])
+        module.set_check_config(check_id, **{name: value})
+    except ValueError as e:
+        error = str(e)
     module, rows = _rows(ruleset_id)
     row = next(r for r in rows if r["id"] == check_id)
-    return templates.TemplateResponse(request, "fragments/check_params.html", {"row": row, "ruleset_id": ruleset_id})
+    return fragment_response(request, "fragments/check_params.html",
+                              {"row": row, "ruleset_id": ruleset_id}, error=error)
 
 
 @router.post("/checks/{ruleset_id}/playground")
@@ -138,10 +153,18 @@ async def playground(request: Request, ruleset_id: str, text: str = Form(...)):
     if not text.strip():
         return templates.TemplateResponse(request, "fragments/playground_result.html", {"empty": True})
 
-    result = module.lint_and_gate(text, file_path=full)
-    blocking = module.blocking_semantic_flags(result["semantic_flags"])
-    non_blocking = [f for f in result["semantic_flags"] if f not in blocking]
-    fixed = module.apply_mechanical_fixes(text, file_path=full) if result["mechanical_violations"] else None
+    try:
+        result = module.lint_and_gate(text, file_path=full)
+        blocking = module.blocking_semantic_flags(result["semantic_flags"])
+        non_blocking = [f for f in result["semantic_flags"] if f not in blocking]
+        fixed = module.apply_mechanical_fixes(text, file_path=full) if result["mechanical_violations"] else None
+    except Exception as e:
+        # Arbitrary pasted text is the whole point of a playground -- more
+        # likely than any other route here to hit an edge case a ruleset's
+        # lint path didn't anticipate. Caught broadly since the failure
+        # modes are the ruleset's own, not ours to enumerate.
+        return templates.TemplateResponse(request, "fragments/playground_result.html",
+                                           {"lint_error": str(e)})
 
     return templates.TemplateResponse(request, "fragments/playground_result.html", {
         "blocking": blocking, "mechanical": result["mechanical_violations"],

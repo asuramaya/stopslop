@@ -11,7 +11,23 @@
   --danger: #dc2626;
   --warn: #b45309;
   --ok: #16a34a;
+  --flash: #dcfce7;
   --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e6e6e8;
+    --fg-dim: #9497a1;
+    --bg: #16171a;
+    --bg-alt: #202226;
+    --border: #34363c;
+    --accent: #4f8dff;
+    --danger: #f0605a;
+    --warn: #e0a344;
+    --ok: #3fc373;
+    --flash: #12331f;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -54,6 +70,7 @@ main {
   max-width: 1100px;
   margin: 0 auto;
   padding: 1.25rem 1rem 2rem;
+  overflow-x: auto;
 }
 
 hr {
@@ -114,6 +131,8 @@ button {
 }
 
 button:hover { background: var(--border); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+button:disabled:hover { background: var(--bg-alt); }
 
 button.primary {
   background: var(--accent);
@@ -150,7 +169,47 @@ button.danger {
 
 .callout.deny { border-color: var(--danger); }
 
-.htmx-request { opacity: 0.6; }
+.callout .dismiss {
+  float: right;
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+  color: var(--fg-dim);
+}
+
+.callout .dismiss:hover { color: var(--fg); background: none; }
+
+/* Scoped, not global: a bare `.htmx-request{opacity:.6}` also dims a
+   search/filter <input> on every debounced keystroke and a <select> on
+   every poll -- distracting on controls that fire every couple seconds.
+   Buttons keep the dim (they're a one-shot click, not continuous typing);
+   everything else gets an explicit .spinner via hx-indicator instead. */
+button.htmx-request, button.htmx-request:disabled { opacity: 0.6; }
+
+.spinner {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.4em;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  vertical-align: -0.15em;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Save-feedback flash: htmx adds .htmx-settling to a swapped-in element
+   for the swap's settle window (set per-form via `settle:Nms` below,
+   e.g. check_row.html/routing_table.html), during which the row's
+   background starts at --flash and this transition eases it back to
+   normal -- confirms a save landed even when the new value looks
+   identical to the old one (e.g. re-submitting the same threshold). */
+tr { transition: background-color 0.6s ease-out; }
+tr.htmx-settling { background-color: var(--flash); transition: none; }
 
 .ruleset-picker {
   display: flex;
@@ -172,6 +231,21 @@ button.danger {
   border-color: var(--accent);
   color: #fff;
 }
+
+.confirm-ask { font-size: 0.85rem; color: var(--fg-dim); white-space: nowrap; }
+.confirm-ask form { display: inline; }
+
+.link-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
+.link-btn:hover { background: none; color: var(--accent); opacity: 0.8; }
 
 .param-row {
   display: flex;
