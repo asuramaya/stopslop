@@ -18,8 +18,11 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+from core import config as core_config
+import rulesets
+
 from webui import routes_checks, routes_routing, routes_vocabulary, routes_watch
-from webui.deps import PACKAGE_DIR, status, templates
+from webui.deps import PACKAGE_DIR, REPO_ROOT, status, templates
 
 app = FastAPI(title="stopslop")
 app.mount("/static", StaticFiles(directory=f"{PACKAGE_DIR}/static"), name="static")
@@ -49,3 +52,18 @@ def status_fragment(request: Request):
     drift apart into two copies of this text."""
     return templates.TemplateResponse(
         request, "fragments/status_footer.html", {"status": status()})
+
+
+@app.post("/config/clean")
+def config_clean(request: Request):
+    """The notices banner's own "Remove" button -- same two calls
+    stopslop.py's `status --clean-config` and the old dashboard's
+    _config_hygiene_notice() both made. A plain form POST (not htmx),
+    so a normal redirect-after-post back to wherever the button was
+    pressed is the simplest correct mutate-then-refetch here."""
+    stray = core_config.stray_top_level_keys(REPO_ROOT)
+    if stray:
+        core_config.strip_top_level_keys(REPO_ROOT, stray)
+    core_config.prune_orphaned_rule_extras(REPO_ROOT, rulesets)
+    referer = request.headers.get("referer") or "/watch"
+    return RedirectResponse(url=referer, status_code=303)

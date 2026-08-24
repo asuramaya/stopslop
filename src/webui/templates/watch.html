@@ -2,5 +2,18 @@
 {% block title %} - Watch{% endblock %}
 {% block content %}
 <h2>Watch</h2>
-<p class="caption">Coming in Phase 2: the live activity feed and denials callout.</p>
+<form id="watch-filters" onsubmit="return false">
+  <input type="text" id="watch-path" name="path" placeholder="Filter by path, e.g. docs/ or README">
+  <select id="watch-ruleset" name="ruleset">
+    {% for id in ruleset_ids %}
+    <option value="{{ id }}">{{ id }}</option>
+    {% endfor %}
+  </select>
+</form>
+<div id="watch-activity"
+     hx-get="/watch/fragment"
+     hx-trigger="load, every 2s, keyup changed delay:300ms from:#watch-path, change from:#watch-ruleset"
+     hx-include="#watch-path,#watch-ruleset"
+     hx-swap="innerHTML">
+</div>
 {% endblock %}

@@ -1,0 +1,39 @@
+{# Rendered both inline (watch.html's initial load) and by the 2s poll
+   (GET /watch/fragment), so the two never carry two copies of this
+   markup. #}
+<div class="callout {{ 'deny' if denials else '' }}">
+  <strong>&#128683; Recent denials ({{ denials | length }})</strong>
+  {% if not denials %}
+  <p class="caption">None recently -- every write has passed or been auto-fixed.</p>
+  {% else %}
+  {% for d in denials %}
+  <p>
+    <strong>{{ d.file }}</strong> &middot; {{ d.ruleset }} &middot; {{ d.when }}<br>
+    <span class="caption">flagged: {{ d.kinds }}</span>
+  </p>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<h3>Full activity</h3>
+{% if not rows %}
+<p class="caption">No matching activity yet -- write something through the hook, or use
+  Try it on Checks to see what it would do.</p>
+{% else %}
+<table>
+  <thead>
+    <tr><th>Time</th><th>Event</th><th>Ruleset</th><th>File</th><th>Kinds</th></tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.time }}</td>
+      <td>{{ r.icon }} {{ r.action }}</td>
+      <td>{{ r.ruleset }}</td>
+      <td>{{ r.file }}</td>
+      <td>{{ r.kinds }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}

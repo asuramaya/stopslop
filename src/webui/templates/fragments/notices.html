@@ -1,0 +1,30 @@
+{# Shown on every page, same as dashboard.py's own _first_run_notice()/
+   _config_hygiene_notice() calls at the top of every page function --
+   consolidated here once instead of four copies, since every page
+   already computes `status` for the footer anyway. #}
+{% if not status.hook_configured %}
+<div class="callout deny">
+  <strong>The gate is not installed yet.</strong> Everything here reads and edits
+  config, but no write is being checked. Run <code>python3 stopslop.py init</code>
+  in this repo, then restart Claude Code to pick up the hook.
+</div>
+{% endif %}
+{% if status.stray_config_keys or status.orphaned_rule_extras %}
+<div class="callout deny">
+  <strong>stopslop.config.json has dead weight</strong> --
+  {% if status.stray_config_keys %}
+  no reader consumes: {% for k in status.stray_config_keys %}<code>{{ k }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+  {% endif %}
+  {% for entry in status.orphaned_rule_extras %}
+  {{ entry.glob }} carries
+  {% if entry.packs %}packs on {{ entry.packs | length }} list(s){% endif %}
+  {% if entry.disable %}disable {{ entry.disable | join(', ') }}{% endif %}
+  that no ruleset it invokes recognizes
+  {% endfor %}
+  -- left over from a removed feature or a routing change that was never
+  revalidated.
+  <form method="post" action="/config/clean" style="display:inline">
+    <button type="submit">Remove</button>
+  </form>
+</div>
+{% endif %}
