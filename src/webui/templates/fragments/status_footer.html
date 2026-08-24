@@ -1,0 +1,11 @@
+{# Rendered both inline (base.html's initial page load) and standalone
+   (the hx-get poll below), so its content lives in one partial rather
+   than two copies that could drift. Mirrors dashboard.py's own
+   _status_footer() text exactly. #}
+<span class="status-line">
+  v{{ status.version }}
+  &middot; {{ status.gate_event_count }} events
+  &middot; config: {{ 'custom' if status.config_file_present else 'default' }}
+  &middot; hook: {{ '&#128994;' | safe if status.hook_configured else '&#128308;' | safe }}
+  &middot; integrity: {{ '&#128994;' | safe if status.integrity_baseline_recorded else '&#9898;' | safe }}
+</span>

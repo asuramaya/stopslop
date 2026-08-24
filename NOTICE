@@ -196,7 +196,16 @@ above -- these word lists carry their own license, not this repo's.
     attribution is legally required; the source is credited here anyway
     for traceability.
 
-4. Explicitly excluded
+4. Vendored frontend asset
+----------------------------
+
+src/webui/static/htmx.min.js is htmx 1.9.12 (https://htmx.org), vendored
+verbatim from https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js so the
+dashboard has no CDN dependency at runtime. Licensed Zero-Clause BSD
+(0BSD) -- no attribution legally required; noted here for traceability,
+same as the other vendored content in this file.
+
+5. Explicitly excluded
 ------------------------
 
 peakoss/anti-slop (https://github.com/peakoss/anti-slop) is AGPL-3.0, not
