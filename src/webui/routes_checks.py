@@ -39,8 +39,9 @@ def _last_fired(ruleset_id):
 
 def _rows(ruleset_id):
     module = rulesets.get_ruleset(ruleset_id)
+    configurable = "check_config" in module.CAPABILITIES
     checks = module.list_checks()
-    config = module.list_check_config() if "check_config" in module.CAPABILITIES else {}
+    config = module.list_check_config() if configurable else {}
     lists = getattr(module, "TERM_LISTS", {})
     fired = _last_fired(ruleset_id)
     rows = []
@@ -51,6 +52,7 @@ def _rows(ruleset_id):
             "catches": meta["catches"],
             "instead": meta["instead"],
             "enabled": meta["enabled"],
+            "configurable": configurable,
             "threshold": spec.get("threshold"),
             "action": spec.get("action"),
             "params": spec.get("params", {}),
@@ -114,12 +116,15 @@ async def set_check_config(request: Request, ruleset_id: str, check_id: str):
     module = rulesets.get_ruleset(ruleset_id)
     form = await request.form()
     error = None
-    try:
-        threshold = int(form["threshold"]) if form.get("threshold") else None
-        action = form.get("action") or None
-        module.set_check_config(check_id, threshold=threshold, action=action)
-    except ValueError as e:
-        error = str(e)
+    if "check_config" not in module.CAPABILITIES:
+        error = f"{ruleset_id!r} checks have no tunable threshold/action"
+    else:
+        try:
+            threshold = int(form["threshold"]) if form.get("threshold") else None
+            action = form.get("action") or None
+            module.set_check_config(check_id, threshold=threshold, action=action)
+        except ValueError as e:
+            error = str(e)
     module, rows = _rows(ruleset_id)
     row = next(r for r in rows if r["id"] == check_id)
     return fragment_response(request, "fragments/check_row.html",
@@ -131,12 +136,15 @@ async def set_check_param(request: Request, ruleset_id: str, check_id: str):
     module = rulesets.get_ruleset(ruleset_id)
     form = await request.form()
     error = None
-    try:
-        name = form["name"]
-        value = int(form["value"])
-        module.set_check_config(check_id, **{name: value})
-    except ValueError as e:
-        error = str(e)
+    if "check_config" not in module.CAPABILITIES:
+        error = f"{ruleset_id!r} checks have no tunable settings"
+    else:
+        try:
+            name = form["name"]
+            value = int(form["value"])
+            module.set_check_config(check_id, **{name: value})
+        except ValueError as e:
+            error = str(e)
     module, rows = _rows(ruleset_id)
     row = next(r for r in rows if r["id"] == check_id)
     return fragment_response(request, "fragments/check_params.html",

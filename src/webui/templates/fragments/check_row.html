@@ -10,6 +10,7 @@
   </td>
   <td><code>{{ row.id }}</code></td>
   <td>{{ row.catches }}</td>
+  {% if row.configurable %}
   <td>
     <form style="margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/config"
           hx-trigger="change" onsubmit="return false" hx-target="#row-{{ row.id }}" hx-swap="outerHTML settle:450ms">
@@ -25,5 +26,8 @@
       </select>
     </form>
   </td>
+  {% else %}
+  <td class="caption" colspan="2">not configurable</td>
+  {% endif %}
   <td class="caption">{{ row.last_fired }}</td>
 </tr>

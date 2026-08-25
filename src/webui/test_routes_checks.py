@@ -23,6 +23,7 @@ import unittest
 try:
     from fastapi.testclient import TestClient
 
+    import rulesets
     from webui.app import app
     from webui.deps import REPO_ROOT
     client = TestClient(app)
@@ -127,6 +128,40 @@ class MutationTests(unittest.TestCase):
                                 data={"name": "procedure_word_limit", "value": "18"})
         self.assertEqual(response.status_code, 200)
         self.assertIn('value="18"', response.text)
+
+
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class ChecksWithoutCheckConfigCapabilityTests(unittest.TestCase):
+    """The registry (rulesets/__init__.py's CAPABILITY_ATTRS) allows a
+    ruleset to declare "checks" without "check_config" -- no ruleset
+    shipped today does, but the page must not assume every checkable
+    ruleset looks like today's three. Patches a real registered module's
+    CAPABILITIES for the duration of one test rather than a stub, since
+    the registry keys off the actual module object identity."""
+
+    def setUp(self):
+        self.module = rulesets.get_ruleset("codewatch")
+        self._original = self.module.CAPABILITIES
+        self.module.CAPABILITIES = frozenset(self._original) - {"check_config"}
+        self.addCleanup(setattr, self.module, "CAPABILITIES", self._original)
+
+    def test_row_renders_without_live_threshold_action_controls(self):
+        response = client.get("/checks", params={"ruleset": "codewatch"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("not configurable", response.text)
+        self.assertNotIn('name="threshold"', response.text)
+        self.assertNotIn('name="action"', response.text)
+
+    def test_config_post_returns_error_banner_not_a_500(self):
+        response = client.post("/checks/codewatch/todo_stub/config", data={"threshold": "3"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("no tunable threshold/action", response.text)
+
+    def test_param_post_returns_error_banner_not_a_500(self):
+        response = client.post("/checks/codewatch/todo_stub/param",
+                                data={"name": "whatever", "value": "1"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("no tunable settings", response.text)
 
 
 if __name__ == "__main__":
