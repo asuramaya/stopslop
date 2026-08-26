@@ -29,4 +29,10 @@
 
 {% include "fragments/vocabulary_list.html" %}
 {% endif %}
+
+<hr style="margin:1rem 0">
+<h3>Vocabulary packs</h3>
+<p class="caption">Bulk word lists a routing rule can bind to a term list (edit bindings on
+  Routing). Built-in packs ship with stopslop; custom ones are yours to add or remove.</p>
+{% include "fragments/pack_list.html" %}
 {% endblock %}

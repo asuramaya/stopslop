@@ -34,8 +34,26 @@ packs they produce are not.
 """
 import json
 import os
+import re
+from collections.abc import Mapping
+
+from core import paths as _paths
+from core.blocks import words as _words
 
 _PACKS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Where a pack a USER adds through the dashboard lives -- deliberately
+# outside _PACKS_DIR (which is this tool's own shipped, git-tracked
+# source), the same ".claude/ is for local/generated state" convention
+# the webui's undo file and dashboard lock already use. A custom pack's
+# existence is entirely file-based: dropping a file here IS registering
+# it, deleting it IS removing it -- unlike a built-in pack (see
+# _BUILTIN_PACKS below), which stays known even before its data file
+# exists (test_known_pack_with_no_built_file_returns_empty).
+_CUSTOM_PACKS_DIR = os.path.join(
+    _paths.find_project_root(__file__), ".claude", "stopslop", "custom_packs")
+
+_PACK_ID_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 # License is informational here (surfaced to the user before they enable a
 # pack) -- the actual legal treatment (attribution-only vs share-alike vs
@@ -69,7 +87,7 @@ _PACKS_DIR = os.path.dirname(os.path.abspath(__file__))
 # "leverages?"). A warning is not a type system. A kind says what the content
 # IS, without naming a consumer, so one pack still feeds many rulesets, at
 # either polarity, while the nonsense becomes unrepresentable.
-AVAILABLE_PACKS = {
+_BUILTIN_PACKS = {
     "microsoft-style-guide": {
         "content_kind": "word",
         "name": "Microsoft Writing Style Guide word list",
@@ -99,6 +117,59 @@ def _pack_path(pack_id):
     return os.path.join(_PACKS_DIR, pack_id.replace("-", "_") + ".json")
 
 
+def _custom_pack_path(pack_id):
+    return os.path.join(_CUSTOM_PACKS_DIR, pack_id.replace("-", "_") + ".json")
+
+
+def _custom_pack_ids():
+    if not os.path.isdir(_CUSTOM_PACKS_DIR):
+        return []
+    return sorted(name[:-len(".json")].replace("_", "-")
+                  for name in os.listdir(_CUSTOM_PACKS_DIR) if name.endswith(".json"))
+
+
+def _custom_pack_meta(pack_id):
+    with open(_custom_pack_path(pack_id)) as f:
+        meta = dict(json.load(f).get("_meta", {}))
+    meta.setdefault("content_kind", "word")
+    return meta
+
+
+class _PackRegistry(Mapping):
+    """AVAILABLE_PACKS -- a live view, not a snapshot: every access
+    re-scans _CUSTOM_PACKS_DIR, the same never-cache-it posture every
+    other config read in this project takes (this dashboard's own
+    process never restarts between adding a pack and the next page
+    render that lists one). Built-in packs stay a plain hardcoded dict,
+    unlike a custom pack whose existence IS its file -- a built-in is
+    known even before its data file has been generated (see
+    test_known_pack_with_no_built_file_returns_empty), a guarantee this
+    class must not disturb."""
+
+    def __iter__(self):
+        yield from _BUILTIN_PACKS
+        for pack_id in _custom_pack_ids():
+            if pack_id not in _BUILTIN_PACKS:
+                yield pack_id
+
+    def __len__(self):
+        return sum(1 for _ in self)
+
+    def __getitem__(self, pack_id):
+        if pack_id in _BUILTIN_PACKS:
+            meta = dict(_BUILTIN_PACKS[pack_id])
+            meta["origin"] = "built-in"
+            return meta
+        if pack_id in _custom_pack_ids():
+            meta = _custom_pack_meta(pack_id)
+            meta["origin"] = "custom"
+            return meta
+        raise KeyError(pack_id)
+
+
+AVAILABLE_PACKS = _PackRegistry()
+
+
 def load_pack_terms(pack_id):
     """{"word": {"note": ...}, ...} for one pack, or {} if the pack is
     registered but its data file hasn't been built yet -- never raises for
@@ -107,7 +178,8 @@ def load_pack_terms(pack_id):
     if pack_id not in AVAILABLE_PACKS:
         raise UnknownPackError(
             f"no glossary pack registered as {pack_id!r} -- known: {sorted(AVAILABLE_PACKS)}")
-    path = _pack_path(pack_id)
+    path = (_pack_path(pack_id) if pack_id in _BUILTIN_PACKS
+            else _custom_pack_path(pack_id))
     if not os.path.exists(path):
         return {}
     with open(path) as f:
@@ -121,7 +193,8 @@ def pack_meta(pack_id):
         raise UnknownPackError(
             f"no glossary pack registered as {pack_id!r} -- known: {sorted(AVAILABLE_PACKS)}")
     meta = dict(AVAILABLE_PACKS[pack_id])
-    path = _pack_path(pack_id)
+    path = (_pack_path(pack_id) if pack_id in _BUILTIN_PACKS
+            else _custom_pack_path(pack_id))
     if os.path.exists(path):
         with open(path) as f:
             data = json.load(f)
@@ -134,3 +207,49 @@ def pack_meta(pack_id):
 
 def list_packs():
     return {pack_id: pack_meta(pack_id) for pack_id in sorted(AVAILABLE_PACKS)}
+
+
+def add_pack(pack_id, name, source, license, content_kind, terms):
+    """Register a new CUSTOM pack -- writes a real file under
+    _CUSTOM_PACKS_DIR in the same self-describing {_meta, terms} shape a
+    built-in pack file already has, so a custom pack is exactly as
+    inspectable/portable as a shipped one. Refuses an id colliding with a
+    built-in (shadowing one silently would be far more confusing than
+    refusing outright) and a term whose key would never actually match
+    anything -- the same "70 silently-inert entries" bug class this
+    project's own pack build scripts were bitten by once
+    (BuiltPackKeysSurviveTheRealTokenizerTests), caught here at write
+    time instead of discovered later as a pack that mysteriously never
+    flags anything."""
+    pack_id = pack_id.strip().lower()
+    if not _PACK_ID_RE.match(pack_id):
+        raise ValueError(
+            f"pack id {pack_id!r} must be lowercase letters/digits, "
+            f"hyphen-separated (e.g. 'my-pack')")
+    if pack_id in _BUILTIN_PACKS:
+        raise ValueError(f"{pack_id!r} is a built-in pack id -- choose a different name")
+    dead = [w for w in terms if _words(w) != [w]]
+    if dead:
+        raise ValueError(
+            f"these terms would never match real text (letters/apostrophes "
+            f"only, one word each): {dead}")
+    os.makedirs(_CUSTOM_PACKS_DIR, exist_ok=True)
+    data = {
+        "_meta": {"name": name, "source": source, "license": license,
+                  "content_kind": content_kind},
+        "terms": terms,
+    }
+    with open(_custom_pack_path(pack_id), "w") as f:
+        json.dump(data, f, indent=2, sort_keys=True)
+
+
+def remove_pack(pack_id):
+    """Delete a CUSTOM pack's file. Refuses for a built-in -- there is no
+    file to delete that would actually remove one of those; origin ==
+    "built-in" means exactly that, not merely "hasn't been removed yet"."""
+    if pack_id in _BUILTIN_PACKS:
+        raise ValueError(f"{pack_id!r} is a built-in pack -- built-ins can't be removed")
+    path = _custom_pack_path(pack_id)
+    if not os.path.exists(path):
+        raise UnknownPackError(f"no custom pack registered as {pack_id!r}")
+    os.remove(path)

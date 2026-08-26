@@ -112,7 +112,10 @@ class PackIsInertContentTests(unittest.TestCase):
         fact about the pack, true whoever reads it, where "I am for
         ste100.project_terms" was a claim about someone else. A pack may say
         what it IS. It may never say who it is FOR."""
-        allowed = {"name", "source", "license", "content_kind"}
+        # "origin" (built-in vs custom) joined the same way content_kind
+        # did: it is a fact about the pack's own provenance, never about
+        # who reads it -- see _PackRegistry in core/glossary_packs.
+        allowed = {"name", "source", "license", "content_kind", "origin"}
         for pack_id, meta in glossary_packs.AVAILABLE_PACKS.items():
             extra = set(meta) - allowed
             self.assertEqual(extra, set(),

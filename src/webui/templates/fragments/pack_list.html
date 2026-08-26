@@ -1,0 +1,53 @@
+{# Needs `packs` (routes_vocabulary._pack_rows()'s list) in context.
+   Returned standalone by every mutating route below, so the whole
+   section re-renders after each write -- same mutate-then-refetch
+   contract every other fragment here follows. #}
+<div id="pack-list">
+<table>
+  <thead><tr><th>Pack</th><th>Kind</th><th>License</th><th>Terms</th><th>Source</th><th></th></tr></thead>
+  <tbody>
+    {% for p in packs %}
+    <tr>
+      <td>{{ p.name }} <span class="pill">{{ p.origin }}</span></td>
+      <td><code>{{ p.content_kind }}</code></td>
+      <td class="caption">{{ p.license }}</td>
+      <td>{{ p.term_count }}</td>
+      <td class="caption"><a href="{{ p.source }}" target="_blank" rel="noopener">{{ p.source }}</a></td>
+      <td>
+        {% if p.origin == 'custom' %}
+        <span class="confirm-wrap">
+          <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove</button>
+          <span class="confirm-ask" hidden>
+            Remove <code>{{ p.id }}</code>?
+            <form style="display:inline;margin:0" hx-post="/vocabulary/packs/{{ p.id }}/remove"
+                  hx-target="#pack-list" hx-swap="outerHTML">
+              <button type="submit" class="danger">Yes</button>
+            </form>
+            <button type="button" onclick="confirmCancel(this)">Cancel</button>
+          </span>
+        </span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<details>
+  <summary>Add a pack</summary>
+  <form hx-post="/vocabulary/packs/add" hx-target="#pack-list" hx-swap="outerHTML">
+    <div class="param-row">
+      <input type="text" name="pack_id" placeholder="id, e.g. my-glossary" required>
+      <input type="text" name="name" placeholder="display name" required>
+      <input type="text" name="content_kind" placeholder="content kind, e.g. word" value="word">
+    </div>
+    <div class="param-row">
+      <input type="text" name="source" placeholder="source URL" style="flex:1">
+      <input type="text" name="license" placeholder="license, e.g. MIT">
+    </div>
+    <textarea name="terms" rows="6" style="width:100%"
+              placeholder="one word per line -- optionally &quot;word: a note&quot;"></textarea>
+    <button type="submit" class="primary">Add pack</button>
+  </form>
+</details>
+</div>

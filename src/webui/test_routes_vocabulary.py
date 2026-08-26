@@ -12,11 +12,13 @@ Run with (needs the venv):
     cd src && ../.venv/bin/python3 -m unittest webui.test_routes_vocabulary -v
 """
 import os
+import tempfile
 import unittest
 
 try:
     from fastapi.testclient import TestClient
 
+    from core import glossary_packs
     from webui.app import app
     from webui.deps import REPO_ROOT
     client = TestClient(app)
@@ -115,6 +117,58 @@ class MutationTests(unittest.TestCase):
         restored = client.post("/vocabulary/codewatch/generic_naming/restore",
                                 data={"term": "helper"})
         self.assertIn("built-in", restored.text)
+
+
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class PackRoutesTests(unittest.TestCase):
+    """Isolated against a temp _CUSTOM_PACKS_DIR (same pattern as
+    core/test_glossary_packs_custom.py) -- never touches this repo's own
+    real .claude/stopslop/custom_packs/."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self._orig = glossary_packs._CUSTOM_PACKS_DIR
+        glossary_packs._CUSTOM_PACKS_DIR = self._tmp.name
+        self.addCleanup(setattr, glossary_packs, "_CUSTOM_PACKS_DIR", self._orig)
+        self.addCleanup(self._tmp.cleanup)
+
+    def test_page_lists_built_in_packs(self):
+        response = client.get("/vocabulary")
+        self.assertIn("MDN Web Docs Glossary", response.text)
+        self.assertIn("built-in", response.text)
+
+    def test_add_pack_then_it_appears(self):
+        response = client.post("/vocabulary/packs/add", data={
+            "pack_id": "my-pack", "name": "My Pack", "source": "https://example.com",
+            "license": "MIT", "content_kind": "word", "terms": "widget\ngadget: a note",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("My Pack", response.text)
+        self.assertIn("custom", response.text)
+
+    def test_add_pack_rejects_a_dead_key_with_an_error_banner(self):
+        response = client.post("/vocabulary/packs/add", data={
+            "pack_id": "my-pack", "name": "My Pack", "source": "x",
+            "license": "MIT", "content_kind": "word", "terms": "front-end",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+        self.assertNotIn("My Pack", response.text)
+
+    def test_remove_custom_pack_round_trips(self):
+        client.post("/vocabulary/packs/add", data={
+            "pack_id": "my-pack", "name": "My Pack", "source": "x",
+            "license": "MIT", "content_kind": "word", "terms": "",
+        })
+        response = client.post("/vocabulary/packs/my-pack/remove")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("My Pack", response.text)
+
+    def test_cannot_remove_a_built_in_pack(self):
+        response = client.post("/vocabulary/packs/mdn-glossary/remove")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+        self.assertIn("MDN Web Docs Glossary", response.text)
 
 
 if __name__ == "__main__":

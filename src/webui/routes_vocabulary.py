@@ -6,11 +6,31 @@ the primary verb, the per-list browser below it covers curation.
 from fastapi import APIRouter, Request
 
 import rulesets
-from core import config as core_config, terms as core_terms
+from core import config as core_config, glossary_packs, terms as core_terms
 
-from webui.deps import REPO_ROOT, render, templates
+from webui.deps import REPO_ROOT, fragment_response, render, templates
 
 router = APIRouter()
+
+
+def _parse_pack_terms(text):
+    """One term per line -- "word" or "word: a note". Blank lines and
+    lines starting with # (a comment, not a term) are skipped, so a
+    pasted word list with its own header/comments doesn't need
+    pre-cleaning before it becomes a pack."""
+    terms = {}
+    for line in (text or "").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        word, _, note = line.partition(":")
+        terms[word.strip().lower()] = {"note": note.strip()}
+    return terms
+
+
+def _pack_rows():
+    rows = [dict(meta, id=pack_id) for pack_id, meta in glossary_packs.list_packs().items()]
+    return sorted(rows, key=lambda m: m["name"])
 
 
 def _list_entries():
@@ -48,17 +68,56 @@ def _list_block(ruleset_id, list_id):
     }
 
 
+@router.get("/vocabulary/packs")
+def packs_fragment(request: Request):
+    return templates.TemplateResponse(request, "fragments/pack_list.html", {"packs": _pack_rows()})
+
+
+@router.post("/vocabulary/packs/add")
+async def add_pack(request: Request):
+    form = await request.form()
+    error = None
+    try:
+        glossary_packs.add_pack(
+            pack_id=(form.get("pack_id") or "").strip(),
+            name=(form.get("name") or "").strip(),
+            source=(form.get("source") or "").strip(),
+            license=(form.get("license") or "").strip(),
+            content_kind=(form.get("content_kind") or "word").strip(),
+            terms=_parse_pack_terms(form.get("terms")),
+        )
+    except ValueError as e:
+        error = str(e)
+    return fragment_response(request, "fragments/pack_list.html", {"packs": _pack_rows()}, error=error)
+
+
+# Registered BEFORE /vocabulary/{ruleset_id}/{list_id}/remove on purpose:
+# Starlette matches routes in registration order, not by specificity, and
+# both are 3 path segments ("packs"/{pack_id}/"remove" vs {ruleset_id}/
+# {list_id}/"remove") -- the generic pattern would otherwise swallow this
+# one first, binding ruleset_id="packs" and raising UnknownRulesetError.
+@router.post("/vocabulary/packs/{pack_id}/remove")
+async def remove_pack(request: Request, pack_id: str):
+    error = None
+    try:
+        glossary_packs.remove_pack(pack_id)
+    except ValueError as e:
+        error = str(e)
+    return fragment_response(request, "fragments/pack_list.html", {"packs": _pack_rows()}, error=error)
+
+
 @router.get("/vocabulary")
 def vocabulary_page(request: Request):
     entries = _list_entries()
     if not entries:
-        return render(request, "vocabulary.html", "vocabulary", {"entries": []})
+        return render(request, "vocabulary.html", "vocabulary", {"entries": [], "packs": _pack_rows()})
     module, list_id, _spec = entries[0]
     return render(request, "vocabulary.html", "vocabulary", {
         "entries": entries,
         "ruleset_id": module.RULESET_ID,
         "list_id": list_id,
         "block": _list_block(module.RULESET_ID, list_id),
+        "packs": _pack_rows(),
     })
 
 
