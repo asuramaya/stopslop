@@ -230,5 +230,129 @@ class BlockingSemanticFlagsTests(unittest.TestCase):
             self.table, self.project_root, "fake", flags), flags)
 
 
+class RunChecksTests(unittest.TestCase):
+    """Synthetic checks covering every Unit -- see rulesets/codewatch/
+    test_lint.py's own DispatcherMigrationTests for the differential
+    (byte-identical-to-the-old-hand-written-loop) proof against a real
+    ruleset."""
+
+    def _check(self, unit, fn, **overrides):
+        return checks.Check(id=overrides.pop("id", "c"), unit=unit, fn=fn,
+                             catches="x", instead="y", **overrides)
+
+    def test_line_unit_calls_fn_per_line_no_extra(self):
+        table = {"c": self._check(checks.Unit.LINE,
+                                   lambda line: [{"word": line}] if line == "bad" else [])}
+        mech, sem = checks.run_checks(table, lines=["good", "bad", "good"])
+        self.assertEqual(mech, [])
+        self.assertEqual(len(sem), 1)
+        self.assertEqual(sem[0], {"kind": "c", "label": "bad", "detail": {"word": "bad"}, "text": "bad"})
+
+    def test_line_unit_with_extra_passed_positionally(self):
+        table = {"c": self._check(checks.Unit.LINE,
+                                   lambda line, extra: [{"word": extra}] if line == "x" else [])}
+        mech, sem = checks.run_checks(table, lines=["x"], extra_by_check={"c": "injected"})
+        self.assertEqual(sem[0]["detail"], {"word": "injected"})
+
+    def test_line_unit_skipped_when_no_lines_given(self):
+        table = {"c": self._check(checks.Unit.LINE, lambda line: [{"word": line}])}
+        mech, sem = checks.run_checks(table, sentences=["x"])  # lines never supplied
+        self.assertEqual((mech, sem), ([], []))
+
+    def test_line_lookahead_sees_next_line_and_none_at_eof(self):
+        seen = []
+
+        def fn(line, next_line):
+            seen.append((line, next_line))
+            return []
+        table = {"c": self._check(checks.Unit.LINE_LOOKAHEAD, fn)}
+        checks.run_checks(table, lines=["a", "b"])
+        self.assertEqual(seen, [("a", "b"), ("b", None)])
+
+    def test_lines_indexed_receives_whole_list_and_index(self):
+        seen = []
+
+        def fn(lines, i):
+            seen.append((tuple(lines), i))
+            return []
+        table = {"c": self._check(checks.Unit.LINES_INDEXED, fn)}
+        checks.run_checks(table, lines=["a", "b"])
+        self.assertEqual(seen, [(("a", "b"), 0), (("a", "b"), 1)])
+
+    def test_sentence_unit_calls_fn_per_sentence(self):
+        table = {"c": self._check(checks.Unit.SENTENCE,
+                                   lambda s: [{"phrase": s}] if "bad" in s else [])}
+        mech, sem = checks.run_checks(table, sentences=["ok.", "a bad one."])
+        self.assertEqual(len(sem), 1)
+        self.assertEqual(sem[0]["text"], "a bad one.")
+
+    def test_sentences_unit_calls_fn_once_with_all_sentences(self):
+        calls = []
+
+        def fn(sentences):
+            calls.append(list(sentences))
+            return [{"phrase": "x", "text": "combined"}]
+        table = {"c": self._check(checks.Unit.SENTENCES, fn)}
+        mech, sem = checks.run_checks(table, sentences=["a", "b"])
+        self.assertEqual(calls, [["a", "b"]])
+        self.assertEqual(sem[0]["text"], "combined")
+
+    def test_document_unit_calls_fn_once_with_whole_text_label_none(self):
+        table = {"c": self._check(checks.Unit.DOCUMENT,
+                                   lambda text: [{"count": 3, "note": "x"}])}
+        mech, sem = checks.run_checks(table, text="whole document")
+        self.assertEqual(sem[0], {"kind": "c", "label": None,
+                                    "detail": {"count": 3, "note": "x"}, "text": None})
+
+    def test_document_unit_with_extra(self):
+        table = {"c": self._check(checks.Unit.DOCUMENT,
+                                   lambda text, extra: [{"phrase": extra}])}
+        mech, sem = checks.run_checks(table, text="x", extra_by_check={"c": "ctx"})
+        self.assertEqual(sem[0]["detail"], {"phrase": "ctx"})
+
+    def test_classify_literal_mechanical(self):
+        table = {"c": self._check(checks.Unit.LINE, lambda line: [{"word": line}],
+                                   classify="mechanical")}
+        mech, sem = checks.run_checks(table, lines=["x"])
+        self.assertEqual(len(mech), 1)
+        self.assertEqual(sem, [])
+
+    def test_classify_callable_decides_per_violation(self):
+        table = {"c": self._check(
+            checks.Unit.LINE, lambda line: [{"word": line, "auto_fix": line == "fixable"}],
+            classify=lambda v: "mechanical" if v["auto_fix"] else "semantic")}
+        mech, sem = checks.run_checks(table, lines=["fixable", "not"])
+        self.assertEqual([m["text"] for m in mech], ["fixable"])
+        self.assertEqual([s["text"] for s in sem], ["not"])
+
+    def test_label_falls_back_through_word_phrase_modal(self):
+        table = {"c": self._check(checks.Unit.LINE, lambda line: [{"modal": "should"}])}
+        _, sem = checks.run_checks(table, lines=["x"])
+        self.assertEqual(sem[0]["label"], "should")
+
+    def test_order_is_item_major_check_minor_not_the_reverse(self):
+        # The bug this guards: a per-check outer loop (all of line 0's
+        # matches, all of line 1's, ...) produces a DIFFERENT flag order
+        # than a hand-written loop's actual shape (check_a(line) then
+        # check_b(line), for every line) -- a denial message's flag
+        # order is real, observable behavior, not an implementation
+        # detail free to shuffle during a refactor.
+        table = {
+            "a": self._check(checks.Unit.LINE, lambda line: [{"word": "a-" + line}], id="a"),
+            "b": self._check(checks.Unit.LINE, lambda line: [{"word": "b-" + line}], id="b"),
+        }
+        _, sem = checks.run_checks(table, lines=["x", "y"])
+        self.assertEqual([s["detail"]["word"] for s in sem],
+                          ["a-x", "b-x", "a-y", "b-y"])
+
+    def test_two_checks_in_one_table_both_dispatch(self):
+        table = {
+            "a": self._check(checks.Unit.LINE, lambda line: [{"word": "A"}], id="a"),
+            "b": self._check(checks.Unit.DOCUMENT, lambda text: [{"word": "B"}], id="b"),
+        }
+        mech, sem = checks.run_checks(table, lines=["x"], text="whole")
+        self.assertEqual({s["kind"] for s in sem}, {"a", "b"})
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -423,7 +423,11 @@ CHECKS_TABLE = {
 ALL_CHECK_IDS = frozenset(CHECKS_TABLE)
 
 
-def lint_and_gate(text, context=None, file_path=None):
+def _lint_and_gate_legacy(text, context=None, file_path=None):
+    """Pre-dispatcher implementation, kept only for
+    test_lint.py's DispatcherMigrationTests differential proof against
+    lint_and_gate below -- delete this once that suite is trusted and
+    stable across a few real runs, not needed as permanent scaffolding."""
     lines = text.split("\n")
     semantic = []
     is_script = _is_script(lines)
@@ -462,6 +466,33 @@ def lint_and_gate(text, context=None, file_path=None):
         "status": status,
         "sentence_count": len(lines),
         "mechanical_violations": [],
+        "semantic_flags": semantic,
+    }
+
+
+def lint_and_gate(text, context=None, file_path=None):
+    lines = text.split("\n")
+    is_script = _is_script(lines)
+    extra_generic_names = _custom_terms("generic_naming", file_path)  # once per call, not per line
+
+    mechanical, semantic = _checks.run_checks(
+        CHECKS_TABLE, lines=lines,
+        extra_by_check={"print_debug": is_script, "generic_naming": extra_generic_names})
+
+    # Every check above runs unconditionally; a disabled check's own flags
+    # are dropped here in one place rather than guarding all 10 call sites.
+    # mechanical is always [] today (no codewatch check classifies as
+    # mechanical) -- kept as a real variable, not hardcoded, so a future
+    # check that does won't need this function touched again.
+    enabled = _enabled_check_ids(file_path)
+    mechanical = [f for f in mechanical if f["kind"] in enabled]
+    semantic = [f for f in semantic if f["kind"] in enabled]
+
+    status = "clean" if not semantic else "semantic_flags"
+    return {
+        "status": status,
+        "sentence_count": len(lines),
+        "mechanical_violations": mechanical,
         "semantic_flags": semantic,
     }
 

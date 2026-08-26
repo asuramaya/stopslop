@@ -18,26 +18,31 @@ declared table plus (project_root, ruleset_id), the same
 established for term lists.
 
 `Check.fn`/`unit`/`terms_list`/`terms_arg`/`terms_shape`/`classify`/
-`dedup` are recorded here for a possible future unification of each
-ruleset's own `lint_and_gate` text-splitting/orchestration loop --
-genuinely different splitting logic (sentence-level with a word-limit
-context vs. line-level with lookahead) makes that a separate, harder
-piece of work. Nothing in this module reads those fields yet; each
-ruleset's `lint_and_gate` stays hand-written and calls its own
-`check_*` functions directly, unchanged. Only the scaffolding below --
-which never needed to know how a check's matcher works, only its id,
-text, and tunable numbers -- is unified now.
+`dedup` feed `run_checks()` below -- the generalization of each
+ruleset's own `lint_and_gate` dispatch LOOP (call every check's `fn`
+against its declared `unit`, file the result as mechanical or
+semantic). Text-SPLITTING stays each ruleset's own job on purpose:
+sentence tokenization, block-awareness (code fences, list items,
+inline-code stripping), and any per-item context a check needs (ste100's
+per-sentence procedure/description register, codewatch's per-file
+`is_script`) are all genuinely ruleset-specific business logic, not
+generic scaffolding -- `run_checks()` only unifies the repetitive
+"for v in check_X(...): result.append({...})" boilerplate every
+ruleset's lint_and_gate used to hand-write once per check, given
+iteration domains (`lines`, `sentences`, `text`) and any per-check
+extra argument the ruleset already computed.
 """
 from dataclasses import dataclass, field
 from enum import Enum
 
 from core import config as _core_config
-from core.flags import flag_weight
+from core.flags import default_label as _default_label, flag_weight
 
 
 class Unit(Enum):
-    """The granularity a check's matcher function operates over. Not yet
-    consumed by anything here -- see the module docstring."""
+    """The granularity a check's matcher function operates over --
+    consumed by run_checks() below, which dispatches each check against
+    the iteration domain matching its own unit."""
     SENTENCE = "sentence"              # fn(sentence, **extras)
     SENTENCES = "sentences"            # fn(all_sentences: list) -- cross-sentence, once/call
     LINE = "line"                      # fn(line, **extras)
@@ -224,3 +229,97 @@ def blocking_semantic_flags(table, project_root, ruleset_id, semantic_flags):
         if flag_weight(flags) >= spec["threshold"] and spec["action"] == "block":
             blocking.extend(flags)
     return blocking
+
+
+def run_checks(table, *, lines=None, sentences=None, text=None, extra_by_check=None):
+    """Dispatch every check in `table` against the iteration domain
+    matching its own `unit`, filing each violation as mechanical or
+    semantic -- (mechanical, semantic), the same two flat lists every
+    ruleset's lint_and_gate already builds by hand, each entry shaped
+    {"kind", "label", "detail", "text"}.
+
+    The CALLER (a ruleset's own lint_and_gate) still owns:
+      - computing `lines`/`sentences`/`text` -- whatever text-splitting,
+        block-awareness, or tokenization that ruleset's own domain needs;
+        a unit with no matching domain supplied here is silently skipped
+        (a LINE check when `lines` is None contributes nothing -- "no
+        input for this domain" is a normal answer, not an error)
+      - `extra_by_check`: {check_id: extra_value} for any check whose
+        `fn` takes one extra argument beyond the item itself (resolved
+        term-list content, a per-file computed value like codewatch's
+        is_script) -- passed positionally, so the check's own parameter
+        name never has to match anything here; a check_id absent from
+        this dict is called with no extra arg at all
+      - enabled-filtering and dedup on the returned lists, exactly as
+        every ruleset's lint_and_gate already does after its own
+        hand-written loop today -- neither is this function's job
+
+    `label` is core.flags.default_label(violation) -- whichever of
+    "word"/"phrase"/"modal" the violation carries, or None (matching
+    every hand-written call site's own label choice today, including
+    the document-level checks that pass label=None because their
+    violation dict carries neither key).
+
+    `check.classify` decides the mechanical/semantic bucket -- a literal
+    ("mechanical"/"semantic", the common case) or a callable taking one
+    violation dict and returning one of those two strings, for a check
+    whose classification depends on the violation itself (e.g. ste100's
+    vocabulary: auto-fixable substitutions are mechanical, everything
+    else is semantic).
+
+    ITERATION ORDER matches every hand-written loop this replaces: the
+    OUTER loop is over items (line 0, line 1, ..., or sentence 0,
+    sentence 1, ...), the INNER loop is over checks in `table`'s own
+    declaration order -- a hand-written loop calls check_a(line) then
+    check_b(line) for EVERY line before moving to the next line, not
+    every line for check_a before starting check_b. A caller whose
+    denial message shows the first few flags, or whose test pins exact
+    output order, depends on this -- reordering silently would be a
+    real behavior change wearing a refactor's clothes."""
+    extra_by_check = extra_by_check or {}
+    mechanical, semantic = [], []
+
+    def _classify(check, violation):
+        c = check.classify
+        return c(violation) if callable(c) else c
+
+    def _file(check, violation, text_value):
+        entry = {"kind": check.id, "label": _default_label(violation),
+                  "detail": violation, "text": text_value}
+        (mechanical if _classify(check, violation) == "mechanical" else semantic).append(entry)
+
+    def _call(check, *args):
+        return check.fn(*args, extra_by_check[check.id]) if check.id in extra_by_check else check.fn(*args)
+
+    if lines is not None:
+        for i, line in enumerate(lines):
+            for check in table.values():
+                if check.unit == Unit.LINE:
+                    for v in _call(check, line):
+                        _file(check, v, line)
+                elif check.unit == Unit.LINE_LOOKAHEAD:
+                    next_line = lines[i + 1] if i + 1 < len(lines) else None
+                    for v in check.fn(line, next_line):
+                        _file(check, v, line)
+                elif check.unit == Unit.LINES_INDEXED:
+                    for v in check.fn(lines, i):
+                        _file(check, v, line)
+
+    if sentences is not None:
+        for s in sentences:
+            for check in table.values():
+                if check.unit == Unit.SENTENCE:
+                    for v in _call(check, s):
+                        _file(check, v, s)
+        for check in table.values():
+            if check.unit == Unit.SENTENCES:
+                for v in check.fn(sentences):
+                    _file(check, v, v.get("text"))
+
+    if text is not None:
+        for check in table.values():
+            if check.unit == Unit.DOCUMENT:
+                for v in _call(check, text):
+                    _file(check, v, None)
+
+    return mechanical, semantic
