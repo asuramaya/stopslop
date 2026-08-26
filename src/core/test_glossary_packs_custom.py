@@ -66,6 +66,32 @@ class AddPackTests(_TempCustomPacksDir):
             glossary_packs.add_pack("my-pack", "x", "x", "MIT", "word",
                                      {"front-end": {"note": "dead key"}})
 
+    def test_dead_key_guard_does_not_apply_to_a_phrase_pack(self):
+        # slopwatch's own weasel_attribution list is content_kind "phrase"
+        # -- multi-word entries are the whole point, not a mistake the
+        # word-tokenizer guard should ever catch.
+        glossary_packs.add_pack("my-phrases", "x", "x", "MIT", "phrase",
+                                 {"some experts say": {"note": "x"}})
+        self.assertIn("my-phrases", glossary_packs.AVAILABLE_PACKS)
+
+    def test_dead_key_guard_does_not_apply_to_a_pattern_pack(self):
+        # slopwatch's filler_verb list is content_kind "pattern" -- its
+        # entries are regexes (e.g. "enables?"), never single tokens.
+        glossary_packs.add_pack("my-patterns", "x", "x", "MIT", "pattern",
+                                 {"enables?": {"note": "x"}})
+        self.assertIn("my-patterns", glossary_packs.AVAILABLE_PACKS)
+
+    def test_rejects_re_adding_an_existing_custom_pack(self):
+        # ADD, not upsert -- a same-id resubmission must not silently
+        # clobber the previous terms with no confirmation.
+        glossary_packs.add_pack("my-pack", "Original", "x", "MIT", "word",
+                                 {"widget": {"note": "original"}})
+        with self.assertRaises(ValueError):
+            glossary_packs.add_pack("my-pack", "Replacement", "x", "MIT", "word",
+                                     {"gadget": {"note": "replacement"}})
+        self.assertEqual(glossary_packs.load_pack_terms("my-pack"),
+                          {"widget": {"note": "original"}})
+
     def test_id_is_normalized_to_lowercase_and_stripped(self):
         glossary_packs.add_pack("  My-Pack  ".strip().lower(), "x", "x", "MIT", "word", {})
         self.assertIn("my-pack", glossary_packs.AVAILABLE_PACKS)

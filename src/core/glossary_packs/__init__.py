@@ -215,12 +215,20 @@ def add_pack(pack_id, name, source, license, content_kind, terms):
     built-in pack file already has, so a custom pack is exactly as
     inspectable/portable as a shipped one. Refuses an id colliding with a
     built-in (shadowing one silently would be far more confusing than
-    refusing outright) and a term whose key would never actually match
-    anything -- the same "70 silently-inert entries" bug class this
-    project's own pack build scripts were bitten by once
-    (BuiltPackKeysSurviveTheRealTokenizerTests), caught here at write
-    time instead of discovered later as a pack that mysteriously never
-    flags anything."""
+    refusing outright) or an existing custom pack (this is ADD, not
+    upsert -- a same-named resubmission clobbering the previous terms
+    with no confirmation would be real, silent data loss; remove the old
+    one first if that's really the intent). Also refuses any WORD-kind
+    term whose key would never actually match anything -- the same "70
+    silently-inert entries" bug class this project's own pack build
+    scripts were bitten by once (BuiltPackKeysSurviveTheRealTokenizer
+    Tests), caught here at write time instead of discovered later as a
+    pack that mysteriously never flags anything. That check is scoped to
+    content_kind == "word" on purpose: a "phrase" pack (e.g. slopwatch's
+    weasel_attribution) or a "pattern" pack (regex entries, e.g.
+    slopwatch's filler_verb) is never meant to survive a single-token
+    tokenizer -- applying the word-kind guard to those kinds would make
+    it impossible to ever add one."""
     pack_id = pack_id.strip().lower()
     if not _PACK_ID_RE.match(pack_id):
         raise ValueError(
@@ -228,11 +236,14 @@ def add_pack(pack_id, name, source, license, content_kind, terms):
             f"hyphen-separated (e.g. 'my-pack')")
     if pack_id in _BUILTIN_PACKS:
         raise ValueError(f"{pack_id!r} is a built-in pack id -- choose a different name")
-    dead = [w for w in terms if _words(w) != [w]]
-    if dead:
-        raise ValueError(
-            f"these terms would never match real text (letters/apostrophes "
-            f"only, one word each): {dead}")
+    if pack_id in _custom_pack_ids():
+        raise ValueError(f"a custom pack {pack_id!r} already exists -- remove it first to replace it")
+    if content_kind == "word":
+        dead = [w for w in terms if _words(w) != [w]]
+        if dead:
+            raise ValueError(
+                f"these terms would never match real text (letters/apostrophes "
+                f"only, one word each): {dead}")
     os.makedirs(_CUSTOM_PACKS_DIR, exist_ok=True)
     data = {
         "_meta": {"name": name, "source": source, "license": license,

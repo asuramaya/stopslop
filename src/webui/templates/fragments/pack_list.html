@@ -12,7 +12,13 @@
       <td><code>{{ p.content_kind }}</code></td>
       <td class="caption">{{ p.license }}</td>
       <td>{{ p.term_count }}</td>
-      <td class="caption"><a href="{{ p.source }}" target="_blank" rel="noopener">{{ p.source }}</a></td>
+      <td class="caption">
+        {% if p.source.startswith('http://') or p.source.startswith('https://') %}
+        <a href="{{ p.source }}" target="_blank" rel="noopener">{{ p.source }}</a>
+        {% else %}
+        {{ p.source }}
+        {% endif %}
+      </td>
       <td>
         {% if p.origin == 'custom' %}
         <span class="confirm-wrap">
