@@ -13,10 +13,14 @@ would lose exactly the information needed to find and fix each one.
 
 def default_label(detail):
     """The identity a check's detail dict carries for display and dedup --
-    whichever of "word"/"phrase"/"modal" it has, in that order, or None if
-    none apply. A shared convention every ruleset's checks can reach for
-    instead of each defining its own copy of this exact fallback chain."""
-    return detail.get("word") or detail.get("phrase") or detail.get("modal")
+    whichever of "word"/"phrase"/"modal"/"label" it has, in that order, or
+    None if none apply. A shared convention every ruleset's checks can
+    reach for instead of each defining its own copy of this exact fallback
+    chain. "label" is last in the chain and only meaningful for a check
+    with none of the other three (e.g. ste100's safety_instruction, whose
+    hit carries the severity word as "label" -- no other check's detail
+    dict uses that key today)."""
+    return detail.get("word") or detail.get("phrase") or detail.get("modal") or detail.get("label")
 
 
 def display_label(flag):

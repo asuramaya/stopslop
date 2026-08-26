@@ -831,75 +831,101 @@ def check_safety_instruction(block_text):
 # unapproved_words, project_terms all feed it -- see TERM_LISTS above),
 # so it declares no single terms_list here; that fan-in has no clean
 # single-string representation yet. `safety_instruction` runs once per
-# BLOCK (paragraph/list_item), not once per document -- DOCUMENT is the
-# closest available Unit, not a precise fit (see the architecture-
-# unification plan's design risks on this exact check).
+# BLOCK (paragraph/list_item), not once per document or per sentence --
+# see core.checks.Unit.BLOCK.
+#
+def _check_length_list(sentence, context):
+    """List-returning adapter for CHECKS_TABLE/run_checks -- check_length
+    itself returns Optional[dict] (a single over-limit hit, or None),
+    used directly by lint_sentence and tested that way (see
+    test_lint.py's assertIsNone/assertIsNotNone against check_length
+    itself); run_checks expects every check's fn to return an iterable
+    of violations, so this is the adapter, not a replacement."""
+    hit = check_length(sentence, context)
+    return [hit] if hit else []
+
+
+def _check_trailing_condition_list(sentence):
+    """Same adapter as _check_length_list, for check_trailing_condition."""
+    hit = check_trailing_condition(sentence)
+    return [hit] if hit else []
+
+
+# Declaration order here IS the dispatch order within each unit (see
+# core.checks.run_checks's docstring) -- deliberately arranged to match
+# lint_and_gate's original hand-written call order (length, vocabulary,
+# ing_form, perfect_tense, progressive, passive, modal, punctuation,
+# trailing_condition, latin_abbrev, inclusive_language for the SENTENCE
+# checks), not the exposition order the section above discusses them in.
 CHECKS_TABLE = {
-    "modal": _checks.Check(
-        id="modal", unit=_checks.Unit.SENTENCE, fn=check_modals,
-        catches="Hedging modals: should, would, may, might, could",
-        instead="must for requirements, can for real possibility; delete or state as fact for recommendations",
-        default_action="block"),
-    "passive": _checks.Check(
-        id="passive", unit=_checks.Unit.SENTENCE, fn=check_passive,
-        catches="Passive voice with no clear actor",
-        instead="name the actor, or restructure to active voice",
-        default_action="block"),
+    "safety_instruction": _checks.Check(
+        id="safety_instruction", unit=_checks.Unit.BLOCK, fn=check_safety_instruction,
+        catches="A malformed WARNING/CAUTION/NOTE label (rules 7.1-7.3)",
+        instead="format only: this cannot detect a MISSING label, only a badly-formed one",
+        default_action="block", dedup=False),
+    "length": _checks.Check(
+        id="length", unit=_checks.Unit.SENTENCE, fn=_check_length_list,
+        catches="Sentences over the context's word limit",
+        instead="split at the clause boundary while drafting, rather than writing long and splitting after",
+        params={"procedure_word_limit": 20, "description_word_limit": 25},
+        default_action="block", dedup=False),
+    "vocabulary": _checks.Check(
+        id="vocabulary", unit=_checks.Unit.SENTENCE, fn=check_vocabulary,
+        catches="Words outside the approved dictionary: utilize, leverage, seamlessly",
+        instead="use the plain approved equivalent",
+        default_action="warn",
+        classify=lambda v: "mechanical" if v["auto_fix"] else "semantic"),
     "ing_form": _checks.Check(
         id="ing_form", unit=_checks.Unit.SENTENCE, fn=check_ing,
         catches="-ing misuse",
         instead="infinitive or simple tense, unless it is one of the ~9 whitelisted -ing nouns and adjectives",
         default_action="block"),
-    "progressive": _checks.Check(
-        id="progressive", unit=_checks.Unit.SENTENCE, fn=check_progressive,
-        catches="Progressive tense: is/are/was/were + -ing",
-        instead="use simple tense",
-        default_action="block"),
-    "length": _checks.Check(
-        id="length", unit=_checks.Unit.SENTENCE, fn=check_length,
-        catches="Sentences over the context's word limit",
-        instead="split at the clause boundary while drafting, rather than writing long and splitting after",
-        params={"procedure_word_limit": 20, "description_word_limit": 25},
-        default_action="block", dedup=False),
-    "punctuation": _checks.Check(
-        id="punctuation", unit=_checks.Unit.SENTENCE, fn=check_punctuation,
-        catches="Contractions and semicolons",
-        instead="write contractions in full; use two sentences instead of a semicolon",
-        default_action="block"),
     "perfect_tense": _checks.Check(
         id="perfect_tense", unit=_checks.Unit.SENTENCE, fn=check_perfect,
         catches="Present perfect and present perfect passive: has/have/had (been) + V-ed",
         instead="use simple past",
+        default_action="block", classify="mechanical"),
+    "progressive": _checks.Check(
+        id="progressive", unit=_checks.Unit.SENTENCE, fn=check_progressive,
+        catches="Progressive tense: is/are/was/were + -ing",
+        instead="use simple tense",
+        default_action="block",
+        classify=lambda v: "mechanical" if v["auto_fix"] else "semantic"),
+    "passive": _checks.Check(
+        id="passive", unit=_checks.Unit.SENTENCE, fn=check_passive,
+        catches="Passive voice with no clear actor",
+        instead="name the actor, or restructure to active voice",
         default_action="block"),
-    "vocabulary": _checks.Check(
-        id="vocabulary", unit=_checks.Unit.SENTENCE, fn=check_vocabulary,
-        catches="Words outside the approved dictionary: utilize, leverage, seamlessly",
-        instead="use the plain approved equivalent",
-        default_action="warn"),
+    "modal": _checks.Check(
+        id="modal", unit=_checks.Unit.SENTENCE, fn=check_modals,
+        catches="Hedging modals: should, would, may, might, could",
+        instead="must for requirements, can for real possibility; delete or state as fact for recommendations",
+        default_action="block",
+        classify=lambda v: "mechanical" if v["auto_fix"] and v.get("replacement") else "semantic"),
+    "punctuation": _checks.Check(
+        id="punctuation", unit=_checks.Unit.SENTENCE, fn=check_punctuation,
+        catches="Contractions and semicolons",
+        instead="write contractions in full; use two sentences instead of a semicolon",
+        default_action="block", classify="mechanical"),
     "trailing_condition": _checks.Check(
-        id="trailing_condition", unit=_checks.Unit.SENTENCE, fn=check_trailing_condition,
+        id="trailing_condition", unit=_checks.Unit.SENTENCE, fn=_check_trailing_condition_list,
         catches="A condition trailing after the command",
         instead="put 'if' and 'when' clauses at the start of the sentence",
-        default_action="block", dedup=False),
-    "synonym_rotation": _checks.Check(
-        id="synonym_rotation", unit=_checks.Unit.DOCUMENT, fn=check_synonym_rotation,
-        catches="One concept named with rotating synonyms: check, verify, confirm",
-        instead="pick one term per concept and stay with it",
         default_action="block", dedup=False),
     "latin_abbrev": _checks.Check(
         id="latin_abbrev", unit=_checks.Unit.SENTENCE, fn=check_latin_abbrev,
         catches="Latin abbreviations: e.g., i.e., etc., vs.",
         instead="ASD-STE100 forbids them; write the plain English equivalent",
-        default_action="block"),
+        default_action="block", classify="mechanical"),
     "inclusive_language": _checks.Check(
         id="inclusive_language", unit=_checks.Unit.SENTENCE, fn=check_inclusive_language,
         catches="Gendered pronouns and terms",
         instead="name the actor, use 'they', or use the standard's gender-neutral term",
         default_action="block"),
-    "safety_instruction": _checks.Check(
-        id="safety_instruction", unit=_checks.Unit.DOCUMENT, fn=check_safety_instruction,
-        catches="A malformed WARNING/CAUTION/NOTE label (rules 7.1-7.3)",
-        instead="format only: this cannot detect a MISSING label, only a badly-formed one",
+    "synonym_rotation": _checks.Check(
+        id="synonym_rotation", unit=_checks.Unit.DOCUMENT, fn=check_synonym_rotation,
+        catches="One concept named with rotating synonyms: check, verify, confirm",
+        instead="pick one term per concept and stay with it",
         default_action="block", dedup=False),
 }
 
@@ -963,7 +989,12 @@ _DEDUP_EXCLUDE_KINDS = {"length", "trailing_condition", "synonym_rotation",
                          "safety_instruction"}
 
 
-def lint_and_gate(text, context="procedure", file_path=None):
+def _lint_and_gate_legacy(text, context="procedure", file_path=None):
+    """The original hand-written per-check dispatch loop, kept
+    permanently as the differential-test baseline for lint_and_gate's
+    generic-dispatch replacement below -- see
+    rulesets/codewatch/test_lint.py's DispatcherMigrationTests for the
+    pattern this mirrors, and rulesets/slopwatch/lint.py's own copy."""
     # Block-aware via split_into_blocks (core.blocks, shared with
     # apply_mechanical_fixes below): code fences are never linted at all,
     # and each header/list-item/paragraph is sentence-tokenized within its
@@ -1099,6 +1130,82 @@ def lint_and_gate(text, context="procedure", file_path=None):
 # THE SINGLE SOURCE OF TRUTH for "does this flag actually block a write" --
 # every caller (the hook, the CLI, the MCP server) goes through
 # blocking_semantic_flags() rather than keeping its own copy of this filter.
+def lint_and_gate(text, context="procedure", file_path=None):
+    """Generic-dispatch replacement for _lint_and_gate_legacy above, via
+    core.checks.run_checks. CHECKS_TABLE's declaration order was
+    rearranged (see the comment above it) to match the legacy loop's
+    call order exactly: safety_instruction runs against each paragraph/
+    list-item BLOCK (Unit.BLOCK), the rest of the sentence-level checks
+    against every SENTENCE in their declared order, synonym_rotation
+    once against the whole assembled (fence/marker-excluded) text
+    (Unit.DOCUMENT). length's own word limit varies PER SENTENCE -- a
+    numbered list item forces "procedure" register regardless of the
+    caller's own context -- so its extra is a callable keyed by the
+    sentence's own index, not one static value for the whole call (see
+    core.checks.run_checks's extra_by_check docstring)."""
+    project_terms = effective_project_terms(file_path)
+    suppressed = suppressed_vocabulary()
+    sentence_contexts = []  # (sentence_text, block_context) pairs, in order
+    prose_blocks = []       # paragraph/list_item block_text, for safety_instruction
+
+    for block_type, content in split_into_blocks(text):
+        is_numbered_item = False
+        if block_type in ("fence", "blank"):
+            continue
+        elif block_type == "header":
+            block_text = _HEADER_RE.sub("", content).strip()
+        elif block_type == "list_item":
+            m = _LIST_ITEM_RE.match(content)
+            block_text = m.group(2) if m else content
+            is_numbered_item = bool(m and m.group(1).strip()[0].isdigit())
+        else:  # paragraph
+            block_text = content
+        block_text = re.sub(r"`[^`\n]+`", " ", block_text)
+        if block_type in ("paragraph", "list_item"):
+            prose_blocks.append(block_text)
+        block_context = "procedure" if is_numbered_item else context
+        sentence_contexts.extend((s, block_context) for s in tokenize_sentences(block_text))
+
+    sentences = [s for s, _ctx in sentence_contexts]
+    contexts = [ctx for _s, ctx in sentence_contexts]
+    lintable_text = " ".join(sentences)  # excludes fence content, matches what was actually linted
+
+    mechanical, semantic = _checks.run_checks(
+        CHECKS_TABLE,
+        blocks=prose_blocks,
+        sentences=sentences,
+        text=lintable_text,
+        extra_by_check={
+            "length": lambda i: contexts[i],
+            "vocabulary": _checks.ExtraArgs(project_terms, suppressed),
+            "ing_form": _checks.ExtraArgs(project_terms, suppressed),
+        },
+    )
+
+    # Every check above runs unconditionally (they're cheap regex/string
+    # ops); a disabled check's own flags are dropped here in one place,
+    # same shape slopwatch's/codewatch's own lint_and_gate already use.
+    enabled = _enabled_check_ids(file_path)
+    mechanical = [f for f in mechanical if f["kind"] in enabled]
+    semantic = [f for f in semantic if f["kind"] in enabled]
+
+    mechanical = dedup_flags(mechanical, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
+    semantic = dedup_flags(semantic, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
+
+    # "status" reports whether the ENGINE found any semantic flag at all,
+    # not whether the write would be denied -- see _lint_and_gate_legacy's
+    # own comment above the identical lines.
+    status = "clean" if not mechanical and not semantic else (
+        "semantic_flags" if semantic else "mechanical_violations")
+
+    return {
+        "status": status,
+        "sentence_count": len(sentences),
+        "mechanical_violations": mechanical,
+        "semantic_flags": semantic,
+    }
+
+
 def blocking_semantic_flags(semantic_flags):
     """With every ste100 check defaulting to {threshold: 1, action:
     "block"} except vocabulary (warn), this reproduces the original

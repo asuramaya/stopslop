@@ -49,6 +49,23 @@ class Unit(Enum):
     LINE_LOOKAHEAD = "line_lookahead"  # fn(line, next_line)
     LINES_INDEXED = "lines_indexed"    # fn(lines, i) -- needs the whole file + index
     DOCUMENT = "document"              # fn(text, **extras) -- whole/assembled text, once/call
+    BLOCK = "block"                    # fn(block_text, **extras) -- once per paragraph/
+                                        # list-item block, not the whole document (e.g.
+                                        # ste100's safety_instruction, which needs to see
+                                        # one block's own text, but has no reason to span
+                                        # several -- DOCUMENT would force it to reassemble
+                                        # block boundaries itself)
+
+
+class ExtraArgs(tuple):
+    """Wrap extra_by_check[check_id] in this when a check's fn takes MORE
+    THAN ONE extra positional argument beyond the item itself (the plain
+    single-value case run_checks() has always supported stays the
+    default) -- e.g. ste100's vocabulary(sentence, project_terms,
+    suppressed). run_checks() unpacks an ExtraArgs as *args instead of
+    appending it as one value."""
+    def __new__(cls, *values):
+        return super().__new__(cls, values)
 
 
 @dataclass(frozen=True)
@@ -231,7 +248,7 @@ def blocking_semantic_flags(table, project_root, ruleset_id, semantic_flags):
     return blocking
 
 
-def run_checks(table, *, lines=None, sentences=None, text=None, extra_by_check=None):
+def run_checks(table, *, blocks=None, lines=None, sentences=None, text=None, extra_by_check=None):
     """Dispatch every check in `table` against the iteration domain
     matching its own `unit`, filing each violation as mechanical or
     semantic -- (mechanical, semantic), the same two flat lists every
@@ -239,26 +256,40 @@ def run_checks(table, *, lines=None, sentences=None, text=None, extra_by_check=N
     {"kind", "label", "detail", "text"}.
 
     The CALLER (a ruleset's own lint_and_gate) still owns:
-      - computing `lines`/`sentences`/`text` -- whatever text-splitting,
-        block-awareness, or tokenization that ruleset's own domain needs;
-        a unit with no matching domain supplied here is silently skipped
-        (a LINE check when `lines` is None contributes nothing -- "no
-        input for this domain" is a normal answer, not an error)
+      - computing `blocks`/`lines`/`sentences`/`text` -- whatever text-
+        splitting, block-awareness, or tokenization that ruleset's own
+        domain needs; a unit with no matching domain supplied here is
+        silently skipped (a LINE check when `lines` is None contributes
+        nothing -- "no input for this domain" is a normal answer, not an
+        error)
       - `extra_by_check`: {check_id: extra_value} for any check whose
         `fn` takes one extra argument beyond the item itself (resolved
         term-list content, a per-file computed value like codewatch's
         is_script) -- passed positionally, so the check's own parameter
         name never has to match anything here; a check_id absent from
-        this dict is called with no extra arg at all
+        this dict is called with no extra arg at all. `extra_value` may
+        also be:
+          - an ExtraArgs(...) instance, for a check whose fn takes MORE
+            than one extra positional argument (ste100's vocabulary:
+            project_terms, suppressed) -- unpacked as *args instead of
+            appended as one value
+          - a callable, for a per-ITEM extra that varies across the
+            domain (ste100's length: the word limit depends on whether
+            THIS sentence came from a numbered list item, not a single
+            value for the whole call) -- called with the item's own
+            index within its domain (blocks/lines/sentences; always 0
+            for a DOCUMENT/SENTENCES check, which only ever runs once)
+            and the result used exactly as a plain extra_value would be,
+            including being an ExtraArgs to unpack
       - enabled-filtering and dedup on the returned lists, exactly as
         every ruleset's lint_and_gate already does after its own
         hand-written loop today -- neither is this function's job
 
     `label` is core.flags.default_label(violation) -- whichever of
-    "word"/"phrase"/"modal" the violation carries, or None (matching
-    every hand-written call site's own label choice today, including
-    the document-level checks that pass label=None because their
-    violation dict carries neither key).
+    "word"/"phrase"/"modal"/"label" the violation carries, or None
+    (matching every hand-written call site's own label choice today,
+    including the document-level checks that pass label=None because
+    their violation dict carries none of those keys).
 
     `check.classify` decides the mechanical/semantic bucket -- a literal
     ("mechanical"/"semantic", the common case) or a callable taking one
@@ -268,14 +299,18 @@ def run_checks(table, *, lines=None, sentences=None, text=None, extra_by_check=N
     else is semantic).
 
     ITERATION ORDER matches every hand-written loop this replaces: the
-    OUTER loop is over items (line 0, line 1, ..., or sentence 0,
-    sentence 1, ...), the INNER loop is over checks in `table`'s own
-    declaration order -- a hand-written loop calls check_a(line) then
-    check_b(line) for EVERY line before moving to the next line, not
-    every line for check_a before starting check_b. A caller whose
-    denial message shows the first few flags, or whose test pins exact
-    output order, depends on this -- reordering silently would be a
-    real behavior change wearing a refactor's clothes."""
+    OUTER loop is over items (block 0, block 1, ... / line 0, line 1,
+    ... / sentence 0, sentence 1, ...), the INNER loop is over checks in
+    `table`'s own declaration order -- a hand-written loop calls
+    check_a(line) then check_b(line) for EVERY line before moving to the
+    next line, not every line for check_a before starting check_b. The
+    BLOCK domain, when supplied, is dispatched before LINE/SENTENCE/
+    DOCUMENT -- matching every ruleset that needs it, which collects its
+    block-level flags during its own block-splitting loop, before any
+    per-sentence work starts. A caller whose denial message shows the
+    first few flags, or whose test pins exact output order, depends on
+    this -- reordering silently would be a real behavior change wearing
+    a refactor's clothes."""
     extra_by_check = extra_by_check or {}
     mechanical, semantic = [], []
 
@@ -288,14 +323,28 @@ def run_checks(table, *, lines=None, sentences=None, text=None, extra_by_check=N
                   "detail": violation, "text": text_value}
         (mechanical if _classify(check, violation) == "mechanical" else semantic).append(entry)
 
-    def _call(check, *args):
-        return check.fn(*args, extra_by_check[check.id]) if check.id in extra_by_check else check.fn(*args)
+    def _resolve_extra(check, index):
+        extra = extra_by_check[check.id]
+        return extra(index) if callable(extra) and not isinstance(extra, ExtraArgs) else extra
+
+    def _call(check, index, *args):
+        if check.id not in extra_by_check:
+            return check.fn(*args)
+        extra = _resolve_extra(check, index)
+        return check.fn(*args, *extra) if isinstance(extra, ExtraArgs) else check.fn(*args, extra)
+
+    if blocks is not None:
+        for i, block in enumerate(blocks):
+            for check in table.values():
+                if check.unit == Unit.BLOCK:
+                    for v in _call(check, i, block):
+                        _file(check, v, block)
 
     if lines is not None:
         for i, line in enumerate(lines):
             for check in table.values():
                 if check.unit == Unit.LINE:
-                    for v in _call(check, line):
+                    for v in _call(check, i, line):
                         _file(check, v, line)
                 elif check.unit == Unit.LINE_LOOKAHEAD:
                     next_line = lines[i + 1] if i + 1 < len(lines) else None
@@ -306,10 +355,10 @@ def run_checks(table, *, lines=None, sentences=None, text=None, extra_by_check=N
                         _file(check, v, line)
 
     if sentences is not None:
-        for s in sentences:
+        for i, s in enumerate(sentences):
             for check in table.values():
                 if check.unit == Unit.SENTENCE:
-                    for v in _call(check, s):
+                    for v in _call(check, i, s):
                         _file(check, v, s)
         for check in table.values():
             if check.unit == Unit.SENTENCES:
@@ -319,7 +368,7 @@ def run_checks(table, *, lines=None, sentences=None, text=None, extra_by_check=N
     if text is not None:
         for check in table.values():
             if check.unit == Unit.DOCUMENT:
-                for v in _call(check, text):
+                for v in _call(check, 0, text):
                     _file(check, v, None)
 
     return mechanical, semantic
