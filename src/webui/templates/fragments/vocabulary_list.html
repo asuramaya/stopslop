@@ -7,7 +7,25 @@
   <h3>{{ block.spec.label or block.list_id }}
     <span class="caption">({{ block.rows | length }} words;
     {{ 'a word here stops being flagged' if block.polarity == 'allow' else 'a word here gets flagged' }})</span>
+    {% if block.is_custom %}
+    <span class="pill">custom</span>
+    <span class="confirm-wrap">
+      <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove list</button>
+      <span class="confirm-ask" hidden>
+        Remove the <code>{{ block.list_id }}</code> list itself (not just a word)?
+        <form style="display:inline;margin:0" hx-post="/vocabulary/lists/{{ ruleset_id }}/{{ list_id }}/remove"
+              hx-target="#vocab-section" hx-swap="outerHTML">
+          <button type="submit" class="danger">Yes</button>
+        </form>
+        <button type="button" onclick="confirmCancel(this)">Cancel</button>
+      </span>
+    </span>
+    {% endif %}
   </h3>
+  {% if block.is_custom and not block.spec.get('feeds') %}
+  <p class="caption">Not yet matched against any text -- no built-in check reads this list.
+    It's fully browsable and curatable here.</p>
+  {% endif %}
   {% if block.packs_feeding %}
   <p class="caption">Packs feed this list per routing rule:
     {% for g, pack_ids in block.packs_feeding %}

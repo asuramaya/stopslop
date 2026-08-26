@@ -244,8 +244,10 @@ def set_path_packs(glob: str, list_id: str, pack_ids: list[str] = None) -> dict:
     # plain words could be bound to a list of regex patterns from here.
     spec = None
     for module in rulesets.list_rulesets():
-        if list_id in getattr(module, "TERM_LISTS", {}):
-            spec = module.TERM_LISTS[list_id]
+        lists = core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                                  module.RULESET_ID, REPO_ROOT)
+        if list_id in lists:
+            spec = lists[list_id]
             break
     admissible = None
     if spec is not None:

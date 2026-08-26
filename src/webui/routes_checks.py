@@ -42,7 +42,8 @@ def _rows(ruleset_id):
     configurable = "check_config" in module.CAPABILITIES
     checks = module.list_checks()
     config = module.list_check_config() if configurable else {}
-    lists = getattr(module, "TERM_LISTS", {})
+    lists = core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                              module.RULESET_ID, REPO_ROOT)
     fired = _last_fired(ruleset_id)
     rows = []
     for check_id, meta in sorted(checks.items()):

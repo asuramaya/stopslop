@@ -51,7 +51,8 @@ def _focus_context(index):
         return None
     rule = rules[index]
     module = rulesets.get_ruleset(rule["ruleset"])
-    lists = getattr(module, "TERM_LISTS", {})
+    lists = core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                              module.RULESET_ID, REPO_ROOT)
     pack_lists = sorted(lid for lid, spec in lists.items() if spec.get("accepts_packs"))
     known_checks = _known_checks_for_rule(rule)
     return {
@@ -185,7 +186,8 @@ async def set_packs(request: Request, index: int):
     form = await request.form()
     list_id = form.get("list_id")
     pack_ids = form.getlist("pack_ids")
-    spec = module.TERM_LISTS.get(list_id, {})
+    spec = core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                             module.RULESET_ID, REPO_ROOT).get(list_id, {})
     admissible = lambda pid: core_terms.pack_kind_admissible(
         spec, glossary_packs.AVAILABLE_PACKS.get(pid, {}))
     error = None

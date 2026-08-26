@@ -867,6 +867,102 @@ class CheckConfigConfigTests(unittest.TestCase):
             self.assertEqual(written["rulesets"], [{"glob": "*.md", "ruleset": "ste100"}])
 
 
+class CustomTermListsConfigTests(unittest.TestCase):
+    """A project's own term-list declarations, layered on top of a
+    ruleset's code-defined TERM_LISTS -- see effective_term_lists()."""
+
+    def test_no_config_file_returns_empty_dict(self):
+        self.assertEqual(
+            config.custom_term_lists(PROJECT_ROOT, "codewatch",
+                                      config_file="/nonexistent/stopslop.config.json"),
+            {})
+
+    def test_round_trips_through_save_and_load(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            spec = {"label": "Jargon", "polarity": "deny", "accepts_additions": True,
+                    "accepts_packs": False, "content_kind": "word"}
+            config.save_custom_term_list(tmp, "codewatch", "jargon", spec, config_file=path)
+            self.assertEqual(config.custom_term_lists(tmp, "codewatch", config_file=path),
+                              {"jargon": spec})
+
+    def test_a_second_list_does_not_clobber_the_first(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_custom_term_list(tmp, "codewatch", "jargon",
+                                          {"label": "Jargon"}, config_file=path)
+            config.save_custom_term_list(tmp, "codewatch", "acronyms",
+                                          {"label": "Acronyms"}, config_file=path)
+            saved = config.custom_term_lists(tmp, "codewatch", config_file=path)
+            self.assertEqual(saved["jargon"], {"label": "Jargon"})
+            self.assertEqual(saved["acronyms"], {"label": "Acronyms"})
+
+    def test_ruleset_not_mentioned_returns_empty_dict(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_custom_term_list(tmp, "codewatch", "jargon",
+                                          {"label": "Jargon"}, config_file=path)
+            self.assertEqual(config.custom_term_lists(tmp, "slopwatch", config_file=path), {})
+
+    def test_delete_removes_the_declaration(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.save_custom_term_list(tmp, "codewatch", "jargon",
+                                          {"label": "Jargon"}, config_file=path)
+            removed = config.delete_custom_term_list(tmp, "codewatch", "jargon", config_file=path)
+            self.assertTrue(removed)
+            self.assertEqual(config.custom_term_lists(tmp, "codewatch", config_file=path), {})
+
+    def test_delete_of_unknown_list_returns_false(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            self.assertFalse(config.delete_custom_term_list(tmp, "codewatch", "nope", config_file=path))
+
+    def test_delete_with_no_config_file_returns_false(self):
+        self.assertFalse(config.delete_custom_term_list(
+            PROJECT_ROOT, "codewatch", "nope", config_file="/nonexistent/stopslop.config.json"))
+
+
+class EffectiveTermListsTests(unittest.TestCase):
+    def test_merges_custom_onto_base(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            base = {"generic_naming": {"label": "Generic name stems"}}
+            config.save_custom_term_list(tmp, "codewatch", "jargon",
+                                          {"label": "Jargon"}, config_file=path)
+            merged = config.effective_term_lists(base, "codewatch", tmp, config_file=path)
+            self.assertEqual(set(merged), {"generic_naming", "jargon"})
+
+    def test_a_custom_list_can_never_shadow_a_built_in_one(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            base = {"generic_naming": {"label": "The real one"}}
+            config.save_custom_term_list(tmp, "codewatch", "generic_naming",
+                                          {"label": "A shadow attempt"}, config_file=path)
+            merged = config.effective_term_lists(base, "codewatch", tmp, config_file=path)
+            self.assertEqual(merged["generic_naming"], {"label": "The real one"})
+
+    def test_no_custom_lists_returns_base_unchanged(self):
+        base = {"generic_naming": {"label": "Generic name stems"}}
+        merged = config.effective_term_lists(
+            base, "codewatch", PROJECT_ROOT, config_file="/nonexistent/stopslop.config.json")
+        self.assertEqual(merged, base)
+
+
 class StrayTopLevelKeysTests(unittest.TestCase):
     """A top-level config key nothing reads anymore -- a removed feature's
     old on-disk setting (the "options" capability's ruleset-wide

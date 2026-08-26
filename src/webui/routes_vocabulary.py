@@ -3,6 +3,8 @@ list, browsable with add/remove/restore. Mirrors dashboard.py's own
 vocabulary_page()/_word_matches()/_term_list_block() split -- search is
 the primary verb, the per-list browser below it covers curation.
 """
+import re
+
 from fastapi import APIRouter, Request
 
 import rulesets
@@ -11,6 +13,11 @@ from core import config as core_config, glossary_packs, terms as core_terms
 from webui.deps import REPO_ROOT, fragment_response, render, templates
 
 router = APIRouter()
+
+# Built-in list ids use lowercase letters/digits/underscores throughout
+# this project (project_terms, generic_naming, ...) -- a custom one
+# follows the same convention rather than introducing a second style.
+_LIST_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 def _parse_pack_terms(text):
@@ -33,16 +40,27 @@ def _pack_rows():
     return sorted(rows, key=lambda m: m["name"])
 
 
+def _effective_lists(module):
+    return core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                             module.RULESET_ID, REPO_ROOT)
+
+
 def _list_entries():
     """[(module, list_id, spec), ...] across every ruleset that declares
-    term lists, sorted the same way configure.py's own selector was."""
+    term lists, sorted the same way configure.py's own selector was --
+    a project's own custom_term_lists declarations included, since a
+    custom list is exactly as browsable as a built-in one."""
     return [(m, lid, spec) for m in rulesets.list_rulesets()
-            for lid, spec in sorted(getattr(m, "TERM_LISTS", {}).items())]
+            for lid, spec in sorted(_effective_lists(m).items())]
+
+
+def _custom_list_ids(ruleset_id):
+    return set(core_config.custom_term_lists(REPO_ROOT, ruleset_id))
 
 
 def _list_block(ruleset_id, list_id):
     module = rulesets.get_ruleset(ruleset_id)
-    spec = module.TERM_LISTS[list_id]
+    spec = _effective_lists(module)[list_id]
     layers = core_terms.resolve(spec, REPO_ROOT, module.RULESET_ID, list_id)
     suppressed = core_terms.suppressed_terms(REPO_ROOT, module.RULESET_ID, list_id)
 
@@ -65,7 +83,29 @@ def _list_block(ruleset_id, list_id):
         "polarity": spec.get("polarity"), "accepts_additions": spec.get("accepts_additions", True),
         "rows": rows, "suppressed": sorted(suppressed),
         "packs_feeding": packs_feeding,
+        "is_custom": list_id in _custom_list_ids(ruleset_id),
     }
+
+
+def _section_context(entries, ruleset_id=None, list_id=None):
+    """Context for fragments/vocabulary_section.html -- the picker
+    <select> plus the selected list's block, always rendered together so
+    a list add/remove refreshes both in one swap (the picker's own
+    option set changes exactly when the block it points at might no
+    longer exist). Falls back to the first available list when the
+    requested one is missing or unset, same fallback vocabulary_page()
+    itself uses."""
+    ruleset_ids = [m.RULESET_ID for m in rulesets.list_rulesets()
+                   if "terms" in getattr(m, "CAPABILITIES", frozenset())]
+    if ruleset_id is None or list_id is None or not any(
+            m.RULESET_ID == ruleset_id and lid == list_id for m, lid, _s in entries):
+        if not entries:
+            return {"entries": entries, "ruleset_id": None, "list_id": None,
+                    "block": None, "ruleset_ids": ruleset_ids}
+        module, list_id, _spec = entries[0]
+        ruleset_id = module.RULESET_ID
+    return {"entries": entries, "ruleset_id": ruleset_id, "list_id": list_id,
+            "block": _list_block(ruleset_id, list_id), "ruleset_ids": ruleset_ids}
 
 
 @router.get("/vocabulary/packs")
@@ -106,19 +146,62 @@ async def remove_pack(request: Request, pack_id: str):
     return fragment_response(request, "fragments/pack_list.html", {"packs": _pack_rows()}, error=error)
 
 
+@router.post("/vocabulary/lists/add")
+async def add_list(request: Request):
+    form = await request.form()
+    ruleset_id = (form.get("ruleset_id") or "").strip()
+    list_id = (form.get("list_id") or "").strip().lower()
+    error = None
+    try:
+        module = rulesets.get_ruleset(ruleset_id)
+        if not _LIST_ID_RE.match(list_id):
+            raise ValueError(
+                f"list id {list_id!r} must start with a letter, lowercase "
+                f"letters/digits/underscores only (e.g. 'internal_jargon')")
+        if list_id in getattr(module, "TERM_LISTS", {}):
+            raise ValueError(f"{list_id!r} is a built-in list on {ruleset_id!r} -- choose a different id")
+        if list_id in core_config.custom_term_lists(REPO_ROOT, ruleset_id):
+            raise ValueError(f"a custom list {list_id!r} already exists on {ruleset_id!r} "
+                              f"-- remove it first to replace it")
+        spec = {
+            "label": (form.get("label") or list_id).strip(),
+            "polarity": form.get("polarity") if form.get("polarity") in ("allow", "deny") else "deny",
+            "accepts_additions": form.get("accepts_additions") == "on",
+            "accepts_packs": form.get("accepts_packs") == "on",
+            "content_kind": (form.get("content_kind") or "word").strip(),
+        }
+        core_config.save_custom_term_list(REPO_ROOT, ruleset_id, list_id, spec)
+    except rulesets.UnknownRulesetError as e:
+        error = str(e)
+        list_id = None
+    except ValueError as e:
+        error = str(e)
+    entries = _list_entries()
+    ctx = _section_context(entries, ruleset_id, list_id)
+    return fragment_response(request, "fragments/vocabulary_section.html", ctx, error=error)
+
+
+# Registered BEFORE /vocabulary/{ruleset_id}/{list_id}/remove for the same
+# reason the pack routes are: this is a distinct path shape (4 segments,
+# "lists" literal first) so it never collides in practice, but matching
+# the established precedent here keeps the ordering rule uniform rather
+# than "safe until someone reshapes one of these paths later".
+@router.post("/vocabulary/lists/{ruleset_id}/{list_id}/remove")
+async def remove_list(request: Request, ruleset_id: str, list_id: str):
+    error = None
+    if not core_config.delete_custom_term_list(REPO_ROOT, ruleset_id, list_id):
+        error = f"no custom list {list_id!r} on {ruleset_id!r} to remove"
+    entries = _list_entries()
+    ctx = _section_context(entries)
+    return fragment_response(request, "fragments/vocabulary_section.html", ctx, error=error)
+
+
 @router.get("/vocabulary")
 def vocabulary_page(request: Request):
     entries = _list_entries()
-    if not entries:
-        return render(request, "vocabulary.html", "vocabulary", {"entries": [], "packs": _pack_rows()})
-    module, list_id, _spec = entries[0]
-    return render(request, "vocabulary.html", "vocabulary", {
-        "entries": entries,
-        "ruleset_id": module.RULESET_ID,
-        "list_id": list_id,
-        "block": _list_block(module.RULESET_ID, list_id),
-        "packs": _pack_rows(),
-    })
+    ctx = _section_context(entries)
+    ctx["packs"] = _pack_rows()
+    return render(request, "vocabulary.html", "vocabulary", ctx)
 
 
 @router.get("/vocabulary/list")

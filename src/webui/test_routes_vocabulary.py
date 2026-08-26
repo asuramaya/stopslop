@@ -171,5 +171,73 @@ class PackRoutesTests(unittest.TestCase):
         self.assertIn("MDN Web Docs Glossary", response.text)
 
 
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class ListRoutesTests(unittest.TestCase):
+    """Touches the real stopslop.config.json briefly -- always restored,
+    same discipline every other MutationTests class in this project's
+    webui test suite takes."""
+
+    def setUp(self):
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+
+    def test_add_list_then_it_appears_in_the_picker(self):
+        response = client.post("/vocabulary/lists/add", data={
+            "ruleset_id": "codewatch", "list_id": "my_custom_list",
+            "label": "My Custom List", "polarity": "deny",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("my_custom_list", response.text)
+        self.assertIn("(custom)", response.text)
+
+    def test_add_list_rejects_a_built_in_id(self):
+        response = client.post("/vocabulary/lists/add", data={
+            "ruleset_id": "codewatch", "list_id": "generic_naming", "polarity": "deny",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+
+    def test_add_list_rejects_a_malformed_id(self):
+        response = client.post("/vocabulary/lists/add", data={
+            "ruleset_id": "codewatch", "list_id": "Not Valid!", "polarity": "deny",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+
+    def test_add_then_add_a_term_to_the_new_list(self):
+        client.post("/vocabulary/lists/add", data={
+            "ruleset_id": "codewatch", "list_id": "my_custom_list",
+            "polarity": "deny", "accepts_additions": "on",
+        })
+        response = client.post("/vocabulary/codewatch/my_custom_list/add",
+                                data={"term": "widget", "note": "test"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("widget", response.text)
+
+    def test_remove_list_round_trips(self):
+        client.post("/vocabulary/lists/add", data={
+            "ruleset_id": "codewatch", "list_id": "my_custom_list", "polarity": "deny",
+        })
+        response = client.post("/vocabulary/lists/codewatch/my_custom_list/remove")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("my_custom_list", response.text)
+
+    def test_remove_of_unknown_custom_list_returns_an_error_banner(self):
+        response = client.post("/vocabulary/lists/codewatch/never-existed/remove")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+
+
 if __name__ == "__main__":
     unittest.main()

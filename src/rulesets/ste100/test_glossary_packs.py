@@ -491,5 +491,39 @@ class PackEnableDisableTests(_TempProjectRoot):
         self.assertFalse(hasattr(ste100, "set_enabled_glossary_packs"))
 
 
+class CustomTermListTests(_TempProjectRoot):
+    """A project's own custom_term_lists declaration reaches ste100's
+    uniform list_term_lists/add_term/remove_term entry points, the same
+    way it reaches every other ruleset -- see core.config.
+    effective_term_lists and rulesets/ste100/__init__.py's
+    _effective_lists(). Uses the same isolated fake project root every
+    other test in this file does, so this never touches the real repo's
+    stopslop.config.json."""
+
+    def _write_custom_list(self, list_id, spec):
+        core_config.save_custom_term_list(self._tmp.name, "ste100", list_id, spec,
+                                           config_file=self._config_path())
+
+    def test_custom_list_appears_in_list_term_lists(self):
+        self._write_custom_list("jargon", {"label": "Jargon", "polarity": "deny"})
+        views = ste100.list_term_lists()
+        self.assertIn("jargon", views)
+
+    def test_add_term_reaches_a_custom_list(self):
+        self._write_custom_list("jargon", {"label": "Jargon", "polarity": "deny",
+                                            "accepts_additions": True})
+        result = ste100.add_term("jargon", "widget", note="test")
+        self.assertTrue(result["ok"])
+        views = ste100.list_term_lists()
+        self.assertIn("widget", views["jargon"]["project_terms"])
+
+    def test_remove_term_reaches_a_custom_list(self):
+        self._write_custom_list("jargon", {"label": "Jargon", "polarity": "deny",
+                                            "accepts_additions": True})
+        ste100.add_term("jargon", "widget", note="test")
+        ste100.remove_term("jargon", "widget")
+        views = ste100.list_term_lists()
+        self.assertNotIn("widget", views["jargon"]["project_terms"])
+
 if __name__ == "__main__":
     unittest.main()

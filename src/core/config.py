@@ -377,6 +377,78 @@ def save_check_config(project_root, ruleset_id, check_id, spec, config_file=None
         f.write("\n")
 
 
+def custom_term_lists(project_root, ruleset_id, config_file=None):
+    """This project's own term-list DECLARATIONS for `ruleset_id`, per
+    stopslop.config.json's "custom_term_lists" key: {"<ruleset_id>":
+    {"<list_id>": {"label", "polarity", "accepts_additions",
+    "accepts_packs", "content_kind"}}}. Pure JSON data -- unlike a
+    built-in ruleset's own TERM_LISTS entry, a custom one can never carry
+    a `pack_admissible` callable (there is no way to express a Python
+    predicate here); see effective_term_lists() for the merge with a
+    ruleset's code-defined lists."""
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        return {}
+    with open(path) as f:
+        data = json.load(f)
+    return data.get("custom_term_lists", {}).get(ruleset_id, {})
+
+
+def save_custom_term_list(project_root, ruleset_id, list_id, spec, config_file=None):
+    """Register (or replace) one custom term list's declaration, merging
+    into whatever the ruleset already has for its OTHER custom lists --
+    same clobber-avoidance shape as save_check_config."""
+    path = config_file or config_path(project_root)
+    data = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+    data.setdefault("custom_term_lists", {}).setdefault(ruleset_id, {})[list_id] = spec
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
+def delete_custom_term_list(project_root, ruleset_id, list_id, config_file=None):
+    """Remove one custom term list's DECLARATION. Its own project-layer
+    terms (added via add_term while the list was declared) are orphaned,
+    not deleted -- the same "removal is reversible, never silent data
+    loss" posture every other removal in this project already takes;
+    re-declaring the same ruleset_id/list_id later makes them reappear.
+    Returns False if there was nothing to remove (an unknown list_id),
+    True otherwise -- a caller decides what that means, this layer just
+    reports it truthfully."""
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        return False
+    with open(path) as f:
+        data = json.load(f)
+    lists = data.get("custom_term_lists", {}).get(ruleset_id, {})
+    if list_id not in lists:
+        return False
+    del lists[list_id]
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+    return True
+
+
+def effective_term_lists(base_term_lists, ruleset_id, project_root, config_file=None):
+    """A ruleset's own code-defined TERM_LISTS, plus this project's own
+    custom_term_lists declarations for it -- read fresh every call, same
+    never-cache-it posture every other config read in this project takes
+    (a long-running dashboard process must see a custom list on the very
+    next render after adding it, no restart). A custom list can never
+    shadow a built-in one; the built-in wins on a colliding id, the same
+    refuse-rather-than-shadow posture core.glossary_packs.add_pack
+    already gives a custom pack colliding with a built-in one."""
+    merged = dict(base_term_lists)
+    for list_id, spec in custom_term_lists(project_root, ruleset_id, config_file).items():
+        if list_id not in merged:
+            merged[list_id] = spec
+    return merged
+
+
 # Every top-level key a current reader in this module actually consumes.
 # A key outside this set is not "extra" -- it is DEAD: something used to
 # read it, stopped, and the write side that produced it (an old CLI flag,
@@ -387,7 +459,8 @@ def save_check_config(project_root, ruleset_id, check_id, spec, config_file=None
 # {threshold, action}, and a project's own `stopslop.config.json` kept its
 # old "options" key -- sitting there looking active, tuning nothing,
 # with no reader anywhere left to warn its owner it had gone inert.
-KNOWN_TOP_LEVEL_KEYS = frozenset({"rulesets", "terms", "disabled_checks", "check_config"})
+KNOWN_TOP_LEVEL_KEYS = frozenset({"rulesets", "terms", "disabled_checks", "check_config",
+                                   "custom_term_lists"})
 
 
 def stray_top_level_keys(project_root, config_file=None):
@@ -552,7 +625,7 @@ def save_rules(project_root, rules, registry, config_file=None):
                     f"{sorted(core_extract.SUPPORTED_EXTENSIONS)}. A binding "
                     f"that can never fire is a gate quietly off.")
         if existing_scope.get(rule["glob"]) != (rule["ruleset"], embedded):
-            known_lists, known_checks = _rule_known_lists_and_checks(rule, registry)
+            known_lists, known_checks = _rule_known_lists_and_checks(rule, registry, project_root, config_file)
             if rule.get("packs"):
                 rule["packs"] = {lid: ids for lid, ids in rule["packs"].items()
                                   if lid in known_lists}
@@ -570,9 +643,11 @@ def save_rules(project_root, rules, registry, config_file=None):
         f.write("\n")
 
 
-def _rule_known_lists_and_checks(rule, registry):
+def _rule_known_lists_and_checks(rule, registry, project_root, config_file=None):
     module = registry.get_ruleset(rule["ruleset"]) if rule.get("ruleset") else None
-    known_lists = set(getattr(module, "TERM_LISTS", {})) if module else set()
+    known_lists = (set(effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                             module.RULESET_ID, project_root, config_file))
+                   if module else set())
     known_checks = set()
     for ruleset_id in (rule.get("ruleset"), rule.get("embedded_prose")):
         if not ruleset_id:
@@ -605,7 +680,7 @@ def orphaned_rule_extras(project_root, registry, config_file=None):
     for rule in load_rules(project_root, config_file):
         if not rule.get("ruleset"):
             continue  # an out-of-scope rule (ruleset: null) invokes nothing to check against
-        known_lists, known_checks = _rule_known_lists_and_checks(rule, registry)
+        known_lists, known_checks = _rule_known_lists_and_checks(rule, registry, project_root, config_file)
         dead_packs = {lid: ids for lid, ids in (rule.get("packs") or {}).items()
                       if lid not in known_lists and ids}
         dead_disable = [c for c in (rule.get("disable") or []) if c not in known_checks]

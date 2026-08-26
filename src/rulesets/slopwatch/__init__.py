@@ -17,7 +17,7 @@ there), named differently because ste100 was written first. Both are term
 lists now; see lint.py's TERM_LISTS and core/terms.py.
 """
 from rulesets.slopwatch import lint
-from core import checks as _checks, paths, terms as _terms
+from core import checks as _checks, config as _config, paths, terms as _terms
 
 TERM_LISTS = lint.TERM_LISTS
 CHECKS_TABLE = lint.CHECKS_TABLE
@@ -72,12 +72,20 @@ def set_check_config(check_id, threshold=None, action=None):
                               RULESET_ID, check_id, threshold=threshold, action=action)
 
 
+def _effective_lists():
+    """TERM_LISTS plus this project's own custom_term_lists declarations
+    for slopwatch -- see core.config.effective_term_lists. Resolved fresh
+    per call (never cached), same posture as every other project-config
+    read here."""
+    return _config.effective_term_lists(TERM_LISTS, RULESET_ID, paths.find_project_root(__file__))
+
+
 def list_term_lists(file_path=None):
     """Every term list this ruleset owns, with its polarity and per-layer
     counts -- the modularity surface the dashboard's Vocabulary tab and
     `stopslop.py terms` both read. Identical shape across all three
     rulesets now, which is the whole point of core/terms.py."""
-    return _terms.list_term_lists(RULESET_ID, TERM_LISTS,
+    return _terms.list_term_lists(RULESET_ID, _effective_lists(),
                                    paths.find_project_root(__file__),
                                    file_path=file_path)
 
@@ -86,11 +94,11 @@ def add_term(list_id, term, note="", force=False):
     """Add one term to a list's project layer. No validator: these lists
     have no external standard to check a word against, so `force` is
     accepted (for one uniform signature across rulesets) and unused."""
-    return _terms.add_term(RULESET_ID, TERM_LISTS,
+    return _terms.add_term(RULESET_ID, _effective_lists(),
                             paths.find_project_root(__file__),
                             list_id, term, note=note, force=force)
 
 
 def remove_term(list_id, term):
-    return _terms.remove_term(RULESET_ID, TERM_LISTS,
+    return _terms.remove_term(RULESET_ID, _effective_lists(),
                                paths.find_project_root(__file__), list_id, term)

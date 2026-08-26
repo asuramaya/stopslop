@@ -7,7 +7,7 @@ rulesets/__init__.py's registration check requires, plus the two pieces
 policy rather than generic plumbing.
 """
 from rulesets.ste100 import lint, glossary
-from core import checks as _checks, glossary_packs as _glossary_packs, history, paths, terms as _terms
+from core import checks as _checks, config as _config, glossary_packs as _glossary_packs, history, paths, terms as _terms
 
 RULESET_ID = "ste100"
 # "STE100", not "ASD-STE100" -- matches the exact prefix the pre-refactor
@@ -71,12 +71,20 @@ def set_check_config(check_id, threshold=None, action=None, **params):
                               RULESET_ID, check_id, threshold=threshold, action=action, **params)
 
 
+def _effective_lists():
+    """TERM_LISTS plus this project's own custom_term_lists declarations
+    for ste100 -- see core.config.effective_term_lists. Resolved fresh
+    per call (never cached), same posture as every other project-config
+    read here."""
+    return _config.effective_term_lists(TERM_LISTS, RULESET_ID, paths.find_project_root(__file__))
+
+
 def list_term_lists(file_path=None):
     """ste100's one term list (project vocabulary), in the same shape
     slopwatch's five and codewatch's one report -- see core/terms.py.
     file_path matters here: which vocabulary packs are layered in depends
     on the routing rule matching the file, not on the ruleset."""
-    return _terms.list_term_lists(RULESET_ID, TERM_LISTS,
+    return _terms.list_term_lists(RULESET_ID, _effective_lists(),
                                    paths.find_project_root(__file__),
                                    file_path=file_path)
 
@@ -101,7 +109,7 @@ def add_term(list_id, term, note="", force=False):
         reason = (force if isinstance(force, str)
                   else (note or "forced via add_term") if force else None)
         return glossary.register(term, note, reason, history_path=_history_path())
-    return _terms.add_term(RULESET_ID, TERM_LISTS,
+    return _terms.add_term(RULESET_ID, _effective_lists(),
                             paths.find_project_root(__file__),
                             list_id, term, note=note, force=force)
 
@@ -116,7 +124,7 @@ def remove_term(list_id, term):
     one ruleset that could not do it."""
     if list_id == "project_terms":
         return glossary.unregister(term, history_path=_history_path())
-    return _terms.remove_term(RULESET_ID, TERM_LISTS,
+    return _terms.remove_term(RULESET_ID, _effective_lists(),
                                paths.find_project_root(__file__), list_id, term)
 
 

@@ -11,7 +11,7 @@ note there on the ALLOW list this ruleset should eventually have and
 structurally could not have had before.
 """
 from rulesets.codewatch import lint
-from core import checks as _checks, paths, terms as _terms
+from core import checks as _checks, config as _config, paths, terms as _terms
 
 TERM_LISTS = lint.TERM_LISTS
 CHECKS_TABLE = lint.CHECKS_TABLE
@@ -65,20 +65,28 @@ def set_check_config(check_id, threshold=None, action=None):
                               RULESET_ID, check_id, threshold=threshold, action=action)
 
 
+def _effective_lists():
+    """TERM_LISTS plus this project's own custom_term_lists declarations
+    for codewatch -- see core.config.effective_term_lists. Resolved fresh
+    per call (never cached), same posture as every other project-config
+    read here."""
+    return _config.effective_term_lists(TERM_LISTS, RULESET_ID, paths.find_project_root(__file__))
+
+
 def list_term_lists(file_path=None):
     """See rulesets/slopwatch/__init__.py's list_term_lists() -- identical
     shape and identical delegation, just codewatch's one list."""
-    return _terms.list_term_lists(RULESET_ID, TERM_LISTS,
+    return _terms.list_term_lists(RULESET_ID, _effective_lists(),
                                    paths.find_project_root(__file__),
                                    file_path=file_path)
 
 
 def add_term(list_id, term, note="", force=False):
-    return _terms.add_term(RULESET_ID, TERM_LISTS,
+    return _terms.add_term(RULESET_ID, _effective_lists(),
                             paths.find_project_root(__file__),
                             list_id, term, note=note, force=force)
 
 
 def remove_term(list_id, term):
-    return _terms.remove_term(RULESET_ID, TERM_LISTS,
+    return _terms.remove_term(RULESET_ID, _effective_lists(),
                                paths.find_project_root(__file__), list_id, term)

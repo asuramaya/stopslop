@@ -1,0 +1,52 @@
+{# Needs `entries`, `ruleset_id`, `list_id`, `block` (routes_vocabulary.
+   _section_context()'s dict) in context. The picker <select> and the
+   selected list's block are wrapped together on purpose: adding or
+   removing a custom list changes the picker's own option set, so a
+   list-management route swaps both in one response rather than leaving
+   the picker showing a list that just vanished. #}
+<div id="vocab-section">
+{% if not entries %}
+<p class="caption">No ruleset declares a term list.</p>
+{% else %}
+<select id="vocab-list-picker" name="rl"
+        hx-get="/vocabulary/list" hx-target="#vocab-list" hx-swap="outerHTML" hx-indicator="#vocab-list-spinner"
+        hx-include="this">
+  {% for m, lid, spec in entries %}
+  <option value="{{ m.RULESET_ID }}|{{ lid }}" {{ 'selected' if m.RULESET_ID == ruleset_id and lid == list_id else '' }}>
+    {{ m.RULESET_ID }} &middot; {{ spec.label or lid }}{{ ' (custom)' if lid not in (m.TERM_LISTS or {}) else '' }}
+  </option>
+  {% endfor %}
+</select>
+<span id="vocab-list-spinner" class="spinner htmx-indicator"></span>
+
+{% include "fragments/vocabulary_list.html" %}
+{% endif %}
+
+<details style="margin-top:0.75rem">
+  <summary>Add a list</summary>
+  <form hx-post="/vocabulary/lists/add" hx-target="#vocab-section" hx-swap="outerHTML">
+    <div class="param-row">
+      <select name="ruleset_id" required>
+        {% for id in ruleset_ids %}
+        <option value="{{ id }}">{{ id }}</option>
+        {% endfor %}
+      </select>
+      <input type="text" name="list_id" placeholder="id, e.g. internal_jargon" required>
+      <input type="text" name="label" placeholder="display label">
+    </div>
+    <div class="param-row">
+      <label><input type="radio" name="polarity" value="deny" checked> deny (flag words in this list)</label>
+      <label><input type="radio" name="polarity" value="allow"> allow (exempt words in this list)</label>
+    </div>
+    <div class="param-row">
+      <label><input type="checkbox" name="accepts_additions" checked> accepts new words</label>
+      <label><input type="checkbox" name="accepts_packs"> accepts vocabulary packs</label>
+      <input type="text" name="content_kind" placeholder="content kind, e.g. word" value="word">
+    </div>
+    <p class="caption">A new list is browsable and curatable here right away. It is not yet
+      matched against any text -- no built-in check reads it, since a check declares which
+      list feeds it in its own source.</p>
+    <button type="submit" class="primary">Add list</button>
+  </form>
+</details>
+</div>

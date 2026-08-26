@@ -564,7 +564,9 @@ def term_index(registry, project_root, file_path=None, config_file=None):
     for module in registry.list_rulesets():
         if "terms" not in getattr(module, "CAPABILITIES", frozenset()):
             continue
-        for list_id, spec in sorted(getattr(module, "TERM_LISTS", {}).items()):
+        lists = _config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                              module.RULESET_ID, project_root, config_file)
+        for list_id, spec in sorted(lists.items()):
             layers = resolve(spec, project_root, module.RULESET_ID, list_id,
                               file_path=file_path, config_file=config_file)
             polarity = spec.get("polarity", DENY)
@@ -594,7 +596,9 @@ def suppressed_index(registry, project_root, file_path=None, config_file=None):
     for module in registry.list_rulesets():
         if "terms" not in getattr(module, "CAPABILITIES", frozenset()):
             continue
-        for list_id, spec in sorted(getattr(module, "TERM_LISTS", {}).items()):
+        lists = _config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
+                                              module.RULESET_ID, project_root, config_file)
+        for list_id, spec in sorted(lists.items()):
             layers = resolve(spec, project_root, module.RULESET_ID, list_id,
                               file_path=file_path, config_file=config_file)
             for term, origin in sorted(layers["suppressed"].items()):
