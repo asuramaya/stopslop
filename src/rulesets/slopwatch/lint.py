@@ -736,7 +736,13 @@ CHECKS_TABLE = {
 ALL_CHECK_IDS = frozenset(CHECKS_TABLE)
 
 
-def lint_and_gate(text, context=None, file_path=None):
+def _lint_and_gate_legacy(text, context=None, file_path=None):
+    """The original hand-written per-check dispatch loop, kept permanently
+    as the differential-test baseline for lint_and_gate's generic-dispatch
+    replacement below -- see rulesets/codewatch/test_lint.py's
+    DispatcherMigrationTests for the pattern this mirrors. Not a dead copy:
+    TestSlopwatchDispatcherMigration runs both against a real corpus and
+    asserts byte-identical output."""
     sentences = []
     mechanical = []
     semantic = []
@@ -813,6 +819,74 @@ def lint_and_gate(text, context=None, file_path=None):
 
     for v in check_em_dash_cluster(text):
         semantic.append({"kind": "em_dash_cluster", "label": None, "detail": v, "text": None})
+
+    # Every check above runs unconditionally (they're cheap regex/string
+    # ops); a disabled check's own flags are dropped here in one place
+    # rather than guarding all 20 call sites individually.
+    enabled = _enabled_check_ids(file_path)
+    mechanical = [f for f in mechanical if f["kind"] in enabled]
+    semantic = [f for f in semantic if f["kind"] in enabled]
+
+    mechanical = dedup_flags(mechanical, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
+    semantic = dedup_flags(semantic, exclude_kinds=_DEDUP_EXCLUDE_KINDS)
+
+    status = "clean" if not mechanical and not semantic else (
+        "semantic_flags" if semantic else "mechanical_violations")
+
+    return {
+        "status": status,
+        "sentence_count": len(sentences),
+        "mechanical_violations": mechanical,
+        "semantic_flags": semantic,
+    }
+
+
+def lint_and_gate(text, context=None, file_path=None):
+    """Generic-dispatch replacement for _lint_and_gate_legacy above, via
+    core.checks.run_checks. CHECKS_TABLE's own declaration order was
+    already arranged to match the legacy loop's call order (see the
+    comment above CHECKS_TABLE) -- bold_bullet_lead/id_label_lead run
+    against list_item_lines (Unit.LINE), the rest against sentences
+    (Unit.SENTENCE/SENTENCES) or the whole text (Unit.DOCUMENT); no new
+    Unit variant was needed."""
+    sentences = []
+    list_item_lines = []
+
+    extra_stock_adverbs = _custom_terms("stock_adverb", file_path)
+    extra_weasel = _custom_terms("weasel_attribution", file_path)
+    extra_marketing_adjective = _custom_terms("marketing_adjective", file_path)
+    extra_filler_verb = _custom_terms("filler_verb", file_path)
+    extra_marketing_cliche = _custom_terms("marketing_cliche", file_path)
+    lexicon = _lexicon_terms(file_path)
+
+    for block_type, content in split_into_blocks(text):
+        if block_type in ("fence", "blank"):
+            continue
+        elif block_type == "header":
+            block_text = HEADER_RE.sub("", content).strip()
+        elif block_type == "list_item":
+            m = LIST_ITEM_RE.match(content)
+            block_text = m.group(2) if m else content
+            list_item_lines.append(content)
+        else:  # paragraph
+            block_text = content
+        block_text = re.sub(r"`[^`\n]+`", " ", block_text)  # inline code untouchable
+        sentences.extend(tokenize_sentences(block_text))
+
+    mechanical, semantic = _checks.run_checks(
+        CHECKS_TABLE,
+        lines=list_item_lines,
+        sentences=sentences,
+        text=text,
+        extra_by_check={
+            "stock_adverb": extra_stock_adverbs,
+            "weasel_attribution": extra_weasel,
+            "marketing_adjective": extra_marketing_adjective,
+            "filler_verb": extra_filler_verb,
+            "marketing_cliche": extra_marketing_cliche,
+            "terminology": lexicon,
+        },
+    )
 
     # Every check above runs unconditionally (they're cheap regex/string
     # ops); a disabled check's own flags are dropped here in one place

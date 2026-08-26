@@ -658,5 +658,38 @@ class TerminologyTests(unittest.TestCase):
                           [f["kind"] for f in result["semantic_flags"]])
 
 
+class DispatcherMigrationTests(unittest.TestCase):
+    """lint_and_gate now dispatches through core.checks.run_checks instead
+    of a hand-written per-check loop -- this proves the migration byte-
+    identical against _lint_and_gate_legacy (the pre-migration
+    implementation, kept only for this comparison) across every .py file
+    in this repo, not just the small hand-picked snippets the rest of
+    this file exercises. Read-only: lints real files, writes nothing."""
+
+    @staticmethod
+    def _repo_python_files():
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))))
+        out = []
+        for root, dirs, names in os.walk(repo_root):
+            dirs[:] = [d for d in dirs if d not in {"__pycache__", ".venv", ".git"}]
+            out.extend(os.path.join(root, n) for n in names if n.endswith(".py"))
+        return sorted(out)
+
+    def test_matches_the_legacy_implementation_across_every_real_py_file(self):
+        files = self._repo_python_files()
+        self.assertGreater(len(files), 50, "sanity check: corpus looks too small to be real")
+        for path in files:
+            with self.subTest(file=path):
+                with open(path, encoding="utf-8", errors="replace") as f:
+                    text = f.read()
+                old = lint._lint_and_gate_legacy(text, file_path=path)
+                new = lint.lint_and_gate(text, file_path=path)
+                self.assertEqual(old["semantic_flags"], new["semantic_flags"])
+                self.assertEqual(old["mechanical_violations"], new["mechanical_violations"])
+                self.assertEqual(old["status"], new["status"])
+                self.assertEqual(old["sentence_count"], new["sentence_count"])
+
+
 if __name__ == "__main__":
     unittest.main()
