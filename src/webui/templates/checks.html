@@ -31,33 +31,7 @@
   (edit on Routing).</p>
 {% endif %}
 
-<table>
-  <thead>
-    <tr><th>On</th><th>Check</th><th>What it catches</th><th>Threshold</th><th>Action</th><th>Last fired</th></tr>
-  </thead>
-  <tbody id="checks-table-body">
-    {% for row in rows %}
-    {% include "fragments/check_row.html" %}
-    {% endfor %}
-  </tbody>
-</table>
-
-{% if tunable %}
-<h3>Settings</h3>
-{% for row in tunable %}
-<div id="params-{{ row.id }}">
-  {% include "fragments/check_params.html" %}
-</div>
-{% endfor %}
-{% endif %}
-
-{% if listed %}
-<h3>Vocabulary</h3>
-{% for row in listed %}
-<p class="caption"><code>{{ row.id }}</code>: instead, {{ row.instead }}.
-  Lists: {{ row.lists | join(', ') }} -- curate on Vocabulary.</p>
-{% endfor %}
-{% endif %}
+{% include "fragments/checks_section.html" %}
 
 <h3>Try it</h3>
 <form hx-post="/checks/{{ ruleset_id }}/playground" hx-target="#playground-result" hx-swap="innerHTML"

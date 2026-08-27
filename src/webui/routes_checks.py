@@ -40,6 +40,8 @@ def _last_fired(ruleset_id):
 def _rows(ruleset_id):
     module = rulesets.get_ruleset(ruleset_id)
     configurable = "check_config" in module.CAPABILITIES
+    custom_capable = "custom_checks" in module.CAPABILITIES
+    custom_ids = set(module.custom_check_ids()) if custom_capable else set()
     checks = module.list_checks()
     config = module.list_check_config() if configurable else {}
     lists = core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
@@ -54,6 +56,7 @@ def _rows(ruleset_id):
             "instead": meta["instead"],
             "enabled": meta["enabled"],
             "configurable": configurable,
+            "is_custom": check_id in custom_ids,
             "threshold": spec.get("threshold"),
             "action": spec.get("action"),
             "params": spec.get("params", {}),
@@ -61,6 +64,19 @@ def _rows(ruleset_id):
             "last_fired": _relative_time(fired[check_id]) if check_id in fired else "",
         })
     return module, rows
+
+
+def _section_context(ruleset_id):
+    module, rows = _rows(ruleset_id)
+    custom_capable = "custom_checks" in module.CAPABILITIES
+    return module, {
+        "rows": rows,
+        "ruleset_id": ruleset_id,
+        "tunable": [r for r in rows if r["params"]],
+        "listed": [r for r in rows if r["lists"]],
+        "custom_capable": custom_capable,
+        "custom_check_units": module.custom_check_units() if custom_capable else [],
+    }
 
 
 def _routed_caption(ruleset_id):
@@ -86,14 +102,12 @@ def checks_page(request: Request, ruleset: str = ""):
     ruleset_id = ruleset if ruleset in ids else (ids[0] if ids else None)
     if ruleset_id is None:
         return render(request, "checks.html", "checks", {"ruleset_ids": [], "ruleset_id": None})
-    module, rows = _rows(ruleset_id)
+    module, section = _section_context(ruleset_id)
     return render(request, "checks.html", "checks", {
         "ruleset_ids": ids,
         "ruleset_id": ruleset_id,
-        "rows": rows,
         "routed": _routed_caption(ruleset_id),
-        "tunable": [r for r in rows if r["params"]],
-        "listed": [r for r in rows if r["lists"]],
+        **section,
     })
 
 
@@ -150,6 +164,42 @@ async def set_check_param(request: Request, ruleset_id: str, check_id: str):
     row = next(r for r in rows if r["id"] == check_id)
     return fragment_response(request, "fragments/check_params.html",
                               {"row": row, "ruleset_id": ruleset_id}, error=error)
+
+
+@router.post("/checks/{ruleset_id}/{check_id}/remove")
+async def remove_check(request: Request, ruleset_id: str, check_id: str):
+    module = rulesets.get_ruleset(ruleset_id)
+    error = None
+    if "custom_checks" not in module.CAPABILITIES:
+        error = f"{ruleset_id!r} has no custom checks to remove"
+    elif check_id not in module.custom_check_ids():
+        error = f"{check_id!r} is a built-in check -- only a custom check can be removed"
+    else:
+        module.remove_custom_check(check_id)
+    module, section = _section_context(ruleset_id)
+    return fragment_response(request, "fragments/checks_section.html", section, error=error)
+
+
+@router.post("/checks/{ruleset_id}/custom/add")
+async def add_custom_check(request: Request, ruleset_id: str):
+    module = rulesets.get_ruleset(ruleset_id)
+    form = await request.form()
+    error = None
+    if "custom_checks" not in module.CAPABILITIES:
+        error = f"{ruleset_id!r} has no support for custom checks"
+    else:
+        try:
+            threshold = int(form.get("threshold") or 1)
+            module.add_custom_check(
+                form["check_id"], form["unit"], form["catches"], form["instead"],
+                threshold, form.get("action") or "warn", form["fn_body"])
+        except Exception as e:
+            # A custom check's body is arbitrary Python -- a SyntaxError from
+            # the validate-then-write import is exactly as likely here as a
+            # ValueError from a bad id/unit, and both need the same surface.
+            error = str(e)
+    module, section = _section_context(ruleset_id)
+    return fragment_response(request, "fragments/checks_section.html", section, error=error)
 
 
 @router.post("/checks/{ruleset_id}/playground")

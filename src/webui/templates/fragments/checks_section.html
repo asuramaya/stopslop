@@ -1,0 +1,72 @@
+{# Needs `rows`, `ruleset_id`, `tunable`, `listed`, `custom_capable`,
+   `custom_check_units` in context (see routes_checks._section_context()).
+   Wraps the table plus the "Add check" form together, the same reason
+   vocabulary_section.html wraps its picker with its own "Add a list"
+   form: adding or removing a custom check changes the table's own row
+   set, so one route swaps both in a single response rather than leaving
+   a stale table next to a freshly-cleared form. #}
+<div id="checks-section">
+<table>
+  <thead>
+    <tr><th>On</th><th>Check</th><th>What it catches</th><th>Threshold</th><th>Action</th><th>Last fired</th></tr>
+  </thead>
+  <tbody id="checks-table-body">
+    {% for row in rows %}
+    {% include "fragments/check_row.html" %}
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if tunable %}
+<h3>Settings</h3>
+{% for row in tunable %}
+<div id="params-{{ row.id }}">
+  {% include "fragments/check_params.html" %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if listed %}
+<h3>Vocabulary</h3>
+{% for row in listed %}
+<p class="caption"><code>{{ row.id }}</code>: instead, {{ row.instead }}.
+  Lists: {{ row.lists | join(', ') }} -- curate on Vocabulary.</p>
+{% endfor %}
+{% endif %}
+
+{% if custom_capable %}
+<details style="margin-top:0.75rem">
+  <summary>Add a check</summary>
+  <form hx-post="/checks/{{ ruleset_id }}/custom/add" hx-target="#checks-section" hx-swap="outerHTML">
+    <div class="param-row">
+      <input type="text" name="check_id" placeholder="id, e.g. no_todo" required>
+      <select name="unit" required>
+        {% for u in custom_check_units %}
+        <option value="{{ u }}">{{ u }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="param-row">
+      <input type="text" name="catches" placeholder="what this catches, in plain words" style="flex:1" required>
+    </div>
+    <div class="param-row">
+      <input type="text" name="instead" placeholder="what to do instead" style="flex:1" required>
+    </div>
+    <div class="param-row">
+      <label>Threshold <input type="number" name="threshold" value="1" min="1" style="width:5rem"></label>
+      <label><input type="radio" name="action" value="warn" checked> warn</label>
+      <label><input type="radio" name="action" value="block"> block (denies alone once triggered)</label>
+    </div>
+    <p class="caption">
+      A <code>sentence</code> check's function receives one sentence as <code>sentence</code>;
+      a <code>document</code> check receives the whole assembled text as <code>text</code>.
+      Return a list of hit dicts -- each may carry <code>"word"</code>, <code>"phrase"</code>,
+      or <code>"note"</code>. An empty sentence/document returns <code>[]</code>.
+    </p>
+    <textarea name="fn_body" rows="6" style="width:100%; font-family:monospace"
+              placeholder="if &quot;TODO&quot; in sentence:&#10;    return [{&quot;phrase&quot;: &quot;TODO&quot;}]&#10;return []" required></textarea>
+    <button type="submit" class="primary">Add check</button>
+  </form>
+</details>
+{% endif %}
+</div>

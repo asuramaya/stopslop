@@ -8,7 +8,22 @@
       <input type="checkbox" name="enabled" {{ 'checked' if row.enabled else '' }}>
     </form>
   </td>
-  <td><code>{{ row.id }}</code></td>
+  <td><code>{{ row.id }}</code>
+    {% if row.is_custom %}
+    <span class="pill">custom</span>
+    <span class="confirm-wrap">
+      <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove</button>
+      <span class="confirm-ask" hidden>
+        Remove the <code>{{ row.id }}</code> check itself?
+        <form style="display:inline;margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/remove"
+              hx-target="#checks-section" hx-swap="outerHTML">
+          <button type="submit" class="danger">Yes</button>
+        </form>
+        <button type="button" onclick="confirmCancel(this)">Cancel</button>
+      </span>
+    </span>
+    {% endif %}
+  </td>
   <td>{{ row.catches }}</td>
   {% if row.configurable %}
   <td>

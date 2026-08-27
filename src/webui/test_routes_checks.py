@@ -131,6 +131,66 @@ class MutationTests(unittest.TestCase):
 
 
 @unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class CustomCheckRouteTests(unittest.TestCase):
+    """Same "touches the real config briefly, always restores" posture as
+    MutationTests above, plus cleanup of the real custom-check FILE
+    add_custom_check writes -- routes_checks.py resolves project root the
+    same un-overridable way every other route here does, so this is a
+    real file under this repo's own .claude/stopslop/custom_checks/."""
+
+    CHECK_ID = "webui_test_no_todo"
+
+    def setUp(self):
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+        self._check_path = os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_checks",
+                                         "codewatch", f"{self.CHECK_ID}.py")
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+        if os.path.exists(self._check_path):
+            os.unlink(self._check_path)
+
+    def test_add_then_visible_and_removable(self):
+        response = client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "a TODO left in code",
+            "instead": "file a real issue", "threshold": "1", "action": "warn",
+            "fn_body": 'return [{"phrase": "TODO"}] if "TODO" in line else []',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.CHECK_ID, response.text)
+        self.assertIn("custom", response.text)
+        self.assertTrue(os.path.exists(self._check_path))
+
+        remove = client.post(f"/checks/codewatch/{self.CHECK_ID}/remove", data={})
+        self.assertEqual(remove.status_code, 200)
+        self.assertNotIn(self.CHECK_ID, remove.text)
+        self.assertFalse(os.path.exists(self._check_path))
+
+    def test_a_disallowed_unit_returns_an_error_banner_not_a_500(self):
+        response = client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "sentence", "catches": "x",
+            "instead": "y", "threshold": "1", "action": "warn", "fn_body": "return []",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("error-banner", response.text)
+        self.assertFalse(os.path.exists(self._check_path))
+
+    def test_removing_a_built_in_check_is_refused(self):
+        response = client.post("/checks/codewatch/todo_stub/remove", data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("built-in check", response.text)
+
+
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
 class ChecksWithoutCheckConfigCapabilityTests(unittest.TestCase):
     """The registry (rulesets/__init__.py's CAPABILITY_ATTRS) allows a
     ruleset to declare "checks" without "check_config" -- no ruleset
@@ -149,8 +209,13 @@ class ChecksWithoutCheckConfigCapabilityTests(unittest.TestCase):
         response = client.get("/checks", params={"ruleset": "codewatch"})
         self.assertEqual(response.status_code, 200)
         self.assertIn("not configurable", response.text)
-        self.assertNotIn('name="threshold"', response.text)
-        self.assertNotIn('name="action"', response.text)
+        # Scoped to the table body -- the "Add a check" form below it
+        # (custom_checks capability, independent of check_config) has its
+        # own unrelated name="threshold"/name="action" fields for a NEW
+        # check's defaults, not a per-row live control.
+        table_body = response.text.split('id="checks-table-body"')[1].split("</table>")[0]
+        self.assertNotIn('name="threshold"', table_body)
+        self.assertNotIn('name="action"', table_body)
 
     def test_config_post_returns_error_banner_not_a_500(self):
         response = client.post("/checks/codewatch/todo_stub/config", data={"threshold": "3"})
