@@ -525,5 +525,55 @@ class CustomTermListTests(_TempProjectRoot):
         views = ste100.list_term_lists()
         self.assertNotIn("widget", views["jargon"]["project_terms"])
 
+
+class CustomCheckTests(_TempProjectRoot):
+    """A custom check added through ste100's uniform add_custom_check/
+    remove_custom_check entry points reaches the real live gate
+    (lint_and_gate), the same way a custom term list reaches
+    list_term_lists above -- see core/custom_checks.py and
+    rulesets/ste100/lint.py's effective_checks_table()."""
+
+    def test_custom_check_units_names_sentence_and_document_only(self):
+        self.assertEqual(ste100.custom_check_units(), ["document", "sentence"])
+
+    def test_added_check_appears_in_list_checks_and_fires_on_a_real_lint(self):
+        ste100.add_custom_check(
+            "no_todo", "sentence", "TODO left in prose", "file it as a real task",
+            1, "warn", 'return [{"phrase": "TODO"}] if "TODO" in sentence else []')
+        self.assertIn("no_todo", ste100.list_checks())
+        result = ste100.lint_and_gate("There is a TODO here that needs doing.")
+        self.assertIn("no_todo", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_removed_check_stops_firing(self):
+        ste100.add_custom_check(
+            "no_todo", "sentence", "x", "y", 1, "warn",
+            'return [{"phrase": "TODO"}] if "TODO" in sentence else []')
+        ste100.remove_custom_check("no_todo")
+        self.assertNotIn("no_todo", ste100.list_checks())
+        result = ste100.lint_and_gate("There is a TODO here that needs doing.")
+        self.assertNotIn("no_todo", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_update_changes_the_matcher_live(self):
+        ste100.add_custom_check(
+            "no_todo", "sentence", "x", "y", 1, "warn", "return []")
+        ste100.update_custom_check(
+            "no_todo", "sentence", "TODO left in prose", "file it as a real task",
+            1, "warn", 'return [{"phrase": "TODO"}] if "TODO" in sentence else []')
+        result = ste100.lint_and_gate("There is a TODO here that needs doing.")
+        self.assertIn("no_todo", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_a_block_action_denies_through_blocking_semantic_flags(self):
+        ste100.add_custom_check(
+            "no_todo", "sentence", "x", "y", 1, "block",
+            'return [{"phrase": "TODO"}] if "TODO" in sentence else []')
+        result = ste100.lint_and_gate("There is a TODO here that needs doing.")
+        blocking = ste100.blocking_semantic_flags(result["semantic_flags"])
+        self.assertTrue(any(f["kind"] == "no_todo" for f in blocking))
+
+    def test_refuses_a_line_unit_ste100_does_not_allow(self):
+        with self.assertRaises(Exception):
+            ste100.add_custom_check("bad", "line", "x", "y", 1, "warn", "return []")
+
+
 if __name__ == "__main__":
     unittest.main()

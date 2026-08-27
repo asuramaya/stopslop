@@ -44,17 +44,44 @@ slopwatch already established.
 """
 import re
 
-from core import checks as _checks, paths as _paths, terms as _terms
+from core import checks as _checks, custom_checks as _custom_checks, paths as _paths, terms as _terms
 
 TRACKED_EXTENSIONS = (".py",)
 
 
-def _enabled_check_ids(file_path=None):
+# codewatch's lint_and_gate builds ONLY a `lines` domain (every raw line
+# of the file, no special scoping -- unlike slopwatch's LINE domain,
+# which is list-item lines only) -- so Unit.LINE is the one unit a
+# codewatch custom check may declare, not core.custom_checks'
+# DEFAULT_ALLOWED_UNITS (SENTENCE/DOCUMENT), since codewatch never builds
+# either of those domains at all.
+CUSTOM_CHECK_UNITS = frozenset({_checks.Unit.LINE})
+
+
+def effective_checks_table():
+    """CHECKS_TABLE merged with this ruleset's own custom checks (see
+    core.custom_checks) -- the view every check-listing/dispatch call
+    should use instead of the bare CHECKS_TABLE constant, so a custom
+    check is exactly as first-class as a built-in one everywhere: the
+    live gate, the Checks page's list/enable/threshold controls, CLI,
+    MCP. Falls back to CHECKS_TABLE alone if project root can't be
+    resolved -- same never-break-the-gate posture every other optional
+    layer here takes."""
     try:
         project_root = _paths.find_project_root(__file__)
     except Exception:
-        return set(_checks.all_check_ids(CHECKS_TABLE))
-    return _checks.enabled_check_ids(CHECKS_TABLE, project_root, "codewatch", file_path)
+        return CHECKS_TABLE
+    return _custom_checks.effective_checks_table(CHECKS_TABLE, project_root, "codewatch",
+                                                   CUSTOM_CHECK_UNITS)
+
+
+def _enabled_check_ids(file_path=None):
+    table = effective_checks_table()
+    try:
+        project_root = _paths.find_project_root(__file__)
+    except Exception:
+        return set(_checks.all_check_ids(table))
+    return _checks.enabled_check_ids(table, project_root, "codewatch", file_path)
 
 
 def _custom_terms(list_id, file_path=None):
@@ -476,7 +503,7 @@ def lint_and_gate(text, context=None, file_path=None):
     extra_generic_names = _custom_terms("generic_naming", file_path)  # once per call, not per line
 
     mechanical, semantic = _checks.run_checks(
-        CHECKS_TABLE, lines=lines,
+        effective_checks_table(), lines=lines,
         extra_by_check={"print_debug": is_script, "generic_naming": extra_generic_names})
 
     # Every check above runs unconditionally; a disabled check's own flags
@@ -503,7 +530,7 @@ def blocking_semantic_flags(semantic_flags):
     to warn, project-tunable per check via check_config. See
     core.checks.blocking_semantic_flags for the shared mechanism."""
     project_root = _paths.find_project_root(__file__)
-    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "codewatch", semantic_flags)
+    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "codewatch", semantic_flags)
 
 
 def apply_mechanical_fixes(text, file_path=None):

@@ -23,7 +23,7 @@ from core.blocks import (
     HEADER_RE as _HEADER_RE, LIST_ITEM_RE as _LIST_ITEM_RE, FENCE_RE as _FENCE_RE,
 )
 from core.flags import dedup_flags, default_label as _label
-from core import checks as _checks, paths as _paths, terms as _terms
+from core import checks as _checks, custom_checks as _custom_checks, paths as _paths, terms as _terms
 from core import glossary_packs
 
 # --- Tier 1: base approved dictionary, loaded from the real ASD-STE100
@@ -935,26 +935,49 @@ CHECKS_TABLE = {
 ALL_CHECK_IDS = frozenset(CHECKS_TABLE)
 
 
+# ste100 builds SENTENCE and DOCUMENT the same way every other prose
+# ruleset does -- its BLOCK domain (safety_instruction) is scoped to
+# paragraph/list-item blocks, not something a custom check gets to use;
+# see core/custom_checks.py's module docstring on why BLOCK stays
+# reserved for built-ins.
+CUSTOM_CHECK_UNITS = _custom_checks.DEFAULT_ALLOWED_UNITS
+
+
+def effective_checks_table():
+    """CHECKS_TABLE merged with this ruleset's own custom checks -- see
+    core/custom_checks.py, and rulesets/codewatch/lint.py's identical
+    helper. Falls back to CHECKS_TABLE alone if project root can't be
+    resolved."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+    except Exception:
+        return CHECKS_TABLE
+    return _custom_checks.effective_checks_table(CHECKS_TABLE, project_root, "ste100",
+                                                   CUSTOM_CHECK_UNITS)
+
+
 def _check_config():
     """The merged {threshold, action, **params} view -- check_length
     reads its own word limits off this directly (`length` is the one
     check whose matcher needs live config, not just a pre-resolved
     `extra`/`lexicon` argument the way vocabulary-bound checks do)."""
+    table = effective_checks_table()
     try:
         project_root = _paths.find_project_root(__file__)
     except Exception:
-        return _checks.default_check_config(CHECKS_TABLE)
-    return _checks.check_config(CHECKS_TABLE, project_root, "ste100")
+        return _checks.default_check_config(table)
+    return _checks.check_config(table, project_root, "ste100")
 
 
 def _enabled_check_ids(file_path=None):
     """Same never-cache-it, read-fresh-every-call shape as slopwatch's/
     codewatch's own _enabled_check_ids()."""
+    table = effective_checks_table()
     try:
         project_root = _paths.find_project_root(__file__)
     except Exception:
-        return set(_checks.all_check_ids(CHECKS_TABLE))
-    return _checks.enabled_check_ids(CHECKS_TABLE, project_root, "ste100", file_path)
+        return set(_checks.all_check_ids(table))
+    return _checks.enabled_check_ids(table, project_root, "ste100", file_path)
 
 
 def lint_sentence(sentence, context="procedure", project_terms=None, suppressed=None):
@@ -1171,7 +1194,7 @@ def lint_and_gate(text, context="procedure", file_path=None):
     lintable_text = " ".join(sentences)  # excludes fence content, matches what was actually linted
 
     mechanical, semantic = _checks.run_checks(
-        CHECKS_TABLE,
+        effective_checks_table(),
         blocks=prose_blocks,
         sentences=sentences,
         text=lintable_text,
@@ -1214,7 +1237,7 @@ def blocking_semantic_flags(semantic_flags):
     mechanism (identical per-check contract slopwatch and codewatch
     carry)."""
     project_root = _paths.find_project_root(__file__)
-    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "ste100", semantic_flags)
+    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "ste100", semantic_flags)
 
 
 def fix_sentence(sentence, project_terms=None, suppressed=None):

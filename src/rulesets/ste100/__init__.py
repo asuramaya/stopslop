@@ -7,7 +7,8 @@ rulesets/__init__.py's registration check requires, plus the two pieces
 policy rather than generic plumbing.
 """
 from rulesets.ste100 import lint, glossary
-from core import checks as _checks, config as _config, glossary_packs as _glossary_packs, history, paths, terms as _terms
+from core import (checks as _checks, config as _config, custom_checks as _custom_checks,
+                   glossary_packs as _glossary_packs, history, paths, terms as _terms)
 
 RULESET_ID = "ste100"
 # "STE100", not "ASD-STE100" -- matches the exact prefix the pre-refactor
@@ -22,7 +23,7 @@ RULESET_NAME = "STE100"
 # special cases every consumer had to branch around. Rule 5.1's word
 # limits live on the `length` check's own config entry now -- see
 # lint.DEFAULT_CHECK_CONFIG.
-CAPABILITIES = frozenset({"terms", "word_lookup", "checks", "check_config"})
+CAPABILITIES = frozenset({"terms", "word_lookup", "checks", "check_config", "custom_checks"})
 
 # Relative to this package's own directory -- integrity_check.py resolves
 # these against the ruleset's install location, not the repo root.
@@ -63,11 +64,11 @@ CHECKS_TABLE = lint.CHECKS_TABLE
 
 
 def list_check_config():
-    return _checks.list_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
+    return _checks.list_check_config(lint.effective_checks_table(), paths.find_project_root(__file__), RULESET_ID)
 
 
 def set_check_config(check_id, threshold=None, action=None, **params):
-    _checks.set_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+    _checks.set_check_config(lint.effective_checks_table(), paths.find_project_root(__file__),
                               RULESET_ID, check_id, threshold=threshold, action=action, **params)
 
 
@@ -176,17 +177,41 @@ def stats():
 
 
 def list_checks():
-    return _checks.list_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
+    return _checks.list_checks(lint.effective_checks_table(), paths.find_project_root(__file__), RULESET_ID)
 
 
 def set_enabled_checks(check_ids):
-    _checks.set_enabled_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+    _checks.set_enabled_checks(lint.effective_checks_table(), paths.find_project_root(__file__),
                                 RULESET_ID, check_ids)
 
 
 def set_checks_enabled(states):
-    _checks.set_checks_enabled(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+    _checks.set_checks_enabled(lint.effective_checks_table(), paths.find_project_root(__file__),
                                 RULESET_ID, states)
+
+
+def custom_check_units():
+    return sorted(u.value for u in lint.CUSTOM_CHECK_UNITS)
+
+
+def custom_check_ids():
+    return _custom_checks.custom_check_ids(paths.find_project_root(__file__), RULESET_ID)
+
+
+def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+    _custom_checks.add_custom_check(paths.find_project_root(__file__), RULESET_ID,
+                                     set(lint.CHECKS_TABLE), check_id, unit, catches, instead,
+                                     threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS)
+
+
+def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+    _custom_checks.update_custom_check(paths.find_project_root(__file__), RULESET_ID,
+                                        set(lint.CHECKS_TABLE), check_id, unit, catches, instead,
+                                        threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS)
+
+
+def remove_custom_check(check_id):
+    _custom_checks.remove_custom_check(paths.find_project_root(__file__), RULESET_ID, check_id)
 
 
 # list_glossary_packs()/set_enabled_glossary_packs() USED to live here: two

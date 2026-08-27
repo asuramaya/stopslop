@@ -65,7 +65,27 @@ from core.blocks import (
     HEADER_RE, LIST_ITEM_RE,
 )
 from core.flags import dedup_flags, default_label as _label
-from core import checks as _checks, paths as _paths, terms as _terms
+from core import checks as _checks, custom_checks as _custom_checks, paths as _paths, terms as _terms
+
+# slopwatch builds SENTENCE (the full tokenized-sentence list) and
+# DOCUMENT (the whole assembled lintable text) uniformly -- its LINE
+# domain is list-item lines ONLY (bold_bullet_lead/id_label_lead), not
+# every line, so a custom check may not declare LINE here even though
+# codewatch's own custom checks can. See core/custom_checks.py.
+CUSTOM_CHECK_UNITS = _custom_checks.DEFAULT_ALLOWED_UNITS
+
+
+def effective_checks_table():
+    """CHECKS_TABLE merged with this ruleset's own custom checks -- see
+    core/custom_checks.py, and rulesets/codewatch/lint.py's identical
+    helper. Falls back to CHECKS_TABLE alone if project root can't be
+    resolved."""
+    try:
+        project_root = _paths.find_project_root(__file__)
+    except Exception:
+        return CHECKS_TABLE
+    return _custom_checks.effective_checks_table(CHECKS_TABLE, project_root, "slopwatch",
+                                                   CUSTOM_CHECK_UNITS)
 
 
 def _enabled_check_ids(file_path=None):
@@ -73,11 +93,12 @@ def _enabled_check_ids(file_path=None):
     declared checks minus whatever stopslop.config.json's
     "disabled_checks" names. Read fresh every call, not cached -- see
     core.checks.enabled_check_ids."""
+    table = effective_checks_table()
     try:
         project_root = _paths.find_project_root(__file__)
     except Exception:
-        return set(_checks.all_check_ids(CHECKS_TABLE))
-    return _checks.enabled_check_ids(CHECKS_TABLE, project_root, "slopwatch", file_path)
+        return set(_checks.all_check_ids(table))
+    return _checks.enabled_check_ids(table, project_root, "slopwatch", file_path)
 
 
 def _custom_terms(list_id, file_path=None):
@@ -874,7 +895,7 @@ def lint_and_gate(text, context=None, file_path=None):
         sentences.extend(tokenize_sentences(block_text))
 
     mechanical, semantic = _checks.run_checks(
-        CHECKS_TABLE,
+        effective_checks_table(),
         lines=list_item_lines,
         sentences=sentences,
         text=text,
@@ -920,7 +941,7 @@ def blocking_semantic_flags(semantic_flags):
     density number nobody could tune per check. See
     core.checks.blocking_semantic_flags for the shared mechanism."""
     project_root = _paths.find_project_root(__file__)
-    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "slopwatch", semantic_flags)
+    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "slopwatch", semantic_flags)
 
 
 def fix_sentence(sentence, enabled=None, extra_stock_adverbs=None):

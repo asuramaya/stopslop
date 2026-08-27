@@ -172,10 +172,21 @@ CHECKS_TABLE = {
 - `LINE_LOOKAHEAD` -- a line, plus the next one
 - `LINES_INDEXED` -- the whole file, plus an index
 - `DOCUMENT` -- the whole assembled text, once per call
+- `BLOCK` -- one paragraph/list-item block at a time, not the whole
+  document (ste100's `safety_instruction`; see `core/checks.py`)
 
-This is documentation today. A shared run loop does not read it yet.
-Your own `lint_and_gate` still calls `fn` directly, in whatever order and
-shape it needs.
+`core.checks.run_checks(table, blocks=..., lines=..., sentences=..., text=...,
+extra_by_check=...)` is the shared dispatch loop every built-in ruleset's
+`lint_and_gate` now calls, in place of a hand-written per-check loop. You
+still compute `blocks`/`lines`/`sentences`/`text` yourself -- whatever
+text split or tokenization your own domain needs -- and any per-check
+`extra` argument.
+
+See `rulesets/codewatch/lint.py` for the smallest real call. See
+`rulesets/ste100/lint.py` for one that reads every domain. It also uses
+`ExtraArgs`, for a check that takes more than one extra positional
+argument, and a per-item callable extra. That extra's value varies by
+the item's own index, not one static value for the whole call.
 
 The `terms_list` field names the `TERM_LISTS` key this check reads from
 -- see "terms" below. Not every check has one. A check with no
@@ -242,6 +253,57 @@ The `length` check in ste100 carries its two word limits this way.
 unknown name for that check. A parameter belongs to its check. No
 ruleset-wide options dict exists for it to land in, and no shared table
 column carries it.
+
+**`"custom_checks"`** -- a project adds a real Python matcher with no
+change to this tool's own source. The shared engine lives in
+`src/core/custom_checks.py`; this capability requires:
+
+```python
+def custom_check_units(): ...
+def custom_check_ids(): ...
+def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body): ...
+def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body): ...
+def remove_custom_check(check_id): ...
+```
+
+Delegate all five to `core/custom_checks.py`. Also route every place
+your `lint.py` reads `CHECKS_TABLE` -- `lint_and_gate`,
+`blocking_semantic_flags`, and the `"checks"`/`"check_config"`
+delegations above -- through one `effective_checks_table()` helper
+instead. A custom check is then exactly as first-class as a built-in
+one, everywhere:
+
+```python
+def effective_checks_table():
+    project_root = _paths.find_project_root(__file__)
+    return _custom_checks.effective_checks_table(CHECKS_TABLE, project_root,
+                                                   "your_id", CUSTOM_CHECK_UNITS)
+```
+
+`CUSTOM_CHECK_UNITS` names which `Unit` values a custom check may declare
+for YOUR ruleset -- not every unit means the same thing everywhere. The
+safe default, `core.custom_checks.DEFAULT_ALLOWED_UNITS`
+(`SENTENCE`/`DOCUMENT`), is right for a ruleset that tokenizes sentences
+and assembles a lintable text the way ste100 and slopwatch do. A ruleset
+like codewatch, whose only domain is "every raw line of the file, with
+no special scope," declares `frozenset({_checks.Unit.LINE})` instead.
+
+A ruleset whose `LINE` (or `BLOCK`) domain covers a narrower range must
+NOT allow that unit for a custom check. Two examples: slopwatch's `LINE`
+domain is list-item lines only; ste100's `BLOCK` domain is paragraph/
+list-item blocks only. The domain a project author would expect --
+"every line" -- is not the one their check would actually run against.
+
+A custom check is a real file at
+`.claude/stopslop/custom_checks/<ruleset_id>/<check_id>.py`, with a
+module-level `CHECK` (a `core.checks.Check`).
+The `render_source` function in `core/custom_checks.py` builds it from
+the dashboard's own form fields, not hand-typed, so the `Check(...)`
+call is always correct. Only the matcher body itself is a project
+author's own code.
+
+This is not a sandboxed subset. Anyone with write access to the repo
+already has arbitrary code execution through the hook mechanism itself.
 
 ## How to register it
 

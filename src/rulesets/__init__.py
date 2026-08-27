@@ -76,6 +76,15 @@ CAPABILITY_ATTRS = {
     "word_lookup": ("check_word",),
     "checks": ("list_checks", "set_enabled_checks", "set_checks_enabled"),
     "check_config": ("list_check_config", "set_check_config"),
+    # A custom check is a real Python file under
+    # .claude/stopslop/custom_checks/<ruleset_id>/ -- see core/custom_checks.py.
+    # custom_check_units() names which core.checks.Unit values THIS
+    # ruleset accepts (what "sentence"/"line"/"document" even mean is
+    # ruleset-specific past the safe default -- see that module's own
+    # docstring), so the dashboard's "Add check" form can only ever offer
+    # a unit that will actually load.
+    "custom_checks": ("custom_check_ids", "add_custom_check", "remove_custom_check",
+                       "update_custom_check", "custom_check_units"),
 }
 
 

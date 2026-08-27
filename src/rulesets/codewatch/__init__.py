@@ -11,14 +11,14 @@ note there on the ALLOW list this ruleset should eventually have and
 structurally could not have had before.
 """
 from rulesets.codewatch import lint
-from core import checks as _checks, config as _config, paths, terms as _terms
+from core import checks as _checks, config as _config, custom_checks as _custom_checks, paths, terms as _terms
 
 TERM_LISTS = lint.TERM_LISTS
 CHECKS_TABLE = lint.CHECKS_TABLE
 
 RULESET_ID = "codewatch"
 RULESET_NAME = "codewatch"
-CAPABILITIES = frozenset({"terms", "checks", "check_config"})
+CAPABILITIES = frozenset({"terms", "checks", "check_config", "custom_checks"})
 
 TRACKED_FILES = ["lint.py"]
 
@@ -43,26 +43,50 @@ def stats():
 
 
 def list_checks():
-    return _checks.list_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
+    return _checks.list_checks(lint.effective_checks_table(), paths.find_project_root(__file__), RULESET_ID)
 
 
 def set_enabled_checks(check_ids):
-    _checks.set_enabled_checks(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+    _checks.set_enabled_checks(lint.effective_checks_table(), paths.find_project_root(__file__),
                                 RULESET_ID, check_ids)
 
 
 def set_checks_enabled(states):
-    _checks.set_checks_enabled(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+    _checks.set_checks_enabled(lint.effective_checks_table(), paths.find_project_root(__file__),
                                 RULESET_ID, states)
 
 
 def list_check_config():
-    return _checks.list_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__), RULESET_ID)
+    return _checks.list_check_config(lint.effective_checks_table(), paths.find_project_root(__file__), RULESET_ID)
 
 
 def set_check_config(check_id, threshold=None, action=None):
-    _checks.set_check_config(lint.CHECKS_TABLE, paths.find_project_root(__file__),
+    _checks.set_check_config(lint.effective_checks_table(), paths.find_project_root(__file__),
                               RULESET_ID, check_id, threshold=threshold, action=action)
+
+
+def custom_check_units():
+    return sorted(u.value for u in lint.CUSTOM_CHECK_UNITS)
+
+
+def custom_check_ids():
+    return _custom_checks.custom_check_ids(paths.find_project_root(__file__), RULESET_ID)
+
+
+def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+    _custom_checks.add_custom_check(paths.find_project_root(__file__), RULESET_ID,
+                                     set(lint.CHECKS_TABLE), check_id, unit, catches, instead,
+                                     threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS)
+
+
+def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+    _custom_checks.update_custom_check(paths.find_project_root(__file__), RULESET_ID,
+                                        set(lint.CHECKS_TABLE), check_id, unit, catches, instead,
+                                        threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS)
+
+
+def remove_custom_check(check_id):
+    _custom_checks.remove_custom_check(paths.find_project_root(__file__), RULESET_ID, check_id)
 
 
 def _effective_lists():
