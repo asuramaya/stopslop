@@ -933,6 +933,68 @@ class CustomTermListsConfigTests(unittest.TestCase):
             PROJECT_ROOT, "codewatch", "nope", config_file="/nonexistent/stopslop.config.json"))
 
 
+class AddCustomTermListTests(unittest.TestCase):
+    """add_custom_term_list is the one shared validate-then-save path --
+    the webui, the CLI, and the MCP server all call this instead of each
+    re-deriving the same id-format/collision checks (see routes_vocabulary
+    .py's add_list route, which used to carry this logic itself)."""
+
+    def test_add_then_visible(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            spec = config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+            self.assertEqual(spec["label"], "jargon")
+            self.assertEqual(spec["polarity"], "deny")
+            saved = config.custom_term_lists(tmp, "codewatch", config_file=path)
+            self.assertIn("jargon", saved)
+
+    def test_label_defaults_to_the_id_but_is_overridable(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            spec = config.add_custom_term_list(tmp, "codewatch", "jargon", {},
+                                                label="Jargon", config_file=path)
+            self.assertEqual(spec["label"], "Jargon")
+
+    def test_refuses_a_malformed_id(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with self.assertRaises(ValueError):
+                config.add_custom_term_list(tmp, "codewatch", "Not-Valid", {}, config_file=path)
+
+    def test_refuses_a_built_in_list_id(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with self.assertRaises(ValueError):
+                config.add_custom_term_list(tmp, "codewatch", "generic_naming",
+                                             {"generic_naming": {}}, config_file=path)
+
+    def test_refuses_re_adding_an_existing_custom_list(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+            with self.assertRaises(ValueError):
+                config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+
+    def test_an_invalid_polarity_falls_back_to_deny(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            spec = config.add_custom_term_list(tmp, "codewatch", "jargon", {},
+                                                polarity="bogus", config_file=path)
+            self.assertEqual(spec["polarity"], "deny")
+
+
 class EffectiveTermListsTests(unittest.TestCase):
     def test_merges_custom_onto_base(self):
         import os

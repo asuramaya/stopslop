@@ -209,6 +209,24 @@ def list_packs():
     return {pack_id: pack_meta(pack_id) for pack_id in sorted(AVAILABLE_PACKS)}
 
 
+def parse_pack_terms_text(text):
+    """One term per line -- "word" or "word: a note". Blank lines and a
+    line starting with # (a comment, not a term) are skipped, so a pasted
+    or file-sourced word list with its own header/comments doesn't need
+    pre-cleaning before it becomes a pack. The one shared parser for this
+    convention -- the dashboard's own "Add a pack" textarea, the CLI's
+    `--terms-file`, and any MCP caller passing raw text all go through
+    this instead of each re-deriving the same line format."""
+    terms = {}
+    for line in (text or "").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        word, _, note = line.partition(":")
+        terms[word.strip().lower()] = {"note": note.strip()}
+    return terms
+
+
 def add_pack(pack_id, name, source, license, content_kind, terms):
     """Register a new CUSTOM pack -- writes a real file under
     _CUSTOM_PACKS_DIR in the same self-describing {_meta, terms} shape a

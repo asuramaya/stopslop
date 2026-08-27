@@ -486,6 +486,28 @@ def cmd_terms(args):
     ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
     _require_terms(ruleset)
 
+    if args.new_list is not None:
+        try:
+            spec = core_config.add_custom_term_list(
+                REPO_ROOT, ruleset.RULESET_ID, args.new_list,
+                getattr(ruleset, "TERM_LISTS", {}), label=args.label,
+                polarity=args.polarity or "deny", accepts_additions=not args.no_additions,
+                accepts_packs=args.accepts_packs or False)
+        except ValueError as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Declared {args.new_list!r} ({spec['polarity']}, "
+              f"label {spec['label']!r}) on {ruleset.RULESET_ID!r}.")
+
+    if args.remove_list is not None:
+        if core_config.delete_custom_term_list(REPO_ROOT, ruleset.RULESET_ID, args.remove_list):
+            print(f"Removed the {args.remove_list!r} declaration from {ruleset.RULESET_ID!r} "
+                  f"(any terms already in it stay on disk, reappearing if re-declared).")
+        else:
+            print(f"Not found: no custom list {args.remove_list!r} on {ruleset.RULESET_ID!r}.",
+                  file=sys.stderr)
+            return 1
+
     if args.add is not None:
         if not args.list:
             print(f"`--add` needs `--list LIST_ID` -- known: "
@@ -529,6 +551,33 @@ def cmd_packs(args):
     it applies (a path glob) and what it feeds (a term list) are both
     project decisions, made here, not baked into the pack."""
     from core import glossary_packs
+
+    if args.add_pack is not None:
+        text = ""
+        if args.terms_file:
+            try:
+                with open(args.terms_file) as f:
+                    text = f.read()
+            except OSError as exc:
+                print(f"Not saved: couldn't read {args.terms_file!r}: {exc}", file=sys.stderr)
+                return 1
+        try:
+            glossary_packs.add_pack(
+                args.add_pack, args.name or args.add_pack, args.source or "",
+                args.license or "", args.content_kind or "word",
+                glossary_packs.parse_pack_terms_text(text))
+        except ValueError as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Added pack {args.add_pack!r}.")
+
+    if args.remove_pack is not None:
+        try:
+            glossary_packs.remove_pack(args.remove_pack)
+        except (ValueError, glossary_packs.UnknownPackError) as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Removed pack {args.remove_pack!r}.")
 
     if args.enable is not None:
         if not args.glob or not args.list:
@@ -597,6 +646,44 @@ def cmd_checks(args):
             print(f"Not saved: {exc}", file=sys.stderr)
             return 1
         print(f"Enabled: {', '.join(sorted(args.enable)) or '(none)'}")
+
+    if args.add_check is not None or args.update_check is not None:
+        if "custom_checks" not in ruleset.CAPABILITIES:
+            print(f"'{ruleset.RULESET_ID}' ruleset has no support for custom checks.",
+                  file=sys.stderr)
+            return 1
+        check_id = args.add_check if args.add_check is not None else args.update_check
+        if not args.fn_body_file:
+            print("`--add-check`/`--update-check` needs `--fn-body-file PATH`.", file=sys.stderr)
+            return 1
+        try:
+            with open(args.fn_body_file) as f:
+                fn_body = f.read()
+        except OSError as exc:
+            print(f"Not saved: couldn't read {args.fn_body_file!r}: {exc}", file=sys.stderr)
+            return 1
+        verb = ruleset.add_custom_check if args.add_check is not None else ruleset.update_custom_check
+        try:
+            verb(check_id, args.unit or "sentence", args.catches or "", args.instead or "",
+                 args.threshold or 1, args.action or "warn", fn_body)
+        except Exception as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"{'Added' if args.add_check is not None else 'Updated'} check {check_id!r} "
+              f"on {ruleset.RULESET_ID!r} (units this ruleset allows: "
+              f"{', '.join(ruleset.custom_check_units())}).")
+
+    if args.remove_check is not None:
+        if "custom_checks" not in ruleset.CAPABILITIES:
+            print(f"'{ruleset.RULESET_ID}' ruleset has no support for custom checks.",
+                  file=sys.stderr)
+            return 1
+        if args.remove_check not in ruleset.custom_check_ids():
+            print(f"Not saved: {args.remove_check!r} is a built-in check, or was never "
+                  f"added -- only a custom check can be removed.", file=sys.stderr)
+            return 1
+        ruleset.remove_custom_check(args.remove_check)
+        print(f"Removed check {args.remove_check!r} from {ruleset.RULESET_ID!r}.")
 
     has_check_config = "check_config" in ruleset.CAPABILITIES
     if not has_check_config and (args.set_threshold or args.set_action or args.set_param):
@@ -687,10 +774,46 @@ def cmd_status(args):
 
 
 def cmd_list_rulesets(args):
+    from core import custom_rulesets as core_custom_rulesets
+
+    if args.add is not None:
+        try:
+            existing_ids = {m.RULESET_ID for m in rulesets.list_rulesets()}
+            core_custom_rulesets.scaffold_ruleset(REPO_ROOT, args.add, args.name or args.add,
+                                                    existing_ids)
+            rulesets.rescan_custom_rulesets()
+        except (ValueError, core_custom_rulesets.InvalidCustomRulesetError) as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        print(f"Added ruleset {args.add!r} -- empty until Checks/Vocabulary fill it in.")
+
+    if args.remove is not None:
+        if not rulesets.is_custom_ruleset(args.remove):
+            print(f"Not saved: {args.remove!r} is a built-in ruleset, or unknown "
+                  f"-- only a custom ruleset can be removed.", file=sys.stderr)
+            return 1
+        referencing = [r["glob"] for r in core_config.load_rules(REPO_ROOT)
+                       if args.remove in (r.get("ruleset"), r.get("embedded_prose"))]
+        if referencing:
+            print(f"Not saved: {args.remove!r} is still routed from "
+                  f"{', '.join(referencing)} -- repoint or delete those rules first.",
+                  file=sys.stderr)
+            return 1
+        rulesets.unregister_ruleset(args.remove)
+        core_custom_rulesets.remove_ruleset(REPO_ROOT, args.remove)
+        print(f"Removed ruleset {args.remove!r}.")
+
+    errors = rulesets.custom_ruleset_errors()
+    if errors:
+        print("Custom ruleset(s) that failed to load (every other ruleset is unaffected):")
+        for ruleset_id, message in sorted(errors.items()):
+            print(f"  {ruleset_id}: {message}")
+
     rules = core_config.load_rules(REPO_ROOT)
     for ruleset in rulesets.list_rulesets():
         globs = [r["glob"] for r in rules if r.get("ruleset") == ruleset.RULESET_ID]
-        print(f"{ruleset.RULESET_ID} -- {ruleset.RULESET_NAME} "
+        origin = "custom" if rulesets.is_custom_ruleset(ruleset.RULESET_ID) else "built-in"
+        print(f"{ruleset.RULESET_ID} -- {ruleset.RULESET_NAME} [{origin}] "
               f"(capabilities: {', '.join(sorted(ruleset.CAPABILITIES)) or 'none'})")
         print(f"  routed globs: {', '.join(globs) if globs else '(none in the current config)'}")
     return 0
@@ -783,6 +906,22 @@ def main():
     p_terms.add_argument("--force", metavar="REASON", nargs="?", const=True, default=None,
                           help="register even if the ruleset's own standard forbids the "
                                "word (ste100 requires a REASON; it goes in the note)")
+    p_terms.add_argument("--new-list", metavar="LIST_ID",
+                          help="declare a whole new term list on --ruleset (not just add a "
+                               "term to an existing one) -- starts unbound; a check has to "
+                               "declare it feeds the list before anything reads it")
+    p_terms.add_argument("--label", help="display label for --new-list (default: the id itself)")
+    p_terms.add_argument("--polarity", choices=("allow", "deny"), default=None,
+                          help="--new-list's polarity: 'deny' (default) flags a matching "
+                               "term, 'allow' exempts one")
+    p_terms.add_argument("--no-additions", action="store_true",
+                          help="--new-list refuses new project terms (still removable/curatable)")
+    p_terms.add_argument("--accepts-packs", action="store_true",
+                          help="--new-list can be fed by a vocabulary pack")
+    p_terms.add_argument("--remove-list", metavar="LIST_ID",
+                          help="remove a custom list's DECLARATION on --ruleset (its own "
+                               "terms stay on disk, reappearing if re-declared) -- refused "
+                               "for a built-in list, which has no declaration to remove")
     p_terms.set_defaults(func=cmd_terms)
 
     p_packs = sub.add_parser("packs",
@@ -796,6 +935,20 @@ def main():
     p_packs.add_argument("--enable", nargs="*", metavar="PACK_ID",
                           help="set exactly this list of packs on --glob; pass with no "
                                "ids to disable all of them there")
+    p_packs.add_argument("--add-pack", metavar="PACK_ID",
+                          help="register a new custom vocabulary pack -- content comes "
+                               "from --terms-file, one term per line ('word' or "
+                               "'word: a note'); a pack has no opinion about which "
+                               "ruleset/list reads it, see `--enable` for that")
+    p_packs.add_argument("--name", help="--add-pack's display name (default: the id itself)")
+    p_packs.add_argument("--source", default="", help="--add-pack's source, e.g. a URL")
+    p_packs.add_argument("--license", default="", help="--add-pack's license")
+    p_packs.add_argument("--content-kind", choices=("word", "phrase", "pattern"), default=None,
+                          help="--add-pack's content kind (default: word)")
+    p_packs.add_argument("--terms-file", metavar="PATH",
+                          help="file to read --add-pack's terms from, one per line")
+    p_packs.add_argument("--remove-pack", metavar="PACK_ID",
+                          help="remove a custom pack -- refused for a built-in one")
     p_packs.set_defaults(func=cmd_packs)
 
     p_pre = sub.add_parser("precommit",
@@ -817,6 +970,32 @@ def main():
     p_checks.add_argument("--set-param", nargs="+", metavar="CHECK_ID.PARAM=N",
                            help="a check's own extra number, e.g. "
                                 "length.procedure_word_limit=20 (ste100)")
+    p_checks.add_argument("--add-check", metavar="CHECK_ID",
+                           help="add a whole new custom check -- a real Python matcher, "
+                                "not a word list; needs --unit/--catches/--instead/"
+                                "--fn-body-file")
+    p_checks.add_argument("--update-check", metavar="CHECK_ID",
+                           help="replace an EXISTING custom check's definition -- same "
+                                "fields as --add-check")
+    p_checks.add_argument("--unit", choices=("sentence", "document", "line"), default=None,
+                           help="--add-check/--update-check's granularity: the check's fn "
+                                "receives one sentence, the whole document, or one line "
+                                "(only codewatch allows 'line' -- see custom_check_units "
+                                "in the checks listing below)")
+    p_checks.add_argument("--catches", help="--add-check/--update-check: what it catches, in plain words")
+    p_checks.add_argument("--instead", help="--add-check/--update-check: what to do instead")
+    p_checks.add_argument("--threshold", type=int, default=None,
+                           help="--add-check/--update-check's default threshold (default: 1)")
+    p_checks.add_argument("--action", choices=("warn", "block"), default=None,
+                           help="--add-check/--update-check's default action (default: warn)")
+    p_checks.add_argument("--fn-body-file", metavar="PATH",
+                           help="file holding --add-check/--update-check's matcher body -- "
+                                "real Python, indented as the body of a function taking "
+                                "the sentence/document/line as its one argument, returning "
+                                "a list of hit dicts (each may carry \"word\", \"phrase\", "
+                                "or \"note\")")
+    p_checks.add_argument("--remove-check", metavar="CHECK_ID",
+                           help="remove a custom check -- refused for a built-in one")
     p_checks.set_defaults(func=cmd_checks)
 
 
@@ -829,6 +1008,14 @@ def main():
     p_status.set_defaults(func=cmd_status)
 
     p_list_rulesets = sub.add_parser("list-rulesets", help="show every registered ruleset and what routes to it")
+    p_list_rulesets.add_argument("--add", metavar="RULESET_ID",
+                                  help="scaffold a whole new ruleset -- empty until this "
+                                       "ruleset's own Checks/Vocabulary commands fill it in; "
+                                       "picked up in this same process, no restart")
+    p_list_rulesets.add_argument("--name", help="--add's display name (default: the id itself)")
+    p_list_rulesets.add_argument("--remove", metavar="RULESET_ID",
+                                  help="remove a custom ruleset -- refused for a built-in one, "
+                                       "or one any routing rule still routes to")
     p_list_rulesets.set_defaults(func=cmd_list_rulesets)
 
     p_dashboard = sub.add_parser("dashboard", help="open the live web dashboard (needs the venv)")

@@ -34,6 +34,7 @@ risking an import cycle.
 import fnmatch
 import json
 import os
+import re
 
 # Free text (CLI stdin, an MCP lint_text call, the dashboard playground) has
 # no real file to route on, so every entry point treats it as if written to
@@ -407,6 +408,43 @@ def save_custom_term_list(project_root, ruleset_id, list_id, spec, config_file=N
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
         f.write("\n")
+
+
+_CUSTOM_LIST_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+
+
+def add_custom_term_list(project_root, ruleset_id, list_id, built_in_lists, label=None,
+                          polarity="deny", accepts_additions=True, accepts_packs=False,
+                          content_kind="word", config_file=None):
+    """Validate-then-save a new custom term list declaration -- the one
+    place this validation lives, called by the webui, the CLI, and the
+    MCP server alike, so a bad id/collision is refused identically no
+    matter which surface asked. `built_in_lists` is the target ruleset's
+    own module.TERM_LISTS (the caller's own picture, not fetched here, to
+    keep this module dependency-free of the `rulesets` package -- same
+    reason save_rules takes a `registry` parameter instead of importing
+    one). Refuses an id that isn't lowercase/snake_case, one colliding
+    with a built-in list, or one already declared as a custom list on
+    this ruleset (use save_custom_term_list directly to replace one)."""
+    list_id = list_id.strip().lower()
+    if not _CUSTOM_LIST_ID_RE.match(list_id):
+        raise ValueError(
+            f"list id {list_id!r} must start with a letter, lowercase "
+            f"letters/digits/underscores only (e.g. 'internal_jargon')")
+    if list_id in built_in_lists:
+        raise ValueError(f"{list_id!r} is a built-in list on {ruleset_id!r} -- choose a different id")
+    if list_id in custom_term_lists(project_root, ruleset_id, config_file=config_file):
+        raise ValueError(f"a custom list {list_id!r} already exists on {ruleset_id!r} "
+                          f"-- remove it first to replace it")
+    spec = {
+        "label": (label or list_id).strip(),
+        "polarity": polarity if polarity in ("allow", "deny") else "deny",
+        "accepts_additions": bool(accepts_additions),
+        "accepts_packs": bool(accepts_packs),
+        "content_kind": (content_kind or "word").strip(),
+    }
+    save_custom_term_list(project_root, ruleset_id, list_id, spec, config_file=config_file)
+    return spec
 
 
 def delete_custom_term_list(project_root, ruleset_id, list_id, config_file=None):

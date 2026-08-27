@@ -3,8 +3,6 @@ list, browsable with add/remove/restore. Mirrors dashboard.py's own
 vocabulary_page()/_word_matches()/_term_list_block() split -- search is
 the primary verb, the per-list browser below it covers curation.
 """
-import re
-
 from fastapi import APIRouter, Request
 
 import rulesets
@@ -13,26 +11,6 @@ from core import config as core_config, glossary_packs, terms as core_terms
 from webui.deps import REPO_ROOT, fragment_response, render, templates
 
 router = APIRouter()
-
-# Built-in list ids use lowercase letters/digits/underscores throughout
-# this project (project_terms, generic_naming, ...) -- a custom one
-# follows the same convention rather than introducing a second style.
-_LIST_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
-
-
-def _parse_pack_terms(text):
-    """One term per line -- "word" or "word: a note". Blank lines and
-    lines starting with # (a comment, not a term) are skipped, so a
-    pasted word list with its own header/comments doesn't need
-    pre-cleaning before it becomes a pack."""
-    terms = {}
-    for line in (text or "").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        word, _, note = line.partition(":")
-        terms[word.strip().lower()] = {"note": note.strip()}
-    return terms
 
 
 def _pack_rows():
@@ -124,7 +102,7 @@ async def add_pack(request: Request):
             source=(form.get("source") or "").strip(),
             license=(form.get("license") or "").strip(),
             content_kind=(form.get("content_kind") or "word").strip(),
-            terms=_parse_pack_terms(form.get("terms")),
+            terms=glossary_packs.parse_pack_terms_text(form.get("terms")),
         )
     except ValueError as e:
         error = str(e)
@@ -154,23 +132,14 @@ async def add_list(request: Request):
     error = None
     try:
         module = rulesets.get_ruleset(ruleset_id)
-        if not _LIST_ID_RE.match(list_id):
-            raise ValueError(
-                f"list id {list_id!r} must start with a letter, lowercase "
-                f"letters/digits/underscores only (e.g. 'internal_jargon')")
-        if list_id in getattr(module, "TERM_LISTS", {}):
-            raise ValueError(f"{list_id!r} is a built-in list on {ruleset_id!r} -- choose a different id")
-        if list_id in core_config.custom_term_lists(REPO_ROOT, ruleset_id):
-            raise ValueError(f"a custom list {list_id!r} already exists on {ruleset_id!r} "
-                              f"-- remove it first to replace it")
-        spec = {
-            "label": (form.get("label") or list_id).strip(),
-            "polarity": form.get("polarity") if form.get("polarity") in ("allow", "deny") else "deny",
-            "accepts_additions": form.get("accepts_additions") == "on",
-            "accepts_packs": form.get("accepts_packs") == "on",
-            "content_kind": (form.get("content_kind") or "word").strip(),
-        }
-        core_config.save_custom_term_list(REPO_ROOT, ruleset_id, list_id, spec)
+        core_config.add_custom_term_list(
+            REPO_ROOT, ruleset_id, list_id, getattr(module, "TERM_LISTS", {}),
+            label=form.get("label"),
+            polarity=form.get("polarity") if form.get("polarity") in ("allow", "deny") else "deny",
+            accepts_additions=form.get("accepts_additions") == "on",
+            accepts_packs=form.get("accepts_packs") == "on",
+            content_kind=form.get("content_kind") or "word",
+        )
     except rulesets.UnknownRulesetError as e:
         error = str(e)
         list_id = None

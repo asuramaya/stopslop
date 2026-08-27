@@ -313,7 +313,9 @@ class CmdScanTests(unittest.TestCase):
 
 def _terms_args(**overrides):
     defaults = dict(ruleset="slopwatch", list=None, add=None, note=None,
-                     remove=None, force=None)
+                     remove=None, force=None, new_list=None, label=None,
+                     polarity=None, no_additions=False, accepts_packs=False,
+                     remove_list=None)
     defaults.update(overrides)
     return SimpleNamespace(**defaults)
 
@@ -327,12 +329,41 @@ class CmdTermsTests(unittest.TestCase):
         open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
         self._orig_find_root = _slopwatch.paths.find_project_root
         _slopwatch.paths.find_project_root = lambda _file: self._tmp.name
+        self._orig_repo_root = stopslop.REPO_ROOT
+        stopslop.REPO_ROOT = self._tmp.name
         _core_terms._migration_checked.clear()
 
     def tearDown(self):
         _slopwatch.paths.find_project_root = self._orig_find_root
+        stopslop.REPO_ROOT = self._orig_repo_root
         _core_terms._migration_checked.clear()
         self._tmp.cleanup()
+
+    def test_new_list_then_visible_and_removable(self):
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_terms(_terms_args(new_list="jargon", label="Jargon"))
+        self.assertEqual(code, 0)
+        self.assertIn("Declared 'jargon'", out.getvalue())
+        with redirect_stdout(io.StringIO()) as out:
+            stopslop.cmd_terms(_terms_args(list="jargon"))
+        self.assertIn("jargon", out.getvalue())
+
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_terms(_terms_args(remove_list="jargon"))
+        self.assertEqual(code, 0)
+        self.assertIn("Removed", out.getvalue())
+
+    def test_new_list_refuses_a_malformed_id(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_terms(_terms_args(new_list="Not-Valid"))
+        self.assertEqual(code, 1)
+        self.assertIn("Not saved", err.getvalue())
+
+    def test_remove_list_of_unknown_list_errors_cleanly(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_terms(_terms_args(remove_list="__never_declared__"))
+        self.assertEqual(code, 1)
+        self.assertIn("Not found", err.getvalue())
 
     def test_no_args_lists_every_term_list(self):
         with redirect_stdout(io.StringIO()) as out:
@@ -394,7 +425,10 @@ class CmdTermsTests(unittest.TestCase):
 
 def _checks_args(**overrides):
     defaults = dict(ruleset="slopwatch", enable=None, set_threshold=None,
-                     set_action=None, set_param=None)
+                     set_action=None, set_param=None, add_check=None,
+                     update_check=None, remove_check=None, unit=None,
+                     catches=None, instead=None, threshold=None, action=None,
+                     fn_body_file=None)
     defaults.update(overrides)
     return SimpleNamespace(**defaults)
 
@@ -408,10 +442,65 @@ class CmdChecksTests(unittest.TestCase):
         open(os.path.join(self._tmp.name, "stopslop.py"), "w").close()
         self._orig_find_root = _slopwatch.paths.find_project_root
         _slopwatch.paths.find_project_root = lambda _file: self._tmp.name
+        self._orig_repo_root = stopslop.REPO_ROOT
+        stopslop.REPO_ROOT = self._tmp.name
 
     def tearDown(self):
         _slopwatch.paths.find_project_root = self._orig_find_root
+        stopslop.REPO_ROOT = self._orig_repo_root
         self._tmp.cleanup()
+
+    def _fn_body_file(self, body):
+        path = os.path.join(self._tmp.name, "fn_body.py")
+        with open(path, "w") as f:
+            f.write(body)
+        return path
+
+    def test_add_check_then_fires_and_is_removable(self):
+        fn_path = self._fn_body_file(
+            'return [{"phrase": "TODO"}] if "TODO" in sentence else []')
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(
+                add_check="cli_probe", unit="sentence", catches="x", instead="y",
+                fn_body_file=fn_path))
+        self.assertEqual(code, 0)
+        self.assertIn("Added check 'cli_probe'", out.getvalue())
+
+        result = _slopwatch.lint_and_gate("There is a TODO here.")
+        self.assertIn("cli_probe", [f["kind"] for f in result["semantic_flags"]])
+
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(remove_check="cli_probe"))
+        self.assertEqual(code, 0)
+        self.assertIn("Removed check 'cli_probe'", out.getvalue())
+        result = _slopwatch.lint_and_gate("There is a TODO here.")
+        self.assertNotIn("cli_probe", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_add_check_without_fn_body_file_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(add_check="cli_probe", unit="sentence"))
+        self.assertEqual(code, 1)
+        self.assertIn("--fn-body-file", err.getvalue())
+
+    def test_remove_check_refuses_a_built_in(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(remove_check="stock_adverb"))
+        self.assertEqual(code, 1)
+        self.assertIn("Not saved", err.getvalue())
+
+    def test_update_check_replaces_the_matcher(self):
+        fn_path = self._fn_body_file('return []')
+        stopslop.cmd_checks(_checks_args(add_check="cli_probe", unit="sentence",
+                                          fn_body_file=fn_path))
+        fn_path2 = self._fn_body_file(
+            'return [{"phrase": "TODO"}] if "TODO" in sentence else []')
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(update_check="cli_probe", unit="sentence",
+                                                      fn_body_file=fn_path2))
+        self.assertEqual(code, 0)
+        self.assertIn("Updated check 'cli_probe'", out.getvalue())
+        result = _slopwatch.lint_and_gate("There is a TODO here.")
+        self.assertIn("cli_probe", [f["kind"] for f in result["semantic_flags"]])
 
     def test_no_args_lists_every_check(self):
         with redirect_stdout(io.StringIO()) as out:
@@ -503,12 +592,68 @@ class CmdChecksTests(unittest.TestCase):
         self.assertIn("unknown setting", err.getvalue())
 
 
+def _packs_args(**overrides):
+    defaults = dict(glob=None, list=None, enable=None, add_pack=None, name=None,
+                     source=None, license=None, content_kind=None, terms_file=None,
+                     remove_pack=None)
+    defaults.update(overrides)
+    return SimpleNamespace(**defaults)
+
+
+class CmdPacksAddRemoveTests(unittest.TestCase):
+    """--add-pack/--remove-pack, isolated the same way
+    core/test_glossary_packs_custom.py's own _TempCustomPacksDir is --
+    glossary_packs._CUSTOM_PACKS_DIR is a module-level constant computed
+    at import time, not parameterized by REPO_ROOT, so this is the
+    correct seam rather than patching stopslop.REPO_ROOT (which would do
+    nothing for this particular write)."""
+
+    def setUp(self):
+        from core import glossary_packs
+        self._glossary_packs = glossary_packs
+        self._tmp = tempfile.TemporaryDirectory()
+        self._orig_dir = glossary_packs._CUSTOM_PACKS_DIR
+        glossary_packs._CUSTOM_PACKS_DIR = self._tmp.name
+
+    def tearDown(self):
+        self._glossary_packs._CUSTOM_PACKS_DIR = self._orig_dir
+        self._tmp.cleanup()
+
+    def _terms_file(self, text):
+        path = os.path.join(self._tmp.name, "terms.txt")
+        with open(path, "w") as f:
+            f.write(text)
+        return path
+
+    def test_add_pack_then_visible_and_removable(self):
+        terms_path = self._terms_file("widget: a small mechanism\ngizmo\n")
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_packs(_packs_args(
+                add_pack="cli-probe", name="CLI Probe", source="https://example.com",
+                license="MIT", terms_file=terms_path))
+        self.assertEqual(code, 0)
+        self.assertIn("Added pack 'cli-probe'", out.getvalue())
+        self.assertIn("cli-probe", self._glossary_packs.list_packs())
+
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_packs(_packs_args(remove_pack="cli-probe"))
+        self.assertEqual(code, 0)
+        self.assertIn("Removed pack 'cli-probe'", out.getvalue())
+        self.assertNotIn("cli-probe", self._glossary_packs.list_packs())
+
+    def test_remove_pack_refuses_a_built_in(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_packs(_packs_args(remove_pack="mdn-glossary"))
+        self.assertEqual(code, 1)
+        self.assertIn("built-in", err.getvalue())
+
+
 class CmdPacksTests(unittest.TestCase):
     """Packs attach to a path glob, so the command reports per rule."""
 
     def test_listing_names_each_pack_without_naming_a_consumer(self):
         with redirect_stdout(io.StringIO()) as out:
-            code = stopslop.cmd_packs(SimpleNamespace(glob=None, list=None, enable=None))
+            code = stopslop.cmd_packs(_packs_args())
         self.assertEqual(code, 0)
         text = out.getvalue()
         self.assertIn("nist-security", text)
@@ -516,8 +661,7 @@ class CmdPacksTests(unittest.TestCase):
 
     def test_enable_without_a_glob_is_rejected(self):
         with redirect_stderr(io.StringIO()) as err:
-            code = stopslop.cmd_packs(SimpleNamespace(
-                glob=None, list="project_terms", enable=["nist-security"]))
+            code = stopslop.cmd_packs(_packs_args(list="project_terms", enable=["nist-security"]))
         self.assertEqual(code, 1)
         self.assertIn("--glob", err.getvalue())
 
@@ -525,10 +669,58 @@ class CmdPacksTests(unittest.TestCase):
         # A pack has no opinion about which list it feeds, so the command
         # cannot infer one.
         with redirect_stderr(io.StringIO()) as err:
-            code = stopslop.cmd_packs(SimpleNamespace(
-                glob="*.md", list=None, enable=["nist-security"]))
+            code = stopslop.cmd_packs(_packs_args(glob="*.md", enable=["nist-security"]))
         self.assertEqual(code, 1)
         self.assertIn("--list", err.getvalue())
+
+
+class CmdListRulesetsAddRemoveTests(unittest.TestCase):
+    """--add/--remove scaffold a whole ruleset package and register it
+    LIVE in the process-global rulesets._REGISTRY -- there is no isolation
+    seam around that registry (see rulesets/test_custom_rulesets_registry
+    .py's own module docstring for why), so this touches the real repo's
+    .claude/stopslop/custom_rulesets/ like those tests do, and cleans up
+    the same way: always, in tearDown."""
+
+    RULESET_ID = "cli_test_scratch_ruleset"
+
+    def tearDown(self):
+        from core import custom_rulesets as core_custom_rulesets
+        if rulesets.is_custom_ruleset(self.RULESET_ID):
+            rulesets.unregister_ruleset(self.RULESET_ID)
+        core_custom_rulesets.remove_ruleset(stopslop.REPO_ROOT, self.RULESET_ID)
+
+    def test_add_then_visible_and_removable(self):
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_list_rulesets(SimpleNamespace(
+                add=self.RULESET_ID, name="Scratch", remove=None))
+        self.assertEqual(code, 0)
+        self.assertIn(f"Added ruleset {self.RULESET_ID!r}", out.getvalue())
+        self.assertIn(self.RULESET_ID, out.getvalue())
+        self.assertIn("[custom]", out.getvalue())
+
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_list_rulesets(SimpleNamespace(
+                add=None, name=None, remove=self.RULESET_ID))
+        self.assertEqual(code, 0)
+        confirmation, _, listing = out.getvalue().partition("\n")
+        self.assertIn(f"Removed ruleset {self.RULESET_ID!r}", confirmation)
+        self.assertNotIn(self.RULESET_ID, listing)
+
+    def test_remove_refuses_a_built_in(self):
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_list_rulesets(SimpleNamespace(
+                add=None, name=None, remove="codewatch"))
+        self.assertEqual(code, 1)
+        self.assertIn("built-in", err.getvalue())
+
+    def test_add_refuses_a_duplicate_id(self):
+        stopslop.cmd_list_rulesets(SimpleNamespace(add=self.RULESET_ID, name=None, remove=None))
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_list_rulesets(SimpleNamespace(
+                add=self.RULESET_ID, name=None, remove=None))
+        self.assertEqual(code, 1)
+        self.assertIn("already exists", err.getvalue())
 
 
 class VersionTests(unittest.TestCase):
