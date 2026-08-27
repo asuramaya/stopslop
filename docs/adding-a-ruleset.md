@@ -348,6 +348,22 @@ This is the one place in the whole custom-content system with that
 extra step. Packs, term lists, and checks are all re-read fresh on
 every access, never cached. Nothing else here needs a "reload" at all.
 
+A malformed CUSTOM ruleset never crashes this package's own import. A
+malformed BUILT-IN one still does, on purpose (see REQUIRED_ATTRS
+above). That is a developer's own bug. Code review catches it long
+before any real process starts.
+
+A project's own file can go wrong at RUNTIME instead: a hand-edit typo,
+or a killed process mid-scaffold. The hook, the CLI, the MCP server, and
+the dashboard all import this package. One broken custom ruleset must
+never take every other one down too.
+
+`rulesets.custom_ruleset_errors()` names any that failed to load on the
+most recent scan. Every other ruleset, built-in or custom, still works.
+The dashboard's own Rulesets section shows the failure directly. Fix the
+file, or remove it, and the next scan picks it up again -- no id here
+stays stuck broken.
+
 ## Routing files to it
 
 Nothing routes to a new ruleset until `stopslop.config.json` names it. Add

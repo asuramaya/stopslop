@@ -103,6 +103,10 @@ _REGISTRY = {}
 # built-in subpackage of this package -- the only thing unregister_ruleset()
 # below is ever allowed to remove.
 _CUSTOM_RULESET_IDS = set()
+# {ruleset_id: error message} for a custom ruleset that failed to load on
+# the most recent scan -- see _discover_custom_rulesets()'s own docstring
+# for why a broken one is quarantined here instead of raised.
+_CUSTOM_RULESET_ERRORS = {}
 
 
 def _register(module):
@@ -136,6 +140,17 @@ def list_rulesets():
     return [_REGISTRY[k] for k in sorted(_REGISTRY)]
 
 
+def custom_ruleset_errors():
+    """{ruleset_id: error message} for every custom ruleset that failed
+    to load on the most recent scan -- surfaced by the dashboard so a
+    broken file is visible, not silently dropped. Never names a built-in;
+    those still fail loudly at import time by design (see this module's
+    own docstring and _discover_custom_rulesets()'s for why user-
+    generated runtime content gets a different failure posture than
+    developer-authored, code-reviewed source)."""
+    return dict(_CUSTOM_RULESET_ERRORS)
+
+
 def is_custom_ruleset(ruleset_id):
     """Whether `ruleset_id` came from .claude/stopslop/custom_rulesets/
     rather than a built-in subpackage -- the public read of
@@ -166,23 +181,47 @@ def rescan_custom_rulesets():
     and only for an id not already registered (scaffold_ruleset() itself
     already refused any collision at write time -- this is belt-and-
     suspenders, the same posture core.custom_checks.effective_checks_table
-    takes for its own merge)."""
+    takes for its own merge). Never raises -- see _discover_custom_rulesets()."""
     _discover_custom_rulesets()
 
 
 # --- Discovery ----------------------------------------------------------
 
 def _discover_custom_rulesets():
+    """Scan .claude/stopslop/custom_rulesets/ and register any id not
+    already known. A BUILT-IN's own load failure is meant to crash this
+    package's import -- REQUIRED_ATTRS/CAPABILITY_ATTRS violations there
+    are a developer's own bug, caught in code review/CI long before any
+    real process starts. A CUSTOM ruleset is different: it is content a
+    project generates and edits AT RUNTIME (scaffold_ruleset validates
+    before returning, but a process kill mid-write, or simply following
+    this project's own "safe to hand-edit" advice into a typo, can still
+    leave a broken file on disk) -- and this package is imported by the
+    live gate hook, the CLI, the MCP server, and the dashboard alike. One
+    broken custom ruleset must never take all of those down at once, the
+    way it verifiably did before this function caught per-id failures
+    here: every OTHER ruleset (built-in or custom) keeps working, and the
+    broken one's own error is quarantined in _CUSTOM_RULESET_ERRORS
+    (custom_ruleset_errors()) for the dashboard to actually show, rather
+    than disappearing into a process that never finished starting.
+    Self-healing: a fixed file is retried on the very next scan, since a
+    failed id is never added to _REGISTRY."""
     try:
         project_root = _paths.find_project_root(__file__)
     except Exception:
         return
+    errors = {}
     for ruleset_id in _custom_rulesets.custom_ruleset_ids(project_root):
         if ruleset_id in _REGISTRY:
             continue
-        module = _custom_rulesets.load_ruleset_module(project_root, ruleset_id)
-        _register(module)
-        _CUSTOM_RULESET_IDS.add(ruleset_id)
+        try:
+            module = _custom_rulesets.load_ruleset_module(project_root, ruleset_id)
+            _register(module)
+            _CUSTOM_RULESET_IDS.add(ruleset_id)
+        except Exception as e:
+            errors[ruleset_id] = str(e)
+    _CUSTOM_RULESET_ERRORS.clear()
+    _CUSTOM_RULESET_ERRORS.update(errors)
 
 
 def _discover_and_register():

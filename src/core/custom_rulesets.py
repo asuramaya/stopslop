@@ -252,13 +252,22 @@ def render_source(ruleset_id, name):
 
 def scaffold_ruleset(project_root, ruleset_id, name, existing_ids):
     """Write a new custom ruleset package. Refuses an id that isn't
-    lowercase/snake_case, or one colliding with any currently-known
-    ruleset (built-in or already-scaffolded custom -- `existing_ids` is
-    the caller's own full picture, not just this module's). Validates by
-    importing the freshly-written file before returning -- a template
-    bug (there should never be one; this is regression insurance, not a
-    project-author safety net) removes the whole directory rather than
-    leaving a broken package registration would stumble over later."""
+    lowercase/snake_case, one colliding with any currently-known ruleset
+    (built-in or already-scaffolded custom -- `existing_ids` is the
+    caller's own full picture, not just this module's), or one whose
+    DIRECTORY already exists on disk even though it ISN'T in
+    `existing_ids` -- a leftover from an interrupted previous scaffold,
+    or two concurrent submissions racing each other. That last case
+    raises ValueError too, the same as the ordinary collision above,
+    rather than a raw FileExistsError from os.makedirs escaping as a
+    500 -- every other refusal in this module is already a clean,
+    caller-facing exception; this one was the exception to that, found
+    live via the dashboard's own error-banner pattern never firing for
+    it. Validates by importing the freshly-written file before
+    returning -- a template bug (there should never be one; this is
+    regression insurance, not a project-author safety net) removes the
+    whole directory rather than leaving a broken package registration
+    would stumble over later."""
     ruleset_id = ruleset_id.strip()
     if not _RULESET_ID_RE.match(ruleset_id):
         raise InvalidCustomRulesetError(
@@ -268,7 +277,11 @@ def scaffold_ruleset(project_root, ruleset_id, name, existing_ids):
         raise ValueError(f"a ruleset {ruleset_id!r} already exists -- choose a different id")
     name = name.strip() or ruleset_id
     ruleset_dir = _ruleset_dir(project_root, ruleset_id)
-    os.makedirs(ruleset_dir, exist_ok=False)
+    try:
+        os.makedirs(ruleset_dir, exist_ok=False)
+    except FileExistsError:
+        raise ValueError(
+            f"a ruleset {ruleset_id!r} already exists -- choose a different id") from None
     try:
         with open(_init_path(project_root, ruleset_id), "w") as f:
             f.write(render_source(ruleset_id, name))

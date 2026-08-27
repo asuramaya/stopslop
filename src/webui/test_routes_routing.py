@@ -198,6 +198,42 @@ class RulesetRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("error-banner", response.text)
 
+    def test_a_pre_existing_directory_returns_a_clean_error_not_a_500(self):
+        # Regression: os.makedirs(exist_ok=False) inside scaffold_ruleset
+        # used to let a raw FileExistsError escape as a plain 500 with no
+        # error banner, when a directory existed on disk but the id
+        # wasn't in existing_ids (a leftover from an interrupted scaffold,
+        # or two concurrent submissions).
+        ghost_dir = os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_rulesets", self.RULESET_ID)
+        os.makedirs(ghost_dir)
+        try:
+            response = client.post("/routing/rulesets/add",
+                                    data={"ruleset_id": self.RULESET_ID, "name": "Ghost"})
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("error-banner", response.text)
+            self.assertIn("already exists", response.text)
+        finally:
+            import shutil
+            shutil.rmtree(ghost_dir, ignore_errors=True)
+
+    def test_a_broken_custom_ruleset_is_surfaced_without_blocking_the_page(self):
+        broken_dir = os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_rulesets",
+                                   "webui_test_broken_for_routing_page")
+        os.makedirs(broken_dir)
+        with open(os.path.join(broken_dir, "__init__.py"), "w") as f:
+            f.write('RULESET_ID = "webui_test_broken_for_routing_page"\n')
+        try:
+            import rulesets
+            rulesets.rescan_custom_rulesets()
+            response = client.get("/routing")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("webui_test_broken_for_routing_page", response.text)
+            self.assertIn("failed to load", response.text)
+        finally:
+            import shutil
+            shutil.rmtree(broken_dir, ignore_errors=True)
+            rulesets._CUSTOM_RULESET_ERRORS.pop("webui_test_broken_for_routing_page", None)
+
 
 if __name__ == "__main__":
     unittest.main()

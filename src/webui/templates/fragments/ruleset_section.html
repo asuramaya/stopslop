@@ -1,9 +1,22 @@
-{# Needs `ruleset_rows` ({"id", "name", "is_custom"}) in context. Adding
-   or removing a ruleset also changes the Routing table's own ruleset
-   picker -- see routes_routing.py's add/remove routes, which swap this
-   fragment as the main response AND the routing table out-of-band. #}
+{# Needs `ruleset_rows` ({"id", "name", "is_custom"}) and `ruleset_errors`
+   ({ruleset_id: message}) in context. Adding or removing a ruleset also
+   changes the Routing table's own ruleset picker -- see
+   routes_routing.py's add/remove routes, which swap this fragment as the
+   main response AND the routing table out-of-band. #}
 <div id="ruleset-section">
 <h3>Rulesets</h3>
+{% if ruleset_errors %}
+<div class="callout deny" role="alert">
+  <strong>{{ ruleset_errors | length }} custom ruleset(s) failed to load
+    and {{ 'is' if ruleset_errors | length == 1 else 'are' }} sitting out
+    -- every other ruleset is unaffected.</strong>
+  <ul style="margin:0.4rem 0 0">
+    {% for rid, message in ruleset_errors.items() %}
+    <li><code>{{ rid }}</code>: {{ message }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
 <table>
   <thead><tr><th>id</th><th>name</th><th></th></tr></thead>
   <tbody>

@@ -69,6 +69,18 @@ class ScaffoldRulesetTests(_TempProjectRoot):
             cr.scaffold_ruleset(self.root, "ste100", "x", existing_ids={"ste100"})
         self.assertEqual(cr.custom_ruleset_ids(self.root), [])
 
+    def test_a_pre_existing_directory_not_in_existing_ids_raises_a_clean_value_error(self):
+        # Regression: a leftover directory from an interrupted previous
+        # scaffold (or two concurrent submissions racing each other) used
+        # to raise a raw FileExistsError from os.makedirs -- neither
+        # ValueError nor InvalidCustomRulesetError, so it escaped every
+        # caller's except clause. Confirmed live via the webui before this
+        # was fixed at the source: a plain 500 with no error banner.
+        os.makedirs(os.path.join(self.root, ".claude", "stopslop",
+                                  "custom_rulesets", "ghost"))
+        with self.assertRaises(ValueError):
+            cr.scaffold_ruleset(self.root, "ghost", "Ghost", existing_ids=set())
+
     def test_refuses_re_scaffolding_an_existing_custom_ruleset(self):
         cr.scaffold_ruleset(self.root, "demo_ruleset", "Demo", existing_ids=set())
         with self.assertRaises(ValueError):

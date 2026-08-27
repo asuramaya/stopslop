@@ -77,7 +77,7 @@ def _ruleset_rows():
 def routing_page(request: Request):
     return render(request, "routing.html", "routing", {
         "rows": _rows(), "ruleset_ids": _ruleset_ids(), "focus": None,
-        "ruleset_rows": _ruleset_rows(),
+        "ruleset_rows": _ruleset_rows(), "ruleset_errors": rulesets.custom_ruleset_errors(),
     })
 
 
@@ -232,7 +232,8 @@ def _ruleset_section_response(request, error=None):
     it would otherwise go stale until the next full page load."""
     from fastapi.responses import HTMLResponse
     body = templates.get_template("fragments/ruleset_section.html").render(
-        {"ruleset_rows": _ruleset_rows()}, request=request)
+        {"ruleset_rows": _ruleset_rows(), "ruleset_errors": rulesets.custom_ruleset_errors()},
+        request=request)
     body += templates.get_template("fragments/routing_table.html").render(
         {"rows": _rows(), "ruleset_ids": _ruleset_ids(), "oob": True}, request=request)
     return HTMLResponse(body + error_banner(error))
@@ -247,7 +248,13 @@ async def add_ruleset(request: Request):
         core_custom_rulesets.scaffold_ruleset(
             REPO_ROOT, form.get("ruleset_id", ""), form.get("name", ""), existing_ids)
         rulesets.rescan_custom_rulesets()
-    except (ValueError, core_custom_rulesets.InvalidCustomRulesetError) as e:
+    except Exception as e:
+        # Broad on purpose, matching routes_checks.py's own add_custom_check
+        # -- scaffold_ruleset today only ever raises ValueError/
+        # InvalidCustomRulesetError, and rescan_custom_rulesets() never
+        # raises at all (see its own docstring), but a narrow catch here
+        # is exactly what let a bare FileExistsError escape as a raw 500
+        # before it was fixed at the source.
         error = str(e)
     return _ruleset_section_response(request, error=error)
 
