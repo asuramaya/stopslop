@@ -98,6 +98,29 @@ class AddCustomCheckTests(_TempProjectRoot):
         leftover = os.listdir(checks_dir) if os.path.isdir(checks_dir) else []
         self.assertEqual(leftover, [])
 
+    def test_a_hand_edited_mechanical_classify_is_refused_on_load(self):
+        # Regression: apply_mechanical_fixes is a fixed, hand-written
+        # function per ruleset, not data-driven off CHECKS_TABLE -- it has
+        # no way to apply a custom check's own fix. A custom check
+        # classified "mechanical" would land in mechanical_violations and
+        # the live gate would report "auto-fixed" and ALLOW the write
+        # while the actual violation goes through untouched. The template
+        # never generates classify= at all (Check.classify defaults to
+        # "semantic"), so this can only happen via a hand-edit -- exactly
+        # what this project's own docs call these files "safe" for.
+        cc.add_custom_check(self.root, "demo", self.built_in_ids, "no_todo",
+                             "sentence", "x", "y", 1, "warn", "return []")
+        path = cc._check_path(self.root, "demo", "no_todo")
+        with open(path) as f:
+            src = f.read()
+        self.assertIn("default_action='warn',", src)
+        src = src.replace("default_action='warn',",
+                           "default_action='warn', classify='mechanical',")
+        with open(path, "w") as f:
+            f.write(src)
+        with self.assertRaises(cc.InvalidCustomCheckError):
+            cc.effective_checks_table({}, self.root, "demo")
+
 
 class UpdateCustomCheckTests(_TempProjectRoot):
     def test_update_replaces_the_matcher_body(self):

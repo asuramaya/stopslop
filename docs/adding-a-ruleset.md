@@ -305,6 +305,14 @@ author's own code.
 This is not a sandboxed subset. Anyone with write access to the repo
 already has arbitrary code execution through the hook mechanism itself.
 
+A custom check must stay `classify="semantic"`, the default. Leave
+`Check`'s `classify` argument out entirely.
+`apply_mechanical_fixes` is a fixed function per ruleset, not data-
+driven off `CHECKS_TABLE`. It has no way to apply a custom check's own
+fix. A hand-edited `classify="mechanical"` fails to load, loudly. That
+refusal exists because a flagged write would otherwise come back
+"auto-fixed" and go through completely untouched.
+
 ## How to register it
 
 Nothing to add. `src/rulesets/__init__.py` scans its own subpackages at

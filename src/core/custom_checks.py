@@ -91,6 +91,25 @@ def _load_one(path, ruleset_id, check_id, allowed_units):
             f"custom_checks/{ruleset_id}/{check_id}.py declares unit {check.unit.value!r} -- "
             f"the {ruleset_id!r} ruleset only allows {sorted(u.value for u in allowed_units)} "
             f"for a custom check")
+    if check.classify != "semantic":
+        # apply_mechanical_fixes is a fixed, hand-written function per
+        # ruleset (not data-driven off CHECKS_TABLE) -- it has no way to
+        # know about, or apply, a custom check's own fix. A custom check
+        # classified "mechanical" (the template never generates this;
+        # only a hand-edit can) would land in mechanical_violations, and
+        # the live gate reports "auto-fixed" and ALLOWS the write while
+        # the actual violation goes through completely untouched. Refused
+        # here, at load time, rather than silently shipping that gap --
+        # the same "fails loudly, not deep inside a live gate decision"
+        # posture this whole module already takes for every other
+        # malformed field.
+        raise InvalidCustomCheckError(
+            f"custom_checks/{ruleset_id}/{check_id}.py declares "
+            f"classify={check.classify!r} -- a custom check must stay "
+            f"classify='semantic' (the default; leave CHECK's classify "
+            f"argument out entirely). Nothing here can auto-fix a custom "
+            f"check's own violation, so 'mechanical' would let a flagged "
+            f"write through unfixed.")
     return check
 
 
