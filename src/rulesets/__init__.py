@@ -26,6 +26,8 @@ RULESET_ID but fails the rest of the contract still raises loudly.
 import importlib
 import pkgutil
 
+from core import custom_rulesets as _custom_rulesets, paths as _paths
+
 # lint_and_gate(text, *, context=None, file_path=None) and
 # apply_mechanical_fixes(text, file_path=None). file_path is part of the
 # contract, not an optimisation: vocabulary packs attach to the routing
@@ -97,6 +99,10 @@ class InvalidRulesetError(Exception):
 
 
 _REGISTRY = {}
+# Which ids came from .claude/stopslop/custom_rulesets/ rather than a
+# built-in subpackage of this package -- the only thing unregister_ruleset()
+# below is ever allowed to remove.
+_CUSTOM_RULESET_IDS = set()
 
 
 def _register(module):
@@ -130,20 +136,72 @@ def list_rulesets():
     return [_REGISTRY[k] for k in sorted(_REGISTRY)]
 
 
+def is_custom_ruleset(ruleset_id):
+    """Whether `ruleset_id` came from .claude/stopslop/custom_rulesets/
+    rather than a built-in subpackage -- the public read of
+    _CUSTOM_RULESET_IDS, for a caller (the webui) that needs to offer
+    "Remove" for a custom ruleset and never for a built-in one."""
+    return ruleset_id in _CUSTOM_RULESET_IDS
+
+
+def unregister_ruleset(ruleset_id):
+    """Remove one CUSTOM ruleset from the live registry -- called right
+    after core.custom_rulesets.remove_ruleset() deletes its files, so a
+    removed ruleset disappears from every picker in this same process,
+    with no restart. Refuses for a built-in (or an unknown id) -- there
+    is no file for either of those to have lost, so "unregister" would
+    either corrupt the registry or silently do nothing surprising."""
+    if ruleset_id not in _REGISTRY:
+        raise UnknownRulesetError(f"no ruleset registered as {ruleset_id!r}")
+    if ruleset_id not in _CUSTOM_RULESET_IDS:
+        raise InvalidRulesetError(f"{ruleset_id!r} is a built-in ruleset -- it cannot be removed")
+    del _REGISTRY[ruleset_id]
+    _CUSTOM_RULESET_IDS.discard(ruleset_id)
+
+
+def rescan_custom_rulesets():
+    """Pick up a ruleset scaffolded since this process started, with no
+    restart -- see core/custom_rulesets.py. Built-ins are untouched; this
+    only re-runs the custom-directory half of _discover_and_register(),
+    and only for an id not already registered (scaffold_ruleset() itself
+    already refused any collision at write time -- this is belt-and-
+    suspenders, the same posture core.custom_checks.effective_checks_table
+    takes for its own merge)."""
+    _discover_custom_rulesets()
+
+
 # --- Discovery ----------------------------------------------------------
+
+def _discover_custom_rulesets():
+    try:
+        project_root = _paths.find_project_root(__file__)
+    except Exception:
+        return
+    for ruleset_id in _custom_rulesets.custom_ruleset_ids(project_root):
+        if ruleset_id in _REGISTRY:
+            continue
+        module = _custom_rulesets.load_ruleset_module(project_root, ruleset_id)
+        _register(module)
+        _CUSTOM_RULESET_IDS.add(ruleset_id)
+
 
 def _discover_and_register():
     """Import every direct subpackage of rulesets/ and register any that
     declares RULESET_ID, sorted by name for deterministic registration
     order. Runs once, at import time of this module -- a fresh process
     always sees the real current contents of the directory, and a
-    malformed ruleset still fails at startup, not mid-gate."""
+    malformed ruleset still fails at startup, not mid-gate. Also scans
+    .claude/stopslop/custom_rulesets/ for a project's own scaffolded
+    rulesets, AFTER every built-in has already registered -- a custom id
+    colliding with a built-in one raises from _register()'s own already-
+    registered check, the same as any other id collision here."""
     for info in sorted(pkgutil.iter_modules(__path__), key=lambda i: i.name):
         if not info.ispkg:
             continue
         module = importlib.import_module(f"{__name__}.{info.name}")
         if hasattr(module, "RULESET_ID"):
             _register(module)
+    _discover_custom_rulesets()
 
 
 _discover_and_register()

@@ -9,9 +9,10 @@ import os
 from fastapi import APIRouter, Request
 
 import rulesets
-from core import config as core_config, glossary_packs, terms as core_terms
+from core import config as core_config, custom_rulesets as core_custom_rulesets
+from core import glossary_packs, terms as core_terms
 
-from webui.deps import REPO_ROOT, fragment_response, render, templates
+from webui.deps import REPO_ROOT, error_banner, fragment_response, render, templates
 
 router = APIRouter()
 
@@ -66,10 +67,18 @@ def _ruleset_ids():
     return [m.RULESET_ID for m in rulesets.list_rulesets()]
 
 
+def _ruleset_rows():
+    return [{"id": m.RULESET_ID, "name": m.RULESET_NAME,
+              "is_custom": rulesets.is_custom_ruleset(m.RULESET_ID)}
+            for m in rulesets.list_rulesets()]
+
+
 @router.get("/routing")
 def routing_page(request: Request):
-    return render(request, "routing.html", "routing",
-                  {"rows": _rows(), "ruleset_ids": _ruleset_ids(), "focus": None})
+    return render(request, "routing.html", "routing", {
+        "rows": _rows(), "ruleset_ids": _ruleset_ids(), "focus": None,
+        "ruleset_rows": _ruleset_rows(),
+    })
 
 
 @router.get("/routing/table")
@@ -214,3 +223,47 @@ async def set_disable(request: Request, index: int):
     except ValueError as e:
         error = str(e)
     return _focus_response(request, index, error=error)
+
+
+def _ruleset_section_response(request, error=None):
+    """Both fragments in one response: ruleset_section.html as the normal
+    swap target, plus routing_table.html out-of-band -- adding or
+    removing a ruleset changes that table's own ruleset picker too, and
+    it would otherwise go stale until the next full page load."""
+    from fastapi.responses import HTMLResponse
+    body = templates.get_template("fragments/ruleset_section.html").render(
+        {"ruleset_rows": _ruleset_rows()}, request=request)
+    body += templates.get_template("fragments/routing_table.html").render(
+        {"rows": _rows(), "ruleset_ids": _ruleset_ids(), "oob": True}, request=request)
+    return HTMLResponse(body + error_banner(error))
+
+
+@router.post("/routing/rulesets/add")
+async def add_ruleset(request: Request):
+    form = await request.form()
+    error = None
+    try:
+        existing_ids = {m.RULESET_ID for m in rulesets.list_rulesets()}
+        core_custom_rulesets.scaffold_ruleset(
+            REPO_ROOT, form.get("ruleset_id", ""), form.get("name", ""), existing_ids)
+        rulesets.rescan_custom_rulesets()
+    except (ValueError, core_custom_rulesets.InvalidCustomRulesetError) as e:
+        error = str(e)
+    return _ruleset_section_response(request, error=error)
+
+
+@router.post("/routing/rulesets/{ruleset_id}/remove")
+async def remove_ruleset(request: Request, ruleset_id: str):
+    error = None
+    if not rulesets.is_custom_ruleset(ruleset_id):
+        error = f"{ruleset_id!r} is a built-in ruleset -- only a custom ruleset can be removed"
+    else:
+        referencing = [r["glob"] for r in core_config.load_rules(REPO_ROOT)
+                       if ruleset_id in (r.get("ruleset"), r.get("embedded_prose"))]
+        if referencing:
+            error = (f"{ruleset_id!r} is still routed from " + ", ".join(referencing)
+                      + " -- repoint or delete those rules first")
+        else:
+            rulesets.unregister_ruleset(ruleset_id)
+            core_custom_rulesets.remove_ruleset(REPO_ROOT, ruleset_id)
+    return _ruleset_section_response(request, error=error)

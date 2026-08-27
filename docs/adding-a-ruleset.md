@@ -324,7 +324,29 @@ ruleset -- a stray directory, an experiment left half-done -- still
 fails the build. It fails at test time now, not just at a glance over
 `rulesets/__init__.py`.
 
-When you add a real fourth ruleset, update that test's expected set.
+When you add a real fourth ruleset SHIPPED under `src/rulesets/`, update
+that test's expected set.
+
+A PROJECT'S OWN ruleset -- not shipped, added with no change to this
+tool's own source -- never touches that set at all.
+
+It lives at `.claude/stopslop/custom_rulesets/<your_id>/__init__.py`
+instead. Same shape as a custom pack, term list, or check: content
+outside `src/`, discovery reads it back in.
+
+`core/custom_rulesets.py`'s `scaffold_ruleset` writes one from just an
+id and a shown name. It starts with empty `TERM_LISTS`/`CHECKS_TABLE`
+and `CAPABILITIES = {"terms", "checks", "check_config",
+"custom_checks"}`. That's ready for the dashboard's own "Add a
+list"/"Add a check" forms to fill in.
+
+The dashboard's Routing page offers this directly ("Add a ruleset").
+`rulesets.rescan_custom_rulesets()` puts it in the same live process at
+once, with no restart needed.
+
+This is the one place in the whole custom-content system with that
+extra step. Packs, term lists, and checks are all re-read fresh on
+every access, never cached. Nothing else here needs a "reload" at all.
 
 ## Routing files to it
 

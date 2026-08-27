@@ -1,0 +1,47 @@
+{# Needs `ruleset_rows` ({"id", "name", "is_custom"}) in context. Adding
+   or removing a ruleset also changes the Routing table's own ruleset
+   picker -- see routes_routing.py's add/remove routes, which swap this
+   fragment as the main response AND the routing table out-of-band. #}
+<div id="ruleset-section">
+<h3>Rulesets</h3>
+<table>
+  <thead><tr><th>id</th><th>name</th><th></th></tr></thead>
+  <tbody>
+    {% for r in ruleset_rows %}
+    <tr>
+      <td><code>{{ r.id }}</code></td>
+      <td>{{ r.name }}</td>
+      <td>
+        {% if r.is_custom %}
+        <span class="pill">custom</span>
+        <span class="confirm-wrap">
+          <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove</button>
+          <span class="confirm-ask" hidden>
+            Remove the <code>{{ r.id }}</code> ruleset and everything scaffolded under it?
+            <form style="display:inline;margin:0" hx-post="/routing/rulesets/{{ r.id }}/remove"
+                  hx-target="#ruleset-section" hx-swap="outerHTML">
+              <button type="submit" class="danger">Yes</button>
+            </form>
+            <button type="button" onclick="confirmCancel(this)">Cancel</button>
+          </span>
+        </span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<details style="margin-top:0.75rem">
+  <summary>Add a ruleset</summary>
+  <form hx-post="/routing/rulesets/add" hx-target="#ruleset-section" hx-swap="outerHTML">
+    <div class="param-row">
+      <input type="text" name="ruleset_id" placeholder="id, e.g. legal_review" required>
+      <input type="text" name="name" placeholder="display name">
+    </div>
+    <p class="caption">Starts with no checks and no vocabulary of its own -- add both from
+      this ruleset's own Checks and Vocabulary pages once it's created.</p>
+    <button type="submit" class="primary">Add ruleset</button>
+  </form>
+</details>
+</div>

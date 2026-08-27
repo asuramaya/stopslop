@@ -128,5 +128,76 @@ class MutationTests(unittest.TestCase):
         self.assertFalse(next(r for r in cleared if r["glob"] == glob).get("disable"))
 
 
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class RulesetRouteTests(unittest.TestCase):
+    """Same "touches the real config briefly, always restores" posture as
+    MutationTests, plus cleanup of the real scaffolded PACKAGE
+    add_ruleset writes -- routes_routing.py resolves project root the
+    same un-overridable way every other route here does, so this is a
+    real directory under this repo's own .claude/stopslop/custom_rulesets/,
+    and a real entry in the process-global rulesets registry."""
+
+    RULESET_ID = "webui_test_scratch_ruleset"
+
+    def setUp(self):
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+        import rulesets
+        from core import custom_rulesets as core_custom_rulesets
+        if self.RULESET_ID in rulesets._REGISTRY:
+            rulesets.unregister_ruleset(self.RULESET_ID)
+        core_custom_rulesets.remove_ruleset(REPO_ROOT, self.RULESET_ID)
+
+    def test_add_then_visible_and_removable(self):
+        response = client.post("/routing/rulesets/add",
+                                data={"ruleset_id": self.RULESET_ID, "name": "Scratch"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.RULESET_ID, response.text)
+        self.assertIn("Scratch", response.text)
+        # the routing table's own picker (an out-of-band swap) also
+        # reflects the new ruleset, without a full page reload
+        self.assertIn(f'value="{self.RULESET_ID}"', response.text)
+
+        remove = client.post(f"/routing/rulesets/{self.RULESET_ID}/remove", data={})
+        self.assertEqual(remove.status_code, 200)
+        self.assertNotIn(self.RULESET_ID, remove.text)
+
+    def test_removing_a_built_in_ruleset_is_refused(self):
+        response = client.post("/routing/rulesets/codewatch/remove", data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("built-in ruleset", response.text)
+
+    def test_removing_a_ruleset_still_routed_is_refused(self):
+        client.post("/routing/rulesets/add", data={"ruleset_id": self.RULESET_ID, "name": "Scratch"})
+        add_rule = client.post("/routing/add", data={"glob": "zzz_scratch_probe/**",
+                                                       "ruleset": self.RULESET_ID})
+        self.assertEqual(add_rule.status_code, 200)
+        try:
+            remove = client.post(f"/routing/rulesets/{self.RULESET_ID}/remove", data={})
+            self.assertIn("still routed", remove.text)
+        finally:
+            rules = core_config.load_rules(REPO_ROOT)
+            idx = next(i for i, r in enumerate(rules) if r.get("ruleset") == self.RULESET_ID)
+            client.post(f"/routing/{idx}/delete")
+
+    def test_a_duplicate_id_returns_an_error_banner_not_a_500(self):
+        client.post("/routing/rulesets/add", data={"ruleset_id": self.RULESET_ID, "name": "Scratch"})
+        response = client.post("/routing/rulesets/add",
+                                data={"ruleset_id": self.RULESET_ID, "name": "Again"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("error-banner", response.text)
+
+
 if __name__ == "__main__":
     unittest.main()

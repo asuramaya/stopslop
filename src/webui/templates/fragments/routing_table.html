@@ -1,7 +1,10 @@
 {# Needs `rows` and `ruleset_ids` in context. First-match-wins order is
    the whole point of this page, so it's a real control here: two
-   buttons per row, not a row you drag and hope lands where you meant. #}
-<div id="routing-table">
+   buttons per row, not a row you drag and hope lands where you meant.
+   Optional `oob=True` renders it as an out-of-band swap -- the ruleset
+   add/remove routes return this alongside fragments/ruleset_section.html,
+   since either action changes this table's own ruleset picker too. #}
+<div id="routing-table" {{ 'hx-swap-oob="true"' if oob else '' }}>
 <p class="caption">First match wins; order matters. An empty ruleset cell
   means out of scope entirely (like <code>.claude/*</code>).</p>
 <table>
