@@ -1,0 +1,69 @@
+stopslop A/B evaluation
+==================================================================
+ruleset          slopwatch
+generator        claude-cli (2.1.257 (Claude Code))
+prompts          6
+max iterations   4
+wall clock       411.1s
+
+enforced checks  11: canned_question_answer, colon_reveal, emoji_in_prose, entity_encoded_punctuation, filler_opener, id_label_lead, marketing_adjective, not_just_x_but_y, solicit_criticism, vague_intensifier, weasel_attribution
+held-out checks  11: binary_contrast, bold_bullet_lead, dramatic_fragmentation, em_dash_cluster, filler_verb, identifier_in_prose, marketing_cliche, negative_listing, stock_adverb, terminology, unearned_profundity
+
+The gated arm was shown enforced flags only, never a held-out one.
+
+THE GATED LOOP ACTUALLY REVISED 4 OF 6 PROMPTS
+------------------------------------------------------------------
+  Only those 4 carry any signal. On the rest the gated
+  arm is a third independent sample of the same prompt.
+
+AVERAGES  (gate = ungated -> gated;  noise = ungated -> control)
+------------------------------------------------------------------
+  enforced flags /1k             3.29 ->     0.00     -3.29  (-100%)  better
+    ^ noise floor                3.29 ->     4.26     +0.96           (second ungated sample)
+
+  HELD-OUT flags /1k             1.42 ->     0.84     -0.58  (-41%)  better
+    ^ noise floor                1.42 ->     0.78     -0.64           (second ungated sample)
+
+  sentence length stdev          7.09 ->     7.03     -0.06  (-1%)  WORSE
+    ^ noise floor                7.09 ->     6.69     -0.40           (second ungated sample)
+
+  type-token ratio               0.60 ->     0.62     +0.02  (+4%)  better
+    ^ noise floor                0.60 ->     0.62     +0.03           (second ungated sample)
+
+  words                        241.83 ->   234.33     -7.50  (-3%)  WORSE
+    ^ noise floor              241.83 ->   229.83    -12.00           (second ungated sample)
+
+  gated arm: 1.7 generations per prompt on average, 6/6 reached a clean pass
+
+PER PROMPT (enforced /1k, held-out /1k, stdev)
+------------------------------------------------------------------
+  prompt                  enforced u->g     held-out u->g      stdev u->g
+  readme-section           0.0->0.0         0.0->0.0        6.7->6.5   
+  incident-report          3.9->0.0         0.0->0.0        6.5->5.7   
+  error-message-docs       0.0->0.0         0.0->0.0        6.6->9.4   
+  design-note              3.8->0.0         0.0->0.0        9.1->7.3   
+  runbook                  7.2->0.0         3.6->0.0        6.4->5.6   
+  api-changelog            4.9->0.0         4.9->5.0        7.2->7.7   
+
+HOW TO READ THIS
+------------------------------------------------------------------
+  Compare every gate delta against the noise floor printed under
+  it. The control arm is a second ungated generation from the same
+  prompt, so its delta is what this model varies by for no reason
+  at all. A gate delta smaller than that is not a finding.
+
+  Enforced flags falling proves nothing on its own. The gated arm
+  rewrote until they fell, so that number only confirms the loop
+  ran.
+
+  The held-out number is the finding. It falls with the enforced
+  one if the gate taught something general. It stays flat while
+  enforced flags collapse if the gate taught avoidance of the
+  specific patterns and nothing else.
+
+  Sentence-length stdev falling is the monotone warning: the model
+  bought a clean score by flattening every sentence to one shape.
+  No check rewards that number, so nothing can be tuned to it.
+
+  6 prompts and one model settle nothing by themselves.
+  Read the saved texts side by side before believing any of it.

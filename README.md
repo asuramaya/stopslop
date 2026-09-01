@@ -138,7 +138,16 @@ python3 src/evalab/run.py --replay evalab-runs/<date>/recordings     # free, re-
 
 `--live` shells out to `claude -p` and records every call, so a run replays for free afterwards. A run writes `result.json`, `report.txt`, and both arms' full text under `texts/` for reading side by side, because no metric here settles whether prose is better and the saved texts are the actual evidence.
 
-Results are not summarized in this README on purpose. A run belongs to one model on one day, and a number copied out of a report and into a pitch is how an evaluation turns into a demo. Run it, and read `report.txt`.
+**The first run has been done, and it did not flatter the tool.** See [`evalab-runs/2026-09-01/FINDINGS.md`](evalab-runs/2026-09-01/FINDINGS.md) for the full read, and `texts/` beside it for the output both arms actually produced. The short version:
+
+- Across 1451 words of ungated output over six documents, the whole of `slopwatch` fired **seven times**. Two of the six drafts were clean on the first attempt. The dominant finding of the run is a base rate, and it is low: this model, writing ordinary technical documentation, mostly does not do the things these checks look for.
+- The gate cleared every enforced flag, 6 of 6, in 1.7 generations on average. That proves the loop terminates and nothing more, since the arm rewrote until the checks went quiet.
+- Held-out flags fell 41%, which reads well until you notice the control arm fell further. The gate moved that number less than sampling noise did. In absolute terms the ungated corpus held **two** held-out flags and the gated one held one, so the Goodhart question is not answered here -- the run had almost no power to answer it.
+- No flattening was detected. Sentence-length stdev moved less under the gate than between two ungated samples.
+
+The honest claim this supports is narrow. stopslop removes the constructions it names from text that contains them, for about 0.7 extra generations per document, on writing that largely did not contain them. The experiment that would settle the Goodhart question needs a prompt set that actually invites padding, and that run has not been done.
+
+No number from a run is copied into a pitch here on purpose. A run belongs to one model on one day, and quoting a report out of context is how an evaluation turns into a demo.
 
 ## Documentation
 
