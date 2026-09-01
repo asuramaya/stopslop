@@ -19,6 +19,20 @@ def _arms(rows):
     return [a for a in order if rows and a in rows[0]]
 
 
+def _revised(rows):
+    """Prompts where the gated loop actually rewrote something.
+
+    Everywhere else the gated arm generated once and stopped, which makes
+    it a third independent sample of the same prompt and nothing more.
+    Averaging those in does not merely dilute an effect, it can invent
+    one: run 2 showed an 11% drop in sentence-length variance across all
+    eight prompts that vanished when restricted to the four the gate
+    touched. The apparent flattening was sampling noise from prompts the
+    gate never acted on.
+    """
+    return [r for r in rows if r["gated"]["iterations"] > 1]
+
+
 def _total(rows, arm, key):
     return sum(r[arm]["scores"][key] for r in rows)
 
@@ -84,19 +98,29 @@ def render(result):
         add("  arm is a third independent sample of the same prompt.")
     add("")
 
-    add("TOTAL FLAGS, whole corpus  (a percentage hides how few these are)")
+    signal = _revised(rows)
+    add("TOTAL FLAGS  (a percentage hides how few these are)")
     add("-" * 66)
-    add(f"  {'arm':<10} {'words':>7} {'enforced':>10} {'held-out':>10}")
+    add(f"  {'arm':<10} {'words':>7} {'enforced':>10} {'held-out':>10}"
+        f"   {'| revised-only: enf':>20} {'held':>5}")
     for arm in _arms(rows):
+        tail = ""
+        if signal:
+            tail = (f"   |{_total(signal, arm, 'enforced_flags'):19} "
+                     f"{_total(signal, arm, 'held_out_flags'):5}")
         add(f"  {arm:<10} {_total(rows, arm, 'words'):7} "
             f"{_total(rows, arm, 'enforced_flags'):10} "
-            f"{_total(rows, arm, 'held_out_flags'):10}")
+            f"{_total(rows, arm, 'held_out_flags'):10}{tail}")
     add("")
     add("  Read these before any percentage below. A 41% held-out drop in")
     add("  the 2026-09-01 run was two flags becoming one.")
     add("")
 
-    add("AVERAGES  (gate = ungated -> gated;  noise = ungated -> control)")
+    scope = signal if signal else rows
+    scope_label = (f"the {len(signal)} prompts the loop revised"
+                    if signal else "ALL prompts (the loop revised none)")
+    add(f"AVERAGES over {scope_label}")
+    add("  (gate = ungated -> gated;  noise = ungated -> control)")
     add("-" * 66)
     for label, key, lower_better in [
             ("enforced flags /1k", "enforced_per_1k", True),
@@ -104,13 +128,13 @@ def render(result):
             ("sentence length stdev", "sentence_length_stdev", False),
             ("type-token ratio", "type_token_ratio", False),
             ("words", "words", False)]:
-        base = _mean(rows, "ungated", key)
-        add(_delta_line(label, base, _mean(rows, "gated", key), lower_better))
-        control = _mean(rows, "control", key)
+        base = _mean(scope, "ungated", key)
+        add(_delta_line(label, base, _mean(scope, "gated", key), lower_better))
+        control = _mean(scope, "control", key)
         add(f"  {'  ^ noise floor':<26} {base:8.2f} -> {control:8.2f}   "
             f"{control - base:+7.2f}           (second ungated sample)")
-        if rows and "blind" in rows[0]:
-            blind = _mean(rows, "blind", key)
+        if scope and "blind" in scope[0]:
+            blind = _mean(scope, "blind", key)
             add(f"  {'  ^ rewrite alone':<26} {base:8.2f} -> {blind:8.2f}   "
                 f"{blind - base:+7.2f}           (same compute, no flags)")
         add("")
@@ -135,6 +159,12 @@ def render(result):
 
     add("HOW TO READ THIS")
     add("-" * 66)
+    add("  These averages cover only the prompts the gate actually acted")
+    add("  on. Including the rest does not just dilute an effect, it can")
+    add("  invent one: this report's own earlier shape averaged in prompts")
+    add("  the loop never touched and showed an 11% drop in sentence-length")
+    add("  variance that disappeared once they were excluded.")
+    add("")
     add("  Compare every gate delta against the noise floor printed under")
     add("  it. The control arm is a second ungated generation from the same")
     add("  prompt, so its delta is what this model varies by for no reason")

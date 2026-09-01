@@ -354,5 +354,48 @@ class BlindRevisionArmTests(unittest.TestCase):
         self.assertEqual(row["blind"]["iterations"], row["gated"]["iterations"])
 
 
+class RevisedOnlyScopeTests(unittest.TestCase):
+    """Averaging in prompts the gate never touched can INVENT an effect.
+
+    Run 2 showed an 11% drop in sentence-length variance across all eight
+    prompts. It vanished when restricted to the four the loop actually
+    revised: on those, the noise floor moved further than the gate did.
+    The apparent flattening was variance from prompts where the gated arm
+    generated once and was therefore just a third random sample.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+
+    def test_averages_cover_only_the_prompts_the_loop_revised(self):
+        rendered = report.render(self._mixed_result())
+        self.assertIn("AVERAGES over the 1 prompts the loop revised",
+                       rendered)
+
+    def test_totals_show_revised_only_beside_the_whole_corpus(self):
+        rendered = report.render(self._mixed_result())
+        self.assertIn("revised-only", rendered)
+
+    def test_it_says_so_when_the_loop_revised_nothing(self):
+        clean = "The cache stores query results on disk."
+        generator = ScriptedGenerator([clean] * 8)
+        result = harness.run(prompts.by_ids(["readme-section"]),
+                              self.ruleset, generator, max_iterations=3)
+        rendered = report.render(result)
+        self.assertIn("ALL prompts (the loop revised none)", rendered)
+
+    def _mixed_result(self):
+        """One prompt the loop revises, one it does not."""
+        dirty = "Needless to say, this is a seamless and very robust tool."
+        clean = "The cache stores query results on disk."
+        # readme-section: dirty first, then clean, so the loop runs once.
+        # incident-report: clean throughout, so the loop never fires.
+        generator = ScriptedGenerator(
+            [dirty, dirty, dirty, clean, dirty, dirty] + [clean] * 8)
+        return harness.run(prompts.by_ids(["readme-section",
+                                             "incident-report"]),
+                            self.ruleset, generator, max_iterations=2)
+
+
 if __name__ == "__main__":
     unittest.main()
