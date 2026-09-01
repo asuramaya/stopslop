@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "Copy below. I invented a product name (**Backchannel**) as a placeholder \u2014 swap in yours.\n\n---\n\n# Backchannel\n\nYour team already has a chat tool. The real question is whether it's costing more than it saves.\n\nMost chat apps are built for the whole company: sales, HR, the all-hands channel. Backchannel is built for the twenty to two hundred people who ship your software.\n\n**Threads that don't rot.** Every thread keeps a permanent URL and gets indexed alongside the code it mentions. Paste a stack trace into search and you get the three past incidents that produced the same one.\n\n**Notification rules you can reason about.** Per channel, per keyword, per on-call rotation, written as rules instead of a wall of toggles. Your team stops muting everything and then missing the page.\n\n**Incidents where the work already is.** Declare one from any message. Backchannel opens a channel, pulls whoever is on call from PagerDuty, and writes the timeline as it happens \u2014 timestamps, actions, the commits involved. Export it into the postmortem when you're done. Nobody has to take notes.\n\n**Migration.** We import Slack history \u2014 messages, files, threads, channel structure \u2014 and old permalinks keep resolving. A 3,000-person workspace takes about six hours.\n\n**Pricing.** $7 per user per month. Unlimited history on every tier. We don't charge you to remember things.\n\nIf your team lives in Slack and nobody complains, stay in Slack. Backchannel earns its seat when failed search is a daily tax, when your incident channel is a pile of screenshots, and when the answer someone needs was written down eight months ago in a thread nobody can find.\n\n*Start a 30-day trial. No card, no sales call.*"
+}

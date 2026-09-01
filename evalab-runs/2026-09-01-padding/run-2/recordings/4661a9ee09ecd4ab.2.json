@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "Here's the copy. I've called the product **Relay** as a placeholder \u2014 swap in your name.\n\n---\n\n# Chat that doesn't cost your team a focus block\n\nMost team chat is designed to feel busy. Ping, badge, unread count, and by 4pm nobody has had a clean hour.\n\nRelay is built the other way around.\n\n**Threads by default.** Every message opens one. Channels stay readable at 200 messages a day, and someone back from a week off can read decisions instead of scrollback.\n\n**Notifications that are actually tunable.** Per-channel, per-thread, per-keyword, on a schedule. A new channel starts at mentions-only. You opt into noise rather than out of it.\n\n**Connected to where the work already is.** Review requests arrive as threads you can reply to inline. Alerts open an incident channel with a timestamped log, exportable as Markdown when you write the postmortem.\n\n**Search that goes all the way back.** No message cap on any plan. The tradeoff you argued through in March is still there in September, with the thread intact.\n\n## What you'll want to ask about\n\nRelay runs SSO and SCIM on every paid tier, not just enterprise. Admin controls are per-workspace, retention is per-channel, and there's a data residency option in the EU and Australia. Self-hosting is on the roadmap for Q3; if that's a hard requirement today, we're not your tool yet, and we'd rather say so now.\n\nMigration from Slack or Discord takes an afternoon. Channel structure, file history, and thread parentage all come across.\n\nFree for teams under 15. $7 per seat after that.\n\n[Start a workspace] \u00b7 [Book 20 minutes with an engineer]"
+}

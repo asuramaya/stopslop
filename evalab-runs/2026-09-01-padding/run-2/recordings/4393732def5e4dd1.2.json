@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  }
+ ],
+ "output": "**Dark mode ships today**\n\nWe shipped dark mode. It took embarrassingly long.\n\nThe delay wasn't taste, it was the editor. Notes render whatever you put in them: pasted screenshots, code blocks, tables copied out of email with hardcoded white backgrounds. Inverting a theme is easy. Inverting one without turning your three-year-old recipe note into gray-on-gray took four rewrites of the style layer.\n\nWhat's in it:\n\nThree themes \u2014 Light, Dark, and System, which follows your OS setting. Toggle with Cmd+Shift+D, or Ctrl+Shift+D on Windows.\n\nThe dark palette isn't pure black. The background sits at #16171A, around 8% lightness, because true black on OLED makes text edges shimmer while you scroll. If you want the battery savings anyway, flip \"OLED black\" under Appearance.\n\nPasted images keep their own background. We detect white-matted PNGs and draw a thin border around them instead of letting them glow like a flashlight in a dark room.\n\nSyntax highlighting got its own palette, tuned so every token color clears 4.5:1 contrast. Links too. Those were the worst thing in the beta \u2014 our default blue came in at 2.9:1 and people told us, repeatedly.\n\nExport still renders light. A PDF you send a colleague shouldn't arrive wearing your theme.\n\nLive now in 3.4 on macOS, Windows, iOS, and Android. Web lands next week, once a service worker fix clears review.\n\nIf something looks broken in the dark, tell us. Screenshots help more than descriptions.\n\n---\n\n~250 words. The version number, hex value, contrast ratios, and shortcut are placeholders \u2014 swap in your real ones, since the specifics are what keep it from reading like generic launch copy."
+}

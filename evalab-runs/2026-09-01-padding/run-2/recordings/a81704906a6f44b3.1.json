@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "Fictional customer, placeholder metrics \u2014 swap in the real interview quotes and numbers before this goes anywhere near a website.\n\n---\n\n## How Northwind Freight went from one release a month to eleven a week\n\nNorthwind Freight shipped its billing service once a month, on a Thursday night. Four engineers on a bridge call, a rollback plan nobody had rehearsed, and a change list long enough that when something broke, finding the cause took until Saturday.\n\n\"We planned holidays around release week,\" says Priya Raghavan, who runs platform engineering at Northwind. \"That should have told us something.\"\n\nThe team moved to Cadence in March. The first month was unglamorous: containerising two services that had assumed a fixed host, writing the smoke tests they'd been meaning to write since 2023, and arguing about who owned the staging database. Nothing shipped faster in week one.\n\nBy June, billing was deploying eleven times a week. Change failure rate dropped from 18% to 4%, and the median time from merge to production went from 26 days to 41 minutes. The Saturday debugging sessions stopped, mostly because a bad deploy now contains one change instead of two hundred.\n\nWhat surprised Raghavan was where the benefit landed. Support tickets that used to wait for the next release window get fixed the same afternoon. Product stopped batching requests into quarterly bundles. Two engineers who had spent roughly a day a week on release choreography now spend it on the rating engine.\n\nNorthwind still runs a change advisory board for anything touching payment capture. Raghavan doesn't plan to remove it. \"Continuous delivery didn't mean deleting the controls,\" she says. \"It meant the controls stopped being a queue.\""
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "# A Year Remote: What We Got Wrong\n\nWe closed the office in March. Everyone was excited. Then July happened, and half the engineering team quietly stopped showing up to anything that wasn't a standup.\n\nHere's what a year taught us.\n\n**Async isn't free.** We assumed writing things down would replace meetings. It replaced *some* meetings, and added about forty minutes a day of reading. Our design docs grew from two pages to nine. Nobody read page four. We now cap proposals at 800 words and require a \"decision needed by\" line at the top, and review time dropped by roughly half.\n\n**The onboarding failure was brutal.** Of six people hired remotely in the first six months, four told us in their 90-day check-in that they had no idea who to ask about anything. In the office they'd have overheard it. We assigned each new hire two named humans \u2014 one for code, one for everything else \u2014 and the complaint stopped.\n\n**Time zones cost more than we budgeted.** A five-hour spread between Lisbon and Chicago sounds workable. In practice it gave us a three-hour overlap, and every unplanned question turned into a next-day question. We stopped hiring outside a four-hour band. That was unpopular and we're still doing it.\n\n**Some things improved and we can't take credit.** Deep work went up. Sick days went down. Our best writer got promoted because writing suddenly mattered.\n\nWe're not going back. We also won't pretend the first six months weren't a mess.\n\n---\n\n250 words. The specifics (dates, headcounts, the Lisbon/Chicago spread) are invented placeholders \u2014 swap in your real numbers, since the piece leans on them for credibility."
+}

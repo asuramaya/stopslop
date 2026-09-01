@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Nobody plans to take on technical debt. It shows up the way a second mortgage does: one reasonable decision at a time, each defensible on the day it was made, and then one morning you're paying more in interest than you ever borrowed.\n\nThis month we're talking about that bill.\n\nWe've noticed something in how the teams here talk about debt. It gets framed as a moral failing, as if the fix were more discipline. That framing is wrong, and it's expensive, because it makes debt something you confess rather than something you measure. A shortcut taken to hit a launch date is a trade. Trades have terms. The problem is almost never that we made one \u2014 it's that we stopped tracking what we agreed to pay.\n\nSo the pieces below are about terms. What debt actually costs once you put a number on it. When paying it down is the wrong move, which is more often than the refactoring evangelists admit. How one team spent a quarter on a migration nobody asked for and came out ahead anyway.\n\nRead the retro on the auth service first, if you only read one. It's the least comfortable thing we've published all year.\n\n---\n\nThe last paragraph and the migration/auth references are placeholders \u2014 swap in your actual lead stories."
+}

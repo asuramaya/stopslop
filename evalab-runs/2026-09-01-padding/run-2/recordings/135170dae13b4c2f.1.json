@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, a team at this company should be able to take a service from empty repo to production traffic in under a week, without filing a ticket, without reading four conflicting runbooks, and without learning the deployment history of the last six years.\n\nThat is not where we are. Today the path to production runs through three deployment systems, two of which we keep alive only because a handful of critical services never migrated off them. Every new team pays a tax of roughly a month before they ship anything a customer sees, and most of that month is spent rediscovering things other teams already know. The tax is invisible in our roadmaps because it is charged to product teams, one at a time, in small amounts.\n\nPlatform work is how we stop charging it. The goal is a single supported path: one way to deploy, one way to get a database, one way to see what your service is doing at 3am. Not every possible need served, but the common ninety percent served well enough that stepping off the path becomes a deliberate choice with a written reason.\n\nWe measure this in time, not adoption. Time from first commit to first production request. Time from a page firing to an engineer knowing which service caused it. Time from a security patch landing upstream to it running everywhere. If those numbers fall by half over eight quarters, the investment paid for itself, and the argument for the next one makes itself."
+}

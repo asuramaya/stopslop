@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  }
+ ],
+ "output": "Ran it through the repo's own `slopwatch` gate \u2014 clean, no violations. 251 words.\n\nI invented the specifics (vote count, version numbers, the `#2A2A2A` hairline detail, the November date) since you didn't give me a real app; swap them for your actual numbers or cut the claims \u2014 placeholder facts are the one thing that will make this read as generated.\n\n---\n\n# Dark mode ships today\n\nDark mode has sat at the top of our feature tracker for two years, with 4,100 votes and a long tail of angry tweets sent at 1 a.m. It's live now in 3.2, on iOS, Android, and the web app.\n\nWhy it took so long: the theme itself was a weekend. Everything attached to it wasn't. Your notes are full of pasted screenshots with white backgrounds, code blocks with a light syntax theme, tables with hairline borders that vanish on anything darker than #2A2A2A, and six highlighter colors picked for paper. Flipping the canvas to black broke all of it. So we redid the highlighter palette (the yellow is now amber, and it no longer looks radioactive), added a per-image background toggle, and shipped a matching dark syntax theme for the 40 languages we highlight.\n\nTurn it on in Settings, Appearance. Three options: Light, Dark, and Match System. Match System follows your OS schedule, so it flips at sunset if that's how your phone is set up. The switch is instant, no restart.\n\nTwo things aren't done. Exported PDFs still render light, on purpose, because nobody wants to print a black page. And our older shared-note viewer links open in light mode for anyone without an account; that's queued for 3.3 in November.\n\nIf a note of yours looks wrong in dark mode, send it to us with the report button in the note menu. We fixed 60 of these during the beta and expect more."
+}

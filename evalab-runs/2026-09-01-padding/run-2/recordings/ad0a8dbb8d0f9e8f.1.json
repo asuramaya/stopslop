@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We Split the Monolith. Then We Spent Two Years Paying For It.**\n\nThree years ago our billing platform was one Rails app, 400,000 lines, one deploy pipeline, and a release process that made everyone nervous on Thursdays. Today it's 31 services. Some of that was worth it. A lot of it wasn't, and the difference wasn't obvious at the time.\n\nThis talk is the honest version. I'll walk through the three services we extracted first, why two of them worked and one had to be folded back in after eight months. I'll show the actual latency numbers before and after, including the ones that got worse. And I'll spend real time on the parts nobody puts in the diagram: how we handled distributed transactions when the payments team and the invoicing team disagreed about who owned a refund, what our on-call rotation looked like six months in, and the two quarters we lost to a shared database nobody would let us cut.\n\nYou'll leave with a decision checklist we now use before extracting anything: what has to be true about team ownership, data boundaries, and failure tolerance for a split to pay off. Also the countercase, which we use more often.\n\nFor engineers and leads who've been handed a monolith and a mandate."
+}

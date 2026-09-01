@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We Split the Monolith. Here's the Part Nobody Warned Us About.**\n\nTwo years ago our Rails app was 400,000 lines and one deploy button. Today it's eleven services. This talk is about the eighteen months in between, including the six we wasted.\n\nI'll start with the decision we got right: we didn't decompose by noun. Carving out a \"User Service\" and an \"Order Service\" because the domain diagram had those boxes gave us four services that couldn't answer a request without each other, and a p99 that tripled. We deleted two of them. What worked was cutting along the seams where teams already argued \u2014 billing, search, ingest \u2014 and leaving the mushy middle alone. Six of the original modules are still in the monolith. They're fine there.\n\nThen the part nobody warned us about: the implicit guarantees. A single database transaction had been doing our consistency work for free. Once it was gone we wrote that work by hand, in every service, and got it wrong three times before we shipped an outbox table.\n\nYou'll leave with the seam test we use now, our rollback pattern for a half-migrated service, and a short list of things worth keeping in the monolith permanently.\n\n*(~205 words)*"
+}

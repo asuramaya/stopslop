@@ -81,3 +81,18 @@ suggestive into established.
 Until then the honest summary of this project's own evidence is that its
 central mechanism has not been shown to beat asking the model to try
 again.
+
+## Reproducing
+
+`run-3/recordings/` replays exactly:
+
+```
+python3 src/evalab/run.py --replay evalab-runs/2026-09-01-padding/run-3/recordings --prompt-set padding
+```
+
+`run-2/recordings/` does not, and the refusal is correct rather than a
+fault. That run predates the blind arm, so it recorded three generations
+of each first prompt where the current harness asks for four. The
+recorded generator raises instead of handing the fourth call an answer it
+recorded for a different arm. The files are kept because they hold every
+intermediate revision, which `texts/` does not.
