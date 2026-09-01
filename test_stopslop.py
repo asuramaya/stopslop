@@ -577,6 +577,11 @@ class CmdChecksTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("em_dash_cluster", out.getvalue())
 
+    def test_listing_shows_each_checks_own_unit(self):
+        with redirect_stdout(io.StringIO()) as out:
+            stopslop.cmd_checks(_checks_args())
+        self.assertIn("(unit=document, threshold=4, action=block)", out.getvalue())  # em_dash_cluster
+
     def test_listing_shows_threshold_and_action_for_check_config_rulesets(self):
         with redirect_stdout(io.StringIO()) as out:
             stopslop.cmd_checks(_checks_args())

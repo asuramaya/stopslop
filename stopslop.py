@@ -751,14 +751,15 @@ def cmd_checks(args):
     check_config = ruleset.list_check_config() if has_check_config else {}
     for check_id, meta in sorted(ruleset.list_checks().items()):
         state = "ON " if meta["enabled"] else "off"
-        tuning = ""
+        tuning = f" (unit={meta['unit']}"
         if check_id in check_config:
             spec = check_config[check_id]
-            tuning = f" (threshold={spec['threshold']}, action={spec['action']})"
+            tuning += f", threshold={spec['threshold']}, action={spec['action']}"
             params = spec.get("params", {})
             if params:
-                tuning = tuning[:-1] + ", " + ", ".join(
-                    f"{n}={i['value']}" for n, i in sorted(params.items())) + ")"
+                tuning += ", " + ", ".join(
+                    f"{n}={i['value']}" for n, i in sorted(params.items()))
+        tuning += ")"
         print(f"[{state}] {check_id}{tuning} -- {meta['catches']}")
         if meta["instead"]:
             print(f"{'':<7} instead: {meta['instead']}")
