@@ -6,6 +6,7 @@
 .claude/stopslop-dashboard.log
 __pycache__/
 *.pyc
+.pytest_cache/
 .venv/
 
 # Pre-refactor filenames, kept ignored too: a clone that hasn't run the

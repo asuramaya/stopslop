@@ -27,16 +27,16 @@ To see the rules that apply to Markdown, read `.claude/skills/ste100/SKILL.md`.
 
 ```
 python3 -m unittest discover -s src -p 'test_*.py'
-python3 -m unittest test_stopslop
 ```
 
-Both commands run from the repository root. The gate itself and
-`stopslop.py` are pure standard-library Python, so the first command needs no
+That is the whole suite, from the repository root. The gate itself and
+`stopslop.py` are pure standard-library Python, so the command needs no
 install. The tests in `src/test_mcp_server.py` need the `mcp` package. Without
 it, they skip cleanly instead of a failure. To run them for real, install
 `requirements.txt` first.
 
-The same two commands run in CI, on every pull request. See
+CI runs the same command twice on every pull request: once with no install at
+all, and once with `requirements.txt` installed. See
 `.github/workflows/tests.yml`.
 
 ## Keep the gate free of dependencies

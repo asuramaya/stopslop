@@ -8,8 +8,15 @@ capability gate) are exercised directly here against the real registered
 rulesets (ste100 has "glossary", slopwatch doesn't -- a real fixture
 already on hand, not a mock).
 
+The subject under test is the one module outside src/: stopslop.py sits at
+the repository root, because that file's own location is what
+core/paths.py resolves the project root FROM. So this file puts the root
+on sys.path the way its neighbours here put src/ on it (see
+test_contract_doc.py), and lives with the rest of the suite instead of
+alone at the root beside its subject.
+
 Run with:
-    python3 -m unittest test_stopslop -v
+    python3 -m unittest discover -s src -p 'test_*.py'
 """
 import io
 import json
@@ -20,6 +27,8 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from types import SimpleNamespace
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import stopslop
 import rulesets

@@ -173,7 +173,7 @@ CHECKS_TABLE = {
 - `LINES_INDEXED` -- the whole file, plus an index
 - `DOCUMENT` -- the whole assembled text, once per call
 - `BLOCK` -- one paragraph/list-item block at a time, not the whole
-  document (ste100's `safety_instruction`; see `core/checks.py`)
+  document (ste100's `safety_instruction`, see `core/checks.py`)
 
 `core.checks.run_checks(table, blocks=..., lines=..., sentences=..., text=...,
 extra_by_check=...)` is the shared dispatch loop every built-in ruleset's
@@ -256,7 +256,7 @@ column carries it.
 
 **`"custom_checks"`** -- a project adds a real Python matcher with no
 change to this tool's own source. The shared engine lives in
-`src/core/custom_checks.py`; this capability requires:
+`src/core/custom_checks.py`. This capability requires:
 
 ```python
 def custom_check_units(): ...
@@ -281,7 +281,7 @@ def effective_checks_table():
                                                    "your_id", CUSTOM_CHECK_UNITS)
 ```
 
-`CUSTOM_CHECK_UNITS` names which `Unit` values a custom check may declare
+`CUSTOM_CHECK_UNITS` names which `Unit` values a custom check can declare
 for YOUR ruleset -- not every unit means the same thing everywhere. The
 safe default, `core.custom_checks.DEFAULT_ALLOWED_UNITS`
 (`SENTENCE`/`DOCUMENT`), is right for a ruleset that tokenizes sentences
@@ -291,9 +291,9 @@ no special scope," declares `frozenset({_checks.Unit.LINE})` instead.
 
 A ruleset whose `LINE` (or `BLOCK`) domain covers a narrower range must
 NOT allow that unit for a custom check. Two examples: slopwatch's `LINE`
-domain is list-item lines only; ste100's `BLOCK` domain is paragraph/
-list-item blocks only. The domain a project author would expect --
-"every line" -- is not the one their check would actually run against.
+domain is list-item lines only. The `BLOCK` domain of ste100 covers
+paragraph and list-item blocks only. The domain a project author expects
+-- "every line" -- is not the one their check actually runs against.
 
 A custom check is a real file at
 `.claude/stopslop/custom_checks/<ruleset_id>/<check_id>.py`, with a
@@ -324,7 +324,7 @@ A custom check must stay `classify="semantic"`, the default. Leave
 `apply_mechanical_fixes` is a fixed function per ruleset, not data-
 driven off `CHECKS_TABLE`. It has no way to apply a custom check's own
 fix. A hand-edited `classify="mechanical"` fails to load, loudly. That
-refusal exists because a flagged write would otherwise come back
+refusal exists because a flagged write otherwise comes back
 "auto-fixed" and go through completely untouched.
 
 ## How to register it
@@ -359,7 +359,7 @@ outside `src/`, discovery reads it back in.
 `core/custom_rulesets.py`'s `scaffold_ruleset` writes one from just an
 id and a shown name. It starts with empty `TERM_LISTS`/`CHECKS_TABLE`
 and `CAPABILITIES = {"terms", "checks", "check_config",
-"custom_checks"}`. That's ready for the dashboard's own "Add a
+"custom_checks"}`. That is ready for the dashboard's own "Add a
 list"/"Add a check" forms to fill in.
 
 The dashboard's Routing page offers this directly ("Add a ruleset").

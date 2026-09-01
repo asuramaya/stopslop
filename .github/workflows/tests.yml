@@ -9,9 +9,10 @@ jobs:
   stdlib-only:
     # The gate itself (pretool_hook.py, sessionstart_hook.py) and stopslop.py
     # are pure standard-library Python -- this job proves that stays true,
-    # with no pip install step at all. The 10 tests in src/test_mcp_server.py
-    # skip here on purpose (see that file's own docstring); they run for
-    # real in the mcp-layer job below.
+    # with no pip install step at all. The tests that need the mcp package
+    # or the dashboard's own dependencies skip here on purpose (see
+    # src/test_mcp_server.py's own docstring); they run for real in the
+    # mcp-layer job below.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +20,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Run the stdlib-only test suite
-        run: |
-          python3 -m unittest discover -s src -p 'test_*.py' -v
-          python3 -m unittest test_stopslop -v
+        run: python3 -m unittest discover -s src -p 'test_*.py' -v
 
   mcp-layer:
     # Same suite, with the one real dependency (mcp) installed, so
