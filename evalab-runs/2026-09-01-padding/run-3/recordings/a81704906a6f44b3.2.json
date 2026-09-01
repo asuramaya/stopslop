@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "Clean through slopwatch, 250 words.\n\n---\n\n# From three weeks to twelve times a day: Kestrel Freight\n\nKestrel Freight builds routing software for European trucking fleets. Until last spring, it released once every three weeks, on a Thursday evening, with four engineers sitting on a rollback call.\n\nThe delay was not caution. Their test suite ran 90 minutes on a single shared machine, and failed often enough that a red build told nobody anything. Feature branches lived for weeks, and merging them was its own project. Two of the last four releases had to be backed out.\n\nKestrel moved to Northbound CD in March. The first month was mostly deletion: they cut 300 tests that asserted on implementation details, split the rest across parallel runners, and got the suite down to nine minutes. Per-branch preview environments meant product managers stopped queueing for staging.\n\n\"The part I did not expect was the arguments ending,\" says Petra Vos, their platform lead. \"When a deploy costs ten minutes instead of an evening, nobody negotiates about whether a change is worth shipping.\"\n\nTen months in: 12 deploys a day, up from roughly one every 15 working days. Lead time from merge to production fell from 6 days to 40 minutes. Change failure rate went from 14% to 3%, mostly because a deploy now carries one change instead of three weeks of them.\n\nKestrel has not grown its platform team. The two engineers who used to maintain release scripts moved to the observability stack, and the Thursday call no longer exists.\n\n---\n\nCompany, vendor, person, and figures are invented \u2014 swap in the real ones. The draft is at `/tmp/case-study.md` if you want it in the repo instead."
+}

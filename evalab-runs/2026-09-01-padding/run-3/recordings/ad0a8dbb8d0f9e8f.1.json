@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We split the monolith into 23 services. Three of them we later glued back together.**\n\nEveryone has the slide with the ball of mud on the left and tidy hexagons on the right. Nobody shows month seven, when checkout depends on four services and none of their owners are awake.\n\nWe spent two years pulling a 900k-line Rails app apart. Eleven of those extractions paid for themselves inside a quarter. Six were a wash. Three we merged back, and one of them still pages someone every Thursday at 4am.\n\nThis talk is the ledger, not the sales pitch. I'll walk through how we picked the first seam (billing, and it was the wrong choice), what the strangler-fig pattern actually costs when the legacy write path won't die, and the specific week our p99 went from 180ms to 1.4s because a chatty service boundary landed in the middle of a hot loop.\n\nYou'll leave with the three questions we now ask before any extraction, a rough dollar figure for the observability tax nobody budgets for, and permission to keep the parts of your monolith that are working fine.\n\nBring your architecture diagram. We'll find the seam that isn't one."
+}

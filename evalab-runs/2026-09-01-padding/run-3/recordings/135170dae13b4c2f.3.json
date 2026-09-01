@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nIn two years, an engineer who joins on a Monday should have a service in production by Friday \u2014 and should never have opened a Terraform file to get there.\n\nThat's the bet. Today the median new service takes eleven weeks from first commit to first page, and about seven of those weeks go to plumbing every team rebuilds by hand: auth, secrets, deploy pipelines, dashboards nobody reads until something breaks. We pay that tax once per team, forever. Sixty-odd times a year now.\n\nPlatform work is how we stop paying it. Not a platform team that owns everything \u2014 a paved road that is genuinely easier than the dirt track beside it, so people take it without being told to. If we need a policy to force adoption, we built the wrong thing.\n\nConcretely, by the end of FY28: one deploy path carrying 80% of services, environment provisioning behind a single command, and an on-call engineer who can answer \"what changed?\" in under two minutes without asking in Slack.\n\nNone of this is free. Two years of platform investment means two years of product roadmap we don't ship, and this document should say plainly that much of the work will be invisible to the people who benefit from it. We think the trade is right anyway. The alternative is a fourth year of every team solving the same five problems slightly differently, and that integration cost compounds faster than headcount does.\n\n---\n\n~250 words. The specifics \u2014 eleven weeks, seven weeks of plumbing, 80%, FY28 \u2014 are placeholders shaped to be replaceable; swap in your real numbers, since the section only holds up if those are defensible."
+}

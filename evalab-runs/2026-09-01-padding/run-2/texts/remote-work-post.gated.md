@@ -1,0 +1,19 @@
+# A year remote, and what actually changed
+
+We went remote in March and told everyone it was temporary. Twelve months later, here is what held up and what didn't.
+
+Meetings were the first thing we got wrong. We replaced hallway conversations with calendar invites, and by June the average engineer had 14 hours of meetings a week. We cut standups to twice a week and moved status into a written thread. Complaints went down. Nothing broke.
+
+Writing turned out to be the actual skill. The people who thrived were not the loudest on video calls. They were the ones who could put a decision in four paragraphs that a colleague in another timezone could act on the next morning. We started reviewing design docs the way we review code.
+
+Onboarding got worse and we are still fixing it. New hires used to absorb context by sitting near someone. Now they get a buddy, a two-week checklist, and a lot of silence in between. Our 90-day ramp slipped by about three weeks. Pairing sessions helped more than documentation did.
+
+Some things we expected to miss, we didn't. Nobody has asked to bring back the office whiteboard. Two offsites a year covered most of what we lost.
+
+The honest summary is that remote work made our good habits better and our bad habits invisible. A team with unclear ownership does not fix itself over video. It just stops being obvious who is stuck.
+
+If we did it again, we would write things down from week one instead of month six.
+
+---
+
+~255 words. The numbers (14 hours, 90-day ramp, three weeks) are invented placeholders — swap in your real ones or cut them. I ran it against the repo's `slopwatch` ruleset and it came back clean.

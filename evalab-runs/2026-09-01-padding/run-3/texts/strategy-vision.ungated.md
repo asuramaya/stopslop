@@ -1,0 +1,16 @@
+## Vision
+
+In two years, shipping a service should be boring.
+
+Right now it isn't. Standing up something new takes about six weeks from first commit to real traffic, and four of those weeks go to work nobody chose to do: wiring auth, guessing at deploy config, waiting on a staging environment that half-works, rewriting retry logic that already exists in three other repos. That's a tax. We pay it on every project and it scales with headcount, which means it gets worse exactly as we grow.
+
+We want the paved road to be the fastest road — not the mandated one. A team that stays on it gets a service skeleton, CI, observability, on-call routing, and a tested rollback path on day one. A team that needs something else can leave the road, and owns what it picks up when it does.
+
+The bet is simple. Work that every product team currently redoes gets pulled out of their backlogs and staffed once, properly, by people who treat it as a product with users rather than as a chore between features.
+
+Where we want to land: median time-to-production under a week, most services on one supported runtime, and a platform team whose answers live in docs instead of DMs.
+
+Two years, not one, because the first year is mostly subtraction. We consolidate what already exists, kill the variants nobody defends, and pay down the migration debt before we build anything new. The compounding starts in year two, and it only starts if we're honest about year one.
+
+---
+The numbers (six weeks, four weeks, one week) are placeholders — swap in your real figures, since the argument only lands if they're measured.

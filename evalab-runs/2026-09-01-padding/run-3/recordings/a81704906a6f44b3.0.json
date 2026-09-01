@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "Details here are invented \u2014 swap in your real company, names, and numbers. `[Platform]` is a placeholder for your product.\n\n---\n\n## Ostermann Fluid Systems went from eight releases a quarter to forty a week\n\nOstermann builds monitoring software for municipal water utilities. Forty engineers, one large Django monolith, and until last year, a release process that ran on a shared spreadsheet and a Thursday night.\n\n\"We weren't slow because anyone worked slowly,\" says Priya Raghunathan, who runs platform engineering. \"We were slow because a release was an *event*. Nobody schedules an event twice a week.\"\n\nThe team started with [Platform] in March 2025 on a single service \u2014 the alerting API, picked because it was small and nobody was frightened of it. Pipelines were defined in the repo instead of clicked together in a UI, so a broken deploy could be bisected like any other bad commit. Six weeks later they moved the billing service. The monolith took until August.\n\nThe numbers as of Q1 2026:\n\n- Deploy frequency: 8 per quarter \u2192 40 per week\n- Lead time, merge to production: 11 days \u2192 26 minutes\n- Mean rollback: 90 minutes \u2192 4 minutes\n- Change failure rate: 14% \u2192 9%\n\nNot everything got easier. Staging had drifted from production for years, and the pipeline surfaced that within a week \u2014 Ostermann spent most of April fixing config drift before the rollout could continue. The integration suite, written when it ran twice a month, had to be cut from 51 minutes to 6.\n\n\"Deploying often didn't make us careful,\" Raghunathan says. \"Doing it while it was still boring did.\""
+}

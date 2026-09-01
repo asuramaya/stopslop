@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "**Your dashboards are green. Checkout is broken.**\n\nEvery team I've worked with has monitoring. CPU, memory, request rate, a p99 latency graph that someone set up in 2021 and nobody has touched since. Then checkout starts failing for 3% of users \u2014 Android only, Brazil only, only when the coupon field isn't empty \u2014 and not one of those graphs so much as twitches. The pager stays quiet. Support finds out first, from a customer.\n\nThat gap has a name, and it isn't \"we need more dashboards.\"\n\nMonitoring answers the questions you thought to ask in advance. You predicted a failure, you built a chart for it, the chart tells you when it happens. Observability is whether you can answer the question you *didn't* predict \u2014 at 2 a.m., from data you already collected, without shipping a new log line and waiting forty minutes for a deploy.\n\nMost outages live in that second category. The known failure modes get runbooks and alerts within a week of the first incident. What actually burns your on-call is the unknown one: some interaction between a retry policy, a cache eviction, and a customer who does something nobody imagined. You can't pre-build a graph for that. You can only make your system answerable.\n\nThe practical difference shows up in how long an incident takes. Teams that can slice their traffic by user, region, version, and feature flag find the coupon-field bug in ten minutes. Teams reading aggregate dashboards spend three hours guessing, then add a log line and wait."
+}

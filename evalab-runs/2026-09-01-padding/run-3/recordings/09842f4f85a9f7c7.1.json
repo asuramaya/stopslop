@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Here's the draft. Bracketed bits are placeholders for your real names/details.\n\n---\n\nNobody schedules technical debt. It accumulates the way silt does \u2014 one deadline at a time, each of them reasonable at the time.\n\nThat's the honest version. The dishonest version is the one where we all agree the debt was a mistake, promise to pay it down next quarter, and then ship the next thing instead. We've done that. Twice, at least.\n\nSo this month isn't a cleanup sprint. It's an inventory. Three teams went back through the parts of the codebase they dread touching and wrote down why \u2014 not \"it's messy,\" but what specifically breaks, how long a change takes, who gets paged when it doesn't work. [Name]'s piece on the auth service is the sharpest thing I've read internally this year, and the root cause turns out to be a [2019] decision nobody here can still explain.\n\nYou'll also find a short defense of leaving debt alone. Some of it is load-bearing. Some of it lives in code we're deleting in eight months anyway, and rewriting that now is just a costlier way to delete it.\n\nRead the inventory. Argue with it. That's the point.\n\n---\n\n~205 words. Two things worth knowing about the choices: the opening rejects the usual \"debt is a metaphor from finance\" framing, which every debt newsletter opens with, and the closing avoids a moral so the pieces themselves carry the argument. If your culture is more formal than this reads, tell me and I'll pull the register up a notch without flattening the cadence."
+}

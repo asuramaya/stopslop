@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, a team that wants to ship a new service shouldn't have to relearn how we do deploys, secrets, tracing, and on-call. Those should arrive by default, and the team should spend its attention on the part of the problem nobody outside it can solve.\n\nWe're a long way from that. Today each team keeps a private copy of the same infrastructure decisions, drifting apart at its own rate. When a CVE lands we don't have one thing to patch; we have nineteen. When someone new joins, their first month goes to learning which of the nineteen they inherited. The cost isn't visible in any single quarter, which is exactly why it keeps growing.\n\nSo the goal for the next two years is boring on purpose: one paved road, good enough that leaving it feels like a real choice rather than the path of least resistance. A new service reaches production in a day. A dependency upgrade rolls out from one place. An engineer moving between teams recognizes the tooling on day one.\n\nWe're not aiming for a platform that handles every case. Teams with genuine reasons to go their own way should still be able to, and we'd rather earn adoption than mandate it. If the paved road only wins because we blocked the alternatives, we built the wrong road.\n\nThe measure of success isn't how much platform we've built. It's how much infrastructure work has quietly disappeared from product teams' sprints, and whether they'd notice if we took the platform away.\n\n*Written against generic assumptions about org size and current tooling \u2014 swap in your specifics where I've guessed (the \"nineteen copies\" figure especially).*"
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "**A year remote: the parts we got wrong**\n\nWe went remote in March and told everyone it was temporary. It wasn't.\n\nThe first thing to break wasn't productivity. Story points held steady, which we now suspect mostly proves story points measure nothing. Onboarding broke. Our four new hires took an average of eleven weeks to ship to production; before, that number was four. Nobody overheard anything anymore. The knowledge that used to leak sideways across a desk row now had to be asked for out loud, by someone who didn't yet know the right question to ask.\n\nSo we wrote it down. All of it. Forty pages nobody wanted to write, including three paragraphs on why the billing service has two queues.\n\nSecond: meetings expand to fill the calendar. We drifted from 14 hours a week to 23 before anyone said anything, because scheduling is free and walking to a room isn't. One afternoon we deleted every recurring meeting and made people re-request the ones they missed. Nineteen went away. Six came back.\n\nThird, and the one we underpriced: timezone spread. A four-hour gap turns a five-minute question into a next-day question, and a next-day question into a guess. Our Lisbon and Seattle engineers weren't collaborating; they were exchanging letters.\n\nWe're still remote. Two people asked to come back to an office and we rented desks for them, which felt like a defeat for about a week and then just felt like the answer.\n\nThe honest summary of year one: we saved on rent and paid for it in context."
+}

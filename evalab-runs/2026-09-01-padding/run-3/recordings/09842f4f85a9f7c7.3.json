@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Here's a draft intro, around 200 words:\n\n---\n\n**This Month: Technical Debt**\n\nNobody sets out to write bad code. The commit that eventually becomes an incident usually started as a reasonable call on a Thursday afternoon, with a deadline two days out and a test suite that was already yellow.\n\nThat's the honest version of technical debt, and it's the version we wanted to spend a month on. Not the metaphor from the conference talks, where debt is a tidy line item you pay down with a quarterly sprint. The real thing is messier. It's the config file three people are afraid to touch. It's the service that works fine as long as nobody asks it a question in a slightly new way.\n\nThe pieces in this issue come at it from a few angles. Priya walks through how her team scored their oldest services and what the scoring got wrong. Marcus makes the case that some debt should be left alone forever, which started an argument in review that we've reproduced at the end of his piece. And we've got numbers from the migration that ran six weeks past its estimate, including the parts we'd rather not print.\n\nRead it in whatever order you like. Then go look at your Thursday commits.\n\n---\n\nSwap the placeholder contributor names and article details for the real ones. If you want it more or less blunt in tone, say which way and I'll adjust."
+}
