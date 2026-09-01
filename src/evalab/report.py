@@ -9,6 +9,10 @@ without the caveat that a six-prompt run settles nothing on its own.
 import statistics
 
 
+def _total(rows, arm, key):
+    return sum(r[arm]["scores"][key] for r in rows)
+
+
 def _mean(rows, arm, key):
     values = [r[arm]["scores"][key] for r in rows]
     return statistics.fmean(values) if values else 0.0
@@ -36,6 +40,11 @@ def render(result):
     add("stopslop A/B evaluation")
     add("=" * 66)
     add(f"ruleset          {result['ruleset']}")
+    if result.get("prompt_set"):
+        note = ("real content, a fair base rate"
+                 if result["prompt_set"] == "technical"
+                 else "CHOSEN to produce flags -- not a base rate")
+        add(f"prompt set       {result['prompt_set']} ({note})")
     add(f"generator        {result['generator']} ({result['generator_version']})")
     add(f"prompts          {len(rows)}")
     add(f"max iterations   {result['max_iterations']}")
@@ -63,6 +72,18 @@ def render(result):
     else:
         add(f"  Only those {revised} carry any signal. On the rest the gated")
         add("  arm is a third independent sample of the same prompt.")
+    add("")
+
+    add("TOTAL FLAGS, whole corpus  (a percentage hides how few these are)")
+    add("-" * 66)
+    add(f"  {'arm':<10} {'words':>7} {'enforced':>10} {'held-out':>10}")
+    for arm in ("ungated", "control", "gated"):
+        add(f"  {arm:<10} {_total(rows, arm, 'words'):7} "
+            f"{_total(rows, arm, 'enforced_flags'):10} "
+            f"{_total(rows, arm, 'held_out_flags'):10}")
+    add("")
+    add("  Read these before any percentage below. A 41% held-out drop in")
+    add("  the 2026-09-01 run was two flags becoming one.")
     add("")
 
     add("AVERAGES  (gate = ungated -> gated;  noise = ungated -> control)")

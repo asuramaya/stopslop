@@ -48,13 +48,18 @@ def main(argv=None):
     parser.add_argument("--ruleset", default="slopwatch")
     parser.add_argument("--out", default=None,
                          help="directory for result.json, report.txt and texts/")
+    parser.add_argument("--prompt-set", default="technical",
+                         choices=sorted(prompt_set.PROMPT_SETS),
+                         help="technical = real content, a fair base rate; "
+                              "padding = chosen to produce flags, never a "
+                              "base rate")
     parser.add_argument("--prompt", action="append", dest="prompt_ids",
                          help="run only this prompt id (repeatable)")
     parser.add_argument("--max-iterations", type=int, default=4)
     args = parser.parse_args(argv)
 
     try:
-        chosen = prompt_set.by_ids(args.prompt_ids)
+        chosen = prompt_set.by_ids(args.prompt_ids, prompt_set=args.prompt_set)
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
@@ -71,12 +76,13 @@ def main(argv=None):
     def progress(prompt_id):
         print(f"  {prompt_id} ...", file=sys.stderr, flush=True)
 
-    print(f"running {len(chosen)} prompt(s) against {args.ruleset}",
-          file=sys.stderr)
+    print(f"running {len(chosen)} {args.prompt_set} prompt(s) against "
+          f"{args.ruleset}", file=sys.stderr)
     try:
         result = harness.run(chosen, ruleset, generator,
                               max_iterations=args.max_iterations,
                               on_progress=progress)
+        result["prompt_set"] = args.prompt_set
     except GeneratorError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

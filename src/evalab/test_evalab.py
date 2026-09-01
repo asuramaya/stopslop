@@ -133,20 +133,44 @@ class PromptSetTests(unittest.TestCase):
         ids = [p["id"] for p in prompts.PROMPTS]
         self.assertEqual(len(ids), len(set(ids)))
 
-    def test_no_prompt_mentions_style_or_a_check_name(self):
+    def test_no_prompt_in_any_set_mentions_style_or_a_check_name(self):
         """A prompt that primed either arm would hide the effect being
-        measured."""
+        measured. Applies to BOTH sets: the padding set is meant to
+        invite filler by asking for register rather than content, never
+        by naming what the checks catch."""
         ruleset = rulesets.get_ruleset("slopwatch")
         banned = set(ruleset.list_checks()) | {
             "concise", "plain language", "avoid", "do not use"}
-        for prompt in prompts.PROMPTS:
-            lowered = prompt["text"].lower()
-            for term in banned:
-                self.assertNotIn(term.replace("_", " "), lowered)
+        for name, prompt_set in prompts.PROMPT_SETS.items():
+            for prompt in prompt_set:
+                lowered = prompt["text"].lower()
+                for term in banned:
+                    self.assertNotIn(term.replace("_", " "), lowered,
+                                      f"{name}/{prompt['id']} primes a check")
+
+    def test_ids_are_unique_within_and_across_sets(self):
+        """A shared id between sets would make a saved run ambiguous
+        about which prompt produced it."""
+        seen = [p["id"] for s in prompts.PROMPT_SETS.values() for p in s]
+        self.assertEqual(len(seen), len(set(seen)))
+
+    def test_the_padding_set_is_reachable_and_distinct(self):
+        technical = {p["id"] for p in prompts.get_set("technical")}
+        padding = {p["id"] for p in prompts.get_set("padding")}
+        self.assertTrue(padding)
+        self.assertEqual(technical & padding, set())
 
     def test_by_ids_refuses_an_unknown_id(self):
         with self.assertRaises(ValueError):
             prompts.by_ids(["__no_such_prompt__"])
+
+    def test_by_ids_refuses_an_unknown_set(self):
+        with self.assertRaises(ValueError):
+            prompts.by_ids(None, prompt_set="__no_such_set__")
+
+    def test_an_id_from_the_other_set_is_refused_not_silently_dropped(self):
+        with self.assertRaises(ValueError):
+            prompts.by_ids(["readme-section"], prompt_set="padding")
 
 
 class ReportTests(unittest.TestCase):
@@ -258,6 +282,34 @@ class RecordingKeyTests(unittest.TestCase):
             generator(messages)
             with self.assertRaises(GeneratorError):
                 generator(messages)
+
+
+class ReportCountsTests(unittest.TestCase):
+    """Run 1's lesson, pinned: a 41% held-out drop was two flags becoming
+    one. The report prints absolute totals above every percentage so that
+    cannot be read the wrong way twice."""
+
+    def test_report_prints_absolute_totals_per_arm(self):
+        ruleset = rulesets.get_ruleset("slopwatch")
+        dirty = ("Needless to say, this is a seamless solution. "
+                  "Studies show it is very fast.")
+        generator = ScriptedGenerator([dirty, dirty, dirty, dirty])
+        result = harness.run(prompts.by_ids(["readme-section"]), ruleset,
+                              generator, max_iterations=2)
+        rendered = report.render(result)
+        self.assertIn("TOTAL FLAGS", rendered)
+        self.assertIn("a percentage hides how few these are", rendered)
+
+    def test_report_labels_which_prompt_set_produced_the_numbers(self):
+        ruleset = rulesets.get_ruleset("slopwatch")
+        text = "The cache stores query results on disk."
+        generator = ScriptedGenerator([text, text, text])
+        result = harness.run(prompts.by_ids(["launch-announcement"],
+                                              prompt_set="padding"),
+                              ruleset, generator, max_iterations=1)
+        result["prompt_set"] = "padding"
+        rendered = report.render(result)
+        self.assertIn("not a base rate", rendered)
 
 
 if __name__ == "__main__":

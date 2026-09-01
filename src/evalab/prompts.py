@@ -1,14 +1,26 @@
 #!/usr/bin/env python3
-"""The fixed prompt set.
+"""The fixed prompt sets.
 
-Chosen to be the writing this tool actually meets: documentation, an
-incident write-up, an error message, a design note. Each asks for real
-content rather than a topic to riff on, because a vague prompt invites
-padding and would flatter the gate -- padding is exactly what these
-checks catch, so the ungated arm would look bad for a reason that has
-nothing to do with the gate.
+TWO of them, and mixing up which one a number came from would wreck any
+claim built on it.
 
-None of them mentions style, tone, or any check. A prompt that said
+`technical` supplies real content in every prompt: a specific incident,
+named settings, a concrete API change. It is the writing this tool
+actually meets in a repository, so its flag rate is a fair BASE RATE.
+The 2026-09-01 run measured that rate at roughly one flag per 200 words,
+which is the finding that matters most about this project.
+
+`padding` asks for register rather than content: launch copy, an opening
+that explains why a topic matters, a case study. These are real tasks
+people are really assigned, and they invite filler because the writer has
+to manufacture the substance. This set was CHOSEN to produce flags, so
+its flag rate is not a base rate and must never be quoted as one. It
+exists for one purpose: to give the held-out comparison enough signal to
+answer whether a blocking gate teaches writing or teaches avoidance. That
+question needs text that trips the gate, and `technical` did not supply
+enough of it.
+
+Neither set mentions style, tone, or any check. A prompt that said
 "write plainly" would prime both arms and hide the effect being
 measured.
 
@@ -69,12 +81,78 @@ PROMPTS = [
 ]
 
 
-def by_ids(ids=None):
+# Register rather than content. Every one is a task a real person gets
+# handed, and every one leaves the writer to supply the substance, which
+# is where filler comes from. Selected to produce flags: this set's flag
+# rate is not a base rate for anything.
+PADDING_PROMPTS = [
+    {
+        "id": "launch-announcement",
+        "text": "Write a launch announcement blog post for a new dark "
+                 "mode feature in a note-taking app. Around 250 words.",
+    },
+    {
+        "id": "why-it-matters",
+        "text": "Write the opening section of a blog post explaining why "
+                 "observability matters for engineering teams. Around 250 "
+                 "words.",
+    },
+    {
+        "id": "product-page",
+        "text": "Write the product page copy for a team chat application, "
+                 "aimed at engineering managers who are choosing between "
+                 "tools. Around 250 words.",
+    },
+    {
+        "id": "conference-abstract",
+        "text": "Write a conference talk abstract for a talk about moving "
+                 "a monolith to microservices. Around 200 words.",
+    },
+    {
+        "id": "remote-work-post",
+        "text": "Write a post about what a software company learned from "
+                 "a year of remote work. Around 250 words.",
+    },
+    {
+        "id": "newsletter-intro",
+        "text": "Write the introduction to a monthly engineering "
+                 "newsletter whose theme this month is technical debt. "
+                 "Around 200 words.",
+    },
+    {
+        "id": "case-study",
+        "text": "Write a customer case study about a company that adopted "
+                 "a continuous delivery platform and now deploys more "
+                 "often. Around 250 words.",
+    },
+    {
+        "id": "strategy-vision",
+        "text": "Write the vision section of an internal engineering "
+                 "strategy document about investing in platform work over "
+                 "the next two years. Around 250 words.",
+    },
+]
+
+PROMPT_SETS = {
+    "technical": PROMPTS,
+    "padding": PADDING_PROMPTS,
+}
+
+
+def get_set(name):
+    if name not in PROMPT_SETS:
+        raise ValueError(f"unknown prompt set {name!r} -- "
+                          f"have {sorted(PROMPT_SETS)}")
+    return PROMPT_SETS[name]
+
+
+def by_ids(ids=None, prompt_set="technical"):
+    available = get_set(prompt_set)
     if not ids:
-        return list(PROMPTS)
+        return list(available)
     wanted = set(ids)
-    chosen = [p for p in PROMPTS if p["id"] in wanted]
-    unknown = wanted - {p["id"] for p in PROMPTS}
+    chosen = [p for p in available if p["id"] in wanted]
+    unknown = wanted - {p["id"] for p in available}
     if unknown:
         raise ValueError(f"unknown prompt id(s): {sorted(unknown)}")
     return chosen
