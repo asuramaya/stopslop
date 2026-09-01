@@ -3,6 +3,11 @@
 Extracted from `~/Downloads/ASD-STE100_ISSUE9.pdf` (© ASD 2025, reproduced under stopslop's entity's
 licensed usage rights). Source: PDF pages ~43–147 for Part 1; dictionary word list begins PDF page 149.
 
+This file is exempt from the ste100 gate (see `stopslop.config.json`'s own routing rule for this
+exact path). It is a dense technical taxonomy of the standard's own rules, not authored prose --
+holding it to the standard's own sentence-length and grammar constraints would gut the
+cross-references and precision a reference table needs to stay useful.
+
 This replaces the STE100 Gatekeeper System design doc's rule taxonomy (§13.1), which was written
 without access to the real spec and is missing/wrong in several places (see `project_scope` memory
 for the full list of gaps this corrects).

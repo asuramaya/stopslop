@@ -294,6 +294,10 @@
       "ruleset": null
     },
     {
+      "glob": "docs/ASD-STE100-rules-extracted.md",
+      "ruleset": null
+    },
+    {
       "glob": "README.md",
       "ruleset": "slopwatch"
     },
