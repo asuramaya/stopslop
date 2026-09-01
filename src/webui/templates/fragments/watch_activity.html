@@ -20,20 +20,22 @@
 <p class="caption">No matching activity yet -- write something through the hook, or use
   Try it on Checks to see what it would do.</p>
 {% else %}
-<table>
-  <thead>
-    <tr><th>Time</th><th>Event</th><th>Ruleset</th><th>File</th><th>Kinds</th></tr>
-  </thead>
-  <tbody>
-    {% for r in rows %}
-    <tr>
-      <td>{{ r.time }}</td>
-      <td>{{ r.icon }} {{ r.action }}</td>
-      <td>{{ r.ruleset }}</td>
-      <td>{{ r.file }}</td>
-      <td>{{ r.kinds }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="scroll-panel">
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Event</th><th>Ruleset</th><th>File</th><th>Kinds</th></tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.time }}</td>
+        <td>{{ r.icon }} {{ r.action }}</td>
+        <td>{{ r.ruleset }}</td>
+        <td>{{ r.file }}</td>
+        <td>{{ r.kinds }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endif %}
