@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** [Your name]\n**Re:** Dedicating Q[N] to debt reduction\n\nI'm asking for one quarter with no new feature commitments, so the team can pay down the debt that is now setting our delivery pace for us.\n\nHere is the case. Over the last four quarters we shipped on schedule by deferring cleanup, and the interest has come due. [X]% of sprint capacity currently goes to bugs that trace back to the same handful of aging subsystems. Our median PR sits in review for [N] days because reviewers have to reason about code no one fully owns. Onboarding a new engineer takes [N] weeks, most of it spent learning workarounds rather than the domain.\n\nThe work I'd prioritize is narrow and measurable:\n\n1. Retire the [legacy service/module], which accounts for roughly [X]% of our on-call pages.\n2. Bring test coverage on [critical path] to a level where we can deploy without a manual regression pass.\n3. Cut the build from [N] minutes to under [N].\n\nI'm not proposing an open-ended refactor. Each item has a defined scope, an owner, and an exit condition, and I'll report progress against the same metrics above at the end of each sprint.\n\nThe cost is real: roughly [N] feature-weeks we won't spend on the roadmap. The alternative is spending them anyway, quietly, on incidents and rework, without anything durable to show. I'd rather we choose where that time goes.\n\nHappy to walk through the detailed scoping doc whenever it's useful.\n\n---\n\nBracketed placeholders are yours to fill; the argument works best with your actual on-call and cycle-time numbers behind it."
+}

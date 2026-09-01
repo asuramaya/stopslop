@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "## Design philosophy\n\n*(Written generically \u2014 swap in your API's specifics where the examples don't match.)*\n\nThree commitments shape every endpoint here.\n\n**Predictability over cleverness.** Resources are nouns, methods mean what HTTP says they mean, and errors arrive in one shape no matter which route produced them. No magic parameter changes the structure of a response. If two endpoints look alike, they behave alike.\n\n**Explicit over implicit.** We don't guess at defaults you didn't set. Pagination is always requested, never assumed. Timestamps carry timezones. A field that can be null is documented as nullable, and an absent field means something different from a null one.\n\n**Additive change only.** Within a major version we add fields and endpoints; we never remove or repurpose them. Write clients that ignore unknown keys and they'll keep working. When we do break something, it happens behind a new version string, with a migration guide and a deprecation window measured in months.\n\nThese rules have a cost: some things are more verbose than they'd otherwise be. You'll write a few more lines to page through a collection than a \"smart\" API would ask of you. We think the trade is worth it. The code you write today should still run next year without you watching a changelog."
+}

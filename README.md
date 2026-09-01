@@ -145,18 +145,18 @@ python3 src/evalab/run.py --replay evalab-runs/<date>/recordings     # free, re-
 - Held-out flags fell 41%, which reads well until you notice the control arm fell further. The gate moved that number less than sampling noise did. In absolute terms the ungated corpus held **two** held-out flags and the gated one held one, so the Goodhart question is not answered here -- the run had almost no power to answer it.
 - No flattening was detected. Sentence-length stdev moved less under the gate than between two ungated samples.
 
-**Two later runs did use a prompt set that invites padding, and they went after the harder question: does the gate teach writing, or teach avoidance?** See [`evalab-runs/2026-09-01-padding/FINDINGS.md`](evalab-runs/2026-09-01-padding/FINDINGS.md). The decisive arm is a **blind rewrite**: the same prompt, the same number of generations the gated arm spent, told only to rewrite and never what was wrong. On the four prompts where the loop actually revised, with compute matched:
+**A 30-prompt run has now answered the harder question: does the gate teach writing, or teach avoidance?** See [`evalab-runs/2026-09-01-padding30/FINDINGS.md`](evalab-runs/2026-09-01-padding30/FINDINGS.md). Thirty prompts that invite filler, four arms each, 19 of them revised by the gated loop. The decisive arm is a **blind rewrite**: same prompt, the same generations the gated arm spent, told only to rewrite and never what was wrong.
 
-| arm | enforced flags | held-out flags |
+| arm (19 revised prompts) | enforced flags | held-out flags |
 |---|---|---|
-| ungated | 8 | 5 |
-| control (a second ungated sample) | 3 | 4 |
-| blind rewrite, told nothing | 2 | **2** |
-| gated, rewrite to clear the flags | **0** | 4 |
+| ungated | 20 | 19 |
+| control (a second ungated sample) | 22 | 25 |
+| blind rewrite, told nothing | 22 | **16** |
+| gated, told what to fix | **0** | 25 |
 
-The gate wins on what it enforces, which it must, since the loop runs until it does. On the checks it was not enforcing it did worse than telling the model "rewrite this", and worse than simply sampling twice. A revision aimed at a named list of defects is a narrower act than a revision aimed at the whole text.
+**The gate eliminates exactly what it measures and improves nothing else.** Enforced flags go to zero in every document, which is certain and also trivial, since the loop runs until they do. Held-out flags land where a second untouched sample lands. That combination is Goodhart's law stated plainly: the proxy goes to zero, the thing it stands for does not move. Sentence-length variance stayed flat across all four arms, so the flattening worry found no support either.
 
-That is four prompts and single-digit flag counts, and the two runs disagree with each other, so it is suggestive and not established -- `FINDINGS.md` is specific about which comparisons are internally controlled and which are not. But it is the evidence this project has, and it does not support its own central mechanism. The honest summary is that stopslop guarantees a clean score on the checks it names, for a generation per revision, and has not been shown to beat asking the model to try again.
+A plain rewrite did better on the unenforced checks than the gate did, 16 flags against 25 at identical cost, and it was the only arm that improved on the ungated baseline at all. That direction is consistent -- the blind arm won 11 prompts to 4 -- but it does not reach significance (sign test p = 0.12, bootstrap interval crossing zero), so the strong claim that the gate does harm is suggested and unproven. The claim that it adds nothing beyond its own checks is not.
 
 No number from a run is copied into a pitch here on purpose. A run belongs to one model on one day, and quoting a report out of context is how an evaluation turns into a demo.
 

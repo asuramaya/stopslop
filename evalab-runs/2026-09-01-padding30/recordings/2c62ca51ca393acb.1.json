@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about starting a mentorship program on an engineering team. Around 250 words."
+  }
+ ],
+ "output": "241 words:\n\n---\n\nWe started a mentorship program six months ago, after three juniors quit within five weeks of each other. The exit interviews said the same thing in three different phrasings: nobody was teaching them anything.\n\nHere's the shape of what we built.\n\nPairs meet 45 minutes a week, same slot, and the mentee owns the agenda. That last part matters more than anything else we tried. Our first version had mentors preparing topics, and it died in a month, because senior engineers don't have a spare hour to design curriculum and they resent being asked for one.\n\nWe don't pair inside a team. A mentor from a different service can't quietly fix your ticket, which forces an actual explanation instead of a screen share where the senior does the typing.\n\nMentoring counts. It goes in promo packets under the same heading as design docs. If you say mentorship matters and then reward only shipped features, people work out fast which of those two things you meant.\n\nWhat I'd change: we launched fourteen pairs at once. Way too many. Three of them went badly and we didn't find out for two months, because nobody wants to be the person who says the program isn't working. Now there's a five-minute check at week four, and either side can dissolve the pair without owing anyone a reason.\n\nIf you're setting one up, start with four pairs and give it a year before you decide anything.\n\n---\n\nThe specifics (six months, three juniors, 45 minutes, fourteen pairs) are invented placeholders \u2014 swap in your real numbers, since that's what carries the post."
+}

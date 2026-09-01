@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "You didn't say which service, which platform, or which quarter, so I've left those as bracketed slots \u2014 swap them in and the rest holds.\n\n---\n\n**Subject: [Service Name] is moving to [New Platform] in [Q_ 20__]**\n\nWe're moving [Service Name] onto [New Platform] next quarter. Here's what that means for you.\n\nThe short version: your account, your data, and your existing integrations come with you. You don't need to re-register, re-upload anything, or rebuild your workflows. We'll handle the migration in the background over the weekend of [date], and the service stays available the whole time except for a [X]-minute window on [date] starting at [time UTC], when writes will be paused.\n\nTwo things do change. First, the API hostname moves from `[old.example.com]` to `[new.example.com]`. The old hostname keeps forwarding until [sunset date], so you have [N] months to update your clients \u2014 but update them, because the redirect goes away on that date. Second, [name the second concrete change: pricing tier rename, dashboard URL, auth method, whatever it actually is].\n\nWhy bother? [Old platform] capped us at [specific limit \u2014 e.g. 50 requests/second per tenant], and we couldn't ship the [specific feature] people have been asking for since [year]. The new setup lifts that.\n\nNothing is required from you before [date]. We'll email again two weeks out with the exact window, and again the morning it starts.\n\nQuestions, or an integration you're worried about? Reply to this email or reach us at [support link]. If your setup is unusual \u2014 heavy webhook use, an on-prem connector, custom SSO \u2014 tell us now rather than in [month]. We'd rather test it than surprise you.\n\n\u2014 [Name], [Title]"
+}

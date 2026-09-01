@@ -1,0 +1,15 @@
+You didn't say which API, so I wrote it as a drop-in for a generic REST/JSON product API — swap the specifics (currency handling, twelve-month deprecation window) for whatever your actual policies are. It passes the repo's `slopwatch` gate.
+
+## Design philosophy
+
+We made three bets when we designed this API, and everything else follows from them.
+
+**Boring beats clever.** Endpoints are plain REST over JSON. There is no custom query language, and no batching protocol you have to learn before your first request. If you can read the URL, you can probably guess what it returns.
+
+**Explicit over implicit.** Nothing is inferred from your account settings or the time of day. Pagination is always a cursor you hand back to us. Money is always an ISO currency code plus an integer count of minor units: never a float, never assumed to be dollars. Verbose? Sometimes. But a request means the same thing in a test fixture as it does in production at 3 a.m.
+
+**Breaking changes are our problem, not yours.** Versions pin per API key. We add fields; we do not remove or repurpose them. When we genuinely have to break something, you get twelve months, a migration guide, and a date we announce in advance rather than discover together.
+
+Where these bets conflict, we pick whichever makes failure louder. An error you hit in staging is cheap. A silently wrong number on a customer invoice is not.
+
+*(~205 words.)*

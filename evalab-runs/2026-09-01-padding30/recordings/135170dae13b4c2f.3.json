@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, shipping a new service should be a Tuesday afternoon, not a quarter.\n\nToday it isn't. A team starting from scratch spends most of its first six weeks on things no customer will ever see: wiring auth, arguing about the deploy pipeline, rediscovering which Terraform module is the blessed one. Every team pays this tax, and every team pays it differently, so we end up with eleven slightly incompatible answers to the same question. The cost isn't just the six weeks. It's that nobody wants to split a service that's getting too big, because splitting it means paying the tax again.\n\nWe want to make the default path the easy path. Concretely: a new service goes from repo creation to production traffic in under a day, with logging, tracing, secrets, and rollback already working, because someone else solved those once. Teams that need to step off the path can \u2014 the platform is a paved road, not a fence \u2014 but they should be choosing that deliberately, and rarely.\n\nThis is a bet about where our engineering time goes. Right now roughly a third of it goes to work that is duplicated somewhere else in the org. We'd like that number closer to a tenth by the end of year two, and we intend to measure it rather than assert it.\n\nThe platform team's job is not to own every service. It's to make sure that owning a service stays cheap.\n\n---\n\nSwap in your real numbers for the \"six weeks,\" \"eleven,\" and \"a third\" figures \u2014 the argument only lands if those are yours."
+}

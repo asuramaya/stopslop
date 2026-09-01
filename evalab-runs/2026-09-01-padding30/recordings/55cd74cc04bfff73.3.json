@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "No product name was given, so I've used a placeholder (`Rev`) \u2014 swap it for yours.\n\n---\n\n# Pricing\n\nRev reads your diffs and leaves comments a senior engineer would leave. Start free, upgrade when the review queue starts hurting.\n\n## Solo \u2014 $0\n\nFor one person and public repos.\n\nYou get unlimited reviews on open-source projects, plus three private repos. Rev comments on pull requests, flags the obvious things (null derefs, unhandled promises, a test that asserts nothing), and stays quiet otherwise. No credit card. No trial clock.\n\nWhere it stops: no custom rules, no team settings, community support only.\n\n## Team \u2014 $18 per developer / month\n\nFor teams of 3 to 40 who are tired of the \"LGTM\" rubber stamp.\n\nEverything in Solo, on unlimited private repos. Write your own review rules in plain English \u2014 \"we never call the payments client from a request handler\" \u2014 and Rev enforces them on every PR. It learns from what your reviewers approve and reject, so it stops repeating suggestions your team has already waved off twice.\n\nAlso: GitHub and GitLab, Slack alerts, a monthly digest of what keeps getting flagged. Email support, one business day.\n\n## Enterprise \u2014 talk to us\n\nFor regulated shops and anyone over 200 engineers.\n\nSelf-hosted or single-tenant cloud. SSO with SCIM provisioning, audit logs, SOC 2 report on request, and a contract that says your code never trains a model. You get a named engineer who knows your stack and answers in a shared channel.\n\nAnnual billing. Custom seat pricing above 500 developers.\n\n---\n\nEvery plan: cancel anytime, and your review history exports as JSON."
+}

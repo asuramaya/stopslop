@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago or remote (US) \u00b7 $195k\u2013$235k + equity\n\nWe move about $4B a year for small businesses that get paid by invoice. Roughly 140 people, 30 of them engineers. Series C, profitable since last spring.\n\nThe job: own the ledger and settlement services. That's Go and Postgres, running on ECS, with Kafka in the middle. You'd be the fourth person on a team that keeps double-entry accounting correct while the transaction rate roughly doubles each year. Correctness matters more than throughput here \u2014 a dropped webhook costs us a support ticket, a bad ledger write costs us an audit.\n\nRecent work from this team: cut settlement reconciliation from 9 hours to 40 minutes, rebuilt idempotency handling for our card rails, shipped a payout API that six of our largest customers now use.\n\n**What we're after**\n\nSix-plus years writing backend services, and real time spent on systems where money or its equivalent had to balance. Payments experience is a nice-to-have; distributed systems judgment is not. You should be comfortable owning something on-call and comfortable saying no to a launch date.\n\nWe write Go, but we hire people who've written Java, Elixir, Rust. Language is learnable. Knowing why a retry storm happens at 2 a.m. is less so.\n\n**How hiring works**\n\nA 45-minute call with the hiring manager, a take-home you can finish in under three hours (paid, $300), then a half-day onsite or video loop. Two weeks, start to offer, and we tell you where you stand at each step.\n\nQuestions before applying? Email careers@northlineops.com."
+}

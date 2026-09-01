@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "## Let's take the names out of our postmortems\n\nWe already write incident reviews. The problem is what people do before they write them.\n\nYou've seen it. An outage ends, and the first hour of the review is spent establishing whose commit it was. The person who shipped it turns cautious. Their summary is accurate and useless \u2014 every sentence is built to survive being read by their skip-level. And the thing we actually needed to know, the reason the deploy looked safe at 2am, never gets written down, because saying it out loud sounds like an excuse.\n\nThat's the cost. Not hurt feelings. Missing information.\n\nA blameless postmortem is a narrow commitment: we assume everyone acted reasonably given what they could see at the time, and we spend the meeting reconstructing what they could see. The question stops being \"why did you push it\" and becomes \"why did the dashboard look green.\" One of those has a fix. The other has a scapegoat.\n\nTwo objections, up front. It isn't about avoiding accountability \u2014 the team still owns the follow-up actions, and we should track whether they land. And it doesn't mean performance problems are off-limits; those are a manager conversation, not an incident review. Mixing the two is exactly what breaks the incident review.\n\nWhat I'm proposing: for the next quarter, no individual names in postmortem docs. Roles and systems only. A facilitator who wasn't on-call runs the meeting. We read the doc cold instead of presenting it.\n\nIf our reviews get duller and our repeat incidents drop, that's the trade I want."
+}

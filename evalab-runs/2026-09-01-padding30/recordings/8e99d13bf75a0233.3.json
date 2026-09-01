@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome\n\nYou made it. Badge works, laptop's charged, someone remembered to order the good coffee.\n\nHere's what today actually looks like. Your first commit ships before you leave \u2014 nothing heroic, usually a typo fix or a config tweak, but it goes to production and your name is on it. We do this because the fastest way to trust a deploy pipeline is to push something through it while a person who knows it is sitting next to you.\n\nThat person is your onboarding buddy. Check your calendar; they're the 10:30. Ask them the questions you'd be embarrassed to ask in a channel with 200 people in it. That's the job. They had a buddy too.\n\nA few things nobody tells you until week three, so we'll tell you now:\n\nThe staging database is a copy of production from last Tuesday. Treat it accordingly.\n\nNobody here reads a pull request over 400 lines. They say they do. They don't. Split it.\n\nIf a meeting has no agenda in the invite, declining it is not rude. It's the policy.\n\nWhen something breaks \u2014 and something will break, probably by Thursday \u2014 we ask what in the system let it happen, not who typed the command. We've never fired anyone over an outage. We have fired people for hiding one.\n\nYou'll feel lost for about a month. Everyone does, including the staff engineers who now seem to have the whole architecture memorized. They wrote most of it down. Start with `docs/architecture/README.md`.\n\nGlad you're here. Go break something small."
+}

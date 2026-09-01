@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "**The Interest Payment**\n\nNobody schedules technical debt. It arrives the way most debt does: one reasonable decision at a time, each defensible on the day it was made. The hardcoded config that shipped a demo on Friday. The second copy of the auth logic, because touching the first one meant a two-week regression hunt. The migration that got half done before the quarter ended.\n\nWe've been talking about it a lot lately, mostly because of a rule we started following in April: when a ticket takes three times longer than anyone guessed, we write down why. Six months of those notes make a pattern hard to ignore. It's rarely the hard problems that eat the schedule. It's the six-year-old service nobody wants to open.\n\nSo this month we're printing the notes. Rina walks through the payments refactor and is honest about what it cost. Dev writes about the parts of our test suite that exist only to pass. Two teams disagree, in print, about whether the scheduler is worth rewriting or worth deleting.\n\nNone of this is a plan to fix everything. It's an attempt to be specific about what we owe, and to whom, before the next reasonable decision gets made."
+}

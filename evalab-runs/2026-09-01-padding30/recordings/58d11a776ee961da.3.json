@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination: Platform Delivery \u2014 Engineering Excellence Award**\n\nI want to nominate the Platform Delivery team for what they did to our release process this year.\n\nEighteen months ago, shipping meant a Thursday night window, a runbook nobody fully trusted, and at least one person awake to babysit it. Rollbacks took forty minutes and usually took someone's evening with them. Deploys were the thing engineers scheduled their lives around.\n\nThe team rebuilt it in pieces, without a rewrite and without asking anyone to stop shipping. They put every service behind the same pipeline, made rollback a single command that finishes in under two minutes, and moved us to deploying on merge. We now release roughly sixty times a week. Change failure rate went down, not up.\n\nWhat I'd point to isn't the metrics, though. It's that they did the unglamorous half: they wrote the docs, sat with each team through their first few deploys, and absorbed the complaints of people who liked the old way. They made other teams faster and took no credit for it, which is why I'm putting their names forward now.\n\nNominating: Priya Raman, Tom Okafor, Dana Whitfield, and Marcus Lee.\n\n*(Swap in your team's real names, numbers, and timeline \u2014 the shape holds.)*"
+}

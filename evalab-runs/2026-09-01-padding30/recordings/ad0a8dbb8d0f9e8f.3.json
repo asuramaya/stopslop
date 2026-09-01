@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We Broke Up the Monolith. Then We Put Three of the Pieces Back.**\n\nFour years ago our billing system was one Rails app: 380k lines, one deploy a week, and a test suite that took 51 minutes to tell you it was flaky. We did what everyone does. We drew service boundaries on a whiteboard and started carving.\n\nSome of it worked. Payments and invoicing came out clean and now deploy on their own schedule, eleven times a day between them. Some of it went badly. We spent seven months pulling apart a subscription engine that turned out to be one transaction wearing a trench coat, and last spring we merged it back.\n\nThis talk is the honest version. How we picked the first seam and why it was the wrong one. What distributed tracing cost us in engineer-months before it paid for anything. The two questions we now ask before extracting anything \u2014 and the one metric, p99 cross-service call depth, that told us when we'd gone too far.\n\nYou'll leave with a way to test a proposed boundary in an afternoon instead of a quarter, and permission to stop at four services if four is where the pain stops.\n\n---\n\nThe numbers and stack are placeholders \u2014 swap in your real ones, since the specifics are what make an abstract like this land."
+}

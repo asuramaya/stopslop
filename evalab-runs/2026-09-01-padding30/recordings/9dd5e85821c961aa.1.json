@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "Company name and the founding details are placeholders \u2014 swap in your real ones (marked in brackets).\n\n---\n\n## About [Northline]\n\nAnyone who has worked a clinic front desk knows the sound. The phone ringing while two people wait at the counter, a fax machine coughing up a referral, and the 9:15 still sitting in her car because nobody told her the doctor was running late.\n\n[Northline] was started in [2019] by [a former practice manager and two engineers] who got tired of watching good clinics lose an hour a day to that noise. We build scheduling software for medical practices \u2014 the kind with four exam rooms and one person doing intake, billing, and reminders at the same time.\n\nWhat that means in practice: patients book online without calling, reminders go out by text, and cancellations get backfilled from a waitlist automatically instead of leaving a room dark for forty minutes. Providers see one calendar. It syncs with [your EHR], because we think a scheduling tool that makes you type the appointment twice isn't worth installing.\n\nWe have opinions about this. Software should not need a three-day training. If your staff can't run a full day of scheduling after one morning with us, that's our failure, not theirs \u2014 so onboarding is included, and a real person answers support.\n\nToday [about 900] clinics across [12 states] run their day on [Northline], from solo dermatology practices to community health centers with sixty providers. HIPAA compliance and a signed BAA come standard.\n\nThe front desk deserves a quieter morning. That's the whole idea.\n\n---\n\n~250 words. Want a shorter version, or one aimed at enterprise health systems rather than small practices?"
+}

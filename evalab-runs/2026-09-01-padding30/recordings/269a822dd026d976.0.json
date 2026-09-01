@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. I've filled in plausible specifics so it reads like a real post rather than a template \u2014 swap the numbers, names, and bracketed bits for your actual ones, since the concreteness is what keeps it from sounding generic.\n\n---\n\n**What we shipped, what broke, and what we learned**\n\nWe started January with a deploy pipeline that took 41 minutes and a deploy that took nerve. Both are gone. The pipeline is down to nine minutes, we ship on Fridays now, and nobody has asked \"are we sure?\" in a standup since March.\n\nThe billing service rewrite was the year's big bet, and it took two quarters instead of one. That's on the estimate, not the work. It's been in production since August with no P1s.\n\nSome numbers. 312 pull requests merged. Median review turnaround dropped from 19 hours to under four, mostly because [name] pushed for smaller PRs and then actually reviewed them. Incidents fell from 23 to nine, and the three that hurt all traced back to the same undocumented cron job \u2014 now documented, and deleted.\n\nWhat didn't work: the [X] migration. Six weeks in, we stopped. Killing it early was right even though it felt bad in the room, and I'd rather we keep making that call than keep sunk-cost projects alive.\n\nTwo people joined. One left for a startup and we still get their PRs on the open-source repo, which says something about how they felt about the codebase.\n\nNext year we fix the on-call rotation properly. Everyone knows it. We've said it twice now.\n\nThanks for a good year. The coffee machine remains unresolved.\n\n---\n\n~245 words. If you want a version with a different register \u2014 more formal for a wider internal audience, or shorter and punchier \u2014 say which and I'll redo it."
+}

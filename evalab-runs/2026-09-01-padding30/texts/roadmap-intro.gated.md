@@ -1,0 +1,9 @@
+We publish this roadmap because guessing what your tools will do next is a bad use of your time.
+
+Below is what we're building over the next three quarters, split into three columns: shipping now, next up, and under consideration. The first column is a commitment. The second is a plan, and plans move. The third is a list of things we find interesting and haven't decided on yet — treat it as an invitation to argue with us.
+
+A few things we won't do. We won't list features without dates, and we won't list dates we don't believe. When something slips, we'll move the card and say why in the changelog rather than quietly rewriting history. And we won't put anything in "shipping now" that isn't already in a branch someone is testing.
+
+What's here comes from support tickets, from the issues you file on GitHub, and from the handful of problems that annoy our own engineers enough to fix on a Friday. That last category has produced some of our best work and all of our worst estimates.
+
+Every card links to its issue. Comment there, vote there, tell us we're wrong there. We read it.

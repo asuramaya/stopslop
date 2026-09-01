@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years out, the test is whether a new service can go from an empty repo to production traffic in a day, with one engineer, without anyone asking us for help.\n\nWe are a long way from that. A new service today needs someone who already knows which of the four deploy paths still works, which secrets store is the current one, and why staging's schema drifted from production's. That knowledge lives in about six people's heads. It is why onboarding takes a quarter, and why the same incident keeps finding new teams.\n\nThe bet is that we stop treating platform work as what we do between feature quarters. Paved paths, owned by a team whose job is the path rather than the features riding on it. One way to deploy. One way to get a database. One way to see what your service is doing at 3am.\n\nWe are not aiming to cover every case. Teams with genuinely unusual needs have to be able to step off the path, and we should not make them pay for it in review cycles or side-eye. What we want is for the default choice to also be the good one, so that most teams never have to think about any of this.\n\nThat reframes what we owe the rest of engineering. Not a service catalog, and not a set of internal products competing for adoption, but a floor under everyone: the assumption that the boring parts are handled.\n\nThe measure we care about, two years from now, is not how many services run on the platform. It is how rarely anyone brings it up."
+}

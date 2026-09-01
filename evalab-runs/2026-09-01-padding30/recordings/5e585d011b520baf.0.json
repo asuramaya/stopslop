@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Nobody sets out to build technical debt. It arrives the way sediment does: a shortcut taken on a Thursday because the release was Friday, a TODO that outlived the person who wrote it, a config flag added for one customer and never removed. Each was defensible on its own. Together, they're why the deploy takes forty minutes.\n\nThis month we wanted to sit with that gap between individually reasonable and collectively expensive.\n\nThe metaphor is worth arguing with, too. Ward Cunningham coined it to describe deliberate borrowing: you ship now, you pay interest later, and you do it with your eyes open. Most of what we call debt isn't that. It's mess. It's code nobody fully understood at the time and understands less now. Calling it debt makes it sound like a financing decision when it was usually just Tuesday.\n\nInside: [Name] on the six-week campaign to delete our oldest service, [Name] on why the migration everyone dreaded turned out to be uneventful, and a short piece from [Name] arguing that some debt should be left alone forever.\n\nWe're not promising a clean codebase. We're promising an honest look at a dirty one.\n\n---\n~200 words. The three bracketed slots are placeholders for this month's contributors \u2014 send me the names and article angles and I'll fit them in properly."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (It arrives the way sediment does:):\n- colon_reveal (Inside:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Nobody sets out to build technical debt. It arrives the way sediment does, layer by layer \u2014 a shortcut taken on a Thursday because the release was Friday, a TODO that outlived the person who wrote it, a config flag added for one customer and never removed. Each was defensible on its own. Together, they're why the deploy takes forty minutes.\n\nThis month we wanted to sit with that gap between individually reasonable and collectively expensive.\n\nThe metaphor is worth arguing with, too. Ward Cunningham coined it to describe deliberate borrowing. You ship now, you pay interest later, and you do it with your eyes open. Most of what we call debt isn't that. It's mess. It's code nobody fully understood at the time and understands less now. Calling it debt makes it sound like a financing decision when it was usually just Tuesday.\n\nInside this issue you'll find [Name] on the six-week campaign to delete our oldest service, [Name] on why the migration everyone dreaded turned out to be uneventful, and a short piece from [Name] arguing that some debt should be left alone forever.\n\nWe're not promising a clean codebase. We're promising an honest look at a dirty one.\n\n---\n~200 words. The three bracketed slots are placeholders for this month's contributors \u2014 send me the names and article angles and I'll fit them in properly."
+}

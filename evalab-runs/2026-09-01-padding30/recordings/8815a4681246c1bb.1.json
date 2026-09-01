@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. Names, numbers, and policies are placeholders \u2014 swap in your real ones, since the specifics are what make this land.\n\n---\n\n## How we build\n\nWe ship small and often. The median pull request here runs under 200 lines and usually merges the day it's opened \u2014 not out of impatience, but because a change nobody can hold in their head is a change nobody can review honestly.\n\nEveryone writes. A design doc before the big work, a postmortem after the outage, a two-line note in the channel when you break something. Blameless isn't a poster on the wall; it's why people report their own mistakes before the graphs do.\n\nYou own what you build. Whoever writes a service carries its pager and decides when to delete it. That's real weight, so we keep rotations eight people deep and we don't page for anything that can wait until morning.\n\nWe argue, mostly in doc comments, sometimes at length. Then someone decides and everyone builds it, including whoever lost. Consensus is pleasant when it shows up. We don't wait around for it.\n\nTooling counts as engineering. About a fifth of our time goes to the build system, test infrastructure, and internal libraries, and that work weighs the same at promotion as anything a customer sees.\n\nThings you won't find: stack-ranked performance reviews, or a culture that treats weekend heroics as a story worth retelling. Two of our strongest engineers work 20-hour weeks.\n\nInterviewing is four conversations, no whiteboard puzzles, and you'll meet the team you'd actually join.\n\n---\n\n~250 words. Tell me the company and I'll rewrite it with the actual numbers."
+}

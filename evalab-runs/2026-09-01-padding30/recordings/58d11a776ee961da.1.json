@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination \u2014 Engineering Excellence Award: [Platform Delivery Team]**\n\nEighteen months ago, shipping to production meant a Thursday-evening window, a 40-step checklist, and at least one person staying late to watch dashboards. Rollbacks took close to an hour and usually required waking the original author. Most teams batched their changes for weeks, because deploying was something you scheduled around rather than something you did.\n\nThat's over. Deploys now run on merge, finish in about six minutes, and roll back with one command anyone on call can run. Deploy frequency went from roughly twice a month to more than forty times a week, and the change-failure rate went down over the same period, not up.\n\nI want to call out how they got there. They didn't rewrite the world and announce a migration. They took the worst step in the checklist, automated it, and repeated that until there was no checklist left. They held office hours for every team they onboarded, wrote the runbooks themselves, and carried the pager through the transition instead of handing it to the teams they were migrating.\n\nMost engineers here have stopped thinking about deployment at all, which is exactly the point. [Names] earned this."
+}

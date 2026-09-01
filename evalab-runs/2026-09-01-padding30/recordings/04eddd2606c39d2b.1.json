@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "**A year without an office**\n\nWe gave up the lease last March. Twelve months in, here's what actually changed.\n\nMeetings broke first. Our old standup ran fifteen minutes because everyone was on their feet and someone wanted coffee. On video, the same standup stretched to forty \u2014 nobody was uncomfortable enough to end it. We killed the meeting and moved to written updates in a channel. Engineers got most of a day back each week.\n\nHiring got better in a way we didn't plan for. Once the commute stopped mattering, we hired a backend engineer in Halifax who now knows our billing code better than anyone. Two of our last five hires would have been impossible with a fifty-mile radius.\n\nOnboarding got worse, and we have the number: median time to a new hire's first merged PR went from four days to eleven. That one hurt. What fixed it was boring \u2014 a named buddy for the first month, and two scheduled pairing hours a day for the first two weeks. We're back to six days.\n\nThe mistake we made was believing async could carry everything. It can't carry disagreement. Three times last year a decision limped along in a doc for two weeks when forty-five minutes of people arguing in one room would have settled it. Now anything with real dissent gets a call, same day.\n\nThe money: $18k a month in rent became about $4k in home-office stipends and two week-long offsites. We'd have taken the trade even if the numbers were even."
+}

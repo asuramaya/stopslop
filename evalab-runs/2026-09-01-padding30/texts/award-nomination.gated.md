@@ -1,0 +1,13 @@
+**Nomination: [Team name] — Engineering Excellence Award**
+
+A year ago, shipping to production meant a two-hour window, a checklist in a wiki page nobody trusted, and at least one person staying late to watch logs. [Team name] decided that was worth fixing, and then actually fixed it.
+
+They rebuilt the pipeline in stages rather than asking for a rewrite budget. First they got the build reproducible, which killed the "works on the runner" arguments. Then came automated rollback, so a bad release stopped being an emergency and started being a button. The canary stage came last, and it has caught four regressions before customers saw them.
+
+Median deploy time went from 108 minutes to nine. Failed deploys requiring manual recovery dropped from roughly one a week to two all year. Teams outside [team name] now deploy on Fridays, which used to be forbidden.
+
+What I want to highlight is that none of this was their assigned roadmap work. They wrote documentation other teams read voluntarily, held office hours during the migration, and took the support load themselves instead of pushing it onto the teams they were onboarding.
+
+They made everyone else's work easier and asked for no credit. This award is overdue.
+
+*(~200 words. Swap in the team name and real metrics — the numbers above are placeholders shaped to be replaced.)*

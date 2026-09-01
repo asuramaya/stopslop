@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**We should stop asking who broke it**\n\nLast month's checkout outage got a writeup. It named an engineer in the second paragraph. Nobody said anything at the time, but I've watched what happened since: two people on that team now route every config change through a second reviewer they don't need, and the incident channel has gone quiet. That's the cost. We traded one honest account of a failure for a norm of not volunteering things.\n\nBlameless postmortems aren't about being nice. They're a trade. We agree not to attach the failure to a person, and in exchange we get the actual sequence of events \u2014 including the part where someone had a bad feeling on Tuesday and didn't raise it, and the part where the runbook was three months stale and everyone knew.\n\nYou can't buy that information any other way. A person who expects to be named will give you a defensible narrative, and defensible narratives are useless for fixing systems.\n\nThe practical version is small. A facilitator who wasn't on call. A timeline written before anyone proposes fixes. Language rules in the doc: \"the deploy script had no dry-run mode,\" not \"Priya skipped the dry run.\" Action items with owners and dates, reviewed at the next one so they don't rot.\n\nWhat this doesn't mean: no accountability. Someone who ignores a policy repeatedly is a management conversation, and a separate one. Conflating the two is why teams end up with neither.\n\nI'll facilitate the next one if there's appetite. Reply here or grab me."
+}

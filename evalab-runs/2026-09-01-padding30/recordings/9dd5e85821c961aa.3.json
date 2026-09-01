@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "Names, numbers, and dates below are placeholders \u2014 swap in your real ones, or tell me the actual details and I'll redo it.\n\n---\n\n## About us\n\nWe started in 2016 in a rented office above a dental practice in Providence, because that's where our first customer was.\n\nThree of us had spent years building software for hospitals. The clinics we visited had a different problem. A hospital can afford a full-time scheduler; a six-provider family practice cannot. So the front desk does it \u2014 between check-ins, insurance calls, and the fax machine nobody can decommission. Double-bookings happen. No-shows go unnoticed until a room sits empty for forty minutes.\n\n[COMPANY] handles the calendar so the front desk can handle people.\n\nWe do a few things and try to do them properly. Patients book and reschedule themselves from their phones, at whatever hour suits them. Reminders go out by text and email; confirmations come back into the same chart. Templates fit how your clinic actually runs \u2014 sixty-minute new-patient slots, double-booked follow-ups on Thursdays, Dr. Okonkwo out every other Friday. When someone cancels, the waitlist fills the slot without anyone phoning down a list.\n\nWe're HIPAA-compliant, we sign BAAs, and we'll tell you exactly where your data lives.\n\nToday about 900 clinics use us, most of them under ten providers: family medicine, physical therapy, dermatology, behavioral health. We're 34 people, remote across nine states, and roughly a third came out of clinic operations rather than tech. That shows up in the product, and in support \u2014 you get a person who knows what a superbill is.\n\nNo sales call required to see pricing. It's on the site."
+}

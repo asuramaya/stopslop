@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "We publish this roadmap because the alternative is worse: you find out what we shipped when it breaks your build.\n\nWhat follows is what we plan to work on over the next three quarters, ordered roughly by when we expect to start. It is a plan, not a contract. Items move. Some get cut after we prototype them and discover the idea was better in the abstract than in an editor. When that happens we will say so in the entry rather than let it quietly rot.\n\nThree things worth knowing before you read it.\n\nFirst, dates are ranges, and the ranges widen the further out you look. A \"Q4\" tag means we have scoped the work. A \"2027\" tag means we have argued about it in a meeting.\n\nSecond, nothing on this list is a reason to wait. If a feature you need is eight months out, tell us, and tell us what you're doing instead. That reorders things faster than any internal planning session does.\n\nThird, this covers the parts of the product you touch directly. Infrastructure work, migrations, and the slow repayment of decisions we made in 2021 aren't listed, but they take real time, which is part of why some entries sit further out than you'd expect."
+}

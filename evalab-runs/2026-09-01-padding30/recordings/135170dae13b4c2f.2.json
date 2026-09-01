@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, an engineer who wants to stand up a new service should be able to do it in an afternoon, alone, without filing a ticket against anyone.\n\nWe are nowhere near that. A new service today takes roughly three weeks of calendar time, pulls in four teams, and ends with a hand-copied deploy config that nobody fully understands. Most of that time is waiting. The work itself \u2014 the part that produces something a customer notices \u2014 is maybe two days.\n\nSo the bet is this: we spend the next two years turning the paths people walk most often into paved road, and we accept slower feature delivery in the first two quarters to get it.\n\nPaved road means a default. One way to build a service, one way to deploy it, one way to get metrics and logs out of it, and that way is good enough that going around it feels like extra work rather than freedom. Teams keep the right to go off-road. They just stop being forced onto it by our gaps.\n\nWhat we are explicitly not building is an internal cloud. We are not going to abstract away Kubernetes, write our own orchestrator, or own a UI that competes with the vendor's. Every platform team that has tried that has ended up maintaining a worse version of something free.\n\nBy the end of year two we want three numbers to move: time-to-first-deploy under a day, change failure rate under 10%, and the on-call load for platform-owned components flat while service count doubles.\n\n(Numbers are placeholders \u2014 swap in our real baselines before this circulates.)"
+}

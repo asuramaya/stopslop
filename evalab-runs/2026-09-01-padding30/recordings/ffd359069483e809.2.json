@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "**What teams say**\n\n> \"We were paying two logging vendors because neither could hold 90 days without us pruning fields first. Now we keep everything and the bill dropped by a third. A week of data comes back in under two seconds.\"\n> \u2014 Priya Raman, Staff SRE, Vantage Freight\n\n> \"The first real test came at 3 a.m. Our on-call pasted a trace ID from a customer ticket and had the failing service in four minutes. That used to be a forty-minute scavenger hunt across six machines, three of which nobody had SSH keys for anymore.\"\n> \u2014 Daniel Okonkwo, Head of Platform, Kestrel Health\n\n> \"I'll be honest, I budgeted a full quarter for the migration. It took eleven days. The agent read our existing syslog config as-is and we never rewrote a parser.\"\n> \u2014 Marisol Vega, Infrastructure Lead, Northbeam\n\n> \"What sold my team was the boring part: retention rules you can read. Ninety days hot, a year cold, PII fields dropped at ingest. Our auditor asked one question and then stopped asking.\"\n> \u2014 Tomas Lindqvist, Director of Engineering, Halden Pay\n\nPlaceholder names and numbers throughout \u2014 swap in real quotes with written permission before publishing, and keep the specifics (seconds, days, dollar deltas) rather than smoothing them into adjectives. The concrete figures are what make these read as real."
+}

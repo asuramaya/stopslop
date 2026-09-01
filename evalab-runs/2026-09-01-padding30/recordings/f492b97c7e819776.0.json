@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the draft. I invented an app name (**Margin**) and version numbers as placeholders \u2014 swap in your real ones.\n\n---\n\n# Dark mode is here\n\nDark mode ships today, in Margin 2.4 for Mac, Windows, iOS, and Android.\n\nIt took us longer than it should have. Our first attempt, back in March, was a straight inversion: background to pure black, text to pure white, done in an afternoon. It looked awful. High-contrast white on black makes small text bloom and smear, especially on OLED phones at low brightness, which is exactly when people open a notes app. We threw that version out and started over.\n\nWhat shipped instead is a palette of nine grays, tuned by hand against a few hundred real notes from our beta group. Body text sits at #E4E4E7 on a #18181B background, not white on black. We also redid syntax highlighting for code blocks, desaturated the five highlighter colors so yellow stops glowing, and added a 12% dim to embedded images so a screenshot doesn't blind you mid-scroll.\n\nTo turn it on: Settings \u2192 Appearance. Pick Light, Dark, or Match System. Match System follows your OS schedule, including sunset-to-sunrise on iOS. There's a shortcut too, Cmd/Ctrl+Shift+L, if you flip back and forth.\n\nTwo things still aren't right. PDF previews render on white, because we haven't found a way to recolor them without wrecking the source document. Exported HTML ignores your theme on purpose, so a note you send someone doesn't arrive dark by surprise.\n\nIf a screen looks wrong to you, send us a screenshot at feedback@margin.app. We fixed eleven of these during beta and expect more.\n\n*(~255 words)*"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Dark mode is here\n\nMargin 2.4 brings dark mode to Mac, Windows, iOS, and Android, starting today.\n\nWe should have shipped this sooner. In March we tried the quick version: invert the background to black, push the text to white, be done by dinner. It looked bad. Pure white on pure black makes small text bloom and smear, worst of all on an OLED phone at low brightness, which is exactly when most people open a notes app. That build went in the bin.\n\nThe replacement uses nine grays, tuned by hand against a few hundred real notes from our beta group. Body text sits at #E4E4E7 on #18181B, not white on black. Code blocks got new syntax colors. We pulled the saturation out of the five highlighters so yellow stops glowing, and we dim embedded images by 12% so a screenshot doesn't flash you mid-scroll.\n\nSettings \u2192 Appearance turns it on. Choose Light, Dark, or Match System. Match System follows your OS schedule, sunset to sunrise included on iOS. Cmd/Ctrl+Shift+L toggles it if you switch back and forth a lot.\n\nTwo rough edges remain. PDF previews still render on white, since we can't recolor them without damaging the source document. Exported HTML ignores your theme by design, so a note you send a coworker won't arrive dark unexpectedly.\n\nIf a screen looks wrong to you, mail a screenshot to feedback@margin.app. Eleven such reports got fixed during the beta, and we expect more."
+}

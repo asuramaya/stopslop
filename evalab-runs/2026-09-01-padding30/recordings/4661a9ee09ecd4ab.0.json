@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "## Anvil\n\n**Chat that respects an engineering org's actual shape.**\n\nMost team chat tools were built for sales floors and then bolted onto engineering. You get a firehose, a mute button, and a manager's Monday spent scrolling.\n\nAnvil starts from the org chart instead. Channels inherit from your team structure, so when someone joins the payments team they land in the eleven channels that team actually uses \u2014 no onboarding checklist, no forgotten invites.\n\n**What's different**\n\n*Threads that close.* Every thread has an owner and a state. Open threads on your teams show up in one list, sorted by age. The 40-message design argument from three weeks ago either resolved or it didn't, and you can tell which at a glance.\n\n*Incident mode.* Type `/incident` and Anvil spins up a channel, pages the on-call from PagerDuty, pins the timeline, and posts a timestamped transcript to your postmortem doc when you close it. We shipped this because our own team was doing it by hand.\n\n*Search that indexes code.* Paste a stack trace, get the thread where someone hit it in March. Anvil indexes attached snippets and linked PRs alongside message text.\n\n**The honest comparison**\n\nSlack has more integrations \u2014 around 2,600 to our 180. If your workflow depends on a niche app directory, take Slack. Teams is cheaper if you're already paying for E5.\n\nAnvil is for managers who want fewer channels, closed threads, and a defensible answer when someone asks what happened during the outage.\n\nFree for teams under 15. $7/user after that. SSO on every plan.\n\n*(Product name and figures are placeholders \u2014 swap in your own.)*"
+}

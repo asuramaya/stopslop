@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "**What we brought back from [Conference] 2026**\n\nFive of us flew out. We split the schedule so nobody sat in the same room twice, then compared notes over bad hotel coffee each morning.\n\nThe keynote wasn't the useful part. It rarely is. The useful part was a Wednesday session where an engineer from [Company] walked through their March incident \u2014 a retry storm that took checkout down for 41 minutes \u2014 and admitted they'd known about the missing jitter for a year. Nobody in the room looked smug. We all have a version of that ticket.\n\nThree things stuck.\n\nEveryone is drowning in dashboards and nobody trusts them. Two separate teams told us they deleted more panels last year than they added. We have 340-odd. Maybe a dozen get opened during an actual page.\n\nThe hallway consensus on AI tooling has cooled into something workable. Less \"it writes the service,\" more \"it writes the test fixtures and the migration script.\" That roughly matches our own experience, minus the enthusiasm gap.\n\nAnd a small thing we're stealing outright: [Company] runs a fifteen-minute \"what surprised you\" slot at the end of every retro, kept separate from action items. No owner, no ticket, no follow-up. Just surprises. They say that's where the good postmortems start.\n\nWe're piloting it next sprint. Ask [Name] for the full session notes \u2014 they took better ones than the rest of us combined.\n\n---\n\n~250 words. The bracketed slots are the swappable bits; the specifics around them (41 minutes, 340 panels, the retro slot) are what make it read like a real team wrote it, so replace them with your actual numbers rather than dropping them."
+}

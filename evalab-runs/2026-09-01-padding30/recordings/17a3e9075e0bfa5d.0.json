@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination: [Team name] \u2014 Engineering Excellence Award**\n\nA year ago, shipping to production meant a two-hour window, a checklist in a wiki page nobody trusted, and at least one person staying late to watch logs. [Team name] decided that was worth fixing, and then actually fixed it.\n\nThey rebuilt the pipeline in stages rather than asking for a rewrite budget. First they got the build reproducible, which killed the \"works on the runner\" arguments. Then came automated rollback, so a bad release stopped being an emergency and started being a button. The canary stage came last, and it has caught four regressions before customers saw them.\n\nThe numbers: median deploy time went from 108 minutes to nine. Failed deploys requiring manual recovery dropped from roughly one a week to two all year. Teams outside [team name] now deploy on Fridays, which used to be forbidden.\n\nWhat I want to highlight is that none of this was their assigned roadmap work. They wrote documentation other teams read voluntarily, held office hours during the migration, and took the support load themselves instead of pushing it onto the teams they were onboarding.\n\nThey made everyone else's work easier and asked for no credit. This award is overdue.\n\n*(~200 words. Swap in the team name and real metrics \u2014 the numbers above are placeholders shaped to be replaced.)*"
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (The numbers:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**Nomination: [Team name] \u2014 Engineering Excellence Award**\n\nA year ago, shipping to production meant a two-hour window, a checklist in a wiki page nobody trusted, and at least one person staying late to watch logs. [Team name] decided that was worth fixing, and then actually fixed it.\n\nThey rebuilt the pipeline in stages rather than asking for a rewrite budget. First they got the build reproducible, which killed the \"works on the runner\" arguments. Then came automated rollback, so a bad release stopped being an emergency and started being a button. The canary stage came last, and it has caught four regressions before customers saw them.\n\nMedian deploy time went from 108 minutes to nine. Failed deploys requiring manual recovery dropped from roughly one a week to two all year. Teams outside [team name] now deploy on Fridays, which used to be forbidden.\n\nWhat I want to highlight is that none of this was their assigned roadmap work. They wrote documentation other teams read voluntarily, held office hours during the migration, and took the support load themselves instead of pushing it onto the teams they were onboarding.\n\nThey made everyone else's work easier and asked for no credit. This award is overdue.\n\n*(~200 words. Swap in the team name and real metrics \u2014 the numbers above are placeholders shaped to be replaced.)*"
+}

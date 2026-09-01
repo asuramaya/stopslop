@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "Here's the draft. Product name and the concrete numbers are invented placeholders \u2014 swap in your real figures before this ships.\n\n---\n\n# Bramble\n\n**Team chat that respects the on-call rotation.**\n\nMost chat tools sell you presence. Bramble sells the opposite: fewer interruptions, and a record your team can still search two years from now.\n\n**Threads that don't rot.** Every thread gets a permanent URL and a title. Link one from a PR or a postmortem and it resolves years later with full context, even after the channel is archived.\n\n**Notification rules you write, not toggles you hunt for.** `if channel:#deploys and mentions:me and 09:00\u201318:00 \u2192 push`. Set the default for your team; engineers override it for themselves.\n\n**Incident mode.** Type `/incident` and Bramble opens a channel, pages the rotation through PagerDuty or Opsgenie, and pins a running timeline. Close it out and you get a Markdown transcript in your postmortem template. Nobody is copy-pasting at 3am.\n\n**Search that understands code.** Pasted snippets, log dumps, and attached files are indexed as code, so grep-shaped queries actually hit.\n\n## The boring parts you'll get asked about\n\nSSO, SCIM, audit logs, and per-channel retention on every plan \u2014 not held back for Enterprise. Data residency in the US, EU, or Australia. Self-hosting above 200 seats. Export is a documented JSON archive. We'd rather you stayed because the work is good, not because leaving is expensive.\n\n## Cost\n\n$6 per user per month. Full history, no message cap. Bots and service accounts don't count as seats.\n\nSlack migration brings over channels, threads, and files. A 500-person workspace takes about four hours."
+}

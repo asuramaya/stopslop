@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**Subject: Asking for Q4 as a debt-paydown quarter**\n\nI want one quarter \u2014 no new roadmap features from the platform team \u2014 spent entirely on technical debt.\n\nThe case is arithmetic, not sentiment. Over the last two quarters our team shipped roughly half the story points we committed to. The gap didn't go into slack time. It went into on-call, rollback, and the sort of archaeology where someone spends two days learning why a service does something before they can change it safely. Our deploy pipeline now takes 47 minutes, and about one in six runs fails for reasons unrelated to the change under test. Every new engineer costs a senior engineer a week.\n\nIf we keep trading interest payments for features, the payments grow.\n\nWhat the quarter buys: the deploy pipeline under 10 minutes with a flake rate we can actually measure; the three services still on the deprecated auth path migrated off it; the test suite split so a failure points at a cause instead of a mystery. Nothing here is a rewrite. I'm not proposing we rebuild anything \u2014 I'm proposing we finish things we started and left half-migrated.\n\nWhat it costs: one quarter of feature work, and honestly, some awkward conversations with the teams waiting on us.\n\nWhat I'd measure: cycle time from merge to production, and the share of sprint capacity absorbed by unplanned work. If both haven't moved by the end of the quarter, I was wrong, and you should hold me to that.\n\nI'd like thirty minutes to walk through the specifics.\n\n---\n\nThe numbers are illustrative \u2014 swap in your real pipeline timings, flake rate, and velocity figures before sending."
+}

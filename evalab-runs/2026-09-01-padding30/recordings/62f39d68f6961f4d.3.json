@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "No library was named, so I've written it for a fictional HTTP client called `hopper` \u2014 swap the name, version numbers, and benchmarks for your own.\n\n---\n\n## hopper 2.0 is out\n\nWe rewrote the transport layer. That's the headline, and everything else in this release falls out of it.\n\nThe 1.x client held one connection pool per `Client` instance and serialized retries through a global lock. It worked. It also meant that a process making 500 concurrent calls spent most of its time waiting on a mutex rather than on the network, which is a strange way to build an HTTP library. 2.0 drops the lock. In our benchmark \u2014 500 concurrent GETs against a local echo server \u2014 p99 latency went from 340 ms to 61 ms.\n\nThree other things changed:\n\n**Retries are now per-request policy.** You pass a `RetryPolicy` to the call instead of configuring it once at client construction. Idempotent reads and payment writes rarely want the same backoff.\n\n**Typed errors.** `HopperError` is a union now: `Timeout`, `Transport`, `Status(code)`, `Decode`. No more string-matching on exception messages.\n\n**Async is the default path.** The sync client still exists and is a thin wrapper. It is not going away.\n\nBreaking changes are real. `Client(retries=3)` no longer does anything, response bodies are lazy and must be awaited before the context manager closes, and we dropped Python 3.8. The migration guide covers each one with a before/after diff, and `hopper-migrate` will rewrite the mechanical parts of your call sites for you.\n\n```\npip install hopper==2.0.0\n```\n\nBugs to the issue tracker. We read all of them."
+}

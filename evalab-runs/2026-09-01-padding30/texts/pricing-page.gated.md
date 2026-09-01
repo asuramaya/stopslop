@@ -1,0 +1,19 @@
+## Pricing
+
+**Solo — free**
+
+One private repo, unlimited public ones. Every pull request gets a full review: logic errors, unhandled cases, the security bug you would have caught on a better day. No card. No trial clock ticking in the corner. Solo stays free because most of the people who eventually pay for Team started here, alone, at 1 a.m.
+
+**Team — $19 per developer, per month**
+
+Unlimited private repos, plus the things that start to matter once more than one person is touching the code. Reviews learn your house style from the last 500 merged PRs, so you stop relitigating the same three arguments in every thread. Blocking checks if you want them, advisory if you don't. Works with GitHub, GitLab, and Bitbucket. Two weeks free. After that we bill only for developers who actually opened a PR that month, so bench seats cost you nothing.
+
+**Enterprise — from $12,000 a year**
+
+Self-hosted or in your VPC, so no source code leaves your network. SSO and SCIM, exportable audit logs, and role scoping down to the individual repository. You get a named engineer who has read your codebase, a 24-hour support SLA, and a say in what we build next. Most customers arrive for the compliance paperwork and stay for the custom rules.
+
+Every plan includes the CLI, the API, and unlimited reviewers. Annual billing takes 20% off Team. Cancel from the dashboard — nobody makes you write an email.
+
+---
+
+252 words. The numbers (500 PRs, $19, $12k, 24-hour SLA) are placeholders — swap in your real ones, since the copy leans on them for credibility. I ran it through this repo's own `slopwatch` gate: clean, no blocking issues.

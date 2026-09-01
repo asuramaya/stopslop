@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "We publish this roadmap because the alternative is worse: you find out what we shipped when it breaks your build.\n\nWhat follows is what we plan to work on over the next three quarters, ordered roughly by when we expect to start. It is a plan, not a contract. Items move. Some get cut after we prototype them and discover the idea was better in the abstract than in an editor. When that happens we will say so in the entry rather than let it quietly rot.\n\nThree things worth knowing before you read it.\n\nFirst, dates are ranges, and the ranges widen the further out you look. A \"Q4\" tag means we have scoped the work. A \"2027\" tag means we have argued about it in a meeting.\n\nSecond, nothing on this list is a reason to wait. If a feature you need is eight months out, tell us, and tell us what you're doing instead. That reorders things faster than any internal planning session does.\n\nThird, this covers the parts of the product you touch directly. Infrastructure work, migrations, and the slow repayment of decisions we made in 2021 aren't listed, but they take real time, which is part of why some entries sit further out than you'd expect."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "We publish this roadmap because the other option is that you learn what we shipped from a red build.\n\nBelow is the work we expect to take on over the next three quarters, in rough order of when we'll start. It's a plan, not a promise. Things move. Some die after a prototype shows the idea read better in a doc than it worked in an editor. When that happens we mark the entry dead instead of leaving it here looking alive.\n\nThree notes before you read.\n\nDates are ranges, and the ranges get wider toward the bottom. \"Q4\" means somebody has scoped the work. \"2027\" means somebody argued for it in a meeting.\n\nNothing here is a reason to sit and wait. If something you need is eight months out, say so, and tell us what you're doing in the meantime. That reorders the list faster than our own planning does.\n\nThis covers the surfaces you touch. Infrastructure, migrations, and the long payback on choices we made in 2021 don't appear, but they consume real weeks, which is part of why a few entries sit further out than you'd expect them to."
+}

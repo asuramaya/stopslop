@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Vision\n\nTwo years from now, shipping a new service should be a Tuesday afternoon, not a quarter.\n\nToday it isn't. A team starting from scratch spends most of its first six weeks on things no customer will ever see: wiring auth, arguing about the deploy pipeline, rediscovering which Terraform module is the blessed one. Every team pays this tax, and every team pays it differently, so we end up with eleven slightly incompatible answers to the same question. The cost isn't just the six weeks. It's that nobody wants to split a service that's getting too big, because splitting it means paying the tax again.\n\nWe want to make the default path the easy path. Concretely: a new service goes from repo creation to production traffic in under a day, with logging, tracing, secrets, and rollback already working, because someone else solved those once. Teams that need to step off the path can \u2014 the platform is a paved road, not a fence \u2014 but they should be choosing that deliberately, and rarely.\n\nThis is a bet about where our engineering time goes. Right now roughly a third of it goes to work that is duplicated somewhere else in the org. We'd like that number closer to a tenth by the end of year two, and we intend to measure it rather than assert it.\n\nThe platform team's job is not to own every service. It's to make sure that owning a service stays cheap.\n\n---\n\nSwap in your real numbers for the \"six weeks,\" \"eleven,\" and \"a third\" figures \u2014 the argument only lands if those are yours."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Vision\n\nIn two years, standing up a new service should take an afternoon, not a planning cycle.\n\nThat is not where we are. A team starting cold burns most of its first six weeks on work no customer will ever notice: hooking up auth, arguing the deploy pipeline out again, hunting for whichever Terraform module is currently the sanctioned one. Every team pays this toll, and each one pays it in its own currency, which is how we ended up with eleven mutually incompatible answers to a single question. The six weeks are not the real damage. The real damage is that nobody will break apart a service that has outgrown itself, because breaking it apart means paying the toll a second time.\n\nWe want the default route to also be the cheap one. In practice: repo creation to production traffic inside a day, with logging, tracing, secrets, and rollback already wired, because one team solved each of those once and for everyone. Anyone who needs to leave the route still can. The platform is a paved road and not a fence. But leaving it should be a decision someone makes on purpose, and rarely.\n\nThis is a wager about where our engineering hours land. Today roughly a third of them go to work that already exists somewhere else in the org. We want that closer to a tenth by the close of year two, and we plan to measure it rather than claim it.\n\nThe platform team does not exist to own every service. It exists to keep the cost of owning one low.\n\n---\n\nReplace \"six weeks,\" \"eleven,\" and \"a third\" with our actual figures. The argument only works if the numbers are ours."
+}

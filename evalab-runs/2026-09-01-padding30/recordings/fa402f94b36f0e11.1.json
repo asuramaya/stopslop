@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "I've assumed a software/platform team and picked a concrete conference so the post has something to bite on \u2014 swap the names and details for yours.\n\n---\n\n**Four of us went to KubeCon expecting a vendor shortlist. We came back with a rewritten Q4 roadmap.**\n\nThe talks that stuck weren't on the main stage. In a half-empty room on the second afternoon, a platform engineer from a logistics company walked through the two years they spent building an internal developer portal, then the six months they spent deleting most of it. Their teams had never asked for a portal. They'd asked for faster CI. We recognized ourselves immediately. We have a portal ticket in our backlog, sized at a quarter.\n\nSecond: everyone is running agents in production and nobody wants to say how it's going. Hallway conversations were candid in a way the sessions weren't. We heard the same pattern three separate times \u2014 the model works, the eval harness doesn't, and the team can't tell whether last week's prompt change helped or hurt. Two of those teams had already rolled back.\n\nThird, smaller, but it changed how Priya writes our runbooks. A twelve-minute talk on incident review argued that a postmortem action item without a named owner and a date is a wish, not a plan. We adopted the rule the following Monday.\n\nSo: we're killing the portal ticket, standing up an eval suite before the summarization feature ships, and adding owner and date fields to the postmortem template.\n\nIf you were there and you think we read the agent situation wrong, come find us. We're still arguing about that one internally."
+}

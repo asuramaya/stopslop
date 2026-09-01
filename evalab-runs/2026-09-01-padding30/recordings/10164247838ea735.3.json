@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "Since no specific API was named, I wrote this against a generic REST/HTTP API \u2014 swap the concrete details (header names, deprecation window) for your real ones.\n\n---\n\n## Design philosophy\n\nThree commitments shape every endpoint here.\n\n**Boring beats clever.** A method does what its name says and nothing else. No implicit retries. No hidden pagination that quietly truncates at 100 items, no field whose type shifts depending on the account tier, no default that changes behavior based on the time of day. If you can guess what a call does from its name, we got it right.\n\n**Errors are part of the contract.** Every failure returns a stable machine-readable `code`, an HTTP status that actually matches what went wrong, and one plain sentence you can drop into a log. Error codes are versioned like endpoints: a `code` never changes meaning, and we never recycle a retired one. Branch on `code`, never on the message text \u2014 the text is written for humans and we reserve the right to improve it.\n\n**Additive change only, inside a major version.** We add fields. We don't remove them, rename them, or narrow what they accept. Deprecations ship with a `Sunset` header and at least twelve months of runway.\n\nWhere these pull against each other, predictability wins. Your integration staying up matters more than our surface staying elegant."
+}

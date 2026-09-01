@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "You didn't name the library, so I've written it around a placeholder \u2014 swap `apiclient` and the version numbers for yours.\n\n---\n\n# apiclient 2.0\n\nWe shipped 2.0 today. It's a breaking release, and here's the honest reason: the retry logic in 1.x was wrong.\n\nNot subtly wrong. If a request timed out mid-body, 1.x would retry it \u2014 including POSTs. People double-charged customers because of us. 2.0 retries only idempotent methods by default, honors `Retry-After`, and backs off with jitter instead of the fixed 500 ms sleep that turned every outage into a thundering herd.\n\nThe other big change is that everything is async. There's one client class now, not two. If you were on the sync client, `apiclient.sync` wraps the async one and covers the common calls, but it's a bridge, not a home \u2014 we'll drop it in 3.0.\n\nSmaller things worth knowing:\n\n- Connection pooling is on by default. A 200-request loop went from 11 s to 1.4 s on our benchmark box.\n- Errors carry the parsed response body. No more `str(e)` returning `<Response [422]>`.\n- Type hints are complete and checked in CI, so your editor stops guessing.\n- Python 3.8 support is gone. It reached end of life in October 2024.\n\nMigration usually takes under an hour. Run `apiclient migrate --check` against your codebase and it'll list the call sites that need touching, with the 1.x line and the 2.0 replacement side by side.\n\nUpgrade with `pip install -U apiclient`. Bugs go in the tracker; we read all of them."
+}

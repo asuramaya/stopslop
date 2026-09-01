@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "# Charter: Platform Engineering\n\n## Why we exist\n\nProduct teams at this company spend too much of their week on work that isn't their product: wiring up CI, guessing at deploy configs, waiting on someone in an adjacent channel to grant a permission. We exist to take that work off them and do it once, well, for everybody.\n\n## What we own\n\nThe paved road \u2014 the default path from a developer's laptop to production. That means build and CI pipelines, deployment tooling, environment provisioning, secrets handling, and the observability defaults every service inherits. We own these as products, with users, versions, and deprecation notices, not as a pile of scripts someone has to reverse-engineer.\n\n## How we work\n\nWe treat internal developers as customers. Before we build something, we go find three teams who've hit the problem and confirm they'd actually adopt the fix. We prefer boring, well-documented tools over interesting ones. We prefer the golden path to be optional but so obviously easier that nobody wants to leave it.\n\nWe are not a ticket queue. If a request arrives twice, it becomes self-service. If it arrives once and is genuinely one-off, we'll help, then write down why it happened.\n\n## What we don't own\n\nWe don't write product code, and we don't run on-call for services we didn't build. Teams own their services in production. We own the tools that make that ownership survivable.\n\n## How we'll know it's working\n\nTime from first commit to first deploy, for a brand-new service. Change failure rate. And whether teams choose our tools when nobody makes them."
+}

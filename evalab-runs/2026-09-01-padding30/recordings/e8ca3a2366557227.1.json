@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security isn't a team down the hall**\n\nLast quarter we filed 41 security issues. Thirty-eight came from the four people on AppSec. That ratio is the actual problem \u2014 not the bug count.\n\nFour people cannot read every PR. They can't sit in every design review, and by the time something reaches them it's usually shipped, wired into three services, and expensive to unpick. What they can do is teach the rest of us to catch the boring 80% before it gets that far.\n\nSo here's what I'm asking for, concretely.\n\nWhen you write a PR description, add a line about what changes for an attacker. Sometimes that line is \"nothing.\" Fine \u2014 write \"nothing.\" The habit matters more than the answer, and the reviewer now knows you thought about it.\n\nIf your change touches auth, session handling, file uploads, or anything that takes a URL from a user and fetches it, tag `@appsec` as a reviewer. Not for approval theater. They'd rather spend ten minutes on your diff than a weekend on your incident.\n\nAnd if you find something scary in code you don't own, file it anyway. Nobody gets blamed for the bug you report. We've been treating \"not my service\" as a valid reason to walk past a hardcoded token, and it isn't.\n\nAppSec will run a 45-minute session on our top three recurring findings \u2014 SSRF, missing authz checks on internal endpoints, and secrets in CI logs. Two dates going on the calendar this week.\n\nThe goal isn't to make everyone a security engineer. It's to stop four people being the only line of defense."
+}

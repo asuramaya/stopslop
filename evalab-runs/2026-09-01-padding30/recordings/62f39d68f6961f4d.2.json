@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "Here's the post. I used **Halyard** as a stand-in name and invented the version specifics \u2014 swap in your real numbers and API names.\n\n---\n\n# Halyard 2.0\n\nHalyard started as a thin wrapper one of us wrote on a Friday afternoon. Then it turned up in other people's production code, which was flattering right up until the Friday-afternoon decisions started to hurt. 2.0 pays that debt off.\n\n**Async is native.** No more `run_in_executor` gymnastics. `AsyncHalyard` shares the same method signatures as the sync client, so porting is mostly a matter of adding `await` and changing one import. Both clients now pool connections by default; a tight loop of 500 calls against our staging API dropped from 41 seconds to 6.\n\n**Retries got opinions.** The old `retry=True` flag retried everything, including the 400s that were never going to succeed. Now retries are idempotency-aware and back off with jitter, and you can pass a policy object if ours annoys you.\n\n**Errors carry the response.** `HalyardError` exposes `.status`, `.body`, and `.request_id` instead of collapsing everything into a string. Small thing. It'll save you an afternoon eventually.\n\nSome breaking changes were unavoidable. `Client.call()` is gone in favor of the per-resource methods, config moved from keyword soup to a `Config` dataclass, and Python 3.8 is no longer supported. The migration guide covers all of it, and `halyard migrate` will rewrite the mechanical parts of your codebase for you.\n\n1.x gets security fixes through next June. After that, it's on its own.\n\n```\npip install --upgrade halyard\n```\n\nBug reports welcome. Complaints about the retry defaults, especially."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "## Why Observability Matters\n\nThe checkout page is slow. That's all the ticket says.\n\nSo you start guessing. Maybe it's the database. Someone pulls up a dashboard showing CPU at 40%, which tells you nothing. Someone else remembers a deploy on Thursday and starts scrolling through the diff. An hour in, three engineers are working from three different theories, and nobody can prove any of them wrong. Eventually the graph flattens out on its own and everyone goes back to what they were doing, quietly hoping it doesn't come back.\n\nIt comes back.\n\nThis is what it feels like to operate a system you can't see into. Monitoring told you *that* something was wrong: a threshold was crossed, an alert fired, a pager went off. It didn't tell you why, and it couldn't, because you have to know a failure mode in advance to write an alert for it. Most of the failures that actually hurt you are the ones nobody predicted.\n\nObservability is the difference between watching a system and being able to interrogate it. It means that when the checkout page gets slow, you can ask a question you never anticipated asking \u2014 which customers, on which plan, hitting which downstream service, holding which feature flag \u2014 and get an answer in the time it takes to type it. Not from a dashboard someone built last quarter. From the data itself.\n\nThat capability changes more than incident response. It changes what your team is willing to build, ship, and change. The rest of this post is about how."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**From One Deploy to Fourteen: What We Got Wrong Splitting the Monolith**\n\nThree years ago our billing system was one Rails application, one database, and one deploy that took forty minutes and usually worked. Today it's fourteen services. Some of that was worth doing. Some of it wasn't, and this talk is mostly about telling the two apart.\n\nI'll walk through the decomposition we actually ran: how we chose the first seam (billing, because the on-call pain was loudest there), why our second extraction failed and got rolled back after five weeks, and what one distributed transaction cost us the night we learned our idempotency keys weren't idempotent. You'll see the strangler-fig routing layer, the shadow-traffic harness we used to compare old and new code paths against live requests, and the two signals we required before cutting anything over.\n\nYou'll also hear the bill. Three new on-call rotations. A tracing spend nobody forecast. Six months where running the system locally was strictly worse than it had been.\n\nIf someone has handed you this project, bring your architecture diagram. I'll tell you which boxes I'd leave alone, and what to ask for before you agree to move the rest.\n\nThe specifics (Rails, billing, fourteen services) are placeholders \u2014 swap in your own and the shape holds."
+}

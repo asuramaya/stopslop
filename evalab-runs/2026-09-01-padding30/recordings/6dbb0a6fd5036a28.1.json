@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "Here's the intro \u2014 around 200 words. Bracketed bits are the places to drop in your own specifics.\n\n---\n\n## What we're building next\n\nThis page is our working plan, published as we work it.\n\nWe keep it public because you make architecture decisions on our behalf. If you're deciding whether to write your own [caching layer] or wait for ours, guessing is expensive \u2014 for you in rework, for us in support tickets from people who guessed wrong. So we'd rather tell you.\n\nThree things to know about how to read it.\n\nDates are estimates, and the further out an item sits, the softer the estimate. Anything in \"Shipping\" has code merged and a release date. Anything in \"Exploring\" is a problem we've agreed is real and haven't yet agreed how to solve; some of those items will die here, and we'll say so when they do rather than letting them rot at the bottom of the list.\n\nOrder comes from three inputs: support volume, what breaks in production, and what you tell us directly. Not vote counts. A single issue from a team running [our agent on 400 nodes] usually outweighs fifty thumbs-up on a nice-to-have.\n\nDisagree with the ordering? [Open a discussion] or reply on any item. We move things."
+}

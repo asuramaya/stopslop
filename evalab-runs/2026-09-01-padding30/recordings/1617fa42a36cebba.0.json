@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**Let's stop asking who broke it**\n\nLast month's checkout outage took four hours to resolve and about twenty minutes of that was spent figuring out who had pushed the config change. That's the part I want to talk about.\n\nI'm not arguing we go soft on quality. I'm arguing the opposite. Right now, when something breaks, the honest answer \u2014 \"I didn't know that flag applied to prod\" \u2014 is the answer that gets you a difficult conversation with your lead. So people don't give it. They give the version that makes them look careful, and we write that version down, and six months later somebody makes the same mistake because the real cause never got recorded.\n\nA blameless postmortem is a narrow, boring commitment: the writeup names systems, not people. No \"Priya deployed without checking.\" Instead: \"the deploy tool accepted a staging config for a prod target without warning.\" Same event. One of those you can fix.\n\nThe cost is close to zero. We already write incident notes. This changes the pronouns and adds one rule \u2014 every action item has to be a change to a system, a check, a default, or a doc. Not \"be more careful.\"\n\nWhat we get is people volunteering the embarrassing detail, which is almost always the useful one.\n\nI'd like to try it on the next three incidents of any size and compare the writeups to the last three. If the new ones are vaguer or less actionable, we drop it and I'll say so.\n\nWho wants to run the first one with me?"
+}

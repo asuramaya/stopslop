@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a page comparing a managed database service with running your own, for a technical audience choosing between them. Around 250 words."
+  }
+ ],
+ "output": "# Managed vs. self-hosted Postgres\n\nThe honest version of this decision: you are not choosing between \"easy\" and \"hard.\" You are choosing which failures you want to own.\n\n**What managed buys you.** RDS, Cloud SQL, Neon and friends handle the work nobody puts on a r\u00e9sum\u00e9 \u2014 minor-version patching, backup verification, failover plumbing, the replica that silently fell behind. A managed provider will do a point-in-time restore correctly at 3 a.m. Your on-call engineer, on their fourth week of interrupted sleep, might not.\n\n**What it costs.** Roughly 2\u20134x the raw compute price, and you lose the superuser bit. No custom extensions outside the vendor's allowlist, limited control over `shared_buffers` and the autovacuum knobs, and a hard ceiling on instance size that you will hit eventually. When replication lag spikes for no visible reason, your debugging tool is a support ticket.\n\n**When self-hosting wins.** You need an extension the vendor won't ship \u2014 TimescaleDB, a custom C function, `pg_partman` at a version they don't carry. Or your data volume makes the markup absurd: at 40 TB, the difference funds two full-time DBAs with room left over. Or a regulator requires the disks be yours.\n\n**The rule of thumb.** Under ~5 TB with fewer than three engineers who genuinely know Postgres internals, take the managed offering and spend the saved attention on your schema \u2014 which is where your actual performance problems live anyway. Above that, or with a real DBA on staff, run it yourself.\n\nEither way, test your restores. Nobody's backups work until someone proves it."
+}

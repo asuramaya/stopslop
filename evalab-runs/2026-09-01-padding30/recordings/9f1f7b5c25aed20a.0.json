@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Why we're hiring for developer relations**\n\nLast month our docs got about 40,000 visits and our support queue got 900 tickets. Roughly a third of those tickets had an answer sitting in the docs already. That gap is the whole reason we're building a developer relations team.\n\nNot the conference booths. Not the swag.\n\nHere's the problem as we see it. Nobody at this company currently owns the path a developer walks from \"I found this on Hacker News\" to \"I shipped something with it.\" Engineering owns the API. Support owns the ticket after things break. The middle \u2014 the first hour, the sample app that doesn't compile, the auth flow with three undocumented edge cases \u2014 belongs to nobody, so it stays broken.\n\nA DevRel team fixes that by living in the middle. They build with our own product, in public, and file the bugs they hit. They rewrite the quickstart when six people in a row get stuck on step four. They bring back the complaints that never make it into a ticket because the developer just left instead.\n\nWe're measuring it accordingly: median time to a first successful API call, the share of new signups who make a second call within a week, and how many docs changes come from real usage rather than a release checklist. Not follower counts. Not talk attendance.\n\nIf that sounds less glamorous than what DevRel is usually pitched as, good. We want the boring version \u2014 the one where fewer people give up on us at step four.\n\n---\n\nSwap the numbers for your real ones; I used placeholders since you didn't name the company or its metrics."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Why we're hiring for developer relations**\n\nOur docs pulled in about 40,000 visits last month. Support got 900 tickets. Roughly a third of those tickets already had an answer sitting in the docs. That gap is the reason we're building a developer relations team.\n\nNot for conference booths. Not for swag.\n\nThe problem, as we see it: nobody here owns the path a developer walks from \"I found this on Hacker News\" to \"I shipped something with it.\" Engineering owns the API. Support owns the ticket after things break. The middle \u2014 the first hour, the sample app that won't compile, the auth flow with three undocumented edge cases \u2014 belongs to nobody, so it stays broken.\n\nA DevRel team fixes that by living in the middle. They build with our own product, in public, and file the bugs they hit along the way. They rewrite the quickstart when six people in a row stall on step four. They carry back the complaints that never become tickets, because the developer just left instead.\n\nWe're measuring it that way too: median time to a first successful API call, the share of new signups who make a second call within a week, and how many docs changes come out of real usage rather than a release checklist. Not follower counts. Not talk attendance.\n\nIf that sounds less glamorous than the usual DevRel pitch, good. We want the boring version \u2014 the one where fewer people give up on us at step four."
+}

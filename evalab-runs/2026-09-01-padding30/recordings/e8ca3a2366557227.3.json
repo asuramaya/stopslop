@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security is not the security team's job**\n\nWe have four people on security and about three hundred engineers. Do that arithmetic and the conclusion writes itself: if security only happens when the security team touches something, most of what we ship never gets touched.\n\nThat's not a complaint about headcount. It's a description of how the work actually flows. The person best positioned to notice that an endpoint returns more fields than the client needs is the person writing the endpoint. By the time it reaches a review queue, the context is gone and someone is reconstructing intent from a diff.\n\nSo here's what we're asking for, concretely.\n\nWhen you add a parameter that reaches a query, a file path, or a shell, say so in the PR description. One line. You don't need to prove it's safe \u2014 just flag that you thought about it.\n\nWhen you're about to store something new about a user, ask whether we need it. Deleting data we never collected is free.\n\nWhen something looks wrong and you don't have time to chase it, file it anyway. A half-written issue in the backlog beats a hunch that evaporates by Thursday.\n\nAnd when you're not sure, ask in #security. There is no dumb question there, and we'd rather answer forty easy ones than miss the hard one because someone didn't want to look uninformed.\n\nThe security team's job is to build guardrails, review the risky paths, and respond when things break. It was never to be the only people paying attention."
+}

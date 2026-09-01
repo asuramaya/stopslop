@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# What We Shipped, and What It Cost\n\n**Year in review**\n\nThe headline number is 41 releases, but the number I keep coming back to is 11 minutes. That's our median CI time now, down from 34 in January. Nobody got promoted for it. It's probably the change that made the rest of the year possible.\n\nWe spent Q1 paying down the queue rewrite we'd deferred twice. It was miserable and it worked: retry storms are gone, and the on-call pager fired 62 times this year against 190 last year. Ana's postmortem from the March outage is still the best internal doc we produced, mostly because she was willing to write down what we didn't know.\n\nQ2 and Q3 were the search migration. We said six weeks. It took four months. The honest version is that we underestimated how much behavior lived in the old ranking code that nobody had documented, and we found it the slow way, one customer complaint at a time. We shipped it. I'd budget differently next time.\n\nThings that didn't land: the mobile offline mode, which we started twice and shelved twice, and the plugin API, which is still a design doc. Both are real work we chose not to do, not failures.\n\nFive people joined the team this year and two left. Onboarding time is down to about three weeks, which is the direct result of Priya rewriting the setup guide instead of doing something more visible.\n\nNext year: fewer parallel workstreams. We proved we can carry four. We shouldn't.\n\n---\n\nSwap the names, numbers, and project details for your team's actual ones \u2014 the structure holds either way."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# What We Shipped, and What It Cost\n\n**Year in review**\n\nForty-one releases is the number people will quote. The one I think about is eleven minutes, our median CI time, down from thirty-four in January. No one got a promotion out of that work. It's probably why the rest of the year was possible at all.\n\nQ1 went to the queue rewrite we'd punted on twice. Grim work, and it paid: retry storms are gone, and the pager went off 62 times this year versus 190 last year. Ana's March outage postmortem is the best document we wrote all year, largely because she was willing to put our unknowns on paper.\n\nQ2 and Q3 were the search migration. We estimated six weeks. It ran four months. Honestly, we didn't realize how much undocumented behavior was buried in the old ranking code, and we found it the slow way, one customer complaint at a time. It shipped. My budgeting would look different next time.\n\nWhat didn't land: mobile offline mode, started and shelved twice, and the plugin API, which remains a design doc. Both are real work we decided against, not things we fumbled.\n\nFive people joined this year, two left. Onboarding now takes about three weeks, which traces directly to Priya rewriting the setup guide instead of doing something people would notice.\n\nFor next year: fewer parallel workstreams. We've established that we can carry four. That isn't an argument for carrying four.\n\n---\n\nSubstitute your team's real names, numbers, and projects. The shape works either way."
+}

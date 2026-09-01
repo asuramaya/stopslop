@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Senior Backend Engineer**\nMeridian Pay \u2014 Austin, TX (hybrid, 2 days in office)\n$185k\u2013$225k + equity\n\nWe move money. About $4B a year, for roughly 900 mid-market businesses that use us for payroll, vendor payments, and treasury. Small enough that you'll know everyone's name by month two. Big enough that a bad deploy makes the news.\n\nThe backend is Go and Postgres, with a Python service handling reconciliation and a Kafka spine between them. We run on AWS. There's a decent amount of code written in 2019 by three people in a hurry, and some of it is load-bearing.\n\n**What you'd own**\n\nThe ledger. It's the piece everything else depends on, and it's the piece we're least happy with \u2014 double-entry, event-sourced, and currently doing about 300 writes/sec at peak with latency we'd like to cut in half. You'd lead that work, review across the team, and sit in on incident reviews. On-call is one week in six.\n\n**What we're looking for**\n\nSix-plus years writing backend services that handle other people's money, or something with comparable consequences. Real fluency in one of Go, Java, or Rust; we don't care which. Strong SQL. You've been on the wrong end of a data migration and can tell the story.\n\nNice: experience with ACH, card rails, or ledger design. Not required \u2014 we've taught it before.\n\n**Process**\n\nA 45-minute call, a take-home you get paid for, then a half day with the team. Three weeks start to finish. We tell you no quickly if it's a no."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\nMeridian Pay \u2014 Austin, TX (hybrid, 2 days in office)\n$185k\u2013$225k + equity\n\nWe move money. Roughly $4B a year, for about 900 mid-market businesses that run payroll, vendor payments, and treasury through us. Small enough that you'll know everyone's name by month two. Big enough that a bad deploy makes the news.\n\nThe backend is Go and Postgres, plus a Python service for reconciliation and a Kafka spine between them. We run on AWS. A fair amount of the code was written in 2019 by three people in a hurry, and some of it holds up the rest.\n\n**What you'd own**\n\nThe ledger. Everything else depends on it, and it's the part we're least happy with \u2014 double-entry, event-sourced, currently around 300 writes/sec at peak with latency we want to cut in half. You'd lead that work, review across the team, and join incident reviews. On-call is one week in six.\n\n**What we're looking for**\n\nSix-plus years on backend services handling other people's money, or something with similar stakes. Real fluency in Go, Java, or Rust \u2014 pick one, we don't mind which. Strong SQL. You've been on the wrong end of a data migration and can tell the story.\n\nNice to have: ACH, card rails, or ledger design. Not required \u2014 we've taught it before.\n\n**Process**\n\nA 45-minute call, a paid take-home, then half a day with the team. Three weeks end to end. If it's a no, you'll hear it fast."
+}

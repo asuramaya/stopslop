@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Let's take the names out of our postmortems\n\nWe already write incident reviews. The problem is what people do before they write them.\n\nYou've seen it. An outage ends, and the first hour of the review is spent establishing whose commit it was. The person who shipped it turns cautious. Their summary is accurate and useless \u2014 every sentence is built to survive being read by their skip-level. And the thing we actually needed to know, the reason the deploy looked safe at 2am, never gets written down, because saying it out loud sounds like an excuse.\n\nThat's the cost. Not hurt feelings. Missing information.\n\nA blameless postmortem is a narrow commitment: we assume everyone acted reasonably given what they could see at the time, and we spend the meeting reconstructing what they could see. The question stops being \"why did you push it\" and becomes \"why did the dashboard look green.\" One of those has a fix. The other has a scapegoat.\n\nTwo objections, up front. It isn't about avoiding accountability \u2014 the team still owns the follow-up actions, and we should track whether they land. And it doesn't mean performance problems are off-limits; those are a manager conversation, not an incident review. Mixing the two is exactly what breaks the incident review.\n\nWhat I'm proposing: for the next quarter, no individual names in postmortem docs. Roles and systems only. A facilitator who wasn't on-call runs the meeting. We read the doc cold instead of presenting it.\n\nIf our reviews get duller and our repeat incidents drop, that's the trade I want."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Take the names out of our incident reviews\n\nWe already write them. The trouble starts before anyone opens the doc.\n\nYou know the pattern. An outage clears, and the first half hour goes to working out whose commit it was. The engineer who shipped it gets careful. What they write is accurate and worthless, because every sentence is shaped to survive a reading by their skip-level. The one thing we needed, why the deploy looked safe at two in the morning, never makes it onto the page, since saying it aloud would sound like an excuse.\n\nThat is the real cost. It is lost information, not bruised feelings.\n\nBlameless review is a narrow promise: we start from the assumption that everyone acted sensibly given what was in front of them, and we spend the hour rebuilding what was in front of them. \"Why did you push it\" turns into \"why was the dashboard green.\" Only one of those questions has a fix at the end of it.\n\nTwo objections worth answering now. This is not a way around accountability. The team still owns the follow-up actions, and we track whether they land. Nor does it put performance problems out of reach; those belong in a conversation with a manager, not in an incident review. Blending the two is precisely what ruins the incident review.\n\nThe proposal: for one quarter, no individual names in postmortem docs. Roles and systems only. Someone who was not on call facilitates. We read the doc cold instead of having its author present it.\n\nIf the reviews get duller and the repeats drop, I will take that trade."
+}

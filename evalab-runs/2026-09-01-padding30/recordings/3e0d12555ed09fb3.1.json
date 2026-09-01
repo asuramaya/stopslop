@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Your slowest query isn't the one you think it is**\n\nEvery team has a dashboard that takes eleven seconds to load. Someone added an index in 2023, it didn't help, and now nobody touches it.\n\nOn [DATE], [SPEAKER] spends an hour underneath problems like that one \u2014 a live walk through three production slowdowns, from the first EXPLAIN to the fix that shipped.\n\nWhat we'll get into:\n\n- Reading a query plan without guessing. Where the planner's row estimate goes wrong, and what you do about it when it does.\n- Indexes that cost more than they save, and how to find yours in `pg_stat_user_indexes`.\n- Lock contention and pool exhaustion: why p99 spikes every morning at 9 while the average looks fine.\n\nBring a slow query. The last twenty minutes are live submissions, diagnosed on screen.\n\nWho it's for: backend engineers and DBAs running Postgres or MySQL in production. You need to be comfortable reading SQL. You don't need to have tuned anything before.\n\n[DATE] at [TIME]. Sixty minutes plus Q&A. Free, and the recording goes out to everyone who registers, including the people who forget to show up.\n\n**[Register \u2192]**\n\n~200 words. Bracketed fields are the placeholders to fill; swap Postgres/MySQL and the `pg_stat_user_indexes` reference if your audience runs something else."
+}

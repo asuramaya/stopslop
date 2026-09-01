@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  }
+ ],
+ "output": "Here's the pitch section. I invented the library name and the concrete numbers as placeholders \u2014 swap in your real ones, since the specifics are what keep it from reading like filler.\n\n---\n\n# Sparkbox\n\nMost charting libraries ask you to learn a dialect before you can draw a line. Sparkbox asks for an array.\n\n```js\nspark(el, data)\n```\n\nThat's a chart. Axes, scales, and tick spacing are inferred from the data you passed; when the inference is wrong, every one of those decisions is a prop you can override. No config object required to get started, no config object you outgrow later.\n\nThe whole thing is 14 kB gzipped with no dependencies, and it renders to SVG, so your charts survive a screenshot, a print stylesheet, and a `Ctrl+F`. Line, bar, area, scatter, and heatmap ship in the core. Anything else you build from the same primitives the built-ins use \u2014 there's no privileged internal API.\n\nWe wrote it because the existing options split into two camps: wrappers so opinionated that a second y-axis means forking them, and toolkits so low-level that a bar chart is 200 lines of scale math. Sparkbox sits in between and stays there.\n\nWorks with React, Vue, Svelte, and plain DOM. MIT licensed. Runs in Node for server-side rendering."
+}

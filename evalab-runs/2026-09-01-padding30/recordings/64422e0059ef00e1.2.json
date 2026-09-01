@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "**Your dashboards are green and checkout is still broken**\n\nIt's 3 a.m. Payments are failing for something like 4% of carts, every service is reporting healthy, and the on-call engineer is reading logs one grep at a time trying to find a customer who complained on Twitter.\n\nNobody planned for this. It's what happens when a system gets big enough that no single person holds the whole map in their head anymore, and the tooling was designed back when one person still could. CPU graphs and uptime checks answer a question from 2010: is the box alive? The question that actually costs money is different. *Why is this particular request, from this particular customer, slow right now?*\n\nMonitoring tells you a thing you already thought to worry about has gone wrong. Observability is the ability to ask a question you didn't anticipate \u2014 without shipping new code to answer it. That distinction sounds academic until the first time you're twenty minutes into an incident and realize the field you need was never instrumented.\n\nThe teams that get this right aren't buying a better dashboard. They're changing what their code emits: structured events with enough context attached that a human can slice by customer ID, region, feature flag, or the deploy that went out at 2:47. Then the 3 a.m. question takes four minutes instead of four hours.\n\nThat's the payoff. Not prettier graphs \u2014 shorter incidents, and engineers who trust their own systems enough to sleep."
+}

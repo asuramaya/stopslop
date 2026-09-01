@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "**Subject: [Service] is moving to [New Platform] on [date]**\n\nHi [Name],\n\nOn [date], [Service] moves from [Current Platform] to [New Platform]. We've been running both side by side since [month], and [New Platform] now does everything the old one did, with faster [X] and a clearer [Y].\n\nWhat changes for you:\n\n- **Sign-in.** You'll log in at [new URL]. Your username stays the same; you'll set a new password the first time.\n- **Your data.** All of it comes with you: [items], history, saved settings. Nothing to export.\n- **Integrations.** The [API/webhook] endpoints change. If your team calls our API, read the migration notes at [link] and update before [date].\n\nWhat doesn't change: your plan, your price, your billing date.\n\nThere's a maintenance window on [date], [time] to [time] [timezone]. [Service] will be read-only for that stretch. If you have work that has to land that day, finish it beforehand.\n\nWe're keeping [Current Platform] up in read-only mode until [date], so you can go back and check anything that looks wrong after the move. After that date it's gone.\n\nTwo things worth doing this week: skim the migration notes, and forward this to whoever on your team owns the integration work. If part of your setup has no obvious equivalent on [New Platform], reply here or write to [email]. We'd rather sort it out with you before the cutover than after.\n\nThanks for sticking with us.\n\n[Name]\n[Title], [Company]\n\n---\n\n~255 words. Brackets mark the details I don't have \u2014 service name, platform, dates, and whether the cutover involves a maintenance window at all. If it's zero-downtime, cut that paragraph and it lands near 210 words."
+}

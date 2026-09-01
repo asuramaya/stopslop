@@ -1,0 +1,11 @@
+Draft below (~250 words); it passes the repo's own `slopwatch` gate clean.
+
+## Vision
+
+Two years from now, a team that wants to ship a new service does it in an afternoon, and the platform is the boring reason why. No one writes a deploy pipeline from scratch. No one reads three wikis to find out which database the billing team blessed last quarter. The path of least resistance is also the path that survives an audit.
+
+We are not there. Today every team carries its own copy of the same problems: secrets handling, rollout, observability, the long tail of compliance. Each copy drifts. When something breaks at 3am, the person paged has to learn one more team's private conventions before they can help. That tax compounds, and it lands hardest on the newest engineers, who pay it in full and have the least context to absorb it.
+
+The bet is that we can pull that shared work into one place and keep it there. A paved road, owned by people whose job is the road, with real support hours and a real deprecation policy. Teams that stay on it inherit improvements they never asked for. Teams that step off it can, and they carry the weight themselves, knowingly.
+
+This is a two-year bet because the first year mostly looks like migration and apology. Value shows up late and then all at once, when the fourth and fifth teams onboard against work the first three already paid for. We are asking for patience against that curve. What we offer in exchange is that the second year gets cheaper every quarter, and stays that way.

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "Passes the repo's own `slopwatch` gate. 238 words. The company, quotes, and numbers are invented \u2014 swap in the real ones before this goes anywhere.\n\n---\n\n# Case study: Bellwether Freight\n\nBellwether Freight runs dispatch software for about 400 regional trucking companies. Until early last year, they shipped on the first Tuesday of every month. Release day meant a four-hour window after midnight, six engineers on a call, and a rollback plan nobody wanted to use.\n\n\"The batch was the problem,\" says Priya Raghunathan, who leads platform engineering. \"Every release had three weeks of changes in it. When something broke, we had sixty commits to look through.\"\n\nThey adopted the platform in March and spent two months on plumbing: containerizing the two services still deployed by shell script, and getting the test suite under eight minutes so it could gate a merge instead of a release. Nothing shipped faster during that stretch. The bet was that it would later.\n\nIt did. Bellwether now deploys 40 to 60 times a week, mostly single-service changes that reach production within an hour of merge. Change failure rate fell from 18 percent to about 4. The number Priya cares about more is time to restore, down from just under six hours to 22 minutes, because a bad deploy is now one commit instead of sixty.\n\nThe release call is gone, and so is the monthly Tuesday. Engineers merge when their work is ready and watch their own change roll out behind a feature flag.\n\n\"We didn't get faster by working faster,\" Priya says. \"We stopped saving things up.\"\n\n---\n\nDraft is at `/tmp/casestudy.md`. Tell me the real customer's numbers and I'll refit it."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. Since I don't have your team's actual numbers, the specifics below are placeholders \u2014 swap in real ones and the post holds up; leave them generic and it reads like every other year-in-review.\n\n---\n\n## 2026, in the rearview\n\nWe shipped 47 things this year. Four of them mattered.\n\nThe rest was upkeep, and I don't say that as an apology \u2014 upkeep is most of the job, and the year we pretend otherwise is the year the pager starts going off at 3am.\n\n**The queue rewrite.** We spent Q1 arguing about it and Q2 doing it. p99 went from 4.2s to 380ms. The argument was worth it; the version we shipped is not the version anyone drew on the whiteboard in February.\n\n**Deploys stopped being scary.** 11 minutes down to 90 seconds, and rollback is now one command instead of a runbook nobody had read since 2024. Deploy count roughly tripled. Nobody mandated that. People just deploy more when it doesn't hurt.\n\n**The migration we cancelled.** Two months in, we killed it. I still think that was right. We got a much clearer picture of where the data actually lives, which is most of what the migration was supposed to buy us anyway.\n\n**Onboarding.** Three new engineers, first PR merged inside a week for all three. Credit to whoever kept the setup docs current \u2014 that was unglamorous work and it paid.\n\nWhat I want for next year: fewer things on the board, finished sooner. We started too much in 2026. The four wins above all had one owner and a clear finish line. The stuff that stalled had neither.\n\n---\n\n~250 words. Want it in a different voice \u2014 less blunt, more upbeat, or written as \"we\" from the whole team rather than a lead?"
+}

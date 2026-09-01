@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security isn't the security team's job**\n\nWe have four people on the security team. We have about 180 engineers. Do the math on who is actually writing the code that gets attacked.\n\nThat ratio isn't a staffing complaint. It's the whole argument. Four people cannot review every pull request, and they were never going to. What they can do is build the guardrails, answer the hard questions, and handle the incidents. Everything else lands on us.\n\nHere's what \"everyone's responsibility\" means in practice, and it's smaller than it sounds.\n\nNotice the risky thing and say so. If a PR adds a new external call, touches auth, or moves customer data somewhere new, flag it in review. You don't need to know the fix. Naming the concern is 90% of the value.\n\nAsk early, not at the end. A design doc question costs an hour. The same question the week before launch costs a sprint. #sec-help is not a queue for emergencies \u2014 use it while you're still sketching.\n\nReport your own mistakes. Nobody gets in trouble for a leaked key they reported. The bad outcome is the one we find in a log six months later.\n\nDo the training. Yes, it's tedious. It takes 40 minutes and it's how we stop repeating last year's incidents.\n\nNone of this makes you a security engineer. It makes you someone who doesn't quietly hand the security team a problem they can't see.\n\nQuestions, disagreements, \"this rule is dumb because X\" \u2014 bring them to #sec-help. Especially the last one.\n\n---\n\nSwap the headcounts, channel name, and training length for your real ones \u2014 those are placeholders."
+}

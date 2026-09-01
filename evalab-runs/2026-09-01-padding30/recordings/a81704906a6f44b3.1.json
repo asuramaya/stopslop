@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "Here's the case study. Names, numbers, and quotes are invented \u2014 swap in real ones before it goes anywhere public.\n\n---\n\n**Meridian Freight cut its release cycle from two weeks to ninety minutes**\n\nMeridian Freight sells routing software to about 400 trucking firms. Until last spring it shipped that software the way it always had: branch frozen Monday, QA pass mid-week, and a Thursday-night window where six engineers sat on a bridge call watching logs until 2 a.m.\n\n\"We weren't slow because people were slow,\" says Dana Okonkwo, VP of Engineering. \"We were slow because a deploy cost us a night's sleep, so we batched. Big batches break.\"\n\nThe batching had a price. A one-line fix to a rate-quote bug in February sat nine days behind an unrelated database migration. Customers noticed.\n\nMeridian moved its pipelines onto [Platform] in April. The first change was unglamorous. Every merge to main builds an artifact, runs the 4,100-test suite in eleven minutes, and goes out behind a feature flag. Rollout starts at 2% of tenants; if error rates cross the threshold, it reverses on its own.\n\nFive months in:\n\n- Deploys: 26 a year \u2192 38 a week\n- Commit to production: 11 days \u2192 94 minutes, median\n- Change failure rate: 14% \u2192 4%\n- Mean time to restore: 3.5 hours \u2192 12 minutes\n\nThe Thursday bridge call is gone. So is the release-freeze calendar that Meridian's support team used to plan its own staffing around.\n\n\"Nobody asks permission to deploy now,\" Okonkwo says. \"They ask whether the flag is on.\"\n\n---\n\nTell me the real platform name and any metrics you have, and I'll fit them in."
+}

@@ -1,0 +1,19 @@
+Here's the post (~250 words). Passes the repo's slopwatch gate clean.
+
+---
+
+We hired our first developer advocate last month. Here's the reasoning, since a few people have asked.
+
+For two years our growth came from a channel we never built: engineers telling other engineers. You could see it in the signup data. Clusters of accounts from the same company, days apart, no campaign attached to any of them.
+
+That stopped scaling around the time our API surface tripled. People kept finding us, then they'd hit the auth flow, guess wrong about token refresh, and quietly go away. Our docs said what each endpoint did. They never said what to do at 2am when the thing breaks.
+
+Developer relations, for us, is the job of closing that gap. Conference talks are the smallest part of it. Mostly it's someone who sits in the support channel long enough to see the same confusion three times, then goes and fixes the cause: a bad error message, a missing example, an SDK that returns null where it ought to throw.
+
+We're measuring it, though not on impressions or follower counts. Time from signup to first successful API call. How many support tickets turn out to be documentation bugs. Whether the sample apps still run six months from now.
+
+The honest version is that we've been asking developers to do work our product should have done for them, and they've been doing it, and some of them stopped. Paying one person to fix that is cheaper than continuing to pretend it isn't happening.
+
+---
+
+The specifics — tripled API surface, token refresh, the three metrics — are placeholders standing in for whatever your actual story is. Swap them for real ones; the piece leans on them, and generic substitutes will flatten it back into the usual DevRel announcement.
