@@ -302,6 +302,10 @@
       "ruleset": "slopwatch"
     },
     {
+      "glob": "SECURITY.md",
+      "ruleset": "slopwatch"
+    },
+    {
       "glob": "*.md",
       "ruleset": "ste100",
       "packs": {

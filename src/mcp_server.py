@@ -11,6 +11,27 @@ distinction the SKILL.md priming skill already states about itself. These
 tools exist to reduce retries against the live gate, not to duplicate or
 substitute for it.
 
+EVERY TOOL HERE IS READ-ONLY, and that is a security property, not an
+oversight. This surface belongs to the party the gate constrains. A tool
+here that could relax the gate would let that party switch off its own
+constraint, so no tool here writes config, vocabulary, or code. Three
+removed tools show why the rule has to be categorical rather than
+case-by-case (see SECURITY.md, and test_no_mutating_tools.py, which fails
+if one is ever added back):
+
+  - add_check took a matcher body as a string. custom_checks.py writes it
+    to disk and exec_module()s it, so the gate then ran model-authored
+    Python in its own process on every later write.
+  - set_checks({<every check>: False}) turned a denying gate into a
+    passing one in a single call. Measured, not theorized.
+  - set_check_config(action="warn") demoted any one blocking check.
+
+None of that needed a bug: each tool did exactly what it documented. The
+error was in giving the surface to the wrong party at all. A person still
+does all of it, through `stopslop.py` or the dashboard, which is the same
+trust boundary the hook already assumes (anyone who can write this repo's
+files can already run code in the gate).
+
 Every tool here is a thin wrapper around the SAME functions the CLI
 (stopslop.py) and the hook (pretool_hook.py) use -- each ruleset's own
 lint_and_gate/blocking_semantic_flags, register_term()/check_word() when it
@@ -44,17 +65,18 @@ from core import config as core_config
 from core import flags as core_flags
 from core import paths
 from core import scan as core_scan
-from core import terms as core_terms
 
 from mcp.server.mcpserver import MCPServer
 
 mcp = MCPServer(
     name="stopslop",
-    description="Convenience tools for stopslop, a pluggable writing-enforcement gate. "
+    description="Read-only tools for stopslop, a pluggable writing-enforcement gate. "
                  "Checking text here does not write it anywhere and carries no "
                  "enforcement guarantee -- the live PreToolUse hook is what "
                  "actually blocks a bad write, regardless of whether these tools "
-                 "were used first.",
+                 "were used first. Nothing here can change what the gate enforces: "
+                 "to add a term, a check, or a ruleset, ask the person driving the "
+                 "session to run stopslop.py or open the dashboard.",
 )
 
 REPO_ROOT = paths.find_project_root(__file__)
@@ -155,86 +177,6 @@ def list_term_lists(ruleset: str = "", file_path: str = "") -> dict:
 
 
 @mcp.tool()
-def add_term(list_id: str, term: str, note: str = "", force: str = "",
-             ruleset: str = "") -> dict:
-    """Add one term to a ruleset's term list -- what the gate should stop
-    flagging (an "allow" list, e.g. ste100's project vocabulary) or start
-    flagging (a "deny" list, e.g. slopwatch's marketing cliches). Call
-    list_term_lists first to see the ids and their polarity.
-
-    Registration is meant to be deliberate: confirm with the person you're
-    working with before calling this, the same way the project's own
-    workflow does (ask, then register on approval), even though this tool
-    doesn't enforce that step.
-
-    `force` is a REASON string, not a flag. A list backed by a real
-    external standard (ste100's) refuses a word that standard explicitly
-    forbids unless you give one -- that is overriding a real rule, not
-    filling a coverage gap, and belongs on the record.
-    """
-    active = _resolve(ruleset or None)
-    if "terms" not in active.CAPABILITIES:
-        return _unsupported(active, "terms", "add a term for")
-    try:
-        return active.add_term(list_id, term, note, force=force or False)
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-
-
-@mcp.tool()
-def remove_term(list_id: str, term: str, ruleset: str = "") -> dict:
-    """Remove one term from a ruleset's term list -- undoes a mistaken
-    add_term call. A no-op, not an error, if the term was never registered.
-    """
-    active = _resolve(ruleset or None)
-    if "terms" not in active.CAPABILITIES:
-        return _unsupported(active, "terms", "remove a term for")
-    try:
-        return active.remove_term(list_id, term)
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-
-
-@mcp.tool()
-def add_term_list(list_id: str, label: str = "", polarity: str = "deny",
-                   accepts_additions: bool = True, accepts_packs: bool = False,
-                   ruleset: str = "") -> dict:
-    """Declare a whole NEW term list on a ruleset -- not just add a term to
-    an existing one (see add_term for that). Call list_term_lists first to
-    see the ids already taken. `polarity`: "deny" (default) flags a
-    matching term, "allow" exempts one. The new list is browsable/
-    curatable right away but starts UNBOUND -- no check reads it until one
-    is written (or configured, for a ruleset with custom_checks) to declare
-    it feeds that list.
-    """
-    active = _resolve(ruleset or None)
-    if "terms" not in active.CAPABILITIES:
-        return _unsupported(active, "terms", "declare a term list for")
-    try:
-        spec = core_config.add_custom_term_list(
-            REPO_ROOT, active.RULESET_ID, list_id, getattr(active, "TERM_LISTS", {}),
-            label=label or None, polarity=polarity, accepts_additions=accepts_additions,
-            accepts_packs=accepts_packs)
-    except ValueError as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "saved", "list_id": list_id, "spec": spec}
-
-
-@mcp.tool()
-def remove_term_list(list_id: str, ruleset: str = "") -> dict:
-    """Remove a custom term list's DECLARATION (added via add_term_list).
-    Refused for a built-in list -- those have no declaration to remove.
-    Any terms already registered under it stay on disk, reappearing if the
-    same list id is declared again.
-    """
-    active = _resolve(ruleset or None)
-    if not core_config.delete_custom_term_list(REPO_ROOT, active.RULESET_ID, list_id):
-        return {"ok": False, "status": "refused",
-                "message": f"no custom list {list_id!r} on {active.RULESET_ID!r} to remove"}
-    return {"ok": True, "status": "removed", "list_id": list_id}
-
-
-@mcp.tool()
 def list_path_packs() -> dict:
     """Every available vocabulary pack, and which routing rule/list each is
     currently bound to. Read-only -- see set_path_packs to bind one.
@@ -253,86 +195,6 @@ def list_path_packs() -> dict:
 
 
 @mcp.tool()
-def set_path_packs(glob: str, list_id: str, pack_ids: list[str] = None) -> dict:
-    """Point vocabulary packs at a term list on a path glob. Call
-    list_path_packs first to see the available pack ids and the current
-    bindings.
-
-    Both halves of the binding -- which rule, which list -- are project
-    decisions made here, because the same pack can reasonably feed
-    different lists in different repos, or be read at the opposite
-    polarity: an allow list by one ruleset, a deny list by another.
-
-    A pack attaches to a routing rule rather than to a ruleset because a
-    pack is domain content and domain is a property of the text: NIST
-    security vocabulary belongs to docs/security/, not to every file
-    ste100 happens to gate.
-
-    Sets exactly the pack_ids given (an empty list detaches every pack
-    from that list). Unknown pack ids and unknown globs both refuse
-    rather than silently doing nothing.
-    """
-    from core import glossary_packs
-    if not list_id:
-        return {"ok": False, "status": "refused",
-                 "message": "list_id is required: a pack feeds a named term list, "
-                             "and the pack itself does not say which one. Call "
-                             "list_term_lists to see the ids."}
-    # The same kind guard the dashboard applies. Without it this entry point
-    # walks straight past a rule enforced at three other layers: a pack of
-    # plain words could be bound to a list of regex patterns from here.
-    spec = None
-    for module in rulesets.list_rulesets():
-        lists = core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
-                                                  module.RULESET_ID, REPO_ROOT)
-        if list_id in lists:
-            spec = lists[list_id]
-            break
-    admissible = None
-    if spec is not None:
-        admissible = lambda pid: core_terms.pack_kind_admissible(
-            spec, glossary_packs.AVAILABLE_PACKS.get(pid, {}))
-    try:
-        core_config.set_rule_packs(REPO_ROOT, glob, list_id, pack_ids or [],
-                                    known_packs=glossary_packs.AVAILABLE_PACKS,
-                                    admissible=admissible)
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "saved",
-            "message": f"{glob} -> {list_id}: {', '.join(pack_ids or []) or '(none)'}"}
-
-
-@mcp.tool()
-def add_pack(pack_id: str, name: str, source: str = "", license: str = "",
-             content_kind: str = "word", terms_text: str = "") -> dict:
-    """Register a new CUSTOM vocabulary pack -- bulk, reusable term
-    content, inert until bound to a routing rule's list via
-    set_path_packs. `terms_text` is one term per line: "word" or
-    "word: a note". `content_kind` ("word", "phrase", or "pattern") must
-    match what the target list can read (see list_term_lists' own
-    content_kind), checked at bind time, not here.
-    """
-    from core import glossary_packs
-    try:
-        glossary_packs.add_pack(pack_id, name or pack_id, source, license,
-                                 content_kind, glossary_packs.parse_pack_terms_text(terms_text))
-    except ValueError as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "saved", "pack_id": pack_id}
-
-
-@mcp.tool()
-def remove_pack(pack_id: str) -> dict:
-    """Remove a custom vocabulary pack. Refused for a built-in one."""
-    from core import glossary_packs
-    try:
-        glossary_packs.remove_pack(pack_id)
-    except (ValueError, glossary_packs.UnknownPackError) as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "removed", "pack_id": pack_id}
-
-
-@mcp.tool()
 def list_checks(ruleset: str = "") -> dict:
     """Every individual check a ruleset can run (id, what it catches, what
     to do instead, whether it's currently enabled), if that ruleset supports
@@ -344,37 +206,6 @@ def list_checks(ruleset: str = "") -> dict:
     if not hasattr(active, "list_checks"):
         return _unsupported(active, "checks", "list individual checks for")
     return {"ruleset": active.RULESET_ID, "checks": active.list_checks()}
-
-
-@mcp.tool()
-def set_checks(states: dict[str, bool], ruleset: str = "") -> dict:
-    """Turn individual checks on or off, leaving every check you do not
-    name alone: {"swallowed_exception": false}.
-
-    MERGE semantics, deliberately. This tool replaced an enable_checks that
-    set exactly the list it was given and disabled everything else -- so
-    "turn off this one noisy check" was expressed as "turn the other 19
-    back on",
-    and getting that list slightly wrong silently disabled real checks. A
-    caller here almost never holds the full picture; the CLI's
-    `stopslop.py checks --enable a b c` does, and keeps replace semantics
-    for that reason. See core.config.merge_disabled_checks.
-
-    An unknown check id refuses rather than silently doing nothing. Takes
-    effect on the next gate call, with no session restart.
-    """
-    active = _resolve(ruleset or None)
-    if not hasattr(active, "set_checks_enabled"):
-        return _unsupported(active, "checks", "toggle individual checks for")
-    try:
-        active.set_checks_enabled(states)
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    on = sorted(k for k, v in states.items() if v)
-    off = sorted(k for k, v in states.items() if not v)
-    return {"ok": True, "status": "saved",
-            "message": f"on: {', '.join(on) or '(none)'} · off: {', '.join(off) or '(none)'}",
-            "checks": active.list_checks()}
 
 
 @mcp.tool()
@@ -390,123 +221,6 @@ def list_check_config(ruleset: str = "") -> dict:
     if not hasattr(active, "list_check_config"):
         return _unsupported(active, "check_config", "list per-check threshold/action for")
     return {"ruleset": active.RULESET_ID, "check_config": active.list_check_config()}
-
-
-@mcp.tool()
-def set_check_config(check_id: str, threshold: int = 0, action: str = "",
-                      params: dict = None, ruleset: str = "") -> dict:
-    """Set one check's threshold, action, and/or extra params, leaving
-    whatever you don't pass alone. threshold: how many times this check
-    has to fire before it counts as triggered. action: "block" (denies
-    the write once triggered) or "warn" (shown, never denies by itself).
-    params: a check's own extra numbers, where it declares any --
-    ste100's length takes {"procedure_word_limit": N,
-    "description_word_limit": N}; an unknown name refuses. Leave a
-    parameter at its default (threshold=0, action="", params=None) to not
-    change it -- 0 is never a valid threshold, so it doubles as "not set"
-    here.
-    """
-    active = _resolve(ruleset or None)
-    if not hasattr(active, "set_check_config"):
-        return _unsupported(active, "check_config", "set per-check threshold/action for")
-    try:
-        active.set_check_config(check_id, threshold=threshold or None,
-                                 action=action or None, **(params or {}))
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "saved",
-            "message": f"{check_id}: " + ", ".join(
-                p for p in (f"threshold={threshold}" if threshold else "",
-                            f"action={action}" if action else "",
-                            *(f"{k}={v}" for k, v in (params or {}).items())) if p),
-            "check_config": active.list_check_config()}
-
-
-@mcp.tool()
-def custom_check_units(ruleset: str = "") -> dict:
-    """Which Unit values a custom check may declare on this ruleset --
-    call this before add_check/update_check. Not every ruleset allows the
-    same set: what "line" or "block" even MEANS is ruleset-specific past
-    "sentence"/"document" (the two that are always safe).
-    """
-    active = _resolve(ruleset or None)
-    if "custom_checks" not in active.CAPABILITIES:
-        return _unsupported(active, "custom_checks", "add a custom check for")
-    return {"ruleset": active.RULESET_ID, "units": active.custom_check_units()}
-
-
-@mcp.tool()
-def add_check(check_id: str, unit: str, catches: str, instead: str, fn_body: str,
-              threshold: int = 1, action: str = "warn", ruleset: str = "",
-              terms_list: str = "") -> dict:
-    """Add a whole new CUSTOM check to a ruleset -- a real Python matcher,
-    not a word list (see add_term_list for that). Call custom_check_units
-    first: `unit` must be one this ruleset allows. `fn_body` is the
-    matcher's own body, indented as a function taking the sentence (unit
-    "sentence") or the whole document (unit "document") as its one
-    argument -- return a list of hit dicts, each optionally carrying
-    "word", "phrase", or "note". `action`: "block" denies the write once
-    the check is triggered `threshold` times; "warn" (default) never
-    denies alone. Reaches the live gate immediately, no restart needed.
-
-    `terms_list`, if given, binds the check to a curated Vocabulary list
-    (see list_term_lists/add_term_list) -- its words reach `fn_body` as
-    its own `extra` argument. Refused if that list already feeds a
-    different check.
-
-    Registration is meant to be deliberate -- confirm with the person
-    you're working with before calling this, the same as add_term.
-    """
-    active = _resolve(ruleset or None)
-    if "custom_checks" not in active.CAPABILITIES:
-        return _unsupported(active, "custom_checks", "add a custom check for")
-    try:
-        core_config.check_terms_list_available(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
-        active.add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body,
-                                 terms_list=terms_list or None)
-        core_config.apply_terms_list_binding(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "saved", "check_id": check_id,
-            "checks": active.list_checks()}
-
-
-@mcp.tool()
-def update_check(check_id: str, unit: str, catches: str, instead: str, fn_body: str,
-                  threshold: int = 1, action: str = "warn", ruleset: str = "",
-                  terms_list: str = "") -> dict:
-    """Replace an EXISTING custom check's definition -- same fields (and
-    the same `terms_list` binding behavior) as add_check. Refused if
-    `check_id` isn't already a custom check on this ruleset (use
-    add_check for a genuinely new one).
-    """
-    active = _resolve(ruleset or None)
-    if "custom_checks" not in active.CAPABILITIES:
-        return _unsupported(active, "custom_checks", "update a custom check for")
-    try:
-        core_config.check_terms_list_available(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
-        active.update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body,
-                                    terms_list=terms_list or None)
-        core_config.apply_terms_list_binding(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "saved", "check_id": check_id,
-            "checks": active.list_checks()}
-
-
-@mcp.tool()
-def remove_check(check_id: str, ruleset: str = "") -> dict:
-    """Remove a custom check. Refused for a built-in one."""
-    active = _resolve(ruleset or None)
-    if "custom_checks" not in active.CAPABILITIES:
-        return _unsupported(active, "custom_checks", "remove a custom check for")
-    if check_id not in active.custom_check_ids():
-        return {"ok": False, "status": "refused",
-                "message": f"{check_id!r} is a built-in check, or was never added -- "
-                           f"only a custom check can be removed"}
-    active.remove_custom_check(check_id)
-    return {"ok": True, "status": "removed", "check_id": check_id,
-            "checks": active.list_checks()}
 
 
 @mcp.tool()
@@ -635,48 +349,6 @@ def list_rulesets() -> dict:
         ],
         "load_errors": rulesets.custom_ruleset_errors(),
     }
-
-
-@mcp.tool()
-def add_ruleset(ruleset_id: str, name: str = "") -> dict:
-    """Scaffold a whole new ruleset -- empty CHECKS_TABLE/TERM_LISTS, ready
-    for add_term_list/add_check to fill in. Reaches every tool here (and
-    the CLI, and the dashboard) in this same process, no restart.
-    Registration is meant to be deliberate -- confirm with the person
-    you're working with before calling this.
-    """
-    from core import custom_rulesets as core_custom_rulesets
-    try:
-        existing_ids = {m.RULESET_ID for m in rulesets.list_rulesets()}
-        core_custom_rulesets.scaffold_ruleset(REPO_ROOT, ruleset_id, name or ruleset_id,
-                                                existing_ids)
-        rulesets.rescan_custom_rulesets()
-    except Exception as exc:
-        return {"ok": False, "status": "refused", "message": str(exc)}
-    return {"ok": True, "status": "saved", "ruleset_id": ruleset_id}
-
-
-@mcp.tool()
-def remove_ruleset(ruleset_id: str) -> dict:
-    """Remove a custom ruleset. Refused for a built-in one, or for one
-    any routing rule still routes to (repoint or delete those rules
-    first -- see set_path_packs' sibling routing config, or the dashboard's
-    Routing page).
-    """
-    from core import custom_rulesets as core_custom_rulesets
-    if not rulesets.is_custom_ruleset(ruleset_id):
-        return {"ok": False, "status": "refused",
-                "message": f"{ruleset_id!r} is a built-in ruleset, or unknown -- "
-                           f"only a custom ruleset can be removed"}
-    referencing = [r["glob"] for r in core_config.load_rules(REPO_ROOT)
-                   if ruleset_id in (r.get("ruleset"), r.get("embedded_prose"))]
-    if referencing:
-        return {"ok": False, "status": "refused",
-                "message": f"{ruleset_id!r} is still routed from {', '.join(referencing)} "
-                           f"-- repoint or delete those rules first"}
-    rulesets.unregister_ruleset(ruleset_id)
-    core_custom_rulesets.remove_ruleset(REPO_ROOT, ruleset_id)
-    return {"ok": True, "status": "removed", "ruleset_id": ruleset_id}
 
 
 @mcp.tool()
