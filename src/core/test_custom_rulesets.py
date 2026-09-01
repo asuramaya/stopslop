@@ -11,6 +11,8 @@ import os
 import tempfile
 import unittest
 
+from core import config as cfg
+from core import custom_checks as cc
 from core import custom_rulesets as cr
 
 
@@ -115,6 +117,70 @@ class DiscoveryTests(_TempProjectRoot):
     def test_a_directory_with_no_init_py_is_not_a_ruleset(self):
         os.makedirs(os.path.join(self.root, ".claude", "stopslop", "custom_rulesets", "junk"))
         self.assertEqual(cr.custom_ruleset_ids(self.root), [])
+
+
+class RemovalLeavesTheRulesetsOwnDataTests(_TempProjectRoot):
+    """Removing a custom ruleset deletes its package and NOTHING else.
+
+    Its custom checks live under .claude/stopslop/custom_checks/<id>/, and
+    its config lives under keys scoped by that id in stopslop.config.json:
+    custom_term_lists, check_config, disabled_checks. remove_ruleset
+    leaves every one of them, and that is deliberate rather than a leak.
+
+    It is the same "removal is reversible" posture the rest of the project
+    takes -- removing a custom TERM LIST already keeps its words on disk
+    so re-declaring the list brings them back. Re-scaffolding a ruleset
+    under the same id restores its checks and its settings, which is what
+    these tests pin. The cost is that a ruleset removed and never re-added
+    leaves data behind; there is no purge command, and deleting
+    .claude/stopslop/custom_checks/<id>/ plus that id's config keys by
+    hand is the way to reclaim it.
+    """
+
+    def _populate(self):
+        cr.scaffold_ruleset(self.root, "probe", "Probe", existing_ids=set())
+        cc.add_custom_check(self.root, "probe", set(), "no_foo", "sentence",
+                             "foo", "bar", 1, "warn", "return []")
+        cfg.add_custom_term_list(self.root, "probe", "mylist",
+                                  built_in_lists={}, label="My List",
+                                  polarity="deny")
+        cfg.save_check_config(self.root, "probe", "no_foo",
+                               {"threshold": 3, "action": "block"})
+        cfg.save_disabled_checks(self.root, "probe", ["no_foo"])
+
+    def _state(self):
+        return (sorted(cc.custom_check_ids(self.root, "probe")),
+                sorted(cfg.custom_term_lists(self.root, "probe")),
+                sorted(cfg.check_config(self.root, "probe")),
+                sorted(cfg.disabled_checks(self.root, "probe")))
+
+    def test_removal_deletes_the_package_and_keeps_everything_else(self):
+        self._populate()
+        before = self._state()
+        cr.remove_ruleset(self.root, "probe")
+        package = os.path.join(self.root, ".claude", "stopslop",
+                                "custom_rulesets", "probe")
+        self.assertFalse(os.path.isdir(package))
+        self.assertEqual(self._state(), before)
+
+    def test_re_adding_the_same_id_restores_its_checks_and_settings(self):
+        """The reason keeping the data is a feature rather than a leak."""
+        self._populate()
+        before = self._state()
+        cr.remove_ruleset(self.root, "probe")
+        cr.scaffold_ruleset(self.root, "probe", "Probe Again",
+                             existing_ids=set())
+        self.assertEqual(self._state(), before)
+
+    def test_the_re_added_module_really_runs_the_recovered_check(self):
+        """Not just present in config -- loaded into the live table, so a
+        recovered check gates writes again."""
+        self._populate()
+        cr.remove_ruleset(self.root, "probe")
+        cr.scaffold_ruleset(self.root, "probe", "Probe Again",
+                             existing_ids=set())
+        module = cr.load_ruleset_module(self.root, "probe")
+        self.assertIn("no_foo", module.list_checks())
 
 
 if __name__ == "__main__":

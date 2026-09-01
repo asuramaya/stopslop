@@ -18,7 +18,9 @@ import unittest
 try:
     from fastapi.testclient import TestClient
 
+    from core import config as core_config
     from core import glossary_packs
+    from core import terms as core_terms
     from webui.app import app
     from webui.deps import REPO_ROOT
     client = TestClient(app)
@@ -235,6 +237,92 @@ class ListRoutesTests(unittest.TestCase):
 
     def test_remove_of_unknown_custom_list_returns_an_error_banner(self):
         response = client.post("/vocabulary/lists/codewatch/never-existed/remove")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+
+
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class EditListSpecRouteTests(unittest.TestCase):
+    """A custom list's own spec was write-once: declared at Add time and
+    then unchangeable from the dashboard, so a typo'd label or a polarity
+    picked wrong meant deleting the list and losing its words. Same
+    real-config, always-restore posture as ListRoutesTests above.
+    """
+
+    LIST_ID = "webui_test_editable_list"
+
+    def setUp(self):
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+        add = client.post("/vocabulary/lists/add", data={
+            "ruleset_id": "codewatch", "list_id": self.LIST_ID,
+            "label": "Before", "polarity": "deny", "accepts_additions": "on",
+        })
+        assert add.status_code == 200, add.text
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+
+    def _spec(self):
+        return core_config.custom_term_lists(REPO_ROOT, "codewatch")[self.LIST_ID]
+
+    def test_label_and_polarity_round_trip(self):
+        response = client.post(
+            f"/vocabulary/lists/codewatch/{self.LIST_ID}/update", data={
+                "label": "After", "polarity": "allow", "content_kind": "phrase",
+            })
+        self.assertEqual(response.status_code, 200)
+        spec = self._spec()
+        self.assertEqual(spec["label"], "After")
+        self.assertEqual(spec["polarity"], "allow")
+        self.assertEqual(spec["content_kind"], "phrase")
+
+    def test_an_unchecked_box_actually_turns_the_flag_off(self):
+        """A checkbox absent from the form body means "off". Reading it as
+        "leave alone" would make the setting one-way from the UI."""
+        self.assertTrue(self._spec()["accepts_additions"])
+        client.post(f"/vocabulary/lists/codewatch/{self.LIST_ID}/update",
+                     data={"label": "Before", "polarity": "deny"})
+        self.assertFalse(self._spec()["accepts_additions"])
+
+    def test_editing_the_spec_keeps_the_words_already_in_the_list(self):
+        client.post(f"/vocabulary/codewatch/{self.LIST_ID}/add",
+                     data={"term": "widget", "note": "test"})
+        client.post(f"/vocabulary/lists/codewatch/{self.LIST_ID}/update",
+                     data={"label": "Renamed", "polarity": "allow",
+                           "accepts_additions": "on"})
+        terms = core_terms.project_terms(REPO_ROOT, "codewatch", self.LIST_ID)
+        self.assertIn("widget", terms)
+
+    def test_a_feeds_binding_survives_an_edit_untouched(self):
+        """The check-to-list wiring is set on the Checks page and is not
+        on this form. Rebuilding the spec from form fields alone would
+        silently unbind the check."""
+        core_config.set_custom_term_list_feeds(
+            REPO_ROOT, "codewatch", self.LIST_ID, "some_check")
+        client.post(f"/vocabulary/lists/codewatch/{self.LIST_ID}/update",
+                     data={"label": "Edited", "polarity": "deny"})
+        self.assertEqual(self._spec().get("feeds"), "some_check")
+
+    def test_editing_a_built_in_list_is_refused(self):
+        response = client.post(
+            "/vocabulary/lists/codewatch/generic_naming/update",
+            data={"label": "hijacked", "polarity": "allow"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+
+    def test_editing_an_unknown_list_is_refused(self):
+        response = client.post(
+            "/vocabulary/lists/codewatch/never-existed/update",
+            data={"label": "x", "polarity": "deny"})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Couldn't save", response.text)
 

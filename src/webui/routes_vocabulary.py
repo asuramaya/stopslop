@@ -79,11 +79,14 @@ def _section_context(entries, ruleset_id=None, list_id=None):
             m.RULESET_ID == ruleset_id and lid == list_id for m, lid, _s in entries):
         if not entries:
             return {"entries": entries, "ruleset_id": None, "list_id": None,
-                    "block": None, "ruleset_ids": ruleset_ids}
+                    "block": None, "ruleset_ids": ruleset_ids,
+                    "selected_spec": None, "selected_is_custom": False}
         module, list_id, _spec = entries[0]
         ruleset_id = module.RULESET_ID
+    custom = core_config.custom_term_lists(REPO_ROOT, ruleset_id).get(list_id)
     return {"entries": entries, "ruleset_id": ruleset_id, "list_id": list_id,
-            "block": _list_block(ruleset_id, list_id), "ruleset_ids": ruleset_ids}
+            "block": _list_block(ruleset_id, list_id), "ruleset_ids": ruleset_ids,
+            "selected_spec": custom, "selected_is_custom": custom is not None}
 
 
 @router.get("/vocabulary/packs")
@@ -145,6 +148,38 @@ async def add_list(request: Request):
         list_id = None
     except ValueError as e:
         error = str(e)
+    entries = _list_entries()
+    ctx = _section_context(entries, ruleset_id, list_id)
+    return fragment_response(request, "fragments/vocabulary_section.html", ctx, error=error)
+
+
+@router.post("/vocabulary/lists/{ruleset_id}/{list_id}/update")
+async def update_list(request: Request, ruleset_id: str, list_id: str):
+    """Change a custom list's own spec: label, polarity, and what it
+    accepts. The id is not editable -- every term already registered
+    under this list is filed under that id, so changing it would strand
+    them, and a fresh id plus a re-add is the honest way to do that.
+
+    Refused for a built-in list, whose spec lives in its ruleset's own
+    TERM_LISTS in source. A `feeds` binding set by the Checks page is
+    carried through untouched: it belongs to the check-to-list wiring,
+    not to anything on this form.
+    """
+    error = None
+    existing = core_config.custom_term_lists(REPO_ROOT, ruleset_id).get(list_id)
+    if existing is None:
+        error = (f"no custom list {list_id!r} on {ruleset_id!r} to edit -- "
+                  "a built-in list's spec lives in its ruleset's source")
+    else:
+        form = await request.form()
+        spec = dict(existing)
+        spec["label"] = (form.get("label") or "").strip() or list_id
+        if form.get("polarity") in ("allow", "deny"):
+            spec["polarity"] = form.get("polarity")
+        spec["accepts_additions"] = form.get("accepts_additions") == "on"
+        spec["accepts_packs"] = form.get("accepts_packs") == "on"
+        spec["content_kind"] = (form.get("content_kind") or "").strip() or "word"
+        core_config.save_custom_term_list(REPO_ROOT, ruleset_id, list_id, spec)
     entries = _list_entries()
     ctx = _section_context(entries, ruleset_id, list_id)
     return fragment_response(request, "fragments/vocabulary_section.html", ctx, error=error)

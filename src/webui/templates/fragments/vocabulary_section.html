@@ -22,6 +22,40 @@
 {% include "fragments/vocabulary_list.html" %}
 {% endif %}
 
+{% if selected_is_custom %}
+<details style="margin-top:0.75rem">
+  <summary>Edit this list</summary>
+  <form hx-post="/vocabulary/lists/{{ ruleset_id }}/{{ list_id }}/update"
+        hx-target="#vocab-section" hx-swap="outerHTML">
+    <div class="param-row">
+      <code>{{ ruleset_id }} &middot; {{ list_id }}</code>
+      <input type="text" name="label" placeholder="display label"
+             value="{{ selected_spec.label or '' }}">
+    </div>
+    <div class="param-row">
+      <label><input type="radio" name="polarity" value="deny"
+             {{ 'checked' if selected_spec.polarity != 'allow' else '' }}> deny (flag words in this list)</label>
+      <label><input type="radio" name="polarity" value="allow"
+             {{ 'checked' if selected_spec.polarity == 'allow' else '' }}> allow (exempt words in this list)</label>
+    </div>
+    <div class="param-row">
+      <label><input type="checkbox" name="accepts_additions"
+             {{ 'checked' if selected_spec.accepts_additions else '' }}> accepts new words</label>
+      <label><input type="checkbox" name="accepts_packs"
+             {{ 'checked' if selected_spec.accepts_packs else '' }}> accepts vocabulary packs</label>
+      <input type="text" name="content_kind" placeholder="content kind, e.g. word"
+             value="{{ selected_spec.content_kind or 'word' }}">
+    </div>
+    <p class="caption">The id stays fixed: every word already registered here is filed under
+      it, so changing it would strand them. Switching polarity re-reads the same words the
+      other way round -- an allow list exempts them, a deny list flags them.
+      {% if selected_spec.feeds %}This list feeds the <code>{{ selected_spec.feeds }}</code>
+      check; that binding is set on the Checks page and is left alone here.{% endif %}</p>
+    <button type="submit" class="primary">Save changes</button>
+  </form>
+</details>
+{% endif %}
+
 <details style="margin-top:0.75rem">
   <summary>Add a list</summary>
   <form hx-post="/vocabulary/lists/add" hx-target="#vocab-section" hx-swap="outerHTML">

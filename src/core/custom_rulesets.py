@@ -311,3 +311,46 @@ def remove_ruleset(project_root, ruleset_id):
     responsible for checking no routing rule still references this id --
     this function only ever touches the filesystem."""
     shutil.rmtree(_ruleset_dir(project_root, ruleset_id), ignore_errors=True)
+
+
+_NAME_LINE_RE = re.compile(r"^RULESET_NAME\s*=\s*.+$", re.MULTILINE)
+
+
+def rename_ruleset(project_root, ruleset_id, name):
+    """Change one scaffolded ruleset's display name, in place.
+
+    Rewrites only the RULESET_NAME line, never the whole file from the
+    template. A scaffolded package is a starting point a project author
+    is expected to edit, so regenerating it from render_source() to
+    change one string would silently discard every check, term list and
+    comment they added since. Refuses if that line is missing rather than
+    appending a second one, since two assignments would leave the live
+    value depending on file order.
+
+    Raises ValueError for an unknown ruleset id or an empty name, and
+    validates by importing the rewritten file -- the same
+    write-then-import posture scaffold_ruleset uses, so a rename that
+    somehow produces an unloadable package is refused rather than left on
+    disk.
+    """
+    name = (name or "").strip()
+    if not name:
+        raise ValueError("a ruleset needs a display name")
+    path = _init_path(project_root, ruleset_id)
+    if not os.path.exists(path):
+        raise ValueError(f"no custom ruleset {ruleset_id!r} to rename")
+    with open(path) as f:
+        source = f.read()
+    if not _NAME_LINE_RE.search(source):
+        raise ValueError(
+            f"{ruleset_id!r} has no RULESET_NAME line to change -- edit "
+            f"{path} by hand")
+    rewritten = _NAME_LINE_RE.sub(f"RULESET_NAME = {name!r}", source, count=1)
+    with open(path, "w") as f:
+        f.write(rewritten)
+    try:
+        load_ruleset_module(project_root, ruleset_id)
+    except Exception:
+        with open(path, "w") as f:
+            f.write(source)
+        raise

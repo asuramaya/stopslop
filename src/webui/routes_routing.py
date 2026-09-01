@@ -259,6 +259,39 @@ async def add_ruleset(request: Request):
     return _ruleset_section_response(request, error=error)
 
 
+@router.post("/routing/rulesets/{ruleset_id}/rename")
+async def rename_ruleset(request: Request, ruleset_id: str):
+    """Change a scaffolded ruleset's display name.
+
+    Only the name. The id is the key every routing rule, config section
+    and custom-check directory is filed under, so changing it here would
+    orphan all of them silently -- a rename of the id is a remove plus an
+    add, and the UI says so rather than pretending otherwise.
+    """
+    form = await request.form()
+    error = None
+    if not rulesets.is_custom_ruleset(ruleset_id):
+        error = (f"{ruleset_id!r} is a built-in ruleset -- only a custom "
+                  "ruleset can be renamed")
+    else:
+        try:
+            core_custom_rulesets.rename_ruleset(
+                REPO_ROOT, ruleset_id, form.get("name", ""))
+            # Unregister first. rescan_custom_rulesets() deliberately
+            # skips any id it already knows (see its docstring), so on its
+            # own it would leave the OLD module object in the registry and
+            # the page would render the previous name from a file that no
+            # longer says it. rename_ruleset has already imported the
+            # rewritten file successfully and restores the original on
+            # failure, so the id is loadable by the time this runs.
+            rulesets.unregister_ruleset(ruleset_id)
+            rulesets.rescan_custom_rulesets()
+        except Exception as e:
+            # Broad for the same reason add_ruleset above is broad.
+            error = str(e)
+    return _ruleset_section_response(request, error=error)
+
+
 @router.post("/routing/rulesets/{ruleset_id}/remove")
 async def remove_ruleset(request: Request, ruleset_id: str):
     error = None

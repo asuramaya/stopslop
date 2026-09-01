@@ -235,5 +235,80 @@ class RulesetRouteTests(unittest.TestCase):
             rulesets._CUSTOM_RULESET_ERRORS.pop("webui_test_broken_for_routing_page", None)
 
 
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class RenameRulesetRouteTests(unittest.TestCase):
+    """A scaffolded ruleset's display name was write-once. Same real
+    package, always-clean-up posture as RulesetRouteTests above."""
+
+    RULESET_ID = "webui_test_rename_ruleset"
+
+    def setUp(self):
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+        add = client.post("/routing/rulesets/add",
+                           data={"ruleset_id": self.RULESET_ID, "name": "Before"})
+        assert add.status_code == 200, add.text
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+        import rulesets
+        from core import custom_rulesets as core_custom_rulesets
+        if self.RULESET_ID in rulesets._REGISTRY:
+            rulesets.unregister_ruleset(self.RULESET_ID)
+        core_custom_rulesets.remove_ruleset(REPO_ROOT, self.RULESET_ID)
+
+    def _init_path(self):
+        return os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_rulesets",
+                             self.RULESET_ID, "__init__.py")
+
+    def test_rename_round_trips_into_the_live_registry(self):
+        response = client.post(f"/routing/rulesets/{self.RULESET_ID}/rename",
+                                data={"name": "After"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("After", response.text)
+        import rulesets
+        self.assertEqual(rulesets.get_ruleset(self.RULESET_ID).RULESET_NAME,
+                          "After")
+
+    def test_rename_keeps_a_project_authors_own_edits_to_the_package(self):
+        """The package is a starting point people edit. Regenerating it
+        from the template to change one string would discard their work,
+        so only the RULESET_NAME line is rewritten."""
+        with open(self._init_path(), "a") as f:
+            f.write("\n# a project author's own comment\n")
+        client.post(f"/routing/rulesets/{self.RULESET_ID}/rename",
+                     data={"name": "After"})
+        with open(self._init_path()) as f:
+            source = f.read()
+        self.assertIn("a project author's own comment", source)
+        self.assertIn("After", source)
+
+    def test_an_empty_name_is_refused(self):
+        response = client.post(f"/routing/rulesets/{self.RULESET_ID}/rename",
+                                data={"name": "   "})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+        import rulesets
+        self.assertEqual(rulesets.get_ruleset(self.RULESET_ID).RULESET_NAME,
+                          "Before")
+
+    def test_renaming_a_built_in_ruleset_is_refused(self):
+        response = client.post("/routing/rulesets/codewatch/rename",
+                                data={"name": "hijacked"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Couldn't save", response.text)
+        import rulesets
+        self.assertNotEqual(rulesets.get_ruleset("codewatch").RULESET_NAME,
+                             "hijacked")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -23,14 +23,27 @@
     {% for r in ruleset_rows %}
     <tr>
       <td><code>{{ r.id }}</code></td>
-      <td>{{ r.name }}</td>
+      <td>
+        {% if r.is_custom %}
+        <form class="param-row" style="margin:0" hx-post="/routing/rulesets/{{ r.id }}/rename"
+              hx-target="#ruleset-section" hx-swap="outerHTML">
+          <input type="text" name="name" value="{{ r.name }}" required
+                 aria-label="display name for {{ r.id }}">
+          <button type="submit">Rename</button>
+        </form>
+        {% else %}
+        {{ r.name }}
+        {% endif %}
+      </td>
       <td>
         {% if r.is_custom %}
         <span class="pill">custom</span>
         <span class="confirm-wrap">
           <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove</button>
           <span class="confirm-ask" hidden>
-            Remove the <code>{{ r.id }}</code> ruleset and everything scaffolded under it?
+            Remove the <code>{{ r.id }}</code> ruleset? Its package directory goes.
+            Its custom checks and its config entries stay, so re-adding the same id
+            brings them back.
             <form style="display:inline;margin:0" hx-post="/routing/rulesets/{{ r.id }}/remove"
                   hx-target="#ruleset-section" hx-swap="outerHTML">
               <button type="submit" class="danger">Yes</button>
@@ -53,7 +66,9 @@
       <input type="text" name="name" placeholder="display name">
     </div>
     <p class="caption">Starts with no checks and no vocabulary of its own -- add both from
-      this ruleset's own Checks and Vocabulary pages once it's created.</p>
+      this ruleset's own Checks and Vocabulary pages once it's created. The display name is
+      editable afterwards; the id is not, since every routing rule and config entry is filed
+      under it.</p>
     <button type="submit" class="primary">Add ruleset</button>
   </form>
 </details>

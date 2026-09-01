@@ -447,5 +447,121 @@ class ChecksWithoutCheckConfigCapabilityTests(unittest.TestCase):
         self.assertIn("no tunable settings", response.text)
 
 
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class CrossRulesetCustomCheckRouteTests(unittest.TestCase):
+    """The custom-check routes, exercised against slopwatch and ste100.
+
+    Every other test in this file drives codewatch, and codewatch is the
+    ODD ONE: its only domain is a raw line, so CUSTOM_CHECK_UNITS there is
+    {LINE} while slopwatch and ste100 allow {SENTENCE, DOCUMENT}. A route
+    that read the allowed units from the wrong place, or hardcoded
+    codewatch's, would pass every existing test in this file and fail for
+    two of the three shipped rulesets. These run the same add, edit,
+    update and remove round-trip per ruleset, and assert the unit gate
+    points the OPPOSITE way from codewatch's: "sentence" works and "line"
+    is refused.
+
+    Same real-file, always-restore posture as the classes above: the
+    routes resolve the project root un-overridably, so these write a real
+    check file under this repo's own .claude/stopslop/custom_checks/ and
+    remove it in tearDown whatever happens.
+    """
+
+    RULESETS = ("slopwatch", "ste100")
+    CHECK_ID = "webui_test_cross_ruleset"
+
+    def setUp(self):
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+        self._paths = [
+            os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_checks",
+                          ruleset_id, f"{self.CHECK_ID}.py")
+            for ruleset_id in self.RULESETS]
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+        for path in self._paths:
+            if os.path.exists(path):
+                os.unlink(path)
+
+    def _path(self, ruleset_id):
+        return os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_checks",
+                             ruleset_id, f"{self.CHECK_ID}.py")
+
+    def _add(self, ruleset_id, unit="sentence", fn_body=None):
+        return client.post(f"/checks/{ruleset_id}/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": unit,
+            "catches": "the word banana", "instead": "name the real fruit",
+            "threshold": "1", "action": "warn",
+            "fn_body": fn_body or
+            'return [{"phrase": "banana"}] if "banana" in sentence else []',
+        })
+
+    def test_add_then_visible_and_removable_for_every_ruleset(self):
+        for ruleset_id in self.RULESETS:
+            with self.subTest(ruleset=ruleset_id):
+                response = self._add(ruleset_id)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(self.CHECK_ID, response.text)
+                self.assertTrue(os.path.exists(self._path(ruleset_id)),
+                                 f"{ruleset_id}: {response.text[:400]}")
+
+                remove = client.post(
+                    f"/checks/{ruleset_id}/{self.CHECK_ID}/remove", data={})
+                self.assertEqual(remove.status_code, 200)
+                self.assertNotIn(self.CHECK_ID, remove.text)
+                self.assertFalse(os.path.exists(self._path(ruleset_id)))
+
+    def test_line_is_refused_where_codewatch_accepts_it(self):
+        """The asymmetry that makes this class worth having. codewatch's
+        own tests assert "sentence" is refused; here the same route must
+        refuse "line" instead."""
+        for ruleset_id in self.RULESETS:
+            with self.subTest(ruleset=ruleset_id):
+                response = self._add(ruleset_id, unit="line",
+                                      fn_body="return []")
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("error-banner", response.text)
+                self.assertFalse(os.path.exists(self._path(ruleset_id)))
+
+    def test_edit_then_update_round_trips_for_every_ruleset(self):
+        for ruleset_id in self.RULESETS:
+            with self.subTest(ruleset=ruleset_id):
+                self.assertEqual(self._add(ruleset_id).status_code, 200)
+
+                edit = client.get(f"/checks/{ruleset_id}/{self.CHECK_ID}/edit")
+                self.assertEqual(edit.status_code, 200)
+                self.assertIn("banana", html.unescape(edit.text))
+
+                update = client.post(
+                    f"/checks/{ruleset_id}/{self.CHECK_ID}/update", data={
+                        "unit": "sentence", "catches": "the word plantain",
+                        "instead": "name the real fruit", "threshold": "2",
+                        "action": "warn",
+                        "fn_body": 'return [{"phrase": "plantain"}] '
+                                    'if "plantain" in sentence else []',
+                    })
+                self.assertEqual(update.status_code, 200)
+                reread = client.get(f"/checks/{ruleset_id}/{self.CHECK_ID}/edit")
+                self.assertIn("plantain", html.unescape(reread.text))
+
+    def test_removing_a_built_in_check_is_refused_for_every_ruleset(self):
+        for ruleset_id, built_in in (("slopwatch", "colon_reveal"),
+                                      ("ste100", "modal")):
+            with self.subTest(ruleset=ruleset_id):
+                response = client.post(
+                    f"/checks/{ruleset_id}/{built_in}/remove", data={})
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("built-in check", response.text)
+
+
 if __name__ == "__main__":
     unittest.main()
