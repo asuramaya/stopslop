@@ -139,6 +139,43 @@ class CmdInitTests(unittest.TestCase):
         self.assertEqual(written["enabledMcpjsonServers"], ["stopslop"])
         self.assertIn("PreToolUse", written["hooks"])
 
+    def test_missing_settings_example_fails_clean_not_a_traceback(self):
+        # Regression: a partial/corrupted clone missing the tracked
+        # .claude/settings.local.json.example used to crash cmd_init with
+        # a raw FileNotFoundError traceback -- confirmed live against a
+        # fresh-clone simulation missing this file. Must fail with a
+        # clear message and a non-zero return instead.
+        with tempfile.TemporaryDirectory() as tmp:
+            real_path = os.path.join(tmp, "settings.local.json")
+            example_path = os.path.join(tmp, "settings.local.json.example")  # never written
+            original_real, original_example = stopslop.SETTINGS_REAL, stopslop.SETTINGS_EXAMPLE
+            stopslop.SETTINGS_REAL, stopslop.SETTINGS_EXAMPLE = real_path, example_path
+            try:
+                with redirect_stderr(io.StringIO()) as err:
+                    result = stopslop.cmd_init(SimpleNamespace(force=True, no_venv=True))
+            finally:
+                stopslop.SETTINGS_REAL, stopslop.SETTINGS_EXAMPLE = original_real, original_example
+        self.assertEqual(result, 1)
+        self.assertIn("is missing", err.getvalue())
+        self.assertFalse(os.path.exists(real_path))
+
+    def test_malformed_settings_example_fails_clean_not_a_traceback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            real_path = os.path.join(tmp, "settings.local.json")
+            example_path = os.path.join(tmp, "settings.local.json.example")
+            with open(example_path, "w") as f:
+                f.write("{not valid json")
+            original_real, original_example = stopslop.SETTINGS_REAL, stopslop.SETTINGS_EXAMPLE
+            stopslop.SETTINGS_REAL, stopslop.SETTINGS_EXAMPLE = real_path, example_path
+            try:
+                with redirect_stderr(io.StringIO()) as err:
+                    result = stopslop.cmd_init(SimpleNamespace(force=True, no_venv=True))
+            finally:
+                stopslop.SETTINGS_REAL, stopslop.SETTINGS_EXAMPLE = original_real, original_example
+        self.assertEqual(result, 1)
+        self.assertIn("not valid JSON", err.getvalue())
+        self.assertFalse(os.path.exists(real_path))
+
 
 class CmdInitVenvBootstrapTests(unittest.TestCase):
     """`cmd_init`'s venv step, in isolation from the settings-write logic

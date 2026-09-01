@@ -221,8 +221,18 @@ def cmd_init(args):
         print("Re-run with --force if you want to replace it.")
         return 1
 
-    with open(SETTINGS_EXAMPLE) as f:
-        settings = json.load(f)
+    if not os.path.exists(SETTINGS_EXAMPLE):
+        print(f"{SETTINGS_EXAMPLE} is missing -- this clone is incomplete "
+              f"(a partial download, or a fork that dropped a tracked file). "
+              f"Re-clone the repository and try again.", file=sys.stderr)
+        return 1
+    try:
+        with open(SETTINGS_EXAMPLE) as f:
+            settings = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"{SETTINGS_EXAMPLE} is not valid JSON ({e}) -- this clone is "
+              f"corrupted. Re-clone the repository and try again.", file=sys.stderr)
+        return 1
 
     # The example ships with a placeholder path; substitute this actual
     # clone's location so nobody has to hand-edit JSON to get started.
