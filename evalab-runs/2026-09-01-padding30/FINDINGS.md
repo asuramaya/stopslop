@@ -27,6 +27,17 @@ did for the checks it names, it did nothing for the rest.
 That combination is Goodhart's law stated plainly. The proxy goes to
 zero. The thing the proxy stands for does not move.
 
+**Unless the proxy IS the point, and for this tool's actual audience it
+is.** Held-out scoring treats the enforced flags as trivially gamed and
+throws them away. That is right for "did the model learn to write
+better" and wrong for "does this still read as machine-written", where
+the markers removed are the whole product. Counting every tell together,
+the arms score 39 ungated, 38 blind, 25 gated: a 36% cut the blind
+rewrite does not approach, favouring the gate in 96% of bootstrap
+resamples (sign test p = 0.27, CI -0.42 to +6.61). Both readings come
+from this one table, and which one matters is a question about the goal,
+not about the data.
+
 **No flattening.** Sentence-length variance across the arms: 9.19, 8.94,
 8.91, 8.90. Flat. The monotone hypothesis found no support here either.
 

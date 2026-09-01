@@ -154,9 +154,13 @@ python3 src/evalab/run.py --replay evalab-runs/<date>/recordings     # free, re-
 | blind rewrite, told nothing | 22 | **16** |
 | gated, told what to fix | **0** | 25 |
 
-**The gate eliminates exactly what it measures and improves nothing else.** Enforced flags go to zero in every document, which is certain and also trivial, since the loop runs until they do. Held-out flags land where a second untouched sample lands. That combination is Goodhart's law stated plainly: the proxy goes to zero, the thing it stands for does not move. Sentence-length variance stayed flat across all four arms, so the flattening worry found no support either.
+**Which arm wins depends entirely on what you think the tool is for, and both answers are in that table.**
 
-A plain rewrite did better on the unenforced checks than the gate did, 16 flags against 25 at identical cost, and it was the only arm that improved on the ungated baseline at all. That direction is consistent -- the blind arm won 11 prompts to 4 -- but it does not reach significance (sign test p = 0.12, bootstrap interval crossing zero), so the strong claim that the gate does harm is suggested and unproven. The claim that it adds nothing beyond its own checks is not.
+*If the goal is better writing*, the gate does nothing. Held-out flags -- the checks the loop never saw -- land where a second untouched sample lands, 25 against 25. The proxy goes to zero and the thing it stands for does not move, which is Goodhart's law stated plainly. A blind rewrite did better on those unenforced checks, 16 against 25 at identical cost, and was the only arm to improve on the ungated baseline at all. Sentence-length variance stayed flat across all four arms, so the flattening worry found no support either.
+
+*If the goal is text that no longer reads as machine-written*, the gate wins clearly, and this is the objective people actually install an anti-slop tool for. Counting every tell, enforced and held-out together, the arms score 39 ungated, 38 for a blind rewrite, and **25 gated** -- a 36% cut that rewriting alone does not come close to. The gate beats a rewrite in 96% of bootstrap resamples. Neither result reaches conventional significance at 19 rows (p = 0.12 and p = 0.27), so both are directional.
+
+The two readings are not in conflict. The gate removes the specific surface markers it is pointed at, reliably and cheaply, and teaches the model nothing that transfers. Whether that is worth anything depends on whether you wanted the markers gone or the writing better.
 
 No number from a run is copied into a pitch here on purpose. A run belongs to one model on one day, and quoting a report out of context is how an evaluation turns into a demo.
 
