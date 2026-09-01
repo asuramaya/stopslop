@@ -20,6 +20,13 @@ answer whether a blocking gate teaches writing or teaches avoidance. That
 question needs text that trips the gate, and `technical` did not supply
 enough of it.
 
+`padding` GREW from 8 prompts to 30 after the 2026-09-01 runs, which used
+the first 8. Growing it is safe where editing one would not be: an id
+already recorded still names the same prompt, so an old result and its
+recordings stay valid, and result.json lists the ids a run covered.
+Thirty exists because eight yielded four prompts that carried signal, and
+a comparison resting on single-digit flag counts settles nothing.
+
 Neither set mentions style, tone, or any check. A prompt that said
 "write plainly" would prime both arms and hide the effect being
 measured.
@@ -130,6 +137,121 @@ PADDING_PROMPTS = [
         "text": "Write the vision section of an internal engineering "
                  "strategy document about investing in platform work over "
                  "the next two years. Around 250 words.",
+    },
+    {
+        "id": "job-posting",
+        "text": "Write a job posting for a senior backend engineer at a "
+                 "mid-sized fintech company. Around 250 words.",
+    },
+    {
+        "id": "about-page",
+        "text": "Write the About page for a company that makes scheduling "
+                 "software for medical clinics. Around 250 words.",
+    },
+    {
+        "id": "onboarding-welcome",
+        "text": "Write the welcome page new engineers see on their first "
+                 "day at a software company. Around 250 words.",
+    },
+    {
+        "id": "product-comparison",
+        "text": "Write a page comparing a managed database service with "
+                 "running your own, for a technical audience choosing "
+                 "between them. Around 250 words.",
+    },
+    {
+        "id": "year-in-review",
+        "text": "Write an engineering team's year in review post for an "
+                 "internal blog. Around 250 words.",
+    },
+    {
+        "id": "award-nomination",
+        "text": "Write a nomination for an internal engineering award, "
+                 "for a team that improved the deployment process. "
+                 "Around 200 words.",
+    },
+    {
+        "id": "open-source-readme-intro",
+        "text": "Write the opening pitch section of a README for a new "
+                 "open source charting library. Around 200 words.",
+    },
+    {
+        "id": "roadmap-intro",
+        "text": "Write the introduction to a public product roadmap for a "
+                 "developer tools company. Around 200 words.",
+    },
+    {
+        "id": "postmortem-culture",
+        "text": "Write an internal post arguing for blameless postmortems "
+                 "at a company that does not do them yet. Around 250 "
+                 "words.",
+    },
+    {
+        "id": "hiring-brand",
+        "text": "Write the engineering culture section of a careers page. "
+                 "Around 250 words.",
+    },
+    {
+        "id": "webinar-invite",
+        "text": "Write the invitation copy for a webinar about database "
+                 "performance tuning. Around 200 words.",
+    },
+    {
+        "id": "release-blog",
+        "text": "Write a blog post announcing version 2.0 of an API "
+                 "client library. Around 250 words.",
+    },
+    {
+        "id": "customer-testimonial",
+        "text": "Write a customer testimonial section for the website of "
+                 "a log aggregation service. Around 200 words.",
+    },
+    {
+        "id": "tech-debt-pitch",
+        "text": "Write an internal proposal asking leadership for a "
+                 "quarter of engineering time to pay down technical debt. "
+                 "Around 250 words.",
+    },
+    {
+        "id": "mentorship-post",
+        "text": "Write a post about starting a mentorship program on an "
+                 "engineering team. Around 250 words.",
+    },
+    {
+        "id": "conference-recap",
+        "text": "Write a recap post about what a team learned at an "
+                 "industry conference. Around 250 words.",
+    },
+    {
+        "id": "security-culture",
+        "text": "Write an internal post about making security everyone's "
+                 "responsibility at a software company. Around 250 words.",
+    },
+    {
+        "id": "api-philosophy",
+        "text": "Write the design philosophy section of an API's public "
+                 "documentation. Around 200 words.",
+    },
+    {
+        "id": "team-charter",
+        "text": "Write the charter for a newly formed platform "
+                 "engineering team. Around 250 words.",
+    },
+    {
+        "id": "pricing-page",
+        "text": "Write the copy for the pricing page of a code review "
+                 "tool, covering three tiers. Around 250 words.",
+    },
+    {
+        "id": "migration-announcement",
+        "text": "Write an announcement telling customers that a service "
+                 "is moving to a new platform next quarter. Around 250 "
+                 "words.",
+    },
+    {
+        "id": "developer-advocacy",
+        "text": "Write a post about why a company is investing in "
+                 "developer relations. Around 250 words.",
     },
 ]
 

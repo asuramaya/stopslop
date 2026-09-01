@@ -25,6 +25,7 @@ a prompt where the gated loop never revised anything -- the arms were two
 independent samples and nothing else -- which is exactly the mistake this
 arm exists to make visible.
 """
+import concurrent.futures
 import os
 import sys
 import time
@@ -161,36 +162,56 @@ def score(ruleset, text, enforced, held_out):
     return row
 
 
+def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
+              on_progress):
+    if on_progress:
+        on_progress(prompt["id"])
+    ungated = run_arm_ungated(generator, prompt["text"])
+    control = run_arm_ungated(generator, prompt["text"])
+    gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
+                           max_iterations=max_iterations)
+    # Matched compute: the same number of generations the gated arm spent
+    # on THIS prompt, so the two differ only in whether the rewrite was
+    # told what to fix.
+    blind = run_arm_blind_revision(generator, prompt["text"],
+                                    gated["iterations"])
+    return {
+        "id": prompt["id"],
+        "prompt": prompt["text"],
+        "ungated": {**ungated, "scores": score(ruleset, ungated["text"],
+                                                enforced, held_out)},
+        "control": {**control, "scores": score(ruleset, control["text"],
+                                                enforced, held_out)},
+        "gated": {**gated, "scores": score(ruleset, gated["text"],
+                                            enforced, held_out)},
+        "blind": {**blind, "scores": score(ruleset, blind["text"],
+                                            enforced, held_out)},
+    }
+
+
 def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
-        on_progress=None):
-    """Both arms over every prompt. Returns a result dict for report.py."""
+        on_progress=None, workers=1):
+    """Every arm over every prompt. Returns a result dict for report.py.
+
+    `workers` parallelizes across PROMPTS, never within one. A prompt's
+    own arms stay sequential and in order because the gated loop's next
+    generation depends on the last one's flags, and because the blind arm
+    has to spend whatever the gated arm spent -- neither is knowable in
+    advance. Thirty prompts serially is about two hours of subprocess
+    latency, almost all of it spent waiting.
+    """
     enforced, held_out = split_checks(ruleset, enforced)
     started = time.time()
-    rows = []
-    for prompt in prompts:
-        if on_progress:
-            on_progress(prompt["id"])
-        ungated = run_arm_ungated(generator, prompt["text"])
-        control = run_arm_ungated(generator, prompt["text"])
-        gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
-                               max_iterations=max_iterations)
-        # Matched compute: the same number of generations the gated arm
-        # spent on THIS prompt, so the two differ only in whether the
-        # rewrite was told what to fix.
-        blind = run_arm_blind_revision(generator, prompt["text"],
-                                        gated["iterations"])
-        rows.append({
-            "id": prompt["id"],
-            "prompt": prompt["text"],
-            "ungated": {**ungated, "scores": score(ruleset, ungated["text"],
-                                                    enforced, held_out)},
-            "control": {**control, "scores": score(ruleset, control["text"],
-                                                    enforced, held_out)},
-            "gated": {**gated, "scores": score(ruleset, gated["text"],
-                                                enforced, held_out)},
-            "blind": {**blind, "scores": score(ruleset, blind["text"],
-                                                enforced, held_out)},
-        })
+    args = (ruleset, generator, enforced, held_out, max_iterations, on_progress)
+    if workers > 1:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(_run_one, p, *args) for p in prompts]
+            done = [f.result() for f in futures]
+        # Submission order, not completion order, so a saved result reads
+        # the same however many workers produced it.
+        rows = done
+    else:
+        rows = [_run_one(p, *args) for p in prompts]
     return {
         "ruleset": ruleset.RULESET_ID,
         "generator": generator.name,

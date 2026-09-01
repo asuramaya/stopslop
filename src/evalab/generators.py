@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import subprocess
+import threading
 
 
 class GeneratorError(RuntimeError):
@@ -55,6 +56,11 @@ class ClaudeCliGenerator:
         self.timeout = timeout
         self.record_to = record_to
         self._seen = {}
+        # A run may drive several prompts at once (harness.run's workers).
+        # Two threads bumping the same digest without this would hand both
+        # the same occurrence number and one would overwrite the other's
+        # recording.
+        self._lock = threading.Lock()
 
     def version(self):
         try:
@@ -95,8 +101,9 @@ class ClaudeCliGenerator:
 
     def _bump(self, messages):
         digest = _key(messages).rsplit(".", 1)[0]
-        seen = self._seen.get(digest, 0)
-        self._seen[digest] = seen + 1
+        with self._lock:
+            seen = self._seen.get(digest, 0)
+            self._seen[digest] = seen + 1
         return seen
 
 

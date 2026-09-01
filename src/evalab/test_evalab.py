@@ -397,5 +397,49 @@ class RevisedOnlyScopeTests(unittest.TestCase):
                             self.ruleset, generator, max_iterations=2)
 
 
+class WorkerParallelismTests(unittest.TestCase):
+    """Running prompts in parallel must not change a single number.
+
+    Thirty prompts serially is about two hours of subprocess latency, so
+    the run that answers anything has to be parallel -- and a measurement
+    instrument that gives a different answer at a different worker count
+    is not one.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+        self.ids = ["readme-section", "incident-report", "design-note"]
+
+    def _run(self, workers):
+        dirty = "Needless to say, this is a seamless and very robust tool."
+        clean = "The cache stores query results on disk."
+        # Deterministic per call so both runs see the same text; the point
+        # is the plumbing, not the model.
+        generator = ScriptedGenerator([dirty, clean] * 40)
+        return harness.run(prompts.by_ids(self.ids), self.ruleset, generator,
+                            max_iterations=2, workers=workers)
+
+    def test_row_order_follows_submission_not_completion(self):
+        """A saved result has to read the same however many workers made
+        it, or two runs of one experiment are not comparable."""
+        serial = [r["id"] for r in self._run(1)["rows"]]
+        parallel = [r["id"] for r in self._run(3)["rows"]]
+        self.assertEqual(serial, parallel)
+        self.assertEqual(serial, self.ids)
+
+    def test_every_prompt_still_gets_all_four_arms(self):
+        for row in self._run(3)["rows"]:
+            for arm in ("ungated", "control", "gated", "blind"):
+                self.assertIn(arm, row, f"{row['id']} lost its {arm} arm")
+
+    def test_the_blind_arm_still_matches_its_own_prompts_gated_count(self):
+        """The matched-compute guarantee is per prompt. Parallelism must
+        not pair a prompt's blind arm with another prompt's iteration
+        count."""
+        for row in self._run(4)["rows"]:
+            self.assertEqual(row["blind"]["iterations"],
+                              row["gated"]["iterations"], row["id"])
+
+
 if __name__ == "__main__":
     unittest.main()
