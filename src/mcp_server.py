@@ -437,7 +437,8 @@ def custom_check_units(ruleset: str = "") -> dict:
 
 @mcp.tool()
 def add_check(check_id: str, unit: str, catches: str, instead: str, fn_body: str,
-              threshold: int = 1, action: str = "warn", ruleset: str = "") -> dict:
+              threshold: int = 1, action: str = "warn", ruleset: str = "",
+              terms_list: str = "") -> dict:
     """Add a whole new CUSTOM check to a ruleset -- a real Python matcher,
     not a word list (see add_term_list for that). Call custom_check_units
     first: `unit` must be one this ruleset allows. `fn_body` is the
@@ -448,6 +449,11 @@ def add_check(check_id: str, unit: str, catches: str, instead: str, fn_body: str
     the check is triggered `threshold` times; "warn" (default) never
     denies alone. Reaches the live gate immediately, no restart needed.
 
+    `terms_list`, if given, binds the check to a curated Vocabulary list
+    (see list_term_lists/add_term_list) -- its words reach `fn_body` as
+    its own `extra` argument. Refused if that list already feeds a
+    different check.
+
     Registration is meant to be deliberate -- confirm with the person
     you're working with before calling this, the same as add_term.
     """
@@ -455,7 +461,10 @@ def add_check(check_id: str, unit: str, catches: str, instead: str, fn_body: str
     if "custom_checks" not in active.CAPABILITIES:
         return _unsupported(active, "custom_checks", "add a custom check for")
     try:
-        active.add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body)
+        core_config.check_terms_list_available(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
+        active.add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body,
+                                 terms_list=terms_list or None)
+        core_config.apply_terms_list_binding(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
     except Exception as exc:
         return {"ok": False, "status": "refused", "message": str(exc)}
     return {"ok": True, "status": "saved", "check_id": check_id,
@@ -464,16 +473,21 @@ def add_check(check_id: str, unit: str, catches: str, instead: str, fn_body: str
 
 @mcp.tool()
 def update_check(check_id: str, unit: str, catches: str, instead: str, fn_body: str,
-                  threshold: int = 1, action: str = "warn", ruleset: str = "") -> dict:
-    """Replace an EXISTING custom check's definition -- same fields as
-    add_check. Refused if `check_id` isn't already a custom check on this
-    ruleset (use add_check for a genuinely new one).
+                  threshold: int = 1, action: str = "warn", ruleset: str = "",
+                  terms_list: str = "") -> dict:
+    """Replace an EXISTING custom check's definition -- same fields (and
+    the same `terms_list` binding behavior) as add_check. Refused if
+    `check_id` isn't already a custom check on this ruleset (use
+    add_check for a genuinely new one).
     """
     active = _resolve(ruleset or None)
     if "custom_checks" not in active.CAPABILITIES:
         return _unsupported(active, "custom_checks", "update a custom check for")
     try:
-        active.update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body)
+        core_config.check_terms_list_available(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
+        active.update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body,
+                                    terms_list=terms_list or None)
+        core_config.apply_terms_list_binding(REPO_ROOT, active.RULESET_ID, check_id, terms_list)
     except Exception as exc:
         return {"ok": False, "status": "refused", "message": str(exc)}
     return {"ok": True, "status": "saved", "check_id": check_id,

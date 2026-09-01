@@ -22,6 +22,8 @@ import unittest
 try:
     import mcp_server
     import rulesets
+    from core import config as core_config
+    from core import terms as core_terms
     _MCP_AVAILABLE = True
 except ImportError:
     _MCP_AVAILABLE = False
@@ -452,17 +454,19 @@ class _FakeCustomCheckRuleset:
         from core import custom_checks as core_custom_checks
         return core_custom_checks.custom_check_ids(self._project_root, self.RULESET_ID)
 
-    def add_custom_check(self, check_id, unit, catches, instead, threshold, action, fn_body):
+    def add_custom_check(self, check_id, unit, catches, instead, threshold, action, fn_body,
+                          terms_list=None):
         from core import custom_checks as core_custom_checks
         core_custom_checks.add_custom_check(
             self._project_root, self.RULESET_ID, self._built_in_ids, check_id, unit,
-            catches, instead, threshold, action, fn_body)
+            catches, instead, threshold, action, fn_body, terms_list=terms_list)
 
-    def update_custom_check(self, check_id, unit, catches, instead, threshold, action, fn_body):
+    def update_custom_check(self, check_id, unit, catches, instead, threshold, action, fn_body,
+                             terms_list=None):
         from core import custom_checks as core_custom_checks
         core_custom_checks.update_custom_check(
             self._project_root, self.RULESET_ID, self._built_in_ids, check_id, unit,
-            catches, instead, threshold, action, fn_body)
+            catches, instead, threshold, action, fn_body, terms_list=terms_list)
 
     def remove_custom_check(self, check_id):
         from core import custom_checks as core_custom_checks
@@ -483,9 +487,17 @@ class CheckToolsCustomCheckTests(unittest.TestCase):
         self.fake = _FakeCustomCheckRuleset(self._tmp.name)
         self._orig_resolve = mcp_server._resolve
         mcp_server._resolve = lambda ruleset_id=None: self.fake
+        # add_check/update_check's terms_list binding writes through
+        # mcp_server.REPO_ROOT directly (core_config.*_terms_list_* take
+        # a project_root, not a ruleset object) -- patch it too, or a
+        # terms_list-bearing call here would touch the real repo's own
+        # tracked stopslop.config.json instead of this tempdir.
+        self._orig_repo_root = mcp_server.REPO_ROOT
+        mcp_server.REPO_ROOT = self._tmp.name
 
     def tearDown(self):
         mcp_server._resolve = self._orig_resolve
+        mcp_server.REPO_ROOT = self._orig_repo_root
         self._tmp.cleanup()
 
     def test_custom_check_units_reports_the_safe_default(self):
@@ -514,6 +526,33 @@ class CheckToolsCustomCheckTests(unittest.TestCase):
     def test_remove_unknown_check_refuses(self):
         result = mcp_server.remove_check("__never_added__")
         self.assertFalse(result["ok"])
+
+    def test_add_with_terms_list_binds_it_and_reaches_the_gate(self):
+        core_config.add_custom_term_list(self._tmp.name, self.fake.RULESET_ID, "jargon", {})
+        core_terms.add_term(self.fake.RULESET_ID,
+                             {"jargon": {"label": "jargon", "polarity": "deny",
+                                         "accepts_additions": True}},
+                             self._tmp.name, "jargon", "widget")
+        result = mcp_server.add_check(
+            "jargon_probe", "sentence", "project jargon", "use a plain word",
+            'return [{"word": w} for w in extra if w in sentence.lower()]',
+            terms_list="jargon")
+        self.assertTrue(result["ok"])
+
+        lists = core_config.custom_term_lists(self._tmp.name, self.fake.RULESET_ID)
+        self.assertEqual(lists["jargon"]["feeds"], "jargon_probe")
+
+        table = self.fake.list_checks()
+        self.assertIn("jargon_probe", table)
+
+    def test_add_with_a_terms_list_already_bound_elsewhere_is_refused(self):
+        core_config.add_custom_term_list(self._tmp.name, self.fake.RULESET_ID, "jargon", {},
+                                          feeds="other_check")
+        result = mcp_server.add_check(
+            "jargon_probe", "sentence", "x", "y", "return []", terms_list="jargon")
+        self.assertFalse(result["ok"])
+        self.assertIn("already feeds", result["message"])
+        self.assertNotIn("jargon_probe", self.fake.custom_check_ids())
 
     def test_capability_gate_refuses_a_ruleset_without_custom_checks(self):
         mcp_server._resolve = lambda ruleset_id=None: types.SimpleNamespace(

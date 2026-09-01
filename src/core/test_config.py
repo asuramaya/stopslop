@@ -1092,6 +1092,86 @@ class ClearFeedsForCheckTests(unittest.TestCase):
             self.assertEqual(lists["other"]["feeds"], "another_check")
 
 
+class CheckTermsListAvailableTests(unittest.TestCase):
+    """The shared validate-before-write half of binding a custom check to
+    a vocabulary list -- the CLI, the MCP server, and the webui all call
+    this one function instead of each re-deriving the same conflict
+    check (see webui/routes_checks.py, which used to carry a private
+    copy of exactly this before it moved here)."""
+
+    def test_an_unbound_list_is_available(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+            config.check_terms_list_available(tmp, "codewatch", "no_todo", "jargon",
+                                                config_file=path)  # must not raise
+
+    def test_a_list_already_bound_to_the_same_check_is_available(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, feeds="no_todo",
+                                         config_file=path)
+            config.check_terms_list_available(tmp, "codewatch", "no_todo", "jargon",
+                                                config_file=path)  # must not raise
+
+    def test_a_list_bound_to_a_different_check_raises(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, feeds="other_check",
+                                         config_file=path)
+            with self.assertRaises(ValueError):
+                config.check_terms_list_available(tmp, "codewatch", "no_todo", "jargon",
+                                                    config_file=path)
+
+    def test_no_terms_list_never_raises(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            config.check_terms_list_available(tmp, "codewatch", "no_todo", None)  # must not raise
+            config.check_terms_list_available(tmp, "codewatch", "no_todo", "")  # must not raise
+
+
+class ApplyTermsListBindingTests(unittest.TestCase):
+    def test_binds_the_list_to_the_check(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+            config.apply_terms_list_binding(tmp, "codewatch", "no_todo", "jargon", config_file=path)
+            lists = config.custom_term_lists(tmp, "codewatch", config_file=path)
+            self.assertEqual(lists["jargon"]["feeds"], "no_todo")
+
+    def test_none_unbinds_whatever_the_check_used_to_feed(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, feeds="no_todo",
+                                         config_file=path)
+            config.apply_terms_list_binding(tmp, "codewatch", "no_todo", None, config_file=path)
+            lists = config.custom_term_lists(tmp, "codewatch", config_file=path)
+            self.assertNotIn("feeds", lists["jargon"])
+
+    def test_rebinding_moves_the_pointer_off_the_old_list(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "old_list", {}, feeds="no_todo",
+                                         config_file=path)
+            config.add_custom_term_list(tmp, "codewatch", "new_list", {}, config_file=path)
+            config.apply_terms_list_binding(tmp, "codewatch", "no_todo", "new_list", config_file=path)
+            lists = config.custom_term_lists(tmp, "codewatch", config_file=path)
+            self.assertNotIn("feeds", lists["old_list"])
+            self.assertEqual(lists["new_list"]["feeds"], "no_todo")
+
+
 class EffectiveTermListsTests(unittest.TestCase):
     def test_merges_custom_onto_base(self):
         import os

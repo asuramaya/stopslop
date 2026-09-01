@@ -674,13 +674,16 @@ def cmd_checks(args):
             return 1
         verb = ruleset.add_custom_check if args.add_check is not None else ruleset.update_custom_check
         try:
+            core_config.check_terms_list_available(REPO_ROOT, ruleset.RULESET_ID, check_id, args.terms_list)
             verb(check_id, args.unit or "sentence", args.catches or "", args.instead or "",
-                 args.threshold or 1, args.action or "warn", fn_body)
+                 args.threshold or 1, args.action or "warn", fn_body, terms_list=args.terms_list)
+            core_config.apply_terms_list_binding(REPO_ROOT, ruleset.RULESET_ID, check_id, args.terms_list)
         except Exception as exc:
             print(f"Not saved: {exc}", file=sys.stderr)
             return 1
+        bound = f" bound to vocabulary list {args.terms_list!r}" if args.terms_list else ""
         print(f"{'Added' if args.add_check is not None else 'Updated'} check {check_id!r} "
-              f"on {ruleset.RULESET_ID!r} (units this ruleset allows: "
+              f"on {ruleset.RULESET_ID!r}{bound} (units this ruleset allows: "
               f"{', '.join(ruleset.custom_check_units())}).")
 
     if args.remove_check is not None:
@@ -1004,6 +1007,12 @@ def main():
                                 "the sentence/document/line as its one argument, returning "
                                 "a list of hit dicts (each may carry \"word\", \"phrase\", "
                                 "or \"note\")")
+    p_checks.add_argument("--terms-list", metavar="LIST_ID", default=None,
+                           help="--add-check/--update-check: bind the matcher's fn to a "
+                                "vocabulary list -- its words reach the fn as its own extra "
+                                "argument (see `stopslop.py terms` for the ids). Omit to "
+                                "leave, or make, the check unbound; refused if the list "
+                                "already feeds a different check")
     p_checks.add_argument("--remove-check", metavar="CHECK_ID",
                            help="remove a custom check -- refused for a built-in one")
     p_checks.set_defaults(func=cmd_checks)

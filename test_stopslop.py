@@ -465,7 +465,7 @@ def _checks_args(**overrides):
                      set_action=None, set_param=None, add_check=None,
                      update_check=None, remove_check=None, unit=None,
                      catches=None, instead=None, threshold=None, action=None,
-                     fn_body_file=None)
+                     fn_body_file=None, terms_list=None)
     defaults.update(overrides)
     return SimpleNamespace(**defaults)
 
@@ -512,6 +512,38 @@ class CmdChecksTests(unittest.TestCase):
         self.assertIn("Removed check 'cli_probe'", out.getvalue())
         result = _slopwatch.lint_and_gate("There is a TODO here.")
         self.assertNotIn("cli_probe", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_add_check_with_terms_list_binds_it_and_reaches_the_gate(self):
+        core_config.add_custom_term_list(self._tmp.name, "slopwatch", "jargon", {})
+        _core_terms.add_term("slopwatch", {"jargon": {"label": "jargon", "polarity": "deny",
+                                                        "accepts_additions": True}},
+                              self._tmp.name, "jargon", "widget")
+        fn_path = self._fn_body_file(
+            'return [{"word": w} for w in extra if w in sentence.lower()]')
+        with redirect_stdout(io.StringIO()) as out:
+            code = stopslop.cmd_checks(_checks_args(
+                add_check="cli_jargon_probe", unit="sentence", catches="x", instead="y",
+                fn_body_file=fn_path, terms_list="jargon"))
+        self.assertEqual(code, 0)
+        self.assertIn("bound to vocabulary list 'jargon'", out.getvalue())
+
+        lists = core_config.custom_term_lists(self._tmp.name, "slopwatch")
+        self.assertEqual(lists["jargon"]["feeds"], "cli_jargon_probe")
+
+        result = _slopwatch.lint_and_gate("The system has a widget installed.")
+        self.assertIn("cli_jargon_probe", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_add_check_with_a_terms_list_already_bound_elsewhere_is_rejected(self):
+        core_config.add_custom_term_list(self._tmp.name, "slopwatch", "jargon", {},
+                                          feeds="other_check")
+        fn_path = self._fn_body_file("return []")
+        with redirect_stderr(io.StringIO()) as err:
+            code = stopslop.cmd_checks(_checks_args(
+                add_check="cli_probe", unit="sentence", catches="x", instead="y",
+                fn_body_file=fn_path, terms_list="jargon"))
+        self.assertEqual(code, 1)
+        self.assertIn("already feeds", err.getvalue())
+        self.assertNotIn("cli_probe", _slopwatch.custom_check_ids())
 
     def test_add_check_without_fn_body_file_is_rejected(self):
         with redirect_stderr(io.StringIO()) as err:

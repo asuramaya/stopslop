@@ -181,32 +181,6 @@ def _single_row(ruleset_id, check_id):
     return module, row
 
 
-def _check_terms_list_available(ruleset_id, check_id, terms_list):
-    """Read-only half of the binding: raises if `terms_list` already
-    feeds a DIFFERENT check, rather than silently reassigning it
-    (mirrors add_custom_check's own id-collision refusal one level up).
-    Called BEFORE the check file itself is written, so a conflict here
-    never creates a check whose vocabulary binding then fails -- true
-    validate-then-write for the whole add/update, not just the file."""
-    terms_list = terms_list or None
-    if not terms_list:
-        return
-    feeds = core_config.custom_term_lists(REPO_ROOT, ruleset_id).get(terms_list, {}).get("feeds")
-    if feeds not in (None, check_id):
-        raise ValueError(f"list {terms_list!r} already feeds check {feeds!r} "
-                          f"-- unbind it there first")
-
-
-def _apply_terms_list_binding(ruleset_id, check_id, terms_list):
-    """The write half: called only after the check file itself saved
-    successfully (and only after _check_terms_list_available already
-    passed), so this never fails on a conflict -- it just moves the
-    pointer, unbinding whatever the check used to feed first."""
-    core_config.clear_feeds_for_check(REPO_ROOT, ruleset_id, check_id)
-    if terms_list:
-        core_config.set_custom_term_list_feeds(REPO_ROOT, ruleset_id, terms_list, check_id)
-
-
 @router.get("/checks/{ruleset_id}/{check_id}/row")
 def check_row_fragment(request: Request, ruleset_id: str, check_id: str):
     """The plain (non-editing) row -- Cancel's target, so backing out of
@@ -251,11 +225,11 @@ async def update_custom_check(request: Request, ruleset_id: str, check_id: str):
     terms_list = form.get("terms_list") or None
     try:
         threshold = int(form.get("threshold") or 1)
-        _check_terms_list_available(ruleset_id, check_id, terms_list)
+        core_config.check_terms_list_available(REPO_ROOT, ruleset_id, check_id, terms_list)
         module.update_custom_check(
             check_id, form["unit"], form["catches"], form["instead"],
             threshold, form.get("action") or "warn", form["fn_body"], terms_list=terms_list)
-        _apply_terms_list_binding(ruleset_id, check_id, terms_list)
+        core_config.apply_terms_list_binding(REPO_ROOT, ruleset_id, check_id, terms_list)
     except Exception as e:
         # A failed save (a syntax error in the matcher, say) must not
         # lose what the author typed -- redisplay the edit form with
@@ -304,11 +278,11 @@ async def add_custom_check(request: Request, ruleset_id: str):
         terms_list = form.get("terms_list") or None
         try:
             threshold = int(form.get("threshold") or 1)
-            _check_terms_list_available(ruleset_id, check_id, terms_list)
+            core_config.check_terms_list_available(REPO_ROOT, ruleset_id, check_id, terms_list)
             module.add_custom_check(
                 check_id, form["unit"], form["catches"], form["instead"],
                 threshold, form.get("action") or "warn", form["fn_body"], terms_list=terms_list)
-            _apply_terms_list_binding(ruleset_id, check_id, terms_list)
+            core_config.apply_terms_list_binding(REPO_ROOT, ruleset_id, check_id, terms_list)
         except Exception as e:
             # A custom check's body is arbitrary Python -- a SyntaxError from
             # the validate-then-write import is exactly as likely here as a

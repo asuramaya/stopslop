@@ -485,6 +485,36 @@ def clear_feeds_for_check(project_root, ruleset_id, check_id, config_file=None):
             set_custom_term_list_feeds(project_root, ruleset_id, list_id, None, config_file=config_file)
 
 
+def check_terms_list_available(project_root, ruleset_id, check_id, terms_list, config_file=None):
+    """Read-only half of binding a custom check to a vocabulary list:
+    raises if `terms_list` already feeds a DIFFERENT check, rather than
+    silently reassigning it (mirrors add_custom_check's own id-collision
+    refusal one level up). The shared entry point for the CLI, MCP
+    server, and webui alike -- call this BEFORE the check file itself is
+    written, so a conflict here never creates a check whose vocabulary
+    binding then fails; true validate-then-write for the whole add/
+    update, not just the file. A no-op (never raises) when `terms_list`
+    is falsy -- an unbind is always available."""
+    terms_list = terms_list or None
+    if not terms_list:
+        return
+    feeds = custom_term_lists(project_root, ruleset_id, config_file=config_file).get(terms_list, {}).get("feeds")
+    if feeds not in (None, check_id):
+        raise ValueError(f"list {terms_list!r} already feeds check {feeds!r} "
+                          f"-- unbind it there first")
+
+
+def apply_terms_list_binding(project_root, ruleset_id, check_id, terms_list, config_file=None):
+    """The write half: call only after the check file itself saved
+    successfully (and only after check_terms_list_available already
+    passed), so this never fails on a conflict -- it just moves the
+    pointer, unbinding whatever the check used to feed first. Pass
+    terms_list=None (or "") to unbind with no new binding."""
+    clear_feeds_for_check(project_root, ruleset_id, check_id, config_file=config_file)
+    if terms_list:
+        set_custom_term_list_feeds(project_root, ruleset_id, terms_list, check_id, config_file=config_file)
+
+
 def delete_custom_term_list(project_root, ruleset_id, list_id, config_file=None):
     """Remove one custom term list's DECLARATION. Its own project-layer
     terms (added via add_term while the list was declared) are orphaned,
