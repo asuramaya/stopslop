@@ -1,0 +1,52 @@
+{# Needs `ruleset_id`, `check_id`, `fields` (id/unit/catches/instead/threshold/
+   action/fn_body/terms_list -- see core.custom_checks.get_custom_check_fields,
+   or the just-submitted values echoed back after a failed save),
+   `custom_check_units`, and `bindable_lists` in context. Same field set as
+   checks_section.html's "Add a check" form -- this IS that form, prefilled,
+   so it also doubles as the only place a saved custom check's matcher body
+   can be read back; Cancel reverts to the plain row without saving. #}
+<tr id="row-{{ check_id }}">
+  <td colspan="7">
+    <form hx-post="/checks/{{ ruleset_id }}/{{ check_id }}/update"
+          hx-target="#row-{{ check_id }}" hx-swap="outerHTML settle:450ms">
+      <div class="param-row">
+        <code>{{ check_id }}</code>
+        <select name="unit" required>
+          {% for u in custom_check_units %}
+          <option value="{{ u }}" {{ 'selected' if u == fields.unit else '' }}>{{ u }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="param-row">
+        <input type="text" name="catches" value="{{ fields.catches }}"
+               placeholder="what this catches, in plain words" style="flex:1" required>
+      </div>
+      <div class="param-row">
+        <input type="text" name="instead" value="{{ fields.instead }}"
+               placeholder="what to do instead" style="flex:1" required>
+      </div>
+      <div class="param-row">
+        <label>Threshold <input type="number" name="threshold" value="{{ fields.threshold }}" min="1" style="width:5rem"></label>
+        <label><input type="radio" name="action" value="warn" {{ 'checked' if fields.action == 'warn' else '' }}> warn</label>
+        <label><input type="radio" name="action" value="block" {{ 'checked' if fields.action == 'block' else '' }}> block (denies alone once triggered)</label>
+      </div>
+      <div class="param-row">
+        <label>Vocabulary list
+          <select name="terms_list">
+            <option value="">-- none --</option>
+            {% for lid, spec in bindable_lists.items() %}
+            <option value="{{ lid }}" {{ 'selected' if lid == fields.terms_list else '' }}>{{ spec.label or lid }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <textarea name="fn_body" rows="6" style="width:100%; font-family:monospace" required>{{ fields.fn_body }}</textarea>
+      <div class="param-row">
+        <button type="submit" class="primary">Save</button>
+        <button type="button"
+                hx-get="/checks/{{ ruleset_id }}/{{ check_id }}/row"
+                hx-target="#row-{{ check_id }}" hx-swap="outerHTML">Cancel</button>
+      </div>
+    </form>
+  </td>
+</tr>

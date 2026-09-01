@@ -86,7 +86,7 @@ CAPABILITY_ATTRS = {
     # docstring), so the dashboard's "Add check" form can only ever offer
     # a unit that will actually load.
     "custom_checks": ("custom_check_ids", "add_custom_check", "remove_custom_check",
-                       "update_custom_check", "custom_check_units"),
+                       "update_custom_check", "custom_check_units", "get_custom_check_fields"),
 }
 
 

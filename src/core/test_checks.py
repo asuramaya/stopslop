@@ -102,7 +102,8 @@ class ScaffoldingTests(unittest.TestCase):
     def test_list_checks(self):
         listing = checks.list_checks(self.table, self.project_root, "fake")
         self.assertEqual(listing["plain"], {"catches": "a plain thing",
-                                             "instead": "do the other thing", "enabled": True})
+                                             "instead": "do the other thing",
+                                             "unit": self.table["plain"].unit.value, "enabled": True})
         self.assertTrue(listing["strict"]["enabled"])
 
     def test_set_enabled_checks_replace_semantics(self):

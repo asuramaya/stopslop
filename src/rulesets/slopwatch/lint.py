@@ -65,7 +65,8 @@ from core.blocks import (
     HEADER_RE, LIST_ITEM_RE,
 )
 from core.flags import dedup_flags, default_label as _label
-from core import checks as _checks, custom_checks as _custom_checks, paths as _paths, terms as _terms
+from core import (checks as _checks, config as _config, custom_checks as _custom_checks,
+                  paths as _paths, terms as _terms)
 
 # slopwatch builds SENTENCE (the full tokenized-sentence list) and
 # DOCUMENT (the whole assembled lintable text) uniformly -- its LINE
@@ -894,6 +895,16 @@ def lint_and_gate(text, context=None, file_path=None):
         block_text = re.sub(r"`[^`\n]+`", " ", block_text)  # inline code untouchable
         sentences.extend(tokenize_sentences(block_text))
 
+    project_root = _paths.find_project_root(__file__)
+    # A custom check bound to a vocabulary list via that list's own
+    # `feeds` -- see core.custom_checks.extra_by_check_for_custom. Only
+    # ever contributes entries for CUSTOM check ids (never one of the
+    # literal keys above), so this can never shadow a built-in's own
+    # hand-resolved extra.
+    custom_extra = _custom_checks.extra_by_check_for_custom(
+        project_root, "slopwatch", set(_custom_checks.custom_check_ids(project_root, "slopwatch")),
+        _config.effective_term_lists(TERM_LISTS, "slopwatch", project_root), file_path)
+
     mechanical, semantic = _checks.run_checks(
         effective_checks_table(),
         lines=list_item_lines,
@@ -906,6 +917,7 @@ def lint_and_gate(text, context=None, file_path=None):
             "filler_verb": extra_filler_verb,
             "marketing_cliche": extra_marketing_cliche,
             "terminology": lexicon,
+            **custom_extra,
         },
     )
 

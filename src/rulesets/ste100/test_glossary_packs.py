@@ -575,5 +575,43 @@ class CustomCheckTests(_TempProjectRoot):
             ste100.add_custom_check("bad", "line", "x", "y", 1, "warn", "return []")
 
 
+class CustomCheckVocabularyBindingTests(_TempProjectRoot):
+    """A custom check can bind to a curated Vocabulary list -- via that
+    list's own `feeds`, the same list-declares-the-check-it-feeds
+    direction a built-in check's TERM_LISTS entry already uses -- and
+    read it at lint time through its generated function's own
+    `extra=()` parameter. See core.custom_checks.extra_by_check_for_custom
+    (the resolving side) and core.config.set_custom_term_list_feeds/
+    add_custom_term_list's own `feeds` param (the declaring side)."""
+
+    def test_a_custom_check_bound_to_a_custom_list_fires_on_a_listed_word(self):
+        core_config.add_custom_term_list(self._tmp.name, "ste100", "jargon", {}, feeds="no_jargon")
+        ste100.add_term("jargon", "widget")
+        ste100.add_custom_check(
+            "no_jargon", "sentence", "project jargon", "use a plain word", 1, "warn",
+            'return [{"word": w} for w in extra if w in sentence.lower()]', terms_list="jargon")
+        result = ste100.lint_and_gate("The system has a widget installed.")
+        self.assertIn("no_jargon", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_an_unbound_custom_check_never_sees_a_list_it_did_not_ask_for(self):
+        core_config.add_custom_term_list(self._tmp.name, "ste100", "jargon", {}, feeds="no_jargon")
+        ste100.add_term("jargon", "widget")
+        # a DIFFERENT custom check, deliberately not bound to "jargon"
+        ste100.add_custom_check(
+            "other_check", "sentence", "x", "y", 1, "warn",
+            'return [{"word": w} for w in extra if w in sentence.lower()]')
+        result = ste100.lint_and_gate("The system has a widget installed.")
+        self.assertNotIn("other_check", [f["kind"] for f in result["semantic_flags"]])
+
+    def test_removing_the_bound_check_unbinds_the_list_no_orphan_pointer(self):
+        core_config.add_custom_term_list(self._tmp.name, "ste100", "jargon", {}, feeds="no_jargon")
+        ste100.add_custom_check(
+            "no_jargon", "sentence", "x", "y", 1, "warn", "return []", terms_list="jargon")
+        ste100.remove_custom_check("no_jargon")
+        core_config.clear_feeds_for_check(self._tmp.name, "ste100", "no_jargon")
+        lists = core_config.custom_term_lists(self._tmp.name, "ste100")
+        self.assertNotIn("feeds", lists["jargon"])
+
+
 if __name__ == "__main__":
     unittest.main()

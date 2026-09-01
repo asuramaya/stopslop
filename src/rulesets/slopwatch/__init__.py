@@ -80,16 +80,23 @@ def custom_check_ids():
     return _custom_checks.custom_check_ids(paths.find_project_root(__file__), RULESET_ID)
 
 
-def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+def get_custom_check_fields(check_id):
+    return _custom_checks.get_custom_check_fields(paths.find_project_root(__file__), RULESET_ID,
+                                                    check_id, lint.CUSTOM_CHECK_UNITS)
+
+
+def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body, terms_list=None):
     _custom_checks.add_custom_check(paths.find_project_root(__file__), RULESET_ID,
                                      set(lint.CHECKS_TABLE), check_id, unit, catches, instead,
-                                     threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS)
+                                     threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS,
+                                     terms_list=terms_list)
 
 
-def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body, terms_list=None):
     _custom_checks.update_custom_check(paths.find_project_root(__file__), RULESET_ID,
                                         set(lint.CHECKS_TABLE), check_id, unit, catches, instead,
-                                        threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS)
+                                        threshold, action, fn_body, lint.CUSTOM_CHECK_UNITS,
+                                        terms_list=terms_list)
 
 
 def remove_custom_check(check_id):

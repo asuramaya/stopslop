@@ -31,8 +31,10 @@ for a malformed ruleset.
 """
 import importlib.machinery
 import importlib.util
+import inspect
 import os
 import re
+import textwrap
 
 from core import checks as _checks
 
@@ -147,20 +149,72 @@ def effective_checks_table(built_in_table, project_root, ruleset_id, allowed_uni
     return merged
 
 
+def extra_by_check_for_custom(project_root, ruleset_id, custom_check_ids, effective_lists, file_path=None):
+    """{check_id: [word, ...]} for every CUSTOM check bound to a term
+    list, in the same list-declares-the-check-it-feeds direction a
+    built-in check's own TERM_LISTS entry already uses (core/terms.py's
+    own note explains why the binding lives on the list, not the check)
+    -- a custom check reads a curated Vocabulary list exactly the way a
+    shipped one does, via its generated function's own `extra=()`
+    parameter, with no new mechanism of its own. Only ever produces
+    entries for ids in `custom_check_ids`, so merging this dict into a
+    ruleset's own hand-written extra_by_check can never override or
+    shadow a built-in check's entry -- a built-in list's `feeds` always
+    names a built-in check id, never a custom one, because the webui
+    only ever offers a CUSTOM list as a bindable target in the first
+    place (a built-in list's spec lives in read-only Python source)."""
+    from core import terms as _terms
+    out = {}
+    for list_id, spec in effective_lists.items():
+        check_id = spec.get("feeds")
+        if check_id in custom_check_ids:
+            layers = _terms.resolve(spec, project_root, ruleset_id, list_id, file_path=file_path)
+            out[check_id] = sorted(layers["effective"])
+    return out
+
+
+def get_custom_check_fields(project_root, ruleset_id, check_id, allowed_units=DEFAULT_ALLOWED_UNITS):
+    """The dashboard's "Add a check" form has no counterpart for viewing
+    or editing a check already saved -- once written, the matcher body a
+    project author typed is invisible again unless they open the file on
+    disk by hand. This reconstructs exactly what that form would have
+    been filled in with, so an "Edit" affordance can prefill it: every
+    metadata field comes straight off the loaded CHECK object, and the
+    matcher body comes from `inspect.getsource` on the loaded function
+    (not a second hand-parse of the file's own template markers) with its
+    `def check_<id>(...):` line dropped and the rest dedented back to
+    what render_source() originally indented -- render_source's own
+    indent-every-line step is exactly textwrap.dedent's inverse, so this
+    round-trips the author's original text byte for byte, blank lines
+    included."""
+    path = _check_path(project_root, ruleset_id, check_id)
+    if not os.path.exists(path):
+        raise ValueError(f"no custom check {check_id!r} to inspect -- add it first")
+    check = _load_one(path, ruleset_id, check_id, allowed_units)
+    body_lines = inspect.getsource(check.fn).splitlines()[1:]
+    fn_body = textwrap.dedent("\n".join(body_lines)).strip("\n")
+    return {
+        "id": check.id, "unit": check.unit.value, "catches": check.catches,
+        "instead": check.instead, "threshold": check.default_threshold,
+        "action": check.default_action, "fn_body": fn_body,
+        "terms_list": check.terms_list,
+    }
+
+
 _TEMPLATE = '''"""Custom check {check_id!r} for the {ruleset_id!r} ruleset --
 added via the dashboard's Checks page. Not machine-only: this is a real
 Python file, safe to hand-edit, safe to move, safe to remove outright."""
 from core.checks import Check, Unit
 
 
-def check_{check_id}({arg}):
+def check_{check_id}({arg}, extra=()):
 {body}
 
 
 CHECK = Check(
     id={check_id!r}, unit=Unit.{unit_name}, fn=check_{check_id},
     catches={catches!r}, instead={instead!r},
-    default_threshold={threshold!r}, default_action={action!r},
+    default_threshold={threshold!r}, default_action={action!r},{terms_list_kwarg}
 )
 '''
 
@@ -172,27 +226,38 @@ _UNIT_ARG_NAMES = {
 }
 
 
-def render_source(ruleset_id, check_id, unit, catches, instead, threshold, action, fn_body):
+def render_source(ruleset_id, check_id, unit, catches, instead, threshold, action, fn_body,
+                   terms_list=None):
     """The full custom-check file's source text for one check, built from
     the dashboard form's own fields -- never asks a project author to
     hand-write the Check(...) construction correctly, only the matcher
     body itself. `fn_body` is the untouched textarea contents, indented
     under a generated function signature; a project author's own
-    docstrings/comments/blank lines inside it survive exactly as typed."""
+    docstrings/comments/blank lines inside it survive exactly as typed.
+
+    The generated function always takes a trailing `extra=()` -- whether
+    or not `terms_list` binds one now, so binding or unbinding one later
+    (via update_custom_check) never has to touch a signature the fn_body
+    author already wrote against. `terms_list`, when given, is the id of
+    a term list THIS ruleset already declares (built-in or custom) whose
+    own `feeds` names this check -- see
+    core.custom_checks.extra_by_check_for_custom for the resolving side;
+    this function only ever records the pointer onto the CHECK object."""
     unit = _checks.Unit(unit)
     arg = _UNIT_ARG_NAMES.get(unit, "item")
     lines = fn_body.rstrip("\n").split("\n") or [""]
     body = "\n".join("    " + line if line.strip() else "" for line in lines) or "    return []"
+    terms_list_kwarg = f"\n    terms_list={terms_list!r}," if terms_list else ""
     return _TEMPLATE.format(
         check_id=check_id, ruleset_id=ruleset_id, arg=arg, body=body,
         unit_name=unit.name, catches=catches, instead=instead,
-        threshold=threshold, action=action,
+        threshold=threshold, action=action, terms_list_kwarg=terms_list_kwarg,
     )
 
 
 def add_custom_check(project_root, ruleset_id, built_in_ids, check_id,
                       unit, catches, instead, threshold, action, fn_body,
-                      allowed_units=DEFAULT_ALLOWED_UNITS):
+                      allowed_units=DEFAULT_ALLOWED_UNITS, terms_list=None):
     """Validate-then-write: renders the file, imports it from a TEMP path
     first, and only copies it into place if that import succeeds and the
     resulting CHECK passes every check load_custom_checks itself would
@@ -210,23 +275,24 @@ def add_custom_check(project_root, ruleset_id, built_in_ids, check_id,
     if check_id in custom_check_ids(project_root, ruleset_id):
         raise ValueError(f"a custom check {check_id!r} already exists -- remove it first to replace it")
     _write_validated(project_root, ruleset_id, built_in_ids, check_id,
-                      unit, catches, instead, threshold, action, fn_body, allowed_units)
+                      unit, catches, instead, threshold, action, fn_body, allowed_units, terms_list)
 
 
 def update_custom_check(project_root, ruleset_id, built_in_ids, check_id,
                          unit, catches, instead, threshold, action, fn_body,
-                         allowed_units=DEFAULT_ALLOWED_UNITS):
+                         allowed_units=DEFAULT_ALLOWED_UNITS, terms_list=None):
     """Same validate-then-write discipline as add_custom_check, but for
     an EXISTING custom check -- the id must already exist as a custom
     check (never a built-in; those have no file here to update)."""
     if check_id not in custom_check_ids(project_root, ruleset_id):
         raise ValueError(f"no custom check {check_id!r} to update -- add it first")
     _write_validated(project_root, ruleset_id, built_in_ids, check_id,
-                      unit, catches, instead, threshold, action, fn_body, allowed_units)
+                      unit, catches, instead, threshold, action, fn_body, allowed_units, terms_list)
 
 
 def _write_validated(project_root, ruleset_id, built_in_ids, check_id,
-                      unit, catches, instead, threshold, action, fn_body, allowed_units):
+                      unit, catches, instead, threshold, action, fn_body, allowed_units,
+                      terms_list=None):
     try:
         unit_enum = _checks.Unit(unit)
     except ValueError:
@@ -236,7 +302,8 @@ def _write_validated(project_root, ruleset_id, built_in_ids, check_id,
         raise InvalidCustomCheckError(
             f"the {ruleset_id!r} ruleset only allows "
             f"{sorted(u.value for u in allowed_units)} for a custom check, got {unit!r}")
-    source = render_source(ruleset_id, check_id, unit, catches, instead, threshold, action, fn_body)
+    source = render_source(ruleset_id, check_id, unit, catches, instead, threshold, action, fn_body,
+                            terms_list=terms_list)
 
     ruleset_dir = _ruleset_dir(project_root, ruleset_id)
     os.makedirs(ruleset_dir, exist_ok=True)

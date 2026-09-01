@@ -167,16 +167,23 @@ def custom_check_ids():
     return _custom_checks.custom_check_ids(_paths.find_project_root(__file__), RULESET_ID)
 
 
-def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+def get_custom_check_fields(check_id):
+    return _custom_checks.get_custom_check_fields(_paths.find_project_root(__file__), RULESET_ID,
+                                                    check_id, CUSTOM_CHECK_UNITS)
+
+
+def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body, terms_list=None):
     _custom_checks.add_custom_check(_paths.find_project_root(__file__), RULESET_ID,
                                      set(CHECKS_TABLE), check_id, unit, catches, instead,
-                                     threshold, action, fn_body, CUSTOM_CHECK_UNITS)
+                                     threshold, action, fn_body, CUSTOM_CHECK_UNITS,
+                                     terms_list=terms_list)
 
 
-def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body):
+def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body, terms_list=None):
     _custom_checks.update_custom_check(_paths.find_project_root(__file__), RULESET_ID,
                                         set(CHECKS_TABLE), check_id, unit, catches, instead,
-                                        threshold, action, fn_body, CUSTOM_CHECK_UNITS)
+                                        threshold, action, fn_body, CUSTOM_CHECK_UNITS,
+                                        terms_list=terms_list)
 
 
 def remove_custom_check(check_id):
@@ -213,8 +220,15 @@ def lint_and_gate(text, *, context=None, file_path=None):
         block_text = _re.sub(r"`[^`\\n]+`", " ", block_text)
         sentences.extend(tokenize_sentences(block_text))
 
+    project_root = _paths.find_project_root(__file__)
+    # Every check here is custom by definition (CHECKS_TABLE starts
+    # empty) -- see core.custom_checks.extra_by_check_for_custom.
+    custom_extra = _custom_checks.extra_by_check_for_custom(
+        project_root, RULESET_ID, set(custom_check_ids()), _effective_lists(), file_path)
+
     mechanical, semantic = _checks.run_checks(
-        effective_checks_table(), sentences=sentences, text=" ".join(sentences))
+        effective_checks_table(), sentences=sentences, text=" ".join(sentences),
+        extra_by_check=custom_extra)
 
     enabled = _enabled_check_ids(file_path)
     mechanical = [f for f in mechanical if f["kind"] in enabled]

@@ -261,12 +261,13 @@ change to this tool's own source. The shared engine lives in
 ```python
 def custom_check_units(): ...
 def custom_check_ids(): ...
+def get_custom_check_fields(check_id): ...
 def add_custom_check(check_id, unit, catches, instead, threshold, action, fn_body): ...
 def update_custom_check(check_id, unit, catches, instead, threshold, action, fn_body): ...
 def remove_custom_check(check_id): ...
 ```
 
-Delegate all five to `core/custom_checks.py`. Also route every place
+Delegate all six to `core/custom_checks.py`. Also route every place
 your `lint.py` reads `CHECKS_TABLE` -- `lint_and_gate`,
 `blocking_semantic_flags`, and the `"checks"`/`"check_config"`
 delegations above -- through one `effective_checks_table()` helper
@@ -304,6 +305,19 @@ author's own code.
 
 This is not a sandboxed subset. Anyone with write access to the repo
 already has arbitrary code execution through the hook mechanism itself.
+
+Every generated matcher takes a trailing `extra=()`. That holds whether
+or not the dashboard's "Add a check" form binds a vocabulary list to
+it. A later bind never changes the signature the author already wrote.
+
+The LIST's own spec carries the binding, as `feeds=<check_id>` -- the
+same direction a built-in check's own `TERM_LISTS` entry already uses.
+The check itself never carries it. Your `lint_and_gate` must merge
+`core.custom_checks.extra_by_check_for_custom(project_root, "your_id",
+set(custom_check_ids()), effective_lists, file_path)` into the
+`extra_by_check` dict you already pass `run_checks`. This function only
+ever returns entries for a CUSTOM check id. A merge like this can never
+shadow a built-in check's own resolved extra.
 
 A custom check must stay `classify="semantic"`, the default. Leave
 `Check`'s `classify` argument out entirely.

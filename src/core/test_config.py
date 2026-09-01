@@ -994,6 +994,103 @@ class AddCustomTermListTests(unittest.TestCase):
                                                 polarity="bogus", config_file=path)
             self.assertEqual(spec["polarity"], "deny")
 
+    def test_feeds_lands_on_the_spec_when_given(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            spec = config.add_custom_term_list(tmp, "codewatch", "jargon", {},
+                                                feeds="no_todo", config_file=path)
+            self.assertEqual(spec["feeds"], "no_todo")
+
+    def test_feeds_is_absent_by_default(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            spec = config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+            self.assertNotIn("feeds", spec)
+
+
+class SetCustomTermListFeedsTests(unittest.TestCase):
+    def test_binds_an_existing_list(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+            spec = config.set_custom_term_list_feeds(tmp, "codewatch", "jargon", "no_todo",
+                                                       config_file=path)
+            self.assertEqual(spec["feeds"], "no_todo")
+            self.assertEqual(config.custom_term_lists(tmp, "codewatch", config_file=path)
+                              ["jargon"]["feeds"], "no_todo")
+
+    def test_none_unbinds_it(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, feeds="no_todo",
+                                         config_file=path)
+            spec = config.set_custom_term_list_feeds(tmp, "codewatch", "jargon", None,
+                                                       config_file=path)
+            self.assertNotIn("feeds", spec)
+
+    def test_refuses_an_unknown_list(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            with self.assertRaises(ValueError):
+                config.set_custom_term_list_feeds(tmp, "codewatch", "never_added", "no_todo",
+                                                   config_file=path)
+
+    def test_other_spec_fields_survive_a_rebind(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, label="Jargon",
+                                         config_file=path)
+            spec = config.set_custom_term_list_feeds(tmp, "codewatch", "jargon", "no_todo",
+                                                       config_file=path)
+            self.assertEqual(spec["label"], "Jargon")
+
+
+class ClearFeedsForCheckTests(unittest.TestCase):
+    def test_unbinds_whichever_list_fed_the_removed_check(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, feeds="no_todo",
+                                         config_file=path)
+            config.clear_feeds_for_check(tmp, "codewatch", "no_todo", config_file=path)
+            self.assertNotIn("feeds", config.custom_term_lists(tmp, "codewatch", config_file=path)["jargon"])
+
+    def test_a_check_with_nothing_bound_is_a_no_op(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, config_file=path)
+            config.clear_feeds_for_check(tmp, "codewatch", "no_todo", config_file=path)  # must not raise
+            self.assertNotIn("feeds", config.custom_term_lists(tmp, "codewatch", config_file=path)["jargon"])
+
+    def test_only_the_matching_list_is_unbound_others_survive(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "stopslop.config.json")
+            config.add_custom_term_list(tmp, "codewatch", "jargon", {}, feeds="no_todo",
+                                         config_file=path)
+            config.add_custom_term_list(tmp, "codewatch", "other", {}, feeds="another_check",
+                                         config_file=path)
+            config.clear_feeds_for_check(tmp, "codewatch", "no_todo", config_file=path)
+            lists = config.custom_term_lists(tmp, "codewatch", config_file=path)
+            self.assertNotIn("feeds", lists["jargon"])
+            self.assertEqual(lists["other"]["feeds"], "another_check")
+
 
 class EffectiveTermListsTests(unittest.TestCase):
     def test_merges_custom_onto_base(self):

@@ -44,7 +44,8 @@ slopwatch already established.
 """
 import re
 
-from core import checks as _checks, custom_checks as _custom_checks, paths as _paths, terms as _terms
+from core import (checks as _checks, config as _config, custom_checks as _custom_checks,
+                  paths as _paths, terms as _terms)
 
 TRACKED_EXTENSIONS = (".py",)
 
@@ -502,9 +503,19 @@ def lint_and_gate(text, context=None, file_path=None):
     is_script = _is_script(lines)
     extra_generic_names = _custom_terms("generic_naming", file_path)  # once per call, not per line
 
+    project_root = _paths.find_project_root(__file__)
+    # A custom check bound to a vocabulary list via that list's own
+    # `feeds` -- see core.custom_checks.extra_by_check_for_custom. Only
+    # ever contributes entries for CUSTOM check ids (never one of the
+    # literal keys above), so this can never shadow a built-in's own
+    # hand-resolved extra.
+    custom_extra = _custom_checks.extra_by_check_for_custom(
+        project_root, "codewatch", set(_custom_checks.custom_check_ids(project_root, "codewatch")),
+        _config.effective_term_lists(TERM_LISTS, "codewatch", project_root), file_path)
+
     mechanical, semantic = _checks.run_checks(
         effective_checks_table(), lines=lines,
-        extra_by_check={"print_debug": is_script, "generic_naming": extra_generic_names})
+        extra_by_check={"print_debug": is_script, "generic_naming": extra_generic_names, **custom_extra})
 
     # Every check above runs unconditionally; a disabled check's own flags
     # are dropped here in one place rather than guarding all 10 call sites.

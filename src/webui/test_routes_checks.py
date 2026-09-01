@@ -17,6 +17,7 @@ inject a fake project root through here without changing that contract.
 Run with (needs the venv):
     cd src && ../.venv/bin/python3 -m unittest webui.test_routes_checks -v
 """
+import html
 import os
 import unittest
 
@@ -60,6 +61,12 @@ class CheckPageReadOnlyTests(unittest.TestCase):
     def test_a_vocabulary_bound_check_points_at_the_vocabulary_page(self):
         response = client.get("/checks", params={"ruleset": "slopwatch"})
         self.assertIn("curate on Vocabulary", response.text)
+
+    def test_unit_column_shows_each_checks_own_unit(self):
+        response = client.get("/checks", params={"ruleset": "codewatch"})
+        self.assertIn("<th>Unit</th>", response.text)
+        row = response.text.split('id="row-todo_stub"')[1].split("</tr>")[0]
+        self.assertIn(">line<", row)
 
 
 @unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
@@ -188,6 +195,217 @@ class CustomCheckRouteTests(unittest.TestCase):
         response = client.post("/checks/codewatch/todo_stub/remove", data={})
         self.assertEqual(response.status_code, 200)
         self.assertIn("built-in check", response.text)
+
+
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class EditCustomCheckRouteTests(unittest.TestCase):
+    """Same real-file, always-restore posture as CustomCheckRouteTests --
+    /edit and /update round-trip a real check under codewatch's own
+    .claude/stopslop/custom_checks/, cleaned up in tearDown regardless of
+    outcome."""
+
+    CHECK_ID = "webui_test_edit_check"
+
+    def setUp(self):
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+        self._check_path = os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_checks",
+                                         "codewatch", f"{self.CHECK_ID}.py")
+        add = client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "a TODO left in code",
+            "instead": "file a real issue", "threshold": "1", "action": "warn",
+            "fn_body": 'return [{"phrase": "TODO"}] if "TODO" in line else []',
+        })
+        assert add.status_code == 200 and os.path.exists(self._check_path), add.text
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+        if os.path.exists(self._check_path):
+            os.unlink(self._check_path)
+
+    def test_edit_prefills_the_current_matcher_body(self):
+        response = client.get(f"/checks/codewatch/{self.CHECK_ID}/edit")
+        self.assertEqual(response.status_code, 200)
+        # the textarea's content is HTML-escaped by Jinja2 (correct,
+        # browser-valid output) -- unescape before comparing so the
+        # assertion checks the actual matcher text, not its markup.
+        self.assertIn('return [{"phrase": "TODO"}] if "TODO" in line else []',
+                       html.unescape(response.text))
+        self.assertIn('value="a TODO left in code"', response.text)
+        self.assertIn('value="file a real issue"', response.text)
+
+    def test_edit_on_a_built_in_check_is_refused(self):
+        response = client.get("/checks/codewatch/todo_stub/edit")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("error-banner", response.text)
+        self.assertIn("built-in check", response.text)
+
+    def test_update_changes_the_matcher_and_metadata(self):
+        response = client.post(f"/checks/codewatch/{self.CHECK_ID}/update", data={
+            "unit": "line", "catches": "a FIXME left in code", "instead": "file it",
+            "threshold": "3", "action": "block",
+            "fn_body": 'return [{"phrase": "FIXME"}] if "FIXME" in line else []',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("a FIXME left in code", response.text)
+        self.assertIn('value="3"', response.text)
+        self.assertIn('value="block" selected', response.text)
+
+        # persisted, not just echoed in the response -- confirm via a
+        # fresh /edit read rather than trusting the update's own response.
+        reread = client.get(f"/checks/codewatch/{self.CHECK_ID}/edit")
+        self.assertIn('return [{"phrase": "FIXME"}] if "FIXME" in line else []',
+                       html.unescape(reread.text))
+
+    def test_a_failed_update_keeps_the_submitted_values_not_the_old_ones(self):
+        response = client.post(f"/checks/codewatch/{self.CHECK_ID}/update", data={
+            "unit": "line", "catches": "still catches this", "instead": "still do this",
+            "threshold": "1", "action": "warn", "fn_body": "this is not python (",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("error-banner", response.text)
+        self.assertIn('value="still catches this"', response.text)
+        self.assertIn("this is not python (", response.text)
+
+        # the old saved version is untouched by the failed attempt
+        reread = client.get(f"/checks/codewatch/{self.CHECK_ID}/edit")
+        self.assertIn('return [{"phrase": "TODO"}] if "TODO" in line else []',
+                       html.unescape(reread.text))
+
+    def test_update_on_a_built_in_check_is_refused(self):
+        response = client.post("/checks/codewatch/todo_stub/update", data={
+            "unit": "line", "catches": "x", "instead": "y", "threshold": "1",
+            "action": "warn", "fn_body": "return []",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("error-banner", response.text)
+        self.assertIn("built-in check", response.text)
+
+    def test_row_fragment_renders_the_plain_row(self):
+        response = client.get(f"/checks/codewatch/{self.CHECK_ID}/row")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.CHECK_ID, response.text)
+        self.assertIn("Edit", response.text)
+
+
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class TermsListBindingRouteTests(unittest.TestCase):
+    """A custom check binding to a custom vocabulary list -- add/edit's
+    new "Vocabulary list" select, wired through core.config's own
+    feeds/set_custom_term_list_feeds/clear_feeds_for_check. Same real-
+    file, always-restore posture as CustomCheckRouteTests; the single
+    config-file snapshot/restore also covers the custom term list's own
+    declaration (custom_term_lists lives in the same file)."""
+
+    CHECK_ID = "webui_test_terms_binding_check"
+    LIST_ID = "webui_test_terms_binding_list"
+
+    def setUp(self):
+        from core import config as core_config
+        self._core_config = core_config
+        self._config_path = os.path.join(REPO_ROOT, "stopslop.config.json")
+        self._before = None
+        if os.path.exists(self._config_path):
+            with open(self._config_path) as f:
+                self._before = f.read()
+        self._check_path = os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_checks",
+                                         "codewatch", f"{self.CHECK_ID}.py")
+        core_config.add_custom_term_list(REPO_ROOT, "codewatch", self.LIST_ID, {})
+
+    def tearDown(self):
+        if self._before is None:
+            if os.path.exists(self._config_path):
+                os.unlink(self._config_path)
+        else:
+            with open(self._config_path, "w") as f:
+                f.write(self._before)
+        if os.path.exists(self._check_path):
+            os.unlink(self._check_path)
+
+    def test_add_with_a_list_chosen_binds_it(self):
+        response = client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "x", "instead": "y",
+            "threshold": "1", "action": "warn",
+            "fn_body": 'return [{"word": w} for w in extra if w in line]',
+            "terms_list": self.LIST_ID,
+        })
+        self.assertEqual(response.status_code, 200)
+        lists = self._core_config.custom_term_lists(REPO_ROOT, "codewatch")
+        self.assertEqual(lists[self.LIST_ID]["feeds"], self.CHECK_ID)
+
+    def test_add_with_no_list_chosen_leaves_it_unbound(self):
+        response = client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "x", "instead": "y",
+            "threshold": "1", "action": "warn", "fn_body": "return []",
+        })
+        self.assertEqual(response.status_code, 200)
+        lists = self._core_config.custom_term_lists(REPO_ROOT, "codewatch")
+        self.assertNotIn("feeds", lists[self.LIST_ID])
+
+    def test_edit_prefills_the_current_binding(self):
+        client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "x", "instead": "y",
+            "threshold": "1", "action": "warn", "fn_body": "return []",
+            "terms_list": self.LIST_ID,
+        })
+        response = client.get(f"/checks/codewatch/{self.CHECK_ID}/edit")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f'value="{self.LIST_ID}" selected', response.text)
+
+    def test_update_can_unbind_a_list(self):
+        client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "x", "instead": "y",
+            "threshold": "1", "action": "warn", "fn_body": "return []",
+            "terms_list": self.LIST_ID,
+        })
+        response = client.post(f"/checks/codewatch/{self.CHECK_ID}/update", data={
+            "unit": "line", "catches": "x", "instead": "y", "threshold": "1",
+            "action": "warn", "fn_body": "return []",
+        })
+        self.assertEqual(response.status_code, 200)
+        lists = self._core_config.custom_term_lists(REPO_ROOT, "codewatch")
+        self.assertNotIn("feeds", lists[self.LIST_ID])
+
+    def test_remove_unbinds_the_list_it_was_feeding(self):
+        client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "x", "instead": "y",
+            "threshold": "1", "action": "warn", "fn_body": "return []",
+            "terms_list": self.LIST_ID,
+        })
+        response = client.post(f"/checks/codewatch/{self.CHECK_ID}/remove", data={})
+        self.assertEqual(response.status_code, 200)
+        lists = self._core_config.custom_term_lists(REPO_ROOT, "codewatch")
+        self.assertNotIn("feeds", lists[self.LIST_ID])
+
+    def test_binding_a_list_already_feeding_another_check_is_refused(self):
+        other_check_path = os.path.join(REPO_ROOT, ".claude", "stopslop", "custom_checks",
+                                         "codewatch", "webui_test_other_check.py")
+        self.addCleanup(lambda: os.path.exists(other_check_path) and os.unlink(other_check_path))
+        client.post("/checks/codewatch/custom/add", data={
+            "check_id": "webui_test_other_check", "unit": "line", "catches": "x", "instead": "y",
+            "threshold": "1", "action": "warn", "fn_body": "return []",
+            "terms_list": self.LIST_ID,
+        })
+        response = client.post("/checks/codewatch/custom/add", data={
+            "check_id": self.CHECK_ID, "unit": "line", "catches": "x", "instead": "y",
+            "threshold": "1", "action": "warn", "fn_body": "return []",
+            "terms_list": self.LIST_ID,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("error-banner", response.text)
+        self.assertIn("already feeds", response.text)
+        # the second check was never created -- refused before any write
+        self.assertFalse(os.path.exists(self._check_path))
+        lists = self._core_config.custom_term_lists(REPO_ROOT, "codewatch")
+        self.assertEqual(lists[self.LIST_ID]["feeds"], "webui_test_other_check")
 
 
 @unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")

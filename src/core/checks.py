@@ -151,7 +151,7 @@ def list_checks(table, project_root, ruleset_id):
     disabled = set(_core_config.disabled_checks(project_root, ruleset_id))
     return {
         check_id: {"catches": check.catches, "instead": check.instead,
-                   "enabled": check_id not in disabled}
+                   "unit": check.unit.value, "enabled": check_id not in disabled}
         for check_id, check in table.items()
     }
 

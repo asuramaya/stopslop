@@ -1,14 +1,16 @@
 {# Needs `rows`, `ruleset_id`, `tunable`, `listed`, `custom_capable`,
-   `custom_check_units` in context (see routes_checks._section_context()).
+   `custom_check_units`, `bindable_lists` in context (see
+   routes_checks._section_context()).
    Wraps the table plus the "Add check" form together, the same reason
    vocabulary_section.html wraps its picker with its own "Add a list"
    form: adding or removing a custom check changes the table's own row
    set, so one route swaps both in a single response rather than leaving
    a stale table next to a freshly-cleared form. #}
 <div id="checks-section">
-<table>
+<div class="scroll-panel">
+<table class="checks-table">
   <thead>
-    <tr><th>On</th><th>Check</th><th>What it catches</th><th>Threshold</th><th>Action</th><th>Last fired</th></tr>
+    <tr><th>On</th><th>Check</th><th>Unit</th><th>What it catches</th><th>Threshold</th><th>Action</th><th>Last fired</th></tr>
   </thead>
   <tbody id="checks-table-body">
     {% for row in rows %}
@@ -16,6 +18,7 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 
 {% if tunable %}
 <h3>Settings</h3>
@@ -57,11 +60,26 @@
       <label><input type="radio" name="action" value="warn" checked> warn</label>
       <label><input type="radio" name="action" value="block"> block (denies alone once triggered)</label>
     </div>
+    <div class="param-row">
+      <label>Vocabulary list
+        <select name="terms_list">
+          <option value="">-- none --</option>
+          {% for lid, spec in bindable_lists.items() %}
+          <option value="{{ lid }}">{{ spec.label or lid }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% if not bindable_lists %}
+      <span class="caption">no custom lists yet -- add one on Vocabulary first to bind one here</span>
+      {% endif %}
+    </div>
     <p class="caption">
       A <code>sentence</code> check's function receives one sentence as <code>sentence</code>;
       a <code>document</code> check receives the whole assembled text as <code>text</code>.
       Return a list of hit dicts -- each may carry <code>"word"</code>, <code>"phrase"</code>,
-      or <code>"note"</code>. An empty sentence/document returns <code>[]</code>.
+      or <code>"note"</code>. An empty sentence/document returns <code>[]</code>. Every matcher
+      also receives <code>extra=()</code> -- the words in the vocabulary list chosen above, or
+      empty if none was chosen.
     </p>
     <textarea name="fn_body" rows="6" style="width:100%; font-family:monospace"
               placeholder="if &quot;TODO&quot; in sentence:&#10;    return [{&quot;phrase&quot;: &quot;TODO&quot;}]&#10;return []" required></textarea>

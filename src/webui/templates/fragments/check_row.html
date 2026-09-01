@@ -8,22 +8,29 @@
       <input type="checkbox" name="enabled" {{ 'checked' if row.enabled else '' }}>
     </form>
   </td>
-  <td><code>{{ row.id }}</code>
-    {% if row.is_custom %}
-    <span class="pill">custom</span>
-    <span class="confirm-wrap">
-      <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove</button>
-      <span class="confirm-ask" hidden>
-        Remove the <code>{{ row.id }}</code> check itself?
-        <form style="display:inline;margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/remove"
-              hx-target="#checks-section" hx-swap="outerHTML">
-          <button type="submit" class="danger">Yes</button>
-        </form>
-        <button type="button" onclick="confirmCancel(this)">Cancel</button>
+  <td>
+    <div class="check-id-cell">
+      <code>{{ row.id }}</code>
+      {% if row.is_custom %}
+      <span class="pill">custom</span>
+      <button type="button" class="link-btn"
+              hx-get="/checks/{{ ruleset_id }}/{{ row.id }}/edit"
+              hx-target="#row-{{ row.id }}" hx-swap="outerHTML">Edit</button>
+      <span class="confirm-wrap">
+        <button type="button" class="danger confirm-trigger" onclick="confirmToggle(this)">Remove</button>
+        <span class="confirm-ask" hidden>
+          Remove the <code>{{ row.id }}</code> check itself?
+          <form style="display:inline;margin:0" hx-post="/checks/{{ ruleset_id }}/{{ row.id }}/remove"
+                hx-target="#checks-section" hx-swap="outerHTML">
+            <button type="submit" class="danger">Yes</button>
+          </form>
+          <button type="button" onclick="confirmCancel(this)">Cancel</button>
+        </span>
       </span>
-    </span>
-    {% endif %}
+      {% endif %}
+    </div>
   </td>
+  <td class="caption">{{ row.unit }}</td>
   <td>{{ row.catches }}</td>
   {% if row.configurable %}
   <td>

@@ -415,7 +415,7 @@ _CUSTOM_LIST_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 def add_custom_term_list(project_root, ruleset_id, list_id, built_in_lists, label=None,
                           polarity="deny", accepts_additions=True, accepts_packs=False,
-                          content_kind="word", config_file=None):
+                          content_kind="word", feeds=None, config_file=None):
     """Validate-then-save a new custom term list declaration -- the one
     place this validation lives, called by the webui, the CLI, and the
     MCP server alike, so a bad id/collision is refused identically no
@@ -443,8 +443,46 @@ def add_custom_term_list(project_root, ruleset_id, list_id, built_in_lists, labe
         "accepts_packs": bool(accepts_packs),
         "content_kind": (content_kind or "word").strip(),
     }
+    if feeds:
+        spec["feeds"] = feeds
     save_custom_term_list(project_root, ruleset_id, list_id, spec, config_file=config_file)
     return spec
+
+
+def set_custom_term_list_feeds(project_root, ruleset_id, list_id, feeds, config_file=None):
+    """Bind (or, with feeds=None, unbind) an existing custom list to the
+    custom check it feeds -- the same list-declares-the-check-it-feeds
+    direction a built-in list's own TERM_LISTS entry already uses (see
+    core/terms.py's own note on why the binding lives on the list, not
+    the check). Set from the CHECK side (routes_checks.py's add/update/
+    remove), since the list already exists by the time a check is
+    created or edited and choosing to bind it. Only a CUSTOM list's spec
+    can be rewritten this way -- a built-in one lives in a ruleset's own
+    Python source, immutable from here, and already has its own fixed
+    feeds target."""
+    lists = custom_term_lists(project_root, ruleset_id, config_file=config_file)
+    if list_id not in lists:
+        raise ValueError(f"no custom list {list_id!r} on {ruleset_id!r} to bind")
+    spec = dict(lists[list_id])
+    if feeds:
+        spec["feeds"] = feeds
+    else:
+        spec.pop("feeds", None)
+    save_custom_term_list(project_root, ruleset_id, list_id, spec, config_file=config_file)
+    return spec
+
+
+def clear_feeds_for_check(project_root, ruleset_id, check_id, config_file=None):
+    """Unbind whichever custom list currently feeds `check_id`, if any --
+    called when that check is removed, so a term list is never left
+    pointing at a check id that no longer exists (the "a guard that
+    validates at creation time does not protect what already exists"
+    trap: a stale feeds pointer would silently resolve to nothing at
+    lint time today, but there is no reason to leave it dangling for
+    whatever reads it next). A no-op if nothing was bound to it."""
+    for list_id, spec in custom_term_lists(project_root, ruleset_id, config_file=config_file).items():
+        if spec.get("feeds") == check_id:
+            set_custom_term_list_feeds(project_root, ruleset_id, list_id, None, config_file=config_file)
 
 
 def delete_custom_term_list(project_root, ruleset_id, list_id, config_file=None):

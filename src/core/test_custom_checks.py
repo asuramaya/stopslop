@@ -121,6 +121,33 @@ class AddCustomCheckTests(_TempProjectRoot):
         with self.assertRaises(cc.InvalidCustomCheckError):
             cc.effective_checks_table({}, self.root, "demo")
 
+    def test_extra_parameter_is_always_available_to_the_matcher(self):
+        # Every generated matcher takes a trailing extra=() whether or
+        # not a terms_list binds one now -- so binding one later never
+        # requires touching a signature the author already wrote against.
+        cc.add_custom_check(self.root, "demo", self.built_in_ids, "no_todo",
+                             "sentence", "x", "y", 1, "warn",
+                             'return [{"word": w} for w in extra if w in sentence]')
+        table = cc.effective_checks_table({}, self.root, "demo")
+        self.assertEqual(table["no_todo"].fn("has widget in it", ["widget"]),
+                          [{"word": "widget"}])
+        self.assertEqual(table["no_todo"].fn("clean", ["widget"]), [])
+        # and the default still works when no extra is passed at all
+        self.assertEqual(table["no_todo"].fn("clean"), [])
+
+    def test_terms_list_binding_lands_on_the_check_object(self):
+        cc.add_custom_check(self.root, "demo", self.built_in_ids, "no_todo",
+                             "sentence", "x", "y", 1, "warn", "return []",
+                             terms_list="jargon")
+        table = cc.effective_checks_table({}, self.root, "demo")
+        self.assertEqual(table["no_todo"].terms_list, "jargon")
+
+    def test_no_terms_list_given_leaves_the_check_unbound(self):
+        cc.add_custom_check(self.root, "demo", self.built_in_ids, "no_todo",
+                             "sentence", "x", "y", 1, "warn", "return []")
+        table = cc.effective_checks_table({}, self.root, "demo")
+        self.assertIsNone(table["no_todo"].terms_list)
+
 
 class UpdateCustomCheckTests(_TempProjectRoot):
     def test_update_replaces_the_matcher_body(self):
@@ -184,6 +211,69 @@ class EffectiveCheckTableTests(_TempProjectRoot):
         self.assertIn("    x = 1\n", source)
         self.assertIn("    if x:\n", source)
         self.assertIn("        return []\n", source)
+
+
+class GetCustomCheckFieldsTests(_TempProjectRoot):
+    def test_round_trips_every_field_including_a_multi_line_body(self):
+        cc.add_custom_check(self.root, "demo", self.built_in_ids, "no_todo",
+                             "sentence", "TODO left in prose", "file it as a real task",
+                             2, "block", 'x = "TODO"\nif x in sentence:\n    return [{"phrase": x}]\nreturn []')
+        fields = cc.get_custom_check_fields(self.root, "demo", "no_todo")
+        self.assertEqual(fields, {
+            "id": "no_todo", "unit": "sentence", "catches": "TODO left in prose",
+            "instead": "file it as a real task", "threshold": 2, "action": "block",
+            "fn_body": 'x = "TODO"\nif x in sentence:\n    return [{"phrase": x}]\nreturn []',
+            "terms_list": None,
+        })
+
+    def test_a_terms_list_binding_round_trips_too(self):
+        cc.add_custom_check(self.root, "demo", self.built_in_ids, "no_todo",
+                             "sentence", "x", "y", 1, "warn", "return []",
+                             terms_list="jargon")
+        fields = cc.get_custom_check_fields(self.root, "demo", "no_todo")
+        self.assertEqual(fields["terms_list"], "jargon")
+
+    def test_a_single_line_body_round_trips_too(self):
+        cc.add_custom_check(self.root, "demo", self.built_in_ids, "no_todo",
+                             "sentence", "x", "y", 1, "warn", "return []")
+        fields = cc.get_custom_check_fields(self.root, "demo", "no_todo")
+        self.assertEqual(fields["fn_body"], "return []")
+
+    def test_refuses_a_check_that_was_never_added(self):
+        with self.assertRaises(ValueError):
+            cc.get_custom_check_fields(self.root, "demo", "never_added")
+
+    def test_refuses_a_check_id_that_is_only_a_built_in(self):
+        with self.assertRaises(ValueError):
+            cc.get_custom_check_fields(self.root, "demo", "built_in_check")
+
+
+class ExtraByCheckForCustomTests(_TempProjectRoot):
+    def test_resolves_words_for_a_custom_check_bound_via_feeds(self):
+        from core import config as _config, terms as _terms
+        spec = _config.add_custom_term_list(self.root, "demo", "jargon", {}, feeds="no_todo")
+        _terms.add_term("demo", {"jargon": spec}, self.root, "jargon", "widget")
+        effective_lists = _config.effective_term_lists({}, "demo", self.root)
+        extra = cc.extra_by_check_for_custom(self.root, "demo", {"no_todo"}, effective_lists)
+        self.assertEqual(extra, {"no_todo": ["widget"]})
+
+    def test_a_list_not_bound_to_any_check_produces_nothing(self):
+        from core import config as _config
+        _config.add_custom_term_list(self.root, "demo", "jargon", {})
+        effective_lists = _config.effective_term_lists({}, "demo", self.root)
+        extra = cc.extra_by_check_for_custom(self.root, "demo", {"no_todo"}, effective_lists)
+        self.assertEqual(extra, {})
+
+    def test_a_list_feeding_an_id_outside_custom_check_ids_is_ignored(self):
+        # feeds naming an id that is NOT in custom_check_ids (e.g. a
+        # built-in's own list) never produces an entry here -- that
+        # check already gets its extra from the ruleset's own
+        # hand-written extra_by_check dict.
+        from core import config as _config
+        _config.add_custom_term_list(self.root, "demo", "jargon", {}, feeds="some_built_in")
+        effective_lists = _config.effective_term_lists({}, "demo", self.root)
+        extra = cc.extra_by_check_for_custom(self.root, "demo", {"no_todo"}, effective_lists)
+        self.assertEqual(extra, {})
 
 
 if __name__ == "__main__":
