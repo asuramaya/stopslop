@@ -5,7 +5,7 @@ The gated arm reproduces what a real session does against the live hook:
 write, get denied with a list of flags, rewrite, try again. It stops when
 the text passes the ENFORCED checks or the iteration budget runs out.
 
-Three rules keep the result honest.
+Four arms, and three rules keep the result honest.
 
 The gated arm is never told about a held-out check. Not in the first
 prompt, not in a revision. `_revision_message` is built only from
@@ -105,6 +105,34 @@ def run_arm_ungated(generator, prompt):
     return {"text": text, "iterations": 1, "passed": None}
 
 
+BLIND_REVISION = ("Rewrite the text above. Keep the same length and the "
+                   "same purpose. Return only the rewritten text.")
+
+
+def run_arm_blind_revision(generator, prompt, iterations):
+    """The gated arm's compute, without the gate's information.
+
+    Reads the same prompt and rewrites the same number of times the gated
+    arm did for this prompt, told only to rewrite -- no flags, no check
+    names, nothing about what to change.
+
+    This arm exists because reading the 2026-09-01 texts side by side
+    showed the gated runbook was plainly better than the ungated one, and
+    it had also been generated twice. A second pass improves writing on
+    its own. Without this control, a quality gain cannot be attributed to
+    the flags rather than to the rewrite, and "the gate helped" would
+    mean no more than "the model tried again".
+    """
+    messages = [{"role": "user", "content": prompt}]
+    text = generator(messages)
+    for _ in range(max(0, iterations - 1)):
+        messages = [{"role": "user", "content": prompt},
+                    {"role": "assistant", "content": text},
+                    {"role": "user", "content": BLIND_REVISION}]
+        text = generator(messages)
+    return {"text": text, "iterations": iterations, "passed": None}
+
+
 def run_arm_gated(generator, prompt, ruleset, enforced, max_iterations=4):
     messages = [{"role": "user", "content": prompt}]
     text = generator(messages)
@@ -146,6 +174,11 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
         control = run_arm_ungated(generator, prompt["text"])
         gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
                                max_iterations=max_iterations)
+        # Matched compute: the same number of generations the gated arm
+        # spent on THIS prompt, so the two differ only in whether the
+        # rewrite was told what to fix.
+        blind = run_arm_blind_revision(generator, prompt["text"],
+                                        gated["iterations"])
         rows.append({
             "id": prompt["id"],
             "prompt": prompt["text"],
@@ -154,6 +187,8 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
             "control": {**control, "scores": score(ruleset, control["text"],
                                                     enforced, held_out)},
             "gated": {**gated, "scores": score(ruleset, gated["text"],
+                                                enforced, held_out)},
+            "blind": {**blind, "scores": score(ruleset, blind["text"],
                                                 enforced, held_out)},
         })
     return {

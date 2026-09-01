@@ -177,9 +177,9 @@ class ReportTests(unittest.TestCase):
     def _result(self):
         ruleset = rulesets.get_ruleset("slopwatch")
         text = "The cache stores query results on disk."
-        # Three: ungated, control, gated. The control arm is not optional
-        # decoration -- see harness.run.
-        generator = ScriptedGenerator([text, text, text])
+        # Four arms: ungated, control, gated, blind. Neither the control
+        # nor the blind arm is optional decoration -- see harness.run.
+        generator = ScriptedGenerator([text] * 8)
         return harness.run(prompts.by_ids(["readme-section"]), ruleset,
                             generator, max_iterations=1)
 
@@ -210,7 +210,7 @@ class ControlArmTests(unittest.TestCase):
     def test_run_produces_a_control_arm_from_the_same_prompt(self):
         a = "The cache keeps results on disk for an hour."
         b = "Results live on local disk until they expire."
-        generator = ScriptedGenerator([a, b, a])
+        generator = ScriptedGenerator([a, b, a, a])
         result = harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
                               generator, max_iterations=1)
         row = result["rows"][0]
@@ -222,11 +222,12 @@ class ControlArmTests(unittest.TestCase):
 
     def test_report_prints_a_noise_floor_next_to_every_gate_delta(self):
         a = "The cache keeps results on disk for an hour."
-        generator = ScriptedGenerator([a, a, a])
+        generator = ScriptedGenerator([a] * 8)
         result = harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
                               generator, max_iterations=1)
         rendered = report.render(result)
         self.assertIn("noise floor", rendered)
+        self.assertIn("rewrite alone", rendered)
         self.assertIn("A gate delta smaller than that is not a finding",
                        rendered)
 
@@ -236,7 +237,7 @@ class ControlArmTests(unittest.TestCase):
         and the deltas were pure variance. The report must say so instead
         of printing a table that invites the misreading."""
         clean = "The cache keeps results on disk for an hour."
-        generator = ScriptedGenerator([clean, clean, clean])
+        generator = ScriptedGenerator([clean] * 8)
         result = harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
                               generator, max_iterations=3)
         rendered = report.render(result)
@@ -293,7 +294,7 @@ class ReportCountsTests(unittest.TestCase):
         ruleset = rulesets.get_ruleset("slopwatch")
         dirty = ("Needless to say, this is a seamless solution. "
                   "Studies show it is very fast.")
-        generator = ScriptedGenerator([dirty, dirty, dirty, dirty])
+        generator = ScriptedGenerator([dirty] * 10)
         result = harness.run(prompts.by_ids(["readme-section"]), ruleset,
                               generator, max_iterations=2)
         rendered = report.render(result)
@@ -303,13 +304,54 @@ class ReportCountsTests(unittest.TestCase):
     def test_report_labels_which_prompt_set_produced_the_numbers(self):
         ruleset = rulesets.get_ruleset("slopwatch")
         text = "The cache stores query results on disk."
-        generator = ScriptedGenerator([text, text, text])
+        generator = ScriptedGenerator([text] * 8)
         result = harness.run(prompts.by_ids(["launch-announcement"],
                                               prompt_set="padding"),
                               ruleset, generator, max_iterations=1)
         result["prompt_set"] = "padding"
         rendered = report.render(result)
         self.assertIn("not a base rate", rendered)
+
+
+class BlindRevisionArmTests(unittest.TestCase):
+    """Separates "the gate helped" from "the model tried again".
+
+    Reading the 2026-09-01 runbook texts side by side showed the gated
+    output was plainly better -- and it had also been generated twice. A
+    second pass improves writing on its own, so without a matched-compute
+    rewrite to compare against, a quality gain cannot be credited to the
+    flags.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+
+    def test_the_blind_revision_prompt_names_no_check_and_no_flag(self):
+        every_check = set(self.ruleset.list_checks())
+        for check_id in every_check:
+            self.assertNotIn(check_id, harness.BLIND_REVISION)
+        self.assertNotIn("flag", harness.BLIND_REVISION.lower())
+
+    def test_it_spends_the_same_generations_the_gated_arm_did(self):
+        text = "Needless to say, this is a seamless solution."
+        generator = ScriptedGenerator([text] * 5)
+        arm = harness.run_arm_blind_revision(generator, "write something", 3)
+        self.assertEqual(arm["iterations"], 3)
+        self.assertEqual(len(generator.seen), 3)
+
+    def test_one_iteration_means_no_rewrite_at_all(self):
+        text = "The cache stores query results on disk."
+        generator = ScriptedGenerator([text] * 3)
+        harness.run_arm_blind_revision(generator, "write something", 1)
+        self.assertEqual(len(generator.seen), 1)
+
+    def test_run_matches_the_blind_arm_to_the_gated_arms_own_count(self):
+        dirty = "Needless to say, this is a seamless and very robust tool."
+        generator = ScriptedGenerator([dirty] * 12)
+        result = harness.run(prompts.by_ids(["readme-section"]),
+                              self.ruleset, generator, max_iterations=3)
+        row = result["rows"][0]
+        self.assertEqual(row["blind"]["iterations"], row["gated"]["iterations"])
 
 
 if __name__ == "__main__":

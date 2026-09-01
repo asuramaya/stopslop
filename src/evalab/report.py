@@ -9,6 +9,16 @@ without the caveat that a six-prompt run settles nothing on its own.
 import statistics
 
 
+def _arms(rows):
+    """Arms present in this result, in reading order.
+
+    `blind` is absent from runs recorded before that arm existed, so a
+    saved result from an earlier run still renders.
+    """
+    order = ("ungated", "control", "blind", "gated")
+    return [a for a in order if rows and a in rows[0]]
+
+
 def _total(rows, arm, key):
     return sum(r[arm]["scores"][key] for r in rows)
 
@@ -77,7 +87,7 @@ def render(result):
     add("TOTAL FLAGS, whole corpus  (a percentage hides how few these are)")
     add("-" * 66)
     add(f"  {'arm':<10} {'words':>7} {'enforced':>10} {'held-out':>10}")
-    for arm in ("ungated", "control", "gated"):
+    for arm in _arms(rows):
         add(f"  {arm:<10} {_total(rows, arm, 'words'):7} "
             f"{_total(rows, arm, 'enforced_flags'):10} "
             f"{_total(rows, arm, 'held_out_flags'):10}")
@@ -99,6 +109,10 @@ def render(result):
         control = _mean(rows, "control", key)
         add(f"  {'  ^ noise floor':<26} {base:8.2f} -> {control:8.2f}   "
             f"{control - base:+7.2f}           (second ungated sample)")
+        if rows and "blind" in rows[0]:
+            blind = _mean(rows, "blind", key)
+            add(f"  {'  ^ rewrite alone':<26} {base:8.2f} -> {blind:8.2f}   "
+                f"{blind - base:+7.2f}           (same compute, no flags)")
         add("")
 
     iterations = statistics.fmean([r["gated"]["iterations"] for r in rows])
@@ -125,6 +139,12 @@ def render(result):
     add("  it. The control arm is a second ungated generation from the same")
     add("  prompt, so its delta is what this model varies by for no reason")
     add("  at all. A gate delta smaller than that is not a finding.")
+    add("")
+    add("  Compare the gate against REWRITE ALONE too. That arm spent the")
+    add("  same generations on the same prompt and was told only to")
+    add("  rewrite, never what was wrong. Whatever it gains is what a")
+    add("  second pass gains. Only the distance between the gated arm and")
+    add("  that one belongs to the flags.")
     add("")
     add("  Enforced flags falling proves nothing on its own. The gated arm")
     add("  rewrote until they fell, so that number only confirms the loop")
