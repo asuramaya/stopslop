@@ -1,6 +1,16 @@
 Third-party content notice
 ===========================
 
+What LICENSE covers, and what it does not
+------------------------------------------
+
+The MIT license in LICENSE covers the code this repository wrote:
+everything under src/, .claude/, and that file's siblings. It does NOT
+cover the extracted ASD-STE100 dictionary and rule text under docs/ and
+src/rulesets/ste100/dictionary.json, and it does not cover the vocabulary
+packs or the ported code that the sections below name. Each of those
+carries its own copyright and its own usage terms, stated here.
+
 This repository contains three kinds of third-party content: ASD-STE100
 material under its own restricted usage rights, a small amount of MIT-
 licensed code ported from other projects, and a set of optional,
@@ -158,18 +168,19 @@ own terms:
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
-3. Vocabulary pack sources (src/rulesets/ste100/glossary_packs/)
+3. Vocabulary pack sources (src/core/glossary_packs/)
 -------------------------------------------------------------------
 
-These packs are disabled by default -- see glossary_packs/__init__.py.
-Each is DATA (a list of headwords with a short provenance note this
-project wrote itself, never the source's own definition prose), built by
-its own re-runnable script (build_glossary_pack_*.py). None of this
-content is covered by this repository's own MIT license, the same
-treatment the ASD-STE100 dictionary itself already gets in section 1
-above -- these word lists carry their own license, not this repo's.
+These packs are disabled by default -- see core.config's
+enabled_glossary_packs. Each is DATA (a list of headwords with a short
+provenance note this project wrote itself, never the source's own
+definition prose), built by its own re-runnable script
+(src/rulesets/ste100/build_glossary_pack_*.py). None of this content is
+covered by this repository's own MIT license, the same treatment the
+ASD-STE100 dictionary itself already gets in section 1 above -- these
+word lists carry their own license, not this repo's.
 
-  - microsoft-style-guide (src/rulesets/ste100/glossary_packs/
+  - microsoft-style-guide (src/core/glossary_packs/
     microsoft_style_guide.json), from the Microsoft Writing Style Guide
     (https://github.com/MicrosoftDocs/microsoft-style-guide,
     styleguide/a-z-word-list-term-collections/), licensed CC BY 4.0
@@ -177,7 +188,7 @@ above -- these word lists carry their own license, not this repo's.
     extracted from the Microsoft Writing Style Guide, (c) Microsoft
     Corporation, licensed under CC BY 4.0.
 
-  - mdn-glossary (src/rulesets/ste100/glossary_packs/mdn_glossary.json),
+  - mdn-glossary (src/core/glossary_packs/mdn_glossary.json),
     from the MDN Web Docs Glossary (https://github.com/mdn/content,
     files/en-us/glossary/), licensed CC BY-SA 2.5
     (https://creativecommons.org/licenses/by-sa/2.5/). Attribution:
@@ -189,12 +200,17 @@ above -- these word lists carry their own license, not this repo's.
     must be marked as such, separately from this repository's own MIT
     code.
 
-  - nist-security (src/rulesets/ste100/glossary_packs/nist_security.json),
+  - nist-security (src/core/glossary_packs/nist_security.json),
     from the NIST Computer Security Resource Center Glossary
     (https://csrc.nist.gov/glossary), a work of the United States
     Government and in the public domain under 17 U.S.C. SS 105. No
     attribution is legally required; the source is credited here anyway
     for traceability.
+
+A project can also add its own packs, which land in that project's
+.claude/stopslop/custom_packs/ directory and never in this repository.
+Those files carry whatever license their own source carries; this notice
+speaks only for the three packs above, which this repository ships.
 
 4. Vendored frontend asset
 ----------------------------
