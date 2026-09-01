@@ -1,7 +1,11 @@
 {
-  "_comment": "Not activated automatically -- copy to stopslop.config.json at the repo root to use it. With no stopslop.config.json present, stopslop falls back to core/config.py's DEFAULT_RULES: ste100 on *.md/*.txt/*.rst, codewatch on *.py, slopwatch on the repo-root README.md, .claude/ out of scope entirely. This example adds a second slopwatch target (blog/*.md, checked before the general *.md rule) on top of that baseline.",
+  "_comment": "Not activated automatically -- copy to stopslop.config.json at the repo root to use it. With no stopslop.config.json present, stopslop falls back to core/config.py's DEFAULT_RULES: ste100 on *.md/*.txt/*.rst, codewatch on *.py, slopwatch on the repo-root README.md, .claude/ out of scope entirely. This example adds three things on top of that baseline: a second slopwatch target (blog/*.md, checked before the general *.md rule), a pack-fed docs/security/ rule, and slopwatch as the embedded-prose ruleset for every *.py file.",
 
   "_comment_packs": "A rule's optional \"packs\" object binds bulk vocabulary packs to the term lists they feed, for files matching that glob: {\"<list_id>\": [\"<pack_id>\", ...]}. Two things are deliberate. Packs attach to a PATH, not to a ruleset -- NIST security vocabulary belongs to docs/security/, not to every file ste100 happens to gate. And the RULE names which list each pack feeds, not the pack: a pack is a body of words from a source, so the same pack can feed different lists in different repos, feed two lists at once, or be read at the opposite polarity by a different ruleset. First match wins here exactly as it does for the ruleset, so one matched rule fully explains why a given word passed in a given file. Run `stopslop.py packs` for the available packs and `stopslop.py terms --ruleset ID` for the list ids.",
+
+  "_comment_embedded_prose": "A rule's optional \"embedded_prose\" key names a SECOND ruleset for the string literals and docstrings inside the files that glob matches: the host ruleset judges the whole file as usual, and the named prose ruleset judges only the text core/extract.py pulls out of it. Either one can deny the write. This is the one place two rulesets read the same file, and the only one -- the \"ruleset\" key itself stays first-match-wins, one ruleset per file. The *.py rule below shows it; see docs/embedded-prose.md.",
+
+  "_comment_check_keys": "Three more top-level keys exist, all of them written by the dashboard's Checks and Vocabulary pages rather than by hand, and all absent here because this example configures nothing that needs them. \"disabled_checks\": {\"<ruleset>\": [\"<check_id>\", ...]} turns individual checks off project-wide (a rule can also carry its own \"disable\" list for one glob only). \"check_config\": {\"<ruleset>\": {\"<check_id>\": {\"threshold\": N, \"action\": \"block\"|\"warn\"}}} retunes a single check. \"custom_term_lists\": {\"<ruleset>\": {\"<list_id>\": {\"label\", \"polarity\", \"accepts_additions\", \"accepts_packs\", \"content_kind\", \"feeds\"}}} declares a whole term list this project invented. Every one of them is empty by default, so an unconfigured clone runs each ruleset exactly as its own code defines it.",
 
   "_comment_terms": "The \"terms\" key holds the words this project registered itself, per ruleset and per term list: {\"<ruleset>\": {\"<list>\": {\"<term>\": {\"note\": \"why\"}}}}. An allow list (ste100's project_terms) says what to stop flagging; a deny list (slopwatch's marketing_cliche, codewatch's generic_naming) says what to start flagging. Run `stopslop.py terms --ruleset ID` to see them. Older configs used \"wordlists\" and \"glossary_packs\" keys; both migrate automatically on first read.",
 
@@ -12,7 +16,7 @@
     {"glob": "*.md", "ruleset": "ste100", "packs": {"project_terms": ["mdn-glossary"]}},
     {"glob": "*.txt", "ruleset": "ste100"},
     {"glob": "*.rst", "ruleset": "ste100"},
-    {"glob": "*.py", "ruleset": "codewatch"}
+    {"glob": "*.py", "ruleset": "codewatch", "embedded_prose": "slopwatch"}
   ],
 
   "terms": {

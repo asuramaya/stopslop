@@ -26,11 +26,13 @@ only to cut the retry rate: get closer to compliant on the first draft so the
 gate fires less.
 
 Scope: this skill primes the `ste100` ruleset only. stopslop's gate now runs
-more than one ruleset (see the README's "Rulesets" section) -- a second,
-much smaller demo ruleset, `slopwatch`, has no priming skill yet. Everything
-below applies only to a file that resolves to `ste100` under
-`stopslop.config.json` (or the built-in defaults: `.md`/`.txt`/`.rst`,
-excluding `.claude/`). Run `python3 stopslop.py list-rulesets` from the
+three built-in rulesets (see the README's "Rulesets" section): `ste100`,
+`slopwatch` for ordinary AI prose habits, and `codewatch` for the tells an
+agent leaves in Python source. Neither of the other two has a priming skill
+yet. Everything below applies only to a file that resolves to `ste100` under
+`stopslop.config.json` (or the built-in defaults: `.md`/`.txt`/`.rst`, with
+`codewatch` on `.py`, `slopwatch` on the repository's own root `README.md`,
+and `.claude/` out of scope). Run `python3 stopslop.py list-rulesets` from the
 repository root to see which ruleset a given path actually resolves to.
 
 Rule text below is verified against the real ASD-STE100 Issue 9 spec
