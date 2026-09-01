@@ -120,6 +120,26 @@ This is a prototype, not a finished product. Here is the honest gap list:
 
 See `docs/incidents/` for a real incident this project had with its own gate, and the fix that followed.
 
+## Does any of this work? (`src/evalab/`)
+
+For most of its life this project could not answer that. It had elaborate machinery for expressing rules and nothing for telling whether a rule helps. `src/evalab/` is the instrument that answers it, and it was built to be able to return the answer nobody wants.
+
+The experiment runs each of a fixed set of writing prompts three times. The **ungated** arm generates once. The **gated** arm generates, lints against a subset of the checks, feeds the flags back as a revision request, and repeats until the text passes or a budget runs out, which is the loop a real session runs against the live hook. The **control** arm generates once more, ungated, and exists because two independent generations differ for no reason but sampling. The control delta is the run's noise floor, and a gate delta smaller than it is not a finding.
+
+Two things make the result hard to talk out of:
+
+- **Held-out checks.** Only some checks are enforced during the loop. The gated arm is never shown a flag from the rest, in the first prompt or in any revision. Enforced flags falling proves nothing, since the loop rewrote until they did. Held-out flags falling is the only evidence that anything transferred, and held-out flags sitting still while enforced flags collapse is what Goodhart's law looks like in a table.
+- **Shape metrics no check rewards.** Sentence-length standard deviation measures a flattened register directly: prose that moves between a four-word sentence and a thirty-word one has a high one, and clipped three-beat declaratives all the way down have a low one. No check in this project touches that number, so nothing can be tuned to it.
+
+```
+python3 src/evalab/run.py --live --out evalab-runs/$(date +%F)      # costs tokens
+python3 src/evalab/run.py --replay evalab-runs/<date>/recordings     # free, re-scores a saved run
+```
+
+`--live` shells out to `claude -p` and records every call, so a run replays for free afterwards. A run writes `result.json`, `report.txt`, and both arms' full text under `texts/` for reading side by side, because no metric here settles whether prose is better and the saved texts are the actual evidence.
+
+Results are not summarized in this README on purpose. A run belongs to one model on one day, and a number copied out of a report and into a pitch is how an evaluation turns into a demo. Run it, and read `report.txt`.
+
 ## Documentation
 
 - [How to contribute](CONTRIBUTING.md) -- how to run the tests, and the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
