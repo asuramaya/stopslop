@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""One-time (re-runnable) build step: parses the verified extraction at
-docs/ASD-STE100-dictionary-extracted.dat into rulesets/ste100/dictionary.json,
+"""One-time (re-runnable) build step: parses the verified extraction (see
+DAT_PATH below, under docs/incidents/) into rulesets/ste100/dictionary.json,
 the structure lint.py actually loads at import time.
 
 Verification note (2026-08-01): before this script was trusted to produce
@@ -123,7 +123,10 @@ def main():
         "meta": {
             "source": "ASD-STE100 Issue 9 (2025-01-15), Part 2 - Dictionary, "
                        "PDF pages 149-434 (2-1-A1 to 2-1-Y1), full A-to-Z coverage",
-            "extracted_from": "docs/ASD-STE100-dictionary-extracted.dat",
+            # Derived from DAT_PATH, never a second hardcoded literal: the
+            # two drifted apart once already, and a provenance field naming
+            # a file nobody can open is worse than no field at all.
+            "extracted_from": os.path.relpath(DAT_PATH, REPO_ROOT),
             "extracted_dat_sha256": dat_hash,
             "verified": "2026-08-01: structural checks (line counts vs. header "
                          "claim, malformed-line count, duplicate word+POS count) "

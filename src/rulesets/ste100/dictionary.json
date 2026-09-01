@@ -1,7 +1,7 @@
 {
   "meta": {
     "source": "ASD-STE100 Issue 9 (2025-01-15), Part 2 - Dictionary, PDF pages 149-434 (2-1-A1 to 2-1-Y1), full A-to-Z coverage",
-    "extracted_from": "docs/ASD-STE100-dictionary-extracted.dat",
+    "extracted_from": "docs/incidents/2026-08-01-ste100-dictionary-extraction-gate-bypass.dat",
     "extracted_dat_sha256": "561761ed1936c2fe106492ac0ebcd3b62cdc04f662d47ddb495dec13186a9629",
     "verified": "2026-08-01: structural checks (line counts vs. header claim, malformed-line count, duplicate word+POS count) all clean; 3 independent spot-checks against the source PDF (pages 149-150, 290-291, 433-434; ~30 entries spanning A, I/J, Y) all exact matches",
     "approved_count": 805,
