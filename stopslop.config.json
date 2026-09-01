@@ -298,45 +298,27 @@
       "ruleset": null
     },
     {
-      "glob": "README.md",
-      "ruleset": "slopwatch"
-    },
-    {
-      "glob": "SECURITY.md",
-      "ruleset": "slopwatch"
+      "glob": "CONTRIBUTING.md",
+      "ruleset": "ste100",
+      "packs": {
+        "project_terms": [
+          "mdn-glossary",
+          "microsoft-style-guide",
+          "nist-security"
+        ]
+      }
     },
     {
       "glob": "*.md",
-      "ruleset": "ste100",
-      "packs": {
-        "project_terms": [
-          "mdn-glossary",
-          "microsoft-style-guide",
-          "nist-security"
-        ]
-      }
+      "ruleset": "slopwatch"
     },
     {
       "glob": "*.txt",
-      "ruleset": "ste100",
-      "packs": {
-        "project_terms": [
-          "mdn-glossary",
-          "microsoft-style-guide",
-          "nist-security"
-        ]
-      }
+      "ruleset": "slopwatch"
     },
     {
       "glob": "*.rst",
-      "ruleset": "ste100",
-      "packs": {
-        "project_terms": [
-          "mdn-glossary",
-          "microsoft-style-guide",
-          "nist-security"
-        ]
-      }
+      "ruleset": "slopwatch"
     },
     {
       "glob": "src/rulesets/*",

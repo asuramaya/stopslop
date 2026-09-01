@@ -32,6 +32,19 @@ class PretoolHookSubprocessTests(unittest.TestCase):
         # find_project_root() walks up from pretool_hook.py looking for a
         # file named exactly this -- an empty file satisfies it.
         open(os.path.join(cls.tmp, "stopslop.py"), "w").close()
+        # Route this throwaway project's own *.md to ste100 EXPLICITLY.
+        # These cases exercise ste100's rules (semicolon auto-fix,
+        # "should"-modal denial) through the real hook, so they must not
+        # ride on whatever DEFAULT_RULES happens to say -- prose defaults
+        # to slopwatch now, and that reversal silently emptied these
+        # assertions until this config was added.
+        with open(os.path.join(cls.tmp, "stopslop.config.json"), "w") as f:
+            json.dump({"rulesets": [
+                {"glob": ".claude/*", "ruleset": None},
+                {"glob": "README.md", "ruleset": "slopwatch"},
+                {"glob": "*.md", "ruleset": "ste100"},
+                {"glob": "*.py", "ruleset": "codewatch"},
+            ]}, f)
         cls.hook_path = os.path.join(cls.tmp, "src", "pretool_hook.py")
 
     @classmethod
@@ -48,11 +61,10 @@ class PretoolHookSubprocessTests(unittest.TestCase):
     def _target(self, name):
         return os.path.join(self.tmp, name)
 
-    # These target notes.md, not README.md -- the repo-root README.md is a
-    # real slopwatch default now (see the dedicated ste100-vs-slopwatch
-    # tests below), and these are specifically exercising STE100's own
-    # rules (semicolon auto-fix, "should"-modal denial), independent of
-    # that routing decision.
+    # These target notes.md, which setUpClass routes to ste100 by explicit
+    # config: they exercise ste100's own rules (semicolon auto-fix,
+    # "should"-modal denial) end to end through the real hook, and say
+    # nothing about which ruleset a project gets by default.
     def test_clean_write_passes_silently(self):
         proc = self._run("Write", {"file_path": self._target("notes.md"),
                                     "content": "The system starts the service."})
@@ -94,18 +106,25 @@ class PretoolHookSubprocessTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
         self.assertEqual(proc.stdout.strip(), "")
 
-    def test_root_readme_write_routes_to_slopwatch_by_default(self):
-        # Live regression coverage for the new default: the repo-root
-        # README.md now resolves to slopwatch, not ste100. Uses an em-dash
-        # cluster (4, past slopwatch's own em_dash_threshold of 3) since
-        # that check always blocks alone -- a single weasel/filler-style
-        # flag would not, under slopwatch's count-4 policy, so it wouldn't
-        # actually prove routing changed the live gate's real decision.
-        proc = self._run("Write", {"file_path": self._target("README.md"),
-                                    "content": "The system works — quickly — reliably — safely — always."})
-        decision = json.loads(proc.stdout)["hookSpecificOutput"]
+    def test_routing_decides_which_ruleset_judges_the_same_text(self):
+        """One string, two paths, two verdicts. Only the routing rule
+        differs, so this is what proves routing reaches the live gate's
+        real decision and not just a report.
+
+        It used to prove that with an em-dash cluster, because
+        em_dash_cluster was the one slopwatch check that denied on its
+        own. slopwatch blocks nothing now (see its CHECKS_TABLE for why),
+        so the proof runs the other way round: "should" is an ste100
+        modal denial and is nothing slopwatch looks at."""
+        content = "The system should start the service."
+        denied = self._run("Write", {"file_path": self._target("notes.md"),
+                                      "content": content})
+        allowed = self._run("Write", {"file_path": self._target("README.md"),
+                                       "content": content})
+        decision = json.loads(denied.stdout)["hookSpecificOutput"]
         self.assertEqual(decision["permissionDecision"], "deny")
-        self.assertIn("em_dash_cluster", decision["permissionDecisionReason"])
+        self.assertIn("should", decision["permissionDecisionReason"])
+        self.assertEqual(allowed.stdout.strip(), "")
 
     def test_py_write_routes_to_codewatch_by_default(self):
         # Live regression coverage for the new default: .py now resolves to

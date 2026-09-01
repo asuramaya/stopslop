@@ -16,13 +16,30 @@ change behavior for a clone with no config file, just because it got
 registered). codewatch and slopwatch have since been validated against
 this project's own real files (stopslop.py scan, not synthetic fixtures --
 see docs/ for both rulesets' own false-positive fixes found that way), so
-this is now a deliberate, tested widening of the baseline default, not a
-drift: `*.py` routes to codewatch (this project's own primary language),
-and the repo-root `README.md` -- prose meant to read like a person wrote
-it, exactly the AI-polish target slopwatch protects against -- routes to
-slopwatch. ste100 keeps every other `.md`/`.txt`/`.rst` file, unchanged;
-`README.md` matches before the general `*.md` rule since first-match-wins
-checks rules in order, top to bottom.
+the baseline default is now a deliberate, tested choice rather than that
+original invariant.
+
+That choice REVERSED once, and the reason matters more than the rules do.
+ste100 used to hold every `.md`/`.txt`/`.rst` file, with the repo-root
+`README.md` carved out to slopwatch as prose "meant to read like a person
+wrote it". That carve-out states the right principle and then applies it
+to exactly one file. ASD-STE100 is a controlled language for maintenance
+procedures, where one reading of a sentence has to be the only reading,
+and it buys that with a deliberate monotone: short declaratives, one
+tense, roughly 875 approved words. That is correct for a procedure a
+technician follows at 3am. It is a category error for a README, a design
+note, or a security policy, and the monotone it enforces is close kin to
+the flat generated register this project exists to catch. The tool proved
+this on itself: ste100 called 23 sentences of SECURITY.md blocking
+failures over the words "blocking", "warning" and "reading", none of which
+that document can avoid.
+
+So prose defaults to slopwatch, which asks "does this read like filler",
+a question worth asking of any `.md`. ste100 is opt-in, for the text it
+was built for -- add a rule naming your procedures, e.g.
+{"glob": "docs/runbooks/*.md", "ruleset": "ste100"}, ABOVE the general
+`*.md` rule, since first-match-wins checks rules in order, top to bottom.
+`*.py` routes to codewatch, this project's own primary language.
 
 This module has no dependency on `rulesets` (the registry) -- it only ever
 resolves a path to a bare ruleset id string via `resolve_ruleset_id`, or to a
@@ -46,10 +63,9 @@ SYNTHETIC_TEXT_NAME = "__stdin__.md"
 
 DEFAULT_RULES = [
     {"glob": ".claude/*", "ruleset": None},
-    {"glob": "README.md", "ruleset": "slopwatch"},
-    {"glob": "*.md", "ruleset": "ste100"},
-    {"glob": "*.txt", "ruleset": "ste100"},
-    {"glob": "*.rst", "ruleset": "ste100"},
+    {"glob": "*.md", "ruleset": "slopwatch"},
+    {"glob": "*.txt", "ruleset": "slopwatch"},
+    {"glob": "*.rst", "ruleset": "slopwatch"},
     {"glob": "*.py", "ruleset": "codewatch"},
 ]
 

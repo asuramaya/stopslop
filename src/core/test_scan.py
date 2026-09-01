@@ -147,22 +147,21 @@ class ScanTreeConfigDrivenTests(unittest.TestCase):
         return full
 
     def test_default_rules_only_scans_md_txt_rst(self):
-        # Not README.md here -- that's routed to slopwatch by default now
-        # (see the dedicated test below); this one only checks the
-        # generic *.md/*.txt/*.rst -> ste100 / everything-else-out-of-
-        # scope shape, so this file's own registry only needs to know
-        # "ste100".
+        # Only the "which extensions are in scope at all" shape: prose in,
+        # everything else out. Which ruleset prose routes to is the next
+        # test's job.
         self._write("guide.md", "BADWORD")
         self._write("data.json", "BADWORD")
         self._write("notes.txt", "BADWORD")
-        report = scan.scan_tree([self.root], self.root, self.registry,
+        registry = _FakeRegistry(_fake_ruleset("slopwatch"))
+        report = scan.scan_tree([self.root], self.root, registry,
                                  config_file="/nonexistent/stopslop.config.json")
         self.assertEqual(report["scanned"], 2)
         self.assertEqual(report["skipped_out_of_scope"], 1)
         scanned_names = {os.path.basename(r["path"]) for r in report["results"]}
         self.assertEqual(scanned_names, {"guide.md", "notes.txt"})
 
-    def test_default_rules_route_root_readme_to_slopwatch_and_py_to_codewatch(self):
+    def test_default_rules_route_prose_to_slopwatch_and_py_to_codewatch(self):
         registry = _FakeRegistry(_fake_ruleset("ste100"), _fake_ruleset("slopwatch"),
                                   _fake_ruleset("codewatch"))
         self._write("README.md", "BADWORD")
@@ -176,7 +175,10 @@ class ScanTreeConfigDrivenTests(unittest.TestCase):
         by_relpath = {os.path.relpath(r["path"], self.root): r["ruleset"] for r in report["results"]}
         self.assertEqual(by_relpath["README.md"], "slopwatch")
         self.assertEqual(by_relpath["script.py"], "codewatch")
-        self.assertEqual(by_relpath[os.path.join("docs", "README.md")], "ste100")
+        # A nested README is prose like any other .md -- there is no longer
+        # a special case for depth, because there is no longer a second
+        # prose ruleset for it to fall through to.
+        self.assertEqual(by_relpath[os.path.join("docs", "README.md")], "slopwatch")
 
     def test_claude_dir_counts_as_out_of_scope_not_invisible(self):
         self._write(os.path.join(".claude", "notes.md"), "BADWORD")

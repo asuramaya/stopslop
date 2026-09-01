@@ -672,11 +672,23 @@ CHECKS_TABLE = {
         id="binary_contrast", unit=_checks.Unit.SENTENCES, fn=check_binary_contrast,
         catches="The \"it's not X, it's Y\" construction",
         instead="just state Y"),
+    # Warns, and every other check in this ruleset warns with it. That is
+    # the rule for slopwatch, not an exception for this check: everything
+    # here detects a TELL, a surface correlate of empty writing, never
+    # emptiness itself. Text that avoids all 22 constructions and says
+    # nothing still passes. Blocking on a correlate hands a model a tight
+    # loop to iterate against until the checker goes quiet, which selects
+    # for text that is equally vacuous and clean -- the proxy gets
+    # optimized, the writing does not improve. A warning carries the same
+    # information to a person who can judge it, without the loop.
+    # codewatch's swallowed_exception blocks precisely because a bare
+    # except-then-pass is a DEFECT rather than a tell: it is wrong on its
+    # own terms, whatever the surrounding prose reads like.
     "em_dash_cluster": _checks.Check(
         id="em_dash_cluster", unit=_checks.Unit.DOCUMENT, fn=check_em_dash_cluster,
         catches="Em dashes clustering in one document",
         instead="most drafts need 0-2; use commas, periods or parentheses for the rest",
-        default_threshold=4, default_action="block", dedup=False),
+        default_threshold=4, default_action="warn", dedup=False),
     "weasel_attribution": _checks.Check(
         id="weasel_attribution", unit=_checks.Unit.SENTENCE, fn=check_weasel_attribution,
         catches="Unnamed authority: \"studies show\", \"experts agree\"",

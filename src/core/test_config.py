@@ -1253,18 +1253,21 @@ class StrayTopLevelKeysTests(unittest.TestCase):
 
 class ResolveRulesetIdDefaultRulesTests(unittest.TestCase):
     """resolve_ruleset_id() against DEFAULT_RULES (no config file) --
-    codewatch (*.py) and slopwatch (the repo-root README.md) are now real,
-    deliberate defaults (see DEFAULT_RULES's own docstring for why), not
-    just the original ste100-only truth table; this suite pins the current
-    intentional shape so a *future* change is still a deliberate, reviewed
-    edit here rather than silent drift."""
+    slopwatch (prose) and codewatch (*.py) are the deliberate defaults,
+    and ste100 reaches no file without a project saying so -- see
+    DEFAULT_RULES's own docstring for why that reversed. This suite pins
+    the current intentional shape so a *future* change is still a
+    deliberate, reviewed edit here rather than silent drift."""
 
     CASES = [
-        (PROJECT_ROOT + "/README.md", "slopwatch"),      # repo-root README only
-        (PROJECT_ROOT + "/docs/README.md", "ste100"),     # a nested README isn't "the" README
-        (PROJECT_ROOT + "/notes.txt", "ste100"),
-        (PROJECT_ROOT + "/notes.rst", "ste100"),
-        (PROJECT_ROOT + "/docs/sub/dir/file.md", "ste100"),
+        # Prose defaults to slopwatch everywhere now, at every depth. ste100
+        # is opt-in, for procedural text a project routes to it by name --
+        # nothing below resolves to it, and that is the point of this table.
+        (PROJECT_ROOT + "/README.md", "slopwatch"),
+        (PROJECT_ROOT + "/docs/README.md", "slopwatch"),
+        (PROJECT_ROOT + "/notes.txt", "slopwatch"),
+        (PROJECT_ROOT + "/notes.rst", "slopwatch"),
+        (PROJECT_ROOT + "/docs/sub/dir/file.md", "slopwatch"),
         (PROJECT_ROOT + "/script.py", "codewatch"),
         (PROJECT_ROOT + "/src/pkg/module.py", "codewatch"),
         (PROJECT_ROOT + "/data.json", None),
@@ -1295,14 +1298,15 @@ class ResolveRulesetIdDefaultRulesTests(unittest.TestCase):
 class ResolveRulesetTests(unittest.TestCase):
     def test_resolves_to_registered_module(self):
         registry = types.SimpleNamespace(
-            get_ruleset=lambda rid: _fake_ruleset(rid) if rid == "ste100" else (_ for _ in ()).throw(
+            get_ruleset=lambda rid: _fake_ruleset(rid) if rid == "slopwatch" else (_ for _ in ()).throw(
                 rulesets.UnknownRulesetError(rid)),
             UnknownRulesetError=rulesets.UnknownRulesetError,
         )
-        # Not README.md -- that's the repo-root slopwatch default now; this
-        # test only cares about generic *.md -> ste100 resolution.
+        # What this pins is that a resolved id reaches the registry and
+        # comes back as a module. The id itself is whatever DEFAULT_RULES
+        # says today, which for prose is slopwatch.
         mod = config.resolve_ruleset(PROJECT_ROOT + "/notes.md", PROJECT_ROOT, registry)
-        self.assertEqual(mod.RULESET_ID, "ste100")
+        self.assertEqual(mod.RULESET_ID, "slopwatch")
 
     def test_out_of_scope_path_returns_none_without_touching_registry(self):
         registry = types.SimpleNamespace(

@@ -2,12 +2,14 @@
 name: ste100
 version: 0.1.0
 description: |
-  Write or rewrite technical text (docs, READMEs, runbooks, error messages,
-  release notes, incident reports) so it passes stopslop's ASD-STE100 gate on
-  the first attempt. Use for documentation, error messages, and any text
-  destined for a .md/.txt/.rst file in this project. Triggers: "STE100",
-  "de-slop", "write docs", "runbook", "error message", "incident report",
-  "release notes", "write clearly".
+  Write or rewrite PROCEDURAL text (runbooks, installation and operating
+  instructions, safety notes, error messages) so it passes stopslop's
+  ASD-STE100 gate on the first attempt. Use ONLY for a file the project
+  routes to the ste100 ruleset -- run `stopslop.py list-rulesets` if you are
+  unsure, since ste100 is opt-in and most prose routes to slopwatch instead.
+  Do not use for a README, a design note, or any prose meant to read like a
+  person wrote it. Triggers: "STE100", "runbook", "procedure", "operating
+  instructions", "safety notice", "error message".
 license: MIT
 compatibility: claude-code
 metadata:
@@ -29,10 +31,17 @@ Scope: this skill primes the `ste100` ruleset only. stopslop's gate now runs
 three built-in rulesets (see the README's "Rulesets" section): `ste100`,
 `slopwatch` for ordinary AI prose habits, and `codewatch` for the tells an
 agent leaves in Python source. Neither of the other two has a priming skill
-yet. Everything below applies only to a file that resolves to `ste100` under
-`stopslop.config.json` (or the built-in defaults: `.md`/`.txt`/`.rst`, with
-`codewatch` on `.py`, `slopwatch` on the repository's own root `README.md`,
-and `.claude/` out of scope). Run `python3 stopslop.py list-rulesets` from the
+yet.
+
+Everything below applies ONLY to a file a project explicitly routes to
+`ste100` in `stopslop.config.json`. That is a narrower set than it used to
+be. `ste100` is no longer any file's default: prose defaults to `slopwatch`,
+`.py` to `codewatch`, and `.claude/` stays out of scope. ASD-STE100 is a
+controlled language for PROCEDURES, so a project opts into it for runbooks
+and instructions, not for a README or a design note -- the monotone it
+enforces is wrong for those, and close kin to the flat register this project
+exists to catch. If the file you are about to write is not routed to
+`ste100`, none of the rules below govern it. Run `python3 stopslop.py list-rulesets` from the
 repository root to see which ruleset a given path actually resolves to.
 
 Rule text below is verified against the real ASD-STE100 Issue 9 spec

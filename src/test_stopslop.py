@@ -43,11 +43,11 @@ class ResolveTests(unittest.TestCase):
         self.assertEqual(ruleset.RULESET_ID, "slopwatch")
 
     def test_no_explicit_ruleset_resolves_via_config(self):
-        # Not README.md -- that's a real slopwatch default now (see
-        # test_root_readme_resolves_to_slopwatch below); this checks
-        # generic *.md -> ste100 resolution.
+        # Prose routes to slopwatch, at the root and at any depth. ste100
+        # is opt-in for procedural text now -- in this repo that is
+        # CONTRIBUTING.md and nothing else.
         ruleset = stopslop._resolve(None, stopslop.REPO_ROOT + "/notes.md")
-        self.assertEqual(ruleset.RULESET_ID, "ste100")
+        self.assertEqual(ruleset.RULESET_ID, "slopwatch")
 
     def test_root_readme_resolves_to_slopwatch_by_default(self):
         # Asserted against the built-in DEFAULT_RULES, not the live
@@ -66,7 +66,7 @@ class ResolveTests(unittest.TestCase):
 
     def test_synthetic_stdin_path_resolves_like_a_real_md_file(self):
         ruleset = stopslop._resolve(None, stopslop._SYNTHETIC_STDIN_PATH)
-        self.assertEqual(ruleset.RULESET_ID, "ste100")
+        self.assertEqual(ruleset.RULESET_ID, "slopwatch")
 
     def test_unresolvable_path_exits_with_message(self):
         # Not .py -- that's a real codewatch default now; .json still has
@@ -589,13 +589,13 @@ class CmdChecksTests(unittest.TestCase):
     def test_listing_shows_each_checks_own_unit(self):
         with redirect_stdout(io.StringIO()) as out:
             stopslop.cmd_checks(_checks_args())
-        self.assertIn("(unit=document, threshold=4, action=block)", out.getvalue())  # em_dash_cluster
+        self.assertIn("(unit=document, threshold=4, action=warn)", out.getvalue())  # em_dash_cluster
 
     def test_listing_shows_threshold_and_action_for_check_config_rulesets(self):
         with redirect_stdout(io.StringIO()) as out:
             stopslop.cmd_checks(_checks_args())
         text = out.getvalue()
-        self.assertIn("threshold=4, action=block", text)  # em_dash_cluster's default
+        self.assertIn("threshold=4, action=warn", text)  # em_dash_cluster's default
 
     def test_enable_disables_every_other_check(self):
         with redirect_stdout(io.StringIO()) as out:

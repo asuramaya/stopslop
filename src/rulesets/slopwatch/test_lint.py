@@ -377,10 +377,16 @@ class BlockingFlagsTests(unittest.TestCase):
         self.assertGreaterEqual(len(r["semantic_flags"]), 4)
         self.assertEqual(lint.blocking_semantic_flags(r["semantic_flags"]), [])
 
-    def test_em_dash_cluster_alone_blocks(self):
+    def test_em_dash_cluster_is_reported_but_never_blocks_on_its_own(self):
+        """slopwatch blocks nothing by default, and this check is why the
+        rule is worth pinning: it used to be the one exception. Every check
+        here detects a TELL, a surface correlate of empty writing. Text
+        that dodges all of them and says nothing still passes, so blocking
+        on one only teaches a writer to iterate until the checker goes
+        quiet. The flag still fires -- a person reads it and judges."""
         r = lint.lint_and_gate("one — two — three — four — five plain sentence here.")
-        blocking = lint.blocking_semantic_flags(r["semantic_flags"])
-        self.assertTrue(any(f["kind"] == "em_dash_cluster" for f in blocking))
+        self.assertTrue(any(f["kind"] == "em_dash_cluster" for f in r["semantic_flags"]))
+        self.assertEqual(lint.blocking_semantic_flags(r["semantic_flags"]), [])
 
 
 class LintAndGateIntegrationTests(unittest.TestCase):
@@ -463,8 +469,8 @@ class CheckToggleAndOptionsTests(unittest.TestCase):
     def test_default_check_config_before_any_override(self):
         cfg = slopwatch.list_check_config()
         self.assertEqual(cfg["em_dash_cluster"],
-                          {"threshold": 4, "action": "block",
-                           "default_threshold": 4, "default_action": "block"})
+                          {"threshold": 4, "action": "warn",
+                           "default_threshold": 4, "default_action": "warn"})
         self.assertEqual(cfg["vague_intensifier"],
                           {"threshold": 1, "action": "warn",
                            "default_threshold": 1, "default_action": "warn"})
@@ -480,7 +486,9 @@ class CheckToggleAndOptionsTests(unittest.TestCase):
         flags = [{"kind": "em_dash_cluster", "label": None,
                   "detail": {"occurrences": 2}, "text": None}]
         self.assertEqual(lint.blocking_semantic_flags(flags), [])  # 2 < default threshold 4
-        slopwatch.set_check_config("em_dash_cluster", threshold=2)
+        # action too: this check warns by default now, so a threshold
+        # change alone can never make it block.
+        slopwatch.set_check_config("em_dash_cluster", threshold=2, action="block")
         self.assertEqual(len(lint.blocking_semantic_flags(flags)), 1)
 
     def test_unknown_check_id_in_set_check_config_raises_and_does_not_write(self):
