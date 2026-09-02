@@ -271,3 +271,73 @@ class CheckActivityTests(unittest.TestCase):
         self.assertEqual(summary["words"], 0)
         for entry in summary["activity"].values():
             self.assertEqual(entry["per_1k"], 0.0)
+
+
+class CompareActivityTests(unittest.TestCase):
+    """Whether a check detects a machine, or only a style.
+
+    A check that fires equally on human prose is not a tell. Enforcing it
+    moves writing AWAY from the human distribution rather than toward it,
+    which is the opposite of what the gate is for. Measured against 32565
+    words of CPython stdlib docstrings and package documentation,
+    colon_reveal -- the second highest-firing check in slopwatch and one
+    the harness ENFORCES -- scored 2.84 per 1000 words on generated text
+    and 2.76 on human text.
+    """
+
+    def _corpus(self, rates, words=1000):
+        return {"activity": {k: {"per_1k": v, "hits": 1, "files": 1}
+                              for k, v in rates.items()},
+                 "words": words, "documents": 1, "total_hits": len(rates)}
+
+    def test_a_check_firing_far_more_on_the_measured_text_discriminates(self):
+        rows = scan.compare_activity(self._corpus({"a": 3.0}),
+                                      self._corpus({"a": 0.1}))
+        self.assertEqual(rows["a"]["verdict"], "discriminates")
+
+    def test_a_check_firing_equally_on_both_has_no_signal(self):
+        rows = scan.compare_activity(self._corpus({"a": 2.84}),
+                                      self._corpus({"a": 2.76}))
+        self.assertEqual(rows["a"]["verdict"], "no signal")
+
+    def test_a_check_firing_more_on_the_control_is_backwards(self):
+        """identifier_in_prose scored 0.00 on generated text and 7.19 on
+        human documentation. A check like that penalises the target."""
+        rows = scan.compare_activity(self._corpus({"a": 0.0}),
+                                      self._corpus({"a": 7.19}))
+        self.assertEqual(rows["a"]["verdict"], "backwards")
+
+    def test_a_check_firing_on_neither_is_silent_not_discriminating(self):
+        """Zero against zero is no evidence at all. Calling it a
+        discriminator would promote every dead check to a good one."""
+        rows = scan.compare_activity(self._corpus({"a": 0.0}),
+                                      self._corpus({"a": 0.0}))
+        self.assertEqual(rows["a"]["verdict"], "silent")
+        self.assertIsNone(rows["a"]["ratio"])
+
+    def test_never_firing_on_the_control_does_not_divide_by_zero(self):
+        rows = scan.compare_activity(self._corpus({"a": 3.08}),
+                                      self._corpus({"a": 0.0}))
+        self.assertEqual(rows["a"]["verdict"], "discriminates")
+        self.assertIsNone(rows["a"]["ratio"])
+
+    def test_a_check_absent_from_the_control_is_still_reported(self):
+        rows = scan.compare_activity(self._corpus({"a": 1.0}),
+                                      self._corpus({}))
+        self.assertIn("a", rows)
+        self.assertEqual(rows["a"]["control_per_1k"], 0.0)
+
+    def test_the_real_ruleset_is_measurable_end_to_end(self):
+        ruleset = rulesets.get_ruleset("slopwatch")
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        with open(os.path.join(directory, "a.md"), "w") as f:
+            f.write("**Bold** everywhere. **More** bold. **Still** bold.\n")
+        report = scan.scan_tree([directory], REPO_ROOT, rulesets,
+                                 ruleset_id="slopwatch")
+        activity = scan.check_activity(report, ruleset)
+        rows = scan.compare_activity(activity, activity)
+        self.assertEqual(set(rows), set(ruleset.list_checks()))
+        for row in rows.values():
+            self.assertIn(row["verdict"], {"discriminates", "no signal",
+                                            "backwards", "silent"})

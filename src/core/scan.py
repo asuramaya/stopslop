@@ -148,3 +148,46 @@ def check_activity(report, ruleset):
     return {"activity": activity, "words": words, "total_hits": total_hits,
              "documents": sum(1 for r in report["results"]
                                if r["ruleset"] == ruleset.RULESET_ID)}
+
+
+# A check earns the word "tell" by firing more on generated prose than on
+# human prose. These bounds split that into four honest verdicts.
+DISCRIMINATES_AT = 2.0
+BACKWARDS_AT = 0.5
+
+
+def compare_activity(measured, control):
+    """Per-check discrimination between two corpora.
+
+    `check_activity` answers "does this check ever fire". This answers
+    the question that decides whether a check is a TELL at all: does it
+    fire more on the text you are trying to catch than on the text you
+    are trying to sound like?
+
+    A check that fires equally on both is not detecting a machine. It is
+    encoding a style preference, and enforcing it moves prose away from
+    the human distribution rather than toward it. A check that fires MORE
+    on the control is worse than useless: it actively penalises the thing
+    the writer is aiming at.
+
+    Verdicts: "discriminates", "no signal", "backwards", "silent".
+    """
+    rows = {}
+    for check_id, entry in measured["activity"].items():
+        gen = entry["per_1k"]
+        hum = control["activity"].get(check_id, {}).get("per_1k", 0.0)
+        if not gen and not hum:
+            verdict, ratio = "silent", None
+        elif not hum:
+            verdict, ratio = "discriminates", None
+        else:
+            ratio = gen / hum
+            if ratio >= DISCRIMINATES_AT:
+                verdict = "discriminates"
+            elif ratio <= BACKWARDS_AT:
+                verdict = "backwards"
+            else:
+                verdict = "no signal"
+        rows[check_id] = {"per_1k": gen, "control_per_1k": hum,
+                           "ratio": ratio, "verdict": verdict}
+    return rows

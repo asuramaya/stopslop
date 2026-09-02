@@ -833,6 +833,63 @@ def cmd_list_rulesets(args):
     return 0
 
 
+_VERDICT_ORDER = {"discriminates": 0, "no signal": 1, "backwards": 2, "silent": 3}
+
+
+def _print_discrimination(ruleset, summary, comparison):
+    """A check earns the word "tell" only by firing more on generated
+    prose than on human prose. Everything else is a style preference
+    wearing a detector's clothes."""
+    rows = comparison["rows"]
+    control = comparison["control"]
+    print(f"{ruleset.RULESET_ID}: {summary['documents']} measured documents "
+          f"({summary['words']} words) against {control['documents']} control "
+          f"documents ({control['words']} words)")
+    print()
+    print(f"  {'check':<26} {'measured/1k':>11} {'control/1k':>10} "
+          f"{'ratio':>7}  verdict")
+    ranked = sorted(rows.items(),
+                     key=lambda kv: (_VERDICT_ORDER[kv[1]["verdict"]],
+                                      -(kv[1]["ratio"] or 9e9),
+                                      kv[0]))
+    for check_id, row in ranked:
+        if row["verdict"] == "silent":
+            continue
+        ratio = "  --" if row["ratio"] is None else f"{row['ratio']:.1f}x"
+        print(f"  {check_id:<26} {row['per_1k']:11.2f} "
+              f"{row['control_per_1k']:10.2f} {ratio:>7}  {row['verdict']}")
+
+    buckets = {}
+    for check_id, row in rows.items():
+        buckets.setdefault(row["verdict"], []).append(check_id)
+    print()
+    for verdict, note in (
+            ("no signal",
+             "fires about as often on the control as on the measured text. "
+             "Not a tell -- a style preference. Enforcing it moves prose "
+             "AWAY from the control distribution, not toward it."),
+            ("backwards",
+             "fires MORE on the control than on the measured text. Worse "
+             "than useless: it penalises the thing the writer is aiming "
+             "at.")):
+        names = sorted(buckets.get(verdict, []))
+        if names:
+            print(f"{core_text.n(len(names), 'check')} -- {verdict}: "
+                  f"{', '.join(names)}")
+            print(f"  {note}")
+            print()
+    silent = sorted(buckets.get("silent", []))
+    if silent:
+        print(f"{core_text.n(len(silent), 'check')} fired on neither corpus: "
+              f"{', '.join(silent)}")
+        print()
+    print("GENRE IS A CONFOUND AND THIS COMMAND CANNOT CONTROL FOR IT.")
+    print("A control corpus of code documentation is full of identifiers and")
+    print("colons whatever wrote it. Read a 'backwards' verdict as a question")
+    print("about the check AND about the corpus, never as a settled answer.")
+    return 0
+
+
 def cmd_decay(args):
     """Which of a ruleset's checks earn their place against a real corpus.
 
@@ -869,14 +926,39 @@ def cmd_decay(args):
                                   ruleset_id=ruleset.RULESET_ID,
                                   glob_pattern=args.glob)
     summary = core_scan.check_activity(report, ruleset)
+
+    comparison = None
+    if args.against:
+        control_paths = [os.path.abspath(p) for p in args.against]
+        for path in control_paths:
+            if not os.path.exists(path):
+                print(f"{path!r} does not exist.", file=sys.stderr)
+                return 1
+        control_report = core_scan.scan_tree(control_paths, REPO_ROOT, rulesets,
+                                              ruleset_id=ruleset.RULESET_ID,
+                                              glob_pattern=args.control_glob)
+        control = core_scan.check_activity(control_report, ruleset)
+        if not control["documents"]:
+            print("No in-scope files matched the control corpus.", file=sys.stderr)
+            return 1
+        comparison = {"rows": core_scan.compare_activity(summary, control),
+                       "control": control}
     if not summary["documents"]:
         print("No in-scope files matched, so nothing was measured. A check "
                "set cannot be judged against an empty corpus.", file=sys.stderr)
         return 1
 
     if args.json:
-        print(json.dumps(summary, indent=2, default=str))
+        payload = dict(summary)
+        if comparison:
+            payload["comparison"] = comparison["rows"]
+            payload["control"] = {k: v for k, v in comparison["control"].items()
+                                   if k != "activity"}
+        print(json.dumps(payload, indent=2, default=str))
         return 0
+
+    if comparison:
+        return _print_discrimination(ruleset, summary, comparison)
 
     activity = summary["activity"]
     ranked = sorted(activity.items(), key=lambda kv: (-kv[1]["hits"], kv[0]))
@@ -1225,6 +1307,13 @@ def main():
     p_decay.add_argument("paths", nargs="*", help="files or directories (default: the repo)")
     p_decay.add_argument("--ruleset", help="ruleset to measure (default: resolve like a live write)")
     p_decay.add_argument("--glob", default="*", help="narrow which filenames are included")
+    p_decay.add_argument("--against", nargs="+", metavar="PATH",
+                          help="a control corpus of prose you want to sound LIKE. "
+                               "Reports which checks fire more on the measured "
+                               "text than on it -- the only evidence that a check "
+                               "detects a machine rather than a style")
+    p_decay.add_argument("--control-glob", default="*",
+                          help="narrow which filenames the control corpus includes")
     p_decay.add_argument("--json", action="store_true", help="machine-readable output")
     p_decay.set_defaults(func=cmd_decay)
 
