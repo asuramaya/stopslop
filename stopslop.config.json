@@ -290,6 +290,10 @@
   },
   "rulesets": [
     {
+      "glob": ".claude/skills/*/SKILL.md",
+      "ruleset": "slopwatch"
+    },
+    {
       "glob": ".claude/*",
       "ruleset": null
     },

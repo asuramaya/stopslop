@@ -141,7 +141,7 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 
 `python3 stopslop.py dashboard` opens a local page at `http://localhost:8501` -- a small FastAPI + htmx app (`src/webui/`), no build step, no external JS beyond a vendored copy of htmx.
 
-[![The Checks page](docs/screenshots/checks.jpg)](docs/dashboard.md)
+[![The Checks page](docs/screenshots/checks.png)](docs/dashboard.md)
 
 Four pages: **Watch** (what the gate has actually done), **Checks** (which rules exist and how often each one fires), **Vocabulary** (the word lists behind the checks, and the packs that fill them), **Routing** (which ruleset judges which file, first match wins).
 
@@ -207,6 +207,7 @@ Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1
 ## Documentation
 
 - [How to contribute](CONTRIBUTING.md) -- how to run the tests, and the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
+- [What this project's own documentation scores](docs/self-audit.md) -- the tool run on its own prose. 3.77 structural tells per 1000 words against human documentation's 3.18 and ungated generation's 13.32, plus the habit these docs still show at 2.6x the human rate.
 - [Reading the dashboard](docs/dashboard.md) -- what each of the four pages shows, what to look for, and the CLI command that answers the same question without a browser. Written for humans and for models.
 - [How to add a ruleset](docs/adding-a-ruleset.md) -- the full plugin contract: the three required functions, the three required attributes, every optional capability, and what each one adds.
 - [Embedded prose](docs/embedded-prose.md) -- how one routing rule sends a code file's own strings and docstrings through a second, prose ruleset.

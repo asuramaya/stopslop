@@ -18,7 +18,7 @@ next gate call with no restart.
 
 ## Watch -- what the gate has actually done
 
-![The Watch page](screenshots/watch.jpg)
+![The Watch page](screenshots/watch.png)
 
 The activity feed, newest first, with recent denials called out at the
 top in red.
@@ -47,7 +47,7 @@ events.
 
 ## Checks -- which rules exist, and which ones earn their place
 
-![The Checks page](screenshots/checks.jpg)
+![The Checks page](screenshots/checks.png)
 
 Pick a ruleset with the pills at the top. The table is one row per
 check: on/off, its id, the unit it runs over (`sentence`, `document`,
@@ -84,7 +84,7 @@ generated text than on writing you want to sound like?
 
 ## Vocabulary -- the words behind the checks
 
-![The Vocabulary page](screenshots/vocabulary.jpg)
+![The Vocabulary page](screenshots/vocabulary.png)
 
 Some checks match a word list rather than a pattern. This page is those
 lists.
@@ -115,7 +115,7 @@ single lookup without a shell.
 
 ## Routing -- which ruleset judges which file
 
-![The Routing page](screenshots/routing.jpg)
+![The Routing page](screenshots/routing.png)
 
 The rules table, in order, and **order decides everything**: first match
 wins. The arrows reorder. An empty ruleset cell puts a path out of scope
