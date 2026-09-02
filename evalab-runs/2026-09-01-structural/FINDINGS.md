@@ -117,3 +117,58 @@ and stdlib docstrings carry no markdown at all, so `bold_density`,
 `thematic_break` and `title_case_heading` cannot fire there. The markdown
 corpus is the fair comparison for those three and it is the smaller of
 the two.
+
+## Which checks actually did the work, and which are dead
+
+The human control makes a second analysis possible: per check, how much
+more often does it fire on generated text than on human text?
+
+| check | human /1k | generated /1k | |
+|---|---|---|---|
+| bold_density | 0.00 | 2.84 | fires only on generated |
+| paragraph_uniformity | 0.26 | 0.99 | 3.8x |
+| thematic_break | 0.78 | 2.34 | 3.0x |
+| title_case_heading | 0.00 | 0.12 | fires only on generated, barely |
+| rule_of_three | 0.26 | **0.00** | never fires on generated |
+| copula_avoidance | 0.52 | **0.00** | never fires on generated |
+| participial_tail | 0.26 | **0.00** | never fires on generated |
+| section_template | 0.00 | **0.00** | never fires at all |
+| ai_markup_remnant | 0.00 | **0.00** | never fires at all |
+
+And the 75 flags the gate removed break down as: colon_reveal 23,
+bold_density 23, thematic_break 19, paragraph_uniformity 8,
+title_case_heading 1, vague_intensifier 1.
+
+So the 72% cut is real and so is the p < 0.000001, but the work was done
+by four checks, not seventeen, and only three of those are new. Five of
+the nine structural checks contributed nothing at all.
+
+**Tell sets decay, and this is the evidence.** Wikipedia's catalogue was
+assembled largely against 2023 and 2024 output. The rule of three, copula
+avoidance, the participial significance clause and the stock section
+skeleton are all in it, and this model does not produce any of them at a
+measurable rate. Four checks aimed squarely at documented tells fire zero
+times across 8107 words of exactly the register they describe. That also
+explains the base rate this project measured earlier -- roughly one flag
+per 200 words of technical writing -- because the lexical tells have
+largely gone.
+
+What survives is FORMATTING. Bold as body emphasis, horizontal rules,
+uniform paragraph blocks: the markdown habits, which is what the
+stylometry work predicted would be the last fingerprint. Those are the
+checks still separating human from generated, and they are the ones worth
+maintaining.
+
+Two of them have a weak baseline and this needs saying. The human
+markdown corpus uses no `**bold**` at all, which is as likely an artifact
+of `.rst` documentation conventions as a fact about human writing -- and
+this repository's own hand-revised docs use MORE bold per 1000 words than
+the model does. Human docs also use horizontal rules freely. Neither
+check is measuring authorship as cleanly as its ratio suggests.
+
+The five dead checks stay in the ruleset rather than being deleted.
+Thirty documents from one model on one genre is not enough to conclude a
+pattern is gone from the world, and removing checks because they failed
+to fire on the corpus used to test them is how a check set gets fitted to
+its own test data. They are documented here as dormant against this
+model.
