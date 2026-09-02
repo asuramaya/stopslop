@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security is not the security team's problem**\n\nNobody on the security team wrote the query that leaked customer emails last spring. We did \u2014 product side \u2014 and then we waited three weeks for a review that would have taken an hour to do ourselves.\n\nThat's the pattern I want to break.\n\nHere's what shared responsibility actually looks like, minus the poster slogans.\n\nYou own the threat model for what you ship. Not a document. A paragraph in the design doc: what could go wrong, who would want it to, and what stops them. If you can't write that paragraph, you don't understand your feature yet.\n\nYou read your own dependencies. When you add a package, look at who maintains it and when they last shipped. Ten minutes.\n\nYou escalate early and badly. A half-formed worry in #security beats a polished writeup after the incident. We have never once been annoyed by a false alarm. We have been annoyed by silence.\n\nThe security team's job changes too. They stop being the gate and start being the people who make the safe path the easy one \u2014 better defaults, libraries that are hard to hold wrong, reviews that come back in days instead of sprints.\n\nNone of this survives if we punish whoever finds the problem. If you break something, or notice something broken, say so. No blame, and I mean that in the boring operational sense: we fix the system, not the person.\n\nStart Monday. Pick one service you own and write the paragraph."
+}

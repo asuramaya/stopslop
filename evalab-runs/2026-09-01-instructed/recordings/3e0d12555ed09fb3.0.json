@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "Here's the draft. I've left bracketed placeholders where I don't have facts \u2014 date, speaker, platform \u2014 rather than invent them.\n\n---\n\n**Your slowest query isn't the one you think it is**\n\n[Day, Date] \u00b7 [Time] \u00b7 60 minutes, live\n\nEvery team has that one dashboard that takes eleven seconds to load. Someone adds an index. It drops to nine. Two quarters later it's back to eleven and nobody remembers who added the index or why.\n\n[Speaker Name], [title] at [Company], has spent [N] years on the other end of those pages. In this session they'll work through three real slow-query cases \u2014 a join that fell off a good plan after a stats refresh, a connection pool sized by folklore, and a table whose bloat nobody was measuring \u2014 and show what the plan output was actually saying each time.\n\nYou'll leave knowing how to read an execution plan without guessing, which four metrics to watch before you touch an index, and when the honest answer is that the schema is wrong.\n\nBring your worst query. The last fifteen minutes are open questions, and we'll take as many as we can live.\n\nFor engineers who own a production database and can't take it down to experiment. Postgres and MySQL examples; the diagnostic method carries over.\n\n[Save my seat \u2192]\n\n---\n\nRoughly 205 words including the subhead. Tell me the real details and I'll swap them in."
+}

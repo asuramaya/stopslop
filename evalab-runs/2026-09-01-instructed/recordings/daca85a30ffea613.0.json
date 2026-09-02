@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Since you didn't name the service or the platform, I've written it with bracketed placeholders for the details only \u2014 everything else is ready to send.\n\n---\n\n**Subject: [Service] moves to [New Platform] in Q[N]**\n\nStarting [DATE], [Service] runs on [New Platform]. Here's what that means for you.\n\nThe short version: your account, your data, and your integrations all come with you. You don't need to re-register or rebuild anything. On the morning of [DATE], you'll sign in at [new URL] with the credentials you already have, and the old address will redirect there for [12] months.\n\nWhy we're doing this. The current stack has been at capacity since [MONTH], which is why you've seen [specific symptom \u2014 slow exports, timeouts during month-end]. We could keep patching it. Moving is the honest fix. On [New Platform], [specific gain: exports finish in under a minute instead of six; the API rate limit goes from 60 to 600 requests a minute].\n\nWhat you need to do before [DATE]:\n\n- If you call our API directly, update your base URL to [new endpoint]. The old one stops answering on [DATE + 12 months].\n- If you've allowlisted our IPs, add [range].\n- Everything else \u2014 no action.\n\nThere will be a maintenance window on [DATE], [TIME]\u2013[TIME] [TZ]. [Service] will be read-only during it. We've scheduled it for [day/time] because that's the quietest hour in our traffic logs.\n\nTwo things we're not doing: changing your price, and dropping any feature you use today.\n\nQuestions go to [email], and we'll publish a status page at [URL] for the migration week itself.\n\n\u2014 [Name], [Title]\n\n---\n\nFill in the symptom and the gain with real numbers if you have them. Those two lines carry the announcement; the rest is logistics."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "## Security is not a team you file tickets at\n\nWe have four people on AppSec. We have about two hundred engineers shipping code. You can do that division yourself.\n\nThat ratio is why \"throw it over to security for review\" stops working somewhere around the third quarter of a growing company. The reviews queue. The queue becomes a rubber stamp, because a rubber stamp is what a four-person team does when forty pull requests arrive on a Thursday. Then the stamp means nothing, and everyone still feels covered.\n\nSo here's the change. Starting next sprint, threat modeling moves into design review \u2014 the same meeting, the same doc, one new section. Whoever writes the design writes it. Two questions: what would an attacker want here, and what happens if this endpoint gets called by someone who shouldn't have it? AppSec reads the section instead of writing it.\n\nThey keep the hard stuff: crypto decisions, auth flows, anything touching payment data, and the pen-test relationship. Those are genuinely specialist calls and I don't want a well-meaning guess on them.\n\nWhat this is not: a mandate that everyone becomes a security engineer, or another checkbox in the PR template that people tab past. If you hit something you can't reason about, ask in #appsec. Real answer, no judgment. Asking early is cheaper than an incident review, and considerably less unpleasant.\n\nWe'll run this for a quarter and look at what it caught. If the section turns into boilerplate nobody reads, I'd rather kill it than pretend.\n\nQuestions to me or to Priya."
+}

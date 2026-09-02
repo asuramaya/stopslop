@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "Here's the section. Names and companies are placeholders \u2014 swap in real customers before shipping, since made-up testimonials are a legal problem, not just a copy problem.\n\n---\n\n## What teams say\n\n> \"We were paying for a search box that timed out every time we actually needed it. Now a 4-hour window across 60 services comes back in under two seconds. Our on-call rotation stopped dreading pages.\"\n> **Priya Raghunathan** \u2014 Staff SRE, Northbeam\n\n> \"The migration took a weekend. I'd budgeted three weeks.\"\n> **Tom Erlichman** \u2014 Platform Lead, Kettle Health\n\n> \"Honestly, we bought it for the price. Our old bill scaled with ingest, so every noisy debug log cost us money and people started deleting logs to stay under budget \u2014 which is exactly backwards. Here we pay for what we query. Last quarter that was a 71% cut, and nobody's censoring their own instrumentation anymore.\"\n> **Dani Okoye** \u2014 Director of Engineering, Farrow Logistics\n\n> \"I found the bug in eleven minutes. Previous outage of the same shape took us six hours and four engineers.\"\n> **Marcus Lindqvist** \u2014 Backend Engineer, Vireo\n\n---\n\nTwo notes on the approach: every quote carries one hard number or a concrete before/after, since testimonials without specifics read as invented. And the third one opens with a mild admission (\"we bought it for the price\") \u2014 small concessions make the rest more credible than uniform praise does."
+}

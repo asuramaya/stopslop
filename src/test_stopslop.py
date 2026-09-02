@@ -819,3 +819,57 @@ class VersionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RulesCommandTests(unittest.TestCase):
+    """`stopslop rules` prints this project's own free alternative to
+    itself.
+
+    The 2026-09-01 instructed run measured a stated rule at about half
+    the gate's effect for one generation and no install. A project that
+    hides that from its users is not being honest about its evidence, so
+    the command is part of the contract, not a convenience.
+    """
+
+    def _run(self, *extra):
+        proc = subprocess.run(
+            [sys.executable, os.path.join(stopslop.REPO_ROOT, "stopslop.py"), "rules",
+             *extra],
+            capture_output=True, text=True, cwd=stopslop.REPO_ROOT)
+        return proc
+
+    def test_it_prints_a_rule_for_every_enabled_check(self):
+        import rulesets as _rulesets
+        ruleset = _rulesets.get_ruleset("slopwatch")
+        enabled = [cid for cid, meta in ruleset.list_checks().items()
+                    if meta.get("enabled", True)]
+        proc = self._run("--ruleset", "slopwatch", "--quiet")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        bullets = [ln for ln in proc.stdout.splitlines() if ln.startswith("- ")]
+        self.assertEqual(len(bullets), len(enabled))
+
+    def test_a_disabled_check_is_not_asked_for(self):
+        """An instruction naming a check this project switched off asks
+        for something nothing here enforces."""
+        import rulesets as _rulesets
+        ruleset = _rulesets.get_ruleset("slopwatch")
+        table = ruleset.list_checks()
+        off = [cid for cid, meta in table.items() if not meta.get("enabled", True)]
+        if not off:
+            self.skipTest("no disabled check in slopwatch right now")
+        proc = self._run("--ruleset", "slopwatch", "--quiet")
+        for check_id in off:
+            instead = (table[check_id].get("instead") or "").strip()
+            if instead:
+                self.assertNotIn(instead, proc.stdout)
+
+    def test_quiet_prints_only_the_block(self):
+        proc = self._run("--ruleset", "slopwatch", "--quiet")
+        self.assertEqual(proc.stderr.strip(), "")
+        self.assertIn("## Writing rules", proc.stdout)
+
+    def test_it_says_where_the_block_came_from(self):
+        """Pasted into a CLAUDE.md, the block outlives the memory of how
+        it was produced. It has to carry its own regeneration command."""
+        proc = self._run("--ruleset", "slopwatch", "--quiet")
+        self.assertIn("stopslop.py rules --ruleset slopwatch", proc.stdout)

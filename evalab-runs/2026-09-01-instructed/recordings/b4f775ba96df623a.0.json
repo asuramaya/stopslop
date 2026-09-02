@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Proposal: One quarter of engineering time for debt paydown**\n\nWe've shipped three quarters of features onto a foundation we know is cracked. I'm asking for Q[N] with no new roadmap commitments \u2014 one quarter spent making the system cheap to change again.\n\nThe case: our median PR takes [X] days from open to merge, against [Y] a year ago. Review isn't what's slowing us down. The test suite is, and it's flaky enough that engineers now rerun it out of habit. Two services share a database schema that neither team owns. Every incident in the last six months traced back to one of those three things.\n\nThe work: split the shared schema, delete the dead auth path, get the suite green and under ten minutes. Three items. Not a wish list.\n\nThe cost: about [N] feature-weeks. I won't dress that up, and I'd rather name the number now than have it surface later. Sales has [commitment] in Q[N+1]; this pushes it roughly [X] weeks.\n\nThe return: I expect merge time to halve and on-call pages to drop noticeably. We'll publish both numbers weekly, so you can shut this down in week four if the lines stay flat.\n\nDoing nothing isn't free. It means paying the same debt in smaller, worse installments \u2014 during incidents, at night, with less chance the fix holds.\n\nHappy to walk through any of the specifics.\n\n---\n\nThe bracketed figures need your real numbers before this goes anywhere. I left them open rather than making them up."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Proposal: One quarter of engineering time for debt paydown**\n\nWe've shipped three quarters of features onto a foundation we know is cracked. I'm asking for Q[N] with no new roadmap commitments \u2014 one quarter spent making the system cheap to change again.\n\nThe case: our median PR takes [X] days from open to merge, up from [Y] a year ago. Review isn't the bottleneck. The test suite is, and it's flaky enough that engineers rerun it reflexively now. Two services share a database schema neither team owns. Every incident in the last six months traced back to one of those three things.\n\nThe work: split the shared schema, delete the dead auth path, get the suite green and under ten minutes. Three items. Not a wish list.\n\nThe cost: roughly [N] feature-weeks. I won't dress that up, and I'd rather put the number on the table now than have it surface later. Sales has [commitment] in Q[N+1]; this pushes it about [X] weeks.\n\nThe return: I expect merge time to halve and on-call pages to drop noticeably. We'll publish both numbers weekly, so you can kill this in week four if the lines stay flat.\n\nDoing nothing isn't free. It means paying the same debt in smaller, worse installments \u2014 during incidents, at night, with less chance the fix holds.\n\nHappy to walk through any of the specifics.\n\n---\n\nThe bracketed figures need your real numbers before this goes anywhere. I left them open rather than inventing them."
+}

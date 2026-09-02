@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** [you]\n**Re:** Dedicating Q[N] to debt in billing + auth\n\nI'm asking for one quarter of the Platform team's capacity \u2014 four engineers, thirteen weeks \u2014 with no feature commitments attached. This is a real trade, and I want to name the cost up front: [Feature X] slips to Q[N+1], and [Feature Y] ships without the reporting layer.\n\nHere's what's driving it. Median PR review time in the billing service is 4.1 days, up from 1.6 a year ago. Three of our last five Sev-2s traced to the same untested path in the payments adapter. A new hire took six weeks to reach their first solo deploy last quarter; in 2024 that number was two.\n\nThe plan is narrow, not a rewrite:\n\n1. Split the payments adapter into the three services it already pretends to be internally.\n2. Retire the second ORM layer. We've maintained both since the 2023 migration stalled at 80%.\n3. Raise auth test coverage from 34% to 70%, weighted toward the paths that have actually paged us.\n\nWhat I'll commit to measuring: incident count in billing/auth, review latency, and time-to-first-deploy for new engineers. I'll report all three at the end of the quarter against today's baselines, including if they don't move.\n\nWhy this quarter rather than a standing 20% allocation: we've tried the 20% version twice and it lost to roadmap pressure both times. Interleaved debt work doesn't survive contact with a deadline. A dedicated block does.\n\nHappy to walk through the sequencing in more detail.\n\nThe metrics above are placeholders \u2014 swap in your real numbers before sending, since the argument rests entirely on them."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "Here's the draft:\n\n---\n\n**We should stop asking who broke it**\n\nLast month's checkout outage took 4 hours to resolve. The write-up took three weeks, and I'd bet most of you never read it. That's not because nobody cared. It's because the review turned into a question about whose commit it was, and once that happens the person who knows the most about what went wrong is also the person with the most reason to stay quiet.\n\nI want us to run postmortems the way Google, Etsy, and Stripe do: blameless. No names attached to causes. The write-up asks what the system allowed, not who did it.\n\nThe argument isn't kindness. It's data quality. An engineer who fears the review will write the shortest defensible account of the incident. An engineer who doesn't will tell you that the deploy dashboard had been showing stale data for six weeks and everyone had quietly learned to ignore it. That second thing is the actual bug. You only ever hear about it from someone who feels safe saying it out loud.\n\nThe usual objection is that removing blame removes accountability. It doesn't. Accountability moves from the individual to the fix: every postmortem produces owned action items with dates, and we track completion. Missing those is a real performance conversation. Having caused an incident is not.\n\nConcretely, I'm proposing we try this for one quarter. Any incident over 30 minutes gets a blameless write-up, published company-wide within five business days, using a template I'll draft this week.\n\nWho's in?\n\n---\n\n248 words. Two things you may want to adjust before posting: swap the checkout outage for whatever incident your readers actually remember, and put a real name on the template owner if it isn't you."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Pricing**\n\nEvery plan reads every pull request. What changes between them is how much context the reviewer gets, and who has to answer for it.\n\n---\n\n**Solo \u2014 free**\n\nOne developer, public repos, unlimited reviews. Comments land on the PR about 90 seconds after you push. No card, no seat count, no expiry date. This is not a trial that quietly becomes an invoice in month two.\n\n---\n\n**Team \u2014 $19 per developer / month**\n\nPrivate repos and shared review rules. Write your conventions once \u2014 in a plain YAML file that lives in your repo, not in our dashboard \u2014 and the reviewer applies them to everyone. It reads the last 500 commits before it opens its mouth, so it stops flagging patterns your codebase settled on three years ago. Includes GitHub, GitLab, and Bitbucket. Billed on active committers; if someone doesn't push in a billing period, you don't pay for them.\n\n---\n\n**Enterprise \u2014 from $12,000 / year**\n\nEverything in Team, plus self-hosted deployment if your code can't leave the network. SSO through SAML or OIDC. Audit logs you can export. A named engineer who answers in Slack, and a 99.9% uptime commitment with money attached to it. Volume pricing starts at 40 developers.\n\n---\n\nWe don't charge per review, per line, or per token. A team that reviews carefully shouldn't pay more than one that rubber-stamps.\n\nQuestions about migrating from an existing tool? Email sales@ \u2014 a person reads it, usually the same day."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Pricing**\n\nEvery tier reviews every pull request. What differs is how much of your codebase the reviewer knows, and who you can call when it gets something wrong.\n\n---\n\n**Solo \u2014 free**\n\nOne developer, public repos, no cap on reviews. Comments land on the PR roughly 90 seconds after you push. No card, no seat count, no expiry. It will not turn into an invoice in month two.\n\n---\n\n**Team \u2014 $19 per developer / month**\n\nPrivate repos and shared review rules. Write your conventions once, in a YAML file that lives in your repo instead of our dashboard, and the reviewer applies them to everyone. It reads your last 500 commits before it says anything, so it stops arguing with patterns your team settled on years ago. GitHub, GitLab, and Bitbucket included. We bill on active committers: if someone didn't push during a billing period, you aren't charged for them.\n\n---\n\n**Enterprise \u2014 from $12,000 / year**\n\nTeam, plus self-hosted deployment when the code can't leave your network. SSO through SAML or OIDC. Audit logs you can export. A named engineer who answers in Slack, and a 99.9% uptime commitment with money behind it. Volume pricing opens at 40 developers.\n\n---\n\nWe don't bill per review, per line, or per token. A team that reviews carefully shouldn't pay more than one that rubber-stamps.\n\nMigrating off another tool and want to know how it goes? Write to sales@. A person reads it, usually the same day."
+}

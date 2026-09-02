@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "# A year of remote, minus the victory lap\n\nWe went fully remote last March. Not as an experiment \u2014 the lease was up and nobody wanted to sign another one. Twelve months in, here's what we'd tell a company about to do the same.\n\nMeetings didn't disappear. They relocated. Calendar time dropped from about eleven hours a week per engineer to nine, which reads like a win until you notice Slack swallowed the difference and then some. The interruptions didn't stop. They just got harder to see.\n\nOnboarding broke first, and it broke badly. New hires used to ship to production in three weeks; last year it took closer to seven. The reason turned out to be dull. Nobody overhears anything anymore. A junior engineer used to learn our deploy process by sitting two desks from someone swearing at it. Now they open a ticket and wait a day.\n\nThe fix was writing. We started requiring a one-page decision doc for anything touching more than one service \u2014 cheap, unglamorous, and the single change that moved the onboarding number back under four weeks.\n\nWe also oversold ourselves on timezones. Hiring across nine hours sounded like access to a bigger pool. In practice our Auckland and Lisbon engineers shared forty minutes a day, and every question between them cost a night. We now hire in two bands instead of five.\n\nWould we take the office back? No. But \"remote works\" is too blunt to be useful. Remote works if you're willing to replace the things an office was quietly doing for free.\n\n*(Numbers are ours \u2014 swap in your own before publishing.)*"
+}

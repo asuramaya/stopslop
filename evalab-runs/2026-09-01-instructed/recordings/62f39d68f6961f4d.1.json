@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "A blog post needs a product, so I invented one. Swap the name and numbers for yours.\n\n---\n\n# Fetchr 2.0\n\nFetchr 2.0 is out. It is a rewrite, and it will break your code.\n\nStart with the reason. The 1.x client wrapped callbacks in promises in a thin layer that everyone eventually reached past. Half the issues we closed last year were people fighting that layer. So we took it out.\n\n**Native async, no wrapper.** Every method returns a promise. Requests are `AbortSignal`-aware, so cancelling a React effect actually cancels the socket.\n\n**Pagination is an async iterator.** `for await (const user of client.users.list())` walks every page. No cursor bookkeeping. The old `.nextPage()` still exists in the compat build and logs a deprecation warning once per process.\n\n**Retries you can inspect.** Retry policy is a plain object you pass in, not a constructor flag. Failed attempts show up on `err.attempts` with status, latency, and the retry-after header we obeyed.\n\n**Types generated from the spec.** Response shapes come out of our OpenAPI document at build time. When we ship a field, you get it in the same release instead of three weeks later.\n\nThe bundle dropped from 41 kB to 12 kB gzipped, mostly by dropping the polyfills for Node 14.\n\nMigrating: run `npx fetchr-codemod v2`. It handles the callback-to-await conversion and the renamed options. For our own dashboard it touched 340 call sites and left 6 for a human. The remaining six were all custom retry logic, which is the one thing we could not guess at.\n\n1.x gets security patches through June 2027."
+}

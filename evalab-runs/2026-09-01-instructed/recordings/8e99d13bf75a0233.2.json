@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Day One\n\nYour laptop's on the desk. The badge works \u2014 try it on the fourth-floor door now, not when you're in a hurry.\n\nHere's what today is actually for: getting your environment running, and meeting the handful of people you'll talk to most. That's it.\n\nStart with the repo. Clone it, then run `./scripts/bootstrap`. It takes about twenty minutes and it will fail at least once \u2014 usually because Docker isn't running. When it does, ask in #eng-help. Someone answers within a few minutes, and nobody keeps score on the question.\n\nBy Friday we'd like you to have shipped something to production. Small is fine. A copy fix, a log line, a renamed variable. The point isn't the change; it's that you've walked the whole path from branch to deploy while someone's sitting next to you.\n\nA few things about how we work. Code review is a conversation. If a comment reads as harsh, assume text ate the tone and ask what they meant. We write design docs before big changes and we keep them under two pages. If you've been stuck for an hour, that's the signal to ask \u2014 not to push harder.\n\nYour onboarding buddy is **[name]**. They've blocked time all week, so spend it. Ask the obvious questions now, while \"I'm new\" is still the easiest sentence in the building.\n\nLunch is at noon. Someone will come get you.\n\n---\n\nTwo placeholders to fill: the buddy's name and your bootstrap command / help channel. The Friday-ship expectation is doing most of the work here \u2014 if your deploy path can't support it, cut that paragraph rather than softening it."
+}

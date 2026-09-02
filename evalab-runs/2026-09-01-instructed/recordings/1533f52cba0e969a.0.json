@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Cadence: chat built for the people who read it later\n\nYou already have a chat tool. What you don't have is a reliable way to answer \"who decided this, and when?\"\n\nMost chat products optimize for the person typing right now. Cadence optimizes for the eleven people who open that thread on a Tuesday two weeks later, during an outage.\n\n**Threads you can cite.** Every thread gets a permanent link and an open-or-resolved state. Search returns threads, not a heap of stray messages. Six months of incident history answers in one query.\n\n**Notification rules that hold.** Per channel, per thread, per hour. Mark a channel digest-only and it stays that way. Nothing overrides it, and it won't quietly reset after our next release.\n\n**On-call as a first-class object.** Point Cadence at PagerDuty or Opsgenie and it knows who holds the pager tonight. `/page` reaches that person, not whoever someone half-remembers from an older rotation.\n\n**Export ships on every plan.** Complete JSON: messages, files, threads, from your first day. Leave whenever you like and take all of it with you.\n\nWhat we skip: video calls, whiteboards, a document editor, a catalog of 400 barely maintained integrations. Other vendors already do those better than we would.\n\n$6 per person per month. No seat minimum, no annual commitment, no \"contact sales\" tier hiding the actual price.\n\nThirty days free, with SSO and SCIM on from hour one. An enterprise trial without SSO tells you nothing."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Cadence: chat for whoever opens the thread later\n\nYou have a chat tool. What you don't have is a dependable answer to \"who decided this, and when?\"\n\nMost of these products are tuned for the person typing right now. We tuned ours for the eleven people who open that thread on a Tuesday two weeks on, mid-outage.\n\n**Threads you can cite.** Each one gets a permanent link and an open-or-resolved state. Search hands back threads instead of a pile of loose messages. Six months of incident history, one query.\n\n**Notification rules that stay put.** Set them per channel, per thread, per hour. Mark a channel digest-only and it stays digest-only. Nothing overrides it, and it won't quietly reset the next time we ship.\n\n**On-call is a real object, not a convention.** Connect PagerDuty or Opsgenie and Cadence knows who holds the pager tonight. `/page` finds that person \u2014 not whoever someone half-remembers from a rotation that changed in March.\n\n**Export ships on every plan.** Full JSON: messages, files, threads, back to day one. Go elsewhere whenever you want, and take the whole record with you.\n\nThings we don't do: video calls, whiteboards, a document editor, 400 half-maintained integrations. Other vendors beat us at those, so we let them.\n\n$6 per person per month. No seat minimum. No annual commitment, and no \"contact sales\" tier concealing the real number.\n\nThirty days free, SSO and SCIM switched on from the first hour. An enterprise trial without SSO tells you nothing about the enterprise."
+}

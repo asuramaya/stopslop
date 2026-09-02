@@ -833,6 +833,52 @@ def cmd_list_rulesets(args):
     return 0
 
 
+def cmd_rules(args):
+    """Print the enabled checks as instructions, for pasting into CLAUDE.md.
+
+    This tool's own evaluation says to offer this. Stating the rules in
+    the prompt halves total AI-writing tells for one generation and no
+    install, against the gate's three-quarters for roughly three times
+    the compute (evalab-runs/2026-09-01-instructed/FINDINGS.md). Anyone
+    unwilling to spend the generations should take this and skip the
+    hook, and a project that hides its own free alternative to itself is
+    not being honest about its evidence.
+
+    Only ENABLED checks are printed. An instruction naming a check this
+    project has switched off asks for something nothing here enforces.
+    """
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    if not hasattr(ruleset, "list_checks"):
+        print(f"'{ruleset.RULESET_ID}' ruleset has no listable checks.",
+              file=sys.stderr)
+        return 1
+    table = ruleset.list_checks()
+    enabled = {cid: meta for cid, meta in table.items()
+                if meta.get("enabled", True)}
+    if not enabled:
+        print(f"Every check in '{ruleset.RULESET_ID}' is switched off.",
+              file=sys.stderr)
+        return 1
+    lines = [f"<!-- from: python3 stopslop.py rules --ruleset {ruleset.RULESET_ID} -->",
+              "## Writing rules", ""]
+    for check_id in sorted(enabled):
+        meta = enabled[check_id]
+        catches = (meta.get("catches") or "").strip()
+        instead = (meta.get("instead") or "").strip()
+        if catches and instead:
+            lines.append(f"- {catches} -- {instead}")
+        elif catches or instead:
+            lines.append(f"- {catches or instead}")
+    print("\n".join(lines))
+    if not args.quiet:
+        print(f"\n{len(enabled)} enabled check(s) in '{ruleset.RULESET_ID}'. "
+               "Paste the block above into CLAUDE.md.\n"
+               "Measured: stating the rules halves total tells for one "
+               "generation; the gate quarters them for about three.",
+               file=sys.stderr)
+    return 0
+
+
 def cmd_dashboard(args):
     # Same "clear stderr message instead of an opaque exec failure" pattern
     # mcp_launch.py already established -- see that file's own docstring.
@@ -1037,6 +1083,15 @@ def main():
                                   help="remove a custom ruleset -- refused for a built-in one, "
                                        "or one any routing rule still routes to")
     p_list_rulesets.set_defaults(func=cmd_list_rulesets)
+
+    p_rules = sub.add_parser("rules",
+                              help="print the enabled checks as CLAUDE.md instructions -- "
+                                   "the free alternative to installing the gate, which this "
+                                   "project's own evaluation says is worth half of it")
+    p_rules.add_argument("--ruleset", help="ruleset id (default: resolve like a live write)")
+    p_rules.add_argument("--quiet", action="store_true",
+                          help="print only the block, no summary on stderr")
+    p_rules.set_defaults(func=cmd_rules)
 
     p_dashboard = sub.add_parser("dashboard", help="open the live web dashboard (needs the venv)")
     p_dashboard.set_defaults(func=cmd_dashboard)

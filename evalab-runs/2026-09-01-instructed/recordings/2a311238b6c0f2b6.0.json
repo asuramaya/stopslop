@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "No API was named, so I wrote this to be provider-neutral \u2014 swap in the product name and the endpoint count.\n\n---\n\n## Design philosophy\n\nMost of what follows is a list of things we decided not to do.\n\nThe API is small on purpose. Nine endpoints cover the work, and a tenth has to earn its place by making something possible that composition cannot. When we can't agree whether a feature belongs, it stays out. Adding an endpoint later costs us nothing; removing one costs you a rewrite.\n\nNothing is inferred. We don't guess at what a malformed request probably meant, and we don't quietly substitute a default for a field you forgot. Required means required, and a missing one fails at the door rather than three weeks later in your billing reconciliation.\n\nErrors are part of the interface, not an afterthought bolted to the edge of it. Every failure returns a stable machine-readable code, the field that caused it, and one sentence a person on call can act on at 3am. Those codes are versioned as carefully as the endpoints themselves.\n\nOld versions keep working. Changes ship additively, deprecations are announced twelve months out, and we have never removed a field on a shorter clock.\n\nFinally, we optimize for predictable latency over peak latency. An API where every call takes 80ms is easier to build on than one that usually takes 20ms and occasionally takes four seconds."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Design philosophy\n\nRead what follows as a record of refusals more than a feature list.\n\nThe surface is deliberately narrow. Nine endpoints do the work, and a tenth gets in only by doing something you can't assemble from the nine. If we're arguing about whether a feature belongs, the answer is no. We can always add an endpoint later; taking one away costs you a rewrite.\n\nWe never guess. A malformed request is not interpreted charitably, and a field you left out does not quietly become a default. Required fields are required, and the request dies at the door instead of surfacing three weeks later in your billing reconciliation.\n\nErrors are part of the contract, not trim nailed on afterward. Each failure comes back with a stable machine-readable code, the field responsible, and one sentence someone on call at 3am can act on. We version those codes as carefully as we version the routes themselves.\n\nOld versions keep working. Changes are additive, deprecations get announced a year ahead, and no field has ever been pulled on a shorter clock than that.\n\nLast: we tune for predictable latency rather than best-case latency. A call that always takes 80ms is easier to build against than one that usually returns in 20ms and now and then takes four seconds."
+}

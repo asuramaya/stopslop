@@ -1,0 +1,9 @@
+[Team name] nominated for the [Award name]
+
+Eighteen months ago, a release took a two-hour evening window, three people on a call, and a checklist that lived in someone's notes. Rollbacks meant paging whoever remembered the order of operations. Most of us planned our weeks around the deploy calendar.
+
+[Team name] rebuilt that. They replaced the manual checklist with a pipeline that runs the same way every time, added staged rollouts so a bad change hits 1% of traffic instead of all of it, and made rollback a single command that anyone on call can run without a runbook. Deploys went from weekly to roughly [N] per day, and the median time from merge to production dropped from [X] to [Y].
+
+What I want to highlight is how they did it. They did not ask other teams to stop shipping while they worked. They migrated services one at a time, sat with each team through their first few deploys, and fixed the rough edges people complained about instead of arguing that the complaints were wrong. Adoption happened because the new path was easier, not because anyone mandated it.
+
+The result is infrastructure most of us no longer think about, which is the highest compliment this kind of work can earn.

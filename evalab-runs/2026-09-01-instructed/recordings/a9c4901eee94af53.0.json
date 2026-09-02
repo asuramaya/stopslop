@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Roadmap**\n\nThis page is public because keeping it private costs more. People build on our tools, and making them guess at next quarter's shipping list wastes their time and ours.\n\nWhat you're looking at: work we've actually committed to, sorted into in progress, up next, and still under debate. Some items carry dates. Most don't, because we only put a date on something when we believe it.\n\nPlans shift. Items slip, swap order, and sometimes get killed outright. When we kill one, the changelog will say so and say why. Silent removal is how roadmaps lose their credibility, so we don't do it.\n\nThe items here come from support tickets, GitHub issues, hallway conversations at conferences, and internal arguments. The internal arguments used to supply more of the list than they do now. If the thing you need is missing, file an issue. Issues are what actually reorder this page.\n\nWorth saying outright: none of this is a commitment we'll honor at your expense. If your launch depends on something sitting in \"Next,\" talk to us before you schedule around it. A roadmap is us thinking in public, and public thinking includes the part where we change our minds."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Roadmap**\n\nWe publish this because hiding it is the more expensive option. Developers build on our tools, and letting them guess what lands next quarter burns their time and ours.\n\nHere's what's on the page: work we've committed to, split into in progress, up next, and still arguing about it. A few items have dates. Most don't, since we attach a date only when we'd bet on it.\n\nThings move. Items slip, trade places, and occasionally die. When one dies, the changelog says so and gives the reason. Roadmaps lose trust by deleting items quietly, so we don't.\n\nThe list comes from support tickets, GitHub issues, conversations at conference booths, and fights we have among ourselves. The fights used to dominate it. They don't anymore. If what you need isn't here, open an issue. Issues are the thing that actually changes the order of this page.\n\nOne more point, stated plainly: nothing here is a promise we'll keep at your expense. If your launch hangs on an item sitting in \"Next,\" come talk to us before you build a schedule around it. This page is us thinking out loud, and thinking out loud includes the part where we turn out to be wrong."
+}

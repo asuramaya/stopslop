@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Assumption: no company specifics were given, so I invented the concrete details (numbers, rituals). Swap them for your real ones \u2014 the specificity is what makes it not read as boilerplate, and fake specifics are worse than none.\n\n---\n\n**How we work**\n\nSmall changes, shipped often. The median pull request here is 180 lines and merges within a day. We don't do quarterly big-bang releases; the last one was in 2023 and people still bring it up.\n\nEvery change gets reviewed by someone who will have to maintain it. Reviews are for catching real problems \u2014 a race condition, a migration that locks a table for nine minutes \u2014 not for relitigating brace style, which the formatter already settled.\n\nEngineers own what they write. If you build the billing sync, you carry the pager for it, you talk to support about it, and you decide when it gets rewritten. The alternative is code handed over a wall to whoever's on call, and that produces software nobody wants to touch.\n\nWe write things down. A design doc before big work, a short postmortem after every incident. Blameless in the boring, literal sense: nobody has been fired over an outage, and every postmortem goes out company-wide unedited.\n\nMeetings are opt-out. If you're in one and it isn't useful, leave. Nobody takes it personally. Tuesday and Thursday mornings are protected across the whole engineering org \u2014 no meetings, no exceptions for executives.\n\nOne Friday a month goes to paying down whatever is annoying people most. Flaky tests. A slow CI step. The deploy script everyone is quietly afraid of.\n\nWe don't use the word \"rockstar.\""
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**How we work**\n\nShip small, ship often. Our median pull request is 180 lines and lands the same day. There's no quarterly release train; the last big-bang launch was in 2023 and people still tell the story at onboarding.\n\nWhoever reviews your change is someone who'll have to live with it. That keeps reviews pointed at things that matter \u2014 a race condition, a migration that holds a lock for nine minutes \u2014 instead of brace placement, which the formatter decided years ago.\n\nYou own what you write. Build the billing sync and you also carry its pager, answer support's questions about it, and call the shot on when it gets rewritten. Hand code over a wall to whoever's on call instead, and you get software nobody wants to open.\n\nWe write things down: a design doc before anything large, a short postmortem after every incident. Blameless in the plain sense of the word \u2014 no one here has lost a job over an outage, and postmortems go out company-wide with nothing sanded off.\n\nMeetings are opt-out. Sitting in one that isn't useful? Leave. Nobody reads anything into it. Tuesday and Thursday mornings are protected for the whole engineering org, executives included.\n\nOne Friday a month goes to whatever is grinding people down. Flaky tests. A CI step that takes too long. The deploy script everybody tiptoes around.\n\nWe don't say \"rockstar.\""
+}

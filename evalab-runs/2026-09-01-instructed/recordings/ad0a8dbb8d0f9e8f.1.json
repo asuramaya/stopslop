@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We Split the Monolith Into 40 Services. Then We Merged 12 Back.**\n\nIn 2023 our checkout system was one Rails app: 400,000 lines, a 47-minute test suite, and a deploy process that required a Slack thread and a prayer. We spent eighteen months breaking it apart. This talk is what we learned, including the parts that went badly.\n\nThe wins were real. Payments and inventory now deploy independently, and the median deploy went from 90 minutes to 6. But we also traded one slow test suite for 40 flaky ones, and our first serious outage came from a retry storm nobody owned. Distributed tracing stopped being a nice-to-have around service number nine.\n\nI'll walk through the three decisions that mattered most: where we drew service boundaries (twice, because the first pass followed our org chart instead of our data), how we handled the shared Postgres database for two years longer than planned, and why we eventually folded twelve services back into three.\n\nYou'll leave with a checklist for deciding which parts of your monolith should stay a monolith, plus the migration runbook we wish we'd had on day one.\n\nAimed at engineers and tech leads who are staring down the same decision."
+}

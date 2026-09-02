@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Two Years After the Split: The Ledger**\n\nDeploys on our billing monolith ran four hours, and a single bad migration could stop the company from taking money. Real problems, both. The fix cost more than the budget we had written for it.\n\nI'll walk the decomposition in the order it happened: the first seam we cut (not the one the diagram suggested), what became of the shared database, and the six months we ran both code paths because nobody believed the new one yet.\n\nSome of it worked. Carving out payments paid for itself within a quarter, and on-call went quiet inside a month. Some of it didn't. We drew service boundaries around the org chart instead of the domain, then spent the next year paying that back in cross-team pull requests and release scheduling.\n\nYou'll leave with a question to ask before cutting any seam, a strangler-fig routing setup that works without a service mesh on day one, and the list of things we'd have kept inside the monolith given a second run at it.\n\nFor engineers and tech leads weighing a decomposition, or halfway through one and wondering whether to stop.\n\nNote: these numbers are placeholders. Drop in your own timeline, service count, and first seam. Program committees reward specifics."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Two Years After the Split: The Ledger**\n\nOur billing monolith took four hours to deploy, and one bad migration could stop the company from taking money. Both were real problems. The fix cost more than the budget we had written for it.\n\nI'll walk the decomposition in the order it actually happened: the first seam we cut (not the one on the diagram), what happened to the shared database, and the six months we ran both code paths because nobody trusted the new one yet.\n\nParts of it worked. Pulling payments out paid for itself in a quarter, and on-call went quiet within a month. Parts of it didn't. We drew service boundaries around the org chart rather than the domain, then spent a year paying that back in cross-team pull requests and release scheduling.\n\nYou'll leave with one question to ask before cutting any seam, a strangler-fig routing setup that runs without a service mesh on day one, and the list of things we'd have left inside the monolith if we did it again.\n\nFor engineers and tech leads deciding whether to decompose, or midway through one and wondering whether to stop.\n\nNote: the numbers here are placeholders. Substitute your own timeline, service count, and first seam. Program committees reward specifics."
+}

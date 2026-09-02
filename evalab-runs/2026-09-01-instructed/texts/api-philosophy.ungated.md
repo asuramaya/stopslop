@@ -1,0 +1,13 @@
+**Design philosophy**
+
+This API rests on four commitments.
+
+*Explicit beats clever.* Every request states what it wants. We don't infer intent from field ordering or change behavior based on which optional parameters you happened to include. Two requests that look alike do the same thing.
+
+*Failures are part of the contract.* Error responses carry the same versioning guarantees as successful ones. Each names the field at fault and says whether a retry will help. You never have to parse a human-readable message to decide what your code does next.
+
+*The surface stays small.* We add endpoints reluctantly. A narrow API is one you can hold in your head, and one we can keep stable across years rather than quarters. When something new arrives, it arrives behind a version, never as a quiet change to what already worked.
+
+*Your data stays yours.* Anything you send can be exported in the shape you sent it. No proprietary intermediate format sits between you and your own records.
+
+None of this is free. The API is more verbose than it needs to be, and it sometimes asks you to spell out what a smarter system would guess. We think the trade is worth making, and we'd rather tell you now than let you find out in production.

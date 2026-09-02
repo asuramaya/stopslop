@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Kestrel\n\nKestrel draws charts. It doesn't manage your state, claim your DOM, or ship a theme system you'll spend a week fighting.\n\nHand it an array of objects and two accessor functions; it hands back SVG. Marks \u2014 bars, lines, areas, ribbons, whatever you write yourself \u2014 are plain functions of scale and data. A candlestick chart with an annotation layer and a broken axis is four calls, not a hunt through a 400-key config object for the flag that turns it on.\n\nThe runtime is 9 kB gzipped, with no dependencies beyond a vendored fork of d3-scale. Output is a string on both sides of the wire, so a chart renders identically in Node and in the browser. Point it at a build script and you get an SVG file ready to rasterize. Point it at React and you get elements.\n\nIt exists because we had a dashboard with 60 small multiples, and every established library either blew the frame budget or made us rewrite the same 200 lines of margin arithmetic sixty times.\n\nNeed a chart in one line? Chart.js is right there. Need to say exactly what the picture is? Keep reading.\n\n---\n\nTwo things to replace before release: the name and the numbers. The 9 kB, the d3-scale fork, and the 60-small-multiples anecdote are placeholders. Swap in your real ones rather than deleting them; the specifics are what keep this off the pile of interchangeable library homepages."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Kestrel\n\nKestrel draws charts. That's the whole job. It won't hold your state, take over a div, or hand you a theme system to argue with for a week.\n\nGive it an array of objects and two accessor functions; you get SVG back. Marks \u2014 bars, lines, areas, ribbons, anything you write yourself \u2014 are functions of a scale and some data. Want a candlestick chart with an annotation layer and a broken axis? Four calls. Not an afternoon spent grepping a 400-key config object for whichever flag switches it on.\n\n9 kB gzipped at runtime, and the only dependency is a vendored fork of d3-scale. Output is a string on both ends of the wire, so a chart comes out identical in Node and in the browser. Run it from a build script, get an SVG file ready to rasterize. Run it under React, get elements.\n\nWhy it exists: we had a dashboard with 60 small multiples, and every mature library we tried either ate the frame budget or made us write the same 200 lines of margin arithmetic sixty times over.\n\nWant a chart in one line? Go use Chart.js. Want to say exactly what the picture is? Read on.\n\n---\n\nTwo things to swap before release: the name and the numbers. The 9 kB, the d3-scale fork, and the 60-small-multiples story are stand-ins. Replace them with your own \u2014 don't just cut them. Those specifics are the only reason this page won't read like every other library homepage."
+}

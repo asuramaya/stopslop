@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "No API was named, so here's a version written for a generic REST/HTTP API \u2014 swap the specifics in the bold clauses for yours.\n\n---\n\n## Design philosophy\n\nMost of what follows is a promise about what this API *won't* do.\n\n**One obvious way.** Where two reasonable designs existed, we shipped one. There is a single endpoint for creating a record, a single pagination scheme, a single date format (RFC 3339, always UTC). Convenience aliases have a way of becoming the thing everyone depends on, so we don't add them.\n\n**Errors are part of the contract.** A failure returns the same envelope every time: an HTTP status, a stable machine-readable `code`, and a human sentence that names what went wrong and what to send instead. Codes never change meaning. New ones can appear; treat an unrecognized code as its status class and you'll keep working.\n\n**Additive change only.** Fields get added, never removed or retyped, within a major version. If your client ignores unknown fields, an upgrade is a no-op. When we do need to break something, it arrives as a new version with the old one supported for twelve months and a dated deprecation header on every response.\n\n**Your data stays shaped the way you sent it.** We don't silently coerce types, trim strings, or reorder arrays. Bad input gets rejected at the edge with a `400` rather than guessed at."
+}

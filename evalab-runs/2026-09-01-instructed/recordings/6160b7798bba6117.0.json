@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Names and companies below are placeholders \u2014 swap in real, approved quotes before this ships.\n\n---\n\n## What people tell us\n\n> \"We had 14 services writing logs to 14 different places. Finding one request across all of them meant SSH, `grep`, and a lot of swearing. Now it's one query box. The first week we used it, we found a retry loop that had been quietly burning $900 a month in egress since March.\"\n>\n> **Priya Raghavan** \u2014 Staff SRE, Northbound Freight\n\n> \"I care about one number: how long it takes to answer 'what happened at 3:14 a.m.' Used to be forty minutes. It's about ninety seconds. Our on-call rotation stopped feeling like a punishment.\"\n>\n> **Marcus Oyelaran** \u2014 Engineering Manager, Tessellate\n\n> \"The retention pricing is what sold my finance team. We keep 90 days hot and two years cold, and we still spend less than we did on the self-hosted cluster nobody wanted to maintain. I have not thought about disk pressure in a year.\"\n>\n> **Dana Whitfield** \u2014 CTO, Larkspur Health\n\n> \"Setup was an afternoon. One agent, one config file, and our existing dashboards kept working.\"\n>\n> **Tom Iwanaga** \u2014 Platform Engineer, Rally Six\n\n---\n\n~205 words. The claims are all specific and checkable on purpose \u2014 swap the numbers for ones your real customers will stand behind, since made-up metrics in a testimonial are the fastest way to lose the credibility the section exists to build."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (> \"I care about one number:):\n- bold_density:\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## What people tell us\n\nNames and companies below are placeholders \u2014 swap in real, approved quotes before this ships.\n\n> \"We had 14 services writing logs to 14 different places. Finding one request across all of them meant SSH, `grep`, and a lot of swearing. Now it's one query box. The first week we used it, we found a retry loop that had been quietly burning $900 a month in egress since March.\"\n>\n> Priya Raghavan, Staff SRE, Northbound Freight\n\n> \"The only number I track is how long it takes us to answer 'what happened at 3:14 a.m.' Used to be forty minutes. It's about ninety seconds. Our on-call rotation stopped feeling like a punishment.\"\n>\n> Marcus Oyelaran, Engineering Manager, Tessellate\n\n> \"The retention pricing is what sold my finance team. We keep 90 days hot and two years cold, and we still spend less than we did on the self-hosted cluster nobody wanted to maintain. I have not thought about disk pressure in a year.\"\n>\n> Dana Whitfield, CTO, Larkspur Health\n\n> \"Setup was an afternoon. One agent, one config file, and our existing dashboards kept working.\"\n>\n> Tom Iwanaga, Platform Engineer, Rally Six\n\n~205 words. The claims are all specific and checkable on purpose \u2014 swap the numbers for ones your real customers will stand behind, since made-up metrics in a testimonial are the fastest way to lose the credibility the section exists to build."
+}

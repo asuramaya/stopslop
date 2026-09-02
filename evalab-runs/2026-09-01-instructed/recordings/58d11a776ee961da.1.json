@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination: the [Team Name] deploy crew**\n\nEighteen months ago, releasing to production meant a Thursday night, a 40-step wiki page, and one person who knew which step you could skip. Deploys took four hours. Two of us stayed up for them.\n\nThat's gone now. [Team] rebuilt the pipeline end to end: containerized the build, moved config out of the AMIs, and put a one-click rollback behind a button anyone on call can press. Median deploy time is now 11 minutes. We went from roughly six releases a month to about nine a day, and change-failure rate dropped from 14% to under 3%.\n\nWhat I want to single out is the part that doesn't show up in the metrics. They did this without a rewrite-everything moratorium, migrating service by service while the rest of us kept shipping features on the old path. They wrote real docs. When my team hit a broken health check at 2am in March, [Name] was in the channel in four minutes and stayed until it was fixed.\n\nHalf the engineers here have never seen the old process. They should probably hear the story once, then vote for this team."
+}

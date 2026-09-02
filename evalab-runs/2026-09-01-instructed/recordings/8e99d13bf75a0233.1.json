@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome\n\nYou're here. Your laptop should be on your desk, and if it isn't, find Priya on the second floor \u2014 she has the spares.\n\nToday is not a productive day. Nobody expects one. Your only real job before Friday is to open a pull request, get it reviewed, and watch it deploy. It can be a typo fix in the docs. The point is that you've walked the whole path once, so the second time you're not guessing.\n\nThree things to do first:\n\n1. Run `./scripts/bootstrap` in the `platform` repo. It takes about twenty minutes and will fail once on the Postgres step. That's expected \u2014 the README says why.\n2. Post in #new-here. Say what you'll be working on and one thing you're good at that isn't in your job description.\n3. Book coffee with your onboarding buddy. Their name is in the calendar invite titled \"Week 1.\"\n\nA few things about how we work that you'd otherwise learn the slow way. We review code within a day, and a review that just says \"LGTM\" is considered a non-review. We ship on Fridays, which some people think is reckless; we do it because our rollbacks take ninety seconds and we'd rather test that claim weekly than annually. Disagreement in a design doc is normal. Disagreement after the decision is made gets written down in the doc and then we move.\n\nAsk the obvious question. The person next to you probably has it too and has been quietly avoiding it for six months.\n\nGlad you're here."
+}

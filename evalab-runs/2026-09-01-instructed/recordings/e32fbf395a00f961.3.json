@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**Proposal: One quarter of engineering time for debt paydown**\n\nFor the last three quarters we have shipped features on top of a foundation we know is cracked. I'm asking for Q[N]: no new roadmap commitments, one quarter of the team's time spent making the system cheap to change again.\n\nHere is the case. Our median PR now takes [X] days from open to merge, up from [Y] a year ago. Most of that is not review; it's the test suite, which is flaky enough that engineers rerun it by reflex. Two of our services share a database schema neither team owns. Every incident in the last six months traced back to one of these three things.\n\nWhat we'd do: split the shared schema, delete the dead auth path, and get the suite green and under ten minutes. That's it. Three items, not a wish list.\n\nWhat it costs: roughly [N] feature-weeks. I'm not going to pretend otherwise, and I'd rather name the price than bury it. Sales has [commitment] in Q[N+1], and this plan pushes it by about [X] weeks.\n\nWhat we get back: I expect merge time to drop by half and on-call pages to fall meaningfully. We'll publish both numbers weekly so you can kill the effort in week four if the curve is flat.\n\nThe alternative isn't zero cost. It's paying the same debt in smaller, uglier installments, during incidents, at night, with worse odds of a fix that holds.\n\nHappy to walk through the specifics whenever it's useful.\n\n---\n\nThe bracketed figures need your real numbers before this goes out; I left them blank rather than inventing them."
+}

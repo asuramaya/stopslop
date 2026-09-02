@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Senior Backend Engineer**\nRemote (US) or Chicago office \u00b7 $180k\u2013$215k + equity\n\nWe handle money movement for roughly 40,000 small businesses. Payroll clears, invoices settle, ACH files leave on a schedule that has no interest in whether our on-call engineer is having a rough week. The backend team is nine people. We want a tenth.\n\nThe work: our ledger service and the payment orchestration layer wrapped around it. Go and Postgres, plus an aging Python service still doing reconciliation that somebody will need to kill off eventually. Things we shipped lately: settlement latency down from 90 seconds to under 10, and a rewrite of our idempotency handling after a bad week in March showed us where we'd been wrong.\n\nWe're after about six years of backend work, some of it on systems where getting the answer right mattered more than getting it fast. Payments background is a plus, not a requirement; folks coming from billing, inventory, or anything double-entry usually get up to speed fast. You should want to own a service from end to end, pager included.\n\nStraight talk about the downsides: we're regulated, which means compliance work, and audit season is a slog. Our test suite runs 14 minutes. The reconciliation path carries debt we're chipping away at steadily instead of all at once.\n\nThe upsides: small team, actual ownership, nobody standing between you and a deploy. We ship most days. Reviews are careful without being personal.\n\nThe process: a screen, a systems design conversation, a paid take-home, and a team chat. Four to five hours across two weeks."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\nRemote (US) or Chicago office \u00b7 $180k\u2013$215k + equity\n\nWe move money for about 40,000 small businesses. Payroll clears, invoices settle, and ACH files go out on a schedule that doesn't care whether our on-call engineer is having a bad week. The backend team is nine people. We're hiring a tenth.\n\nWhat you'd work on: the ledger service and the payment orchestration layer built around it. Go and Postgres, plus an old Python service still handling reconciliation that someone will need to retire at some point. Recent wins: settlement latency dropped from 90 seconds to under 10, and we rewrote our idempotency handling after a rough week in March exposed where our thinking had been off.\n\nWe're looking for roughly six years of backend experience, some of it on systems where correctness mattered more than speed. Payments experience helps but isn't required; people arriving from billing, inventory, or any double-entry domain tend to ramp quickly. You should want to own a service end to end, pager and all.\n\nHonestly, the rough parts: we're regulated, so there's compliance work, and audit season drags. Our test suite takes 14 minutes. The reconciliation path has debt we're paying down gradually rather than in one push.\n\nThe good parts: small team, real ownership, no one between you and a deploy. We ship most days. Code review is thorough without getting personal.\n\nHow hiring works: a screen, a systems design conversation, a paid take-home, and a chat with the team. Four to five hours spread over two weeks."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Platform Engineering Team Charter\n\n## Why we exist\n\nEvery week, product teams lose hours to work that has nothing to do with their product: wiring up CI, chasing a failed deploy, guessing which Terraform block will finally apply. We absorb that work and hand it back as paved roads, defaults that are easy to pick up and hard to misuse.\n\n## What we own\n\n- The path from commit to production: build and deploy pipelines.\n- The base runtime: container images, orchestration, service scaffolding.\n- Observability plumbing (logs, metrics, traces) and the tools around it.\n- Developer environments, and how closely they match production.\n- Access, secrets, and the guardrails that keep an audit dull.\n\n## What we don't own\n\nProduct code isn't ours, and our approval is not a merge gate. Teams are free to leave the paved road. We only ask to hear why, so we can work out whether the road was in the wrong place.\n\n## How we work\n\nInternal tooling is a product, so we treat it like one. We talk to users before we build. We publish a roadmap. We deprecate on a schedule instead of by surprise. What we ship, we run, pager included.\n\nRequests come through a single queue that anyone can read. When we say no, we say it in writing, with a reason.\n\n## How we'll know it's working\n\nTime from a new service's first commit to its first production deploy. Change failure rate. How many teams took the paved road without being asked. We publish all three every quarter, including the quarters where the numbers slip."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Platform Engineering Team Charter\n\n## Why we exist\n\nProduct teams burn hours every week on work that isn't their product: patching CI, tracing a deploy that died overnight, guessing which Terraform block will apply this time. We take that work off their plate and give it back as paved roads, defaults that are easy to adopt and hard to get wrong.\n\n## What we own\n\n- Commit to production: build and deploy pipelines.\n- The base runtime: container images, orchestration, service scaffolding.\n- Observability plumbing (logs, metrics, traces) and the tooling on top of it.\n- Developer environments, and how closely they resemble production.\n- Access, secrets, and the guardrails that make audits boring.\n\n## What we don't own\n\nProduct code. We are also not a merge gate; nobody needs our sign-off to ship. Teams can leave the paved road whenever they like. All we ask is that they tell us why, so we can work out whether the road is in the wrong place.\n\n## How we work\n\nInternal tooling is a product, so we run it as one. We talk to users before we build. We publish a roadmap. Deprecations come with dates instead of surprises. If we ship it, we carry the pager for it.\n\nOne request queue, open for anyone to read. When the answer is no, it gets written down with a reason attached.\n\n## How we'll know it's working\n\nTime from a new service's first commit to its first production deploy. Change failure rate. How many teams took the paved road unprompted. All three go out every quarter, including the bad ones."
+}

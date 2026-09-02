@@ -2,24 +2,39 @@
 
 [![tests](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml/badge.svg)](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml)
 
-A pluggable text gate for Claude Code that reads your prose at the moment of the write, and an evaluation harness that measures whether the gate is worth running. The harness is the unusual part. Most tools in this category assert that they remove AI writing tells; this one tests the claim against a control, and the answer is narrower and stranger than the pitch would be.
+A pluggable text gate for Claude Code that reads your prose at the moment of the write, and an evaluation harness that measures whether the gate is worth running. The harness is the unusual part. Most tools in this category assert that they remove AI writing tells; this one tests the claim against controls, including the free alternative to installing it at all.
 
 ## What the evidence says
 
-Three rounds of 30 prompts, four arms each, all replayable from [`evalab-runs/`](evalab-runs/). The arm that matters is a **blind rewrite**: the same prompt, the same number of generations the gated arm spent, told only to rewrite and never what was wrong. Anything a plain rewrite achieves is not worth building a gate for.
+Four rounds of 30 prompts, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). Two arms decide whether this tool earns its place. A **blind rewrite** spends the same generations the gate spends, told only to rewrite and never what was wrong. **Told the rules** pastes the enforced checks' own wording into the prompt and generates once -- what a line in `CLAUDE.md` costs you, which is nothing.
 
-**A blind rewrite moves structural tells from 75 to 75. The gate moves them from 75 to 3.**
+| arm | generations | total tells | per 1k words |
+|---|---|---|---|
+| ungated | 1 | 119 | 15.01 |
+| second ungated sample | 1 | 111 | 14.06 |
+| blind rewrite | 2.87 | 103 | 14.34 |
+| **told the rules** | **1** | 62 | 8.42 |
+| gated | 2.87 | **31** | **4.09** |
 
-That is the finding. Told only to rewrite, a model reproduces the same document shape, because nothing tells it the shape is what gives it away. Total tells fell 72%, the gated arm carried fewer on 26 of 30 prompts and the blind arm on zero, sign test p < 0.000001, favouring the gate in 100% of bootstrap resamples. It costs 2.9 generations per document.
+**A free line in your CLAUDE.md gets you halfway. The gate is what closes the other half.**
 
-Four things qualify that, and they are the reason to trust it:
+Naming the defects is what works, and it works twice. Stating the rules up front halves total tells for one generation: 119 to 62, winning on 22 of 30 prompts against 4, p = 0.0005. Enforcing them halves it again: 62 to 31, on 20 of 30 against 4, p = 0.0015. A model told a rule follows it about half the time -- 45 enforced flags survive a stated rule, 8 survive a gate.
+
+A blind rewrite at the same 2.87 generations achieves nothing at all (103 against 119, inside the second sample's own 111). Told only to try again, a model reproduces the same document shape, because nothing tells it the shape is what gives it away.
+
+So the trade is one line: **halve your tells for free, or quarter them for 3x the compute.** If you are not willing to spend the generations, take the instruction and skip the install. That is a real recommendation, not a disclaimer, and this tool will print the instruction for you:
+
+```
+python3 stopslop.py rules --ruleset slopwatch >> CLAUDE.md
+```
+
+Five things qualify the rest of it:
 
 - **It only works when the checks are pointed at formatting.** With just the 11 wording checks enforced, the gate barely beat a rewrite: 25 total tells against 38, directional at best. The lexical layer is nearly exhausted.
 - **Four checks did the work, not seventeen.** Bold as body emphasis, horizontal rules, uniform paragraph blocks and the colon reveal. Five of the nine checks added from Wikipedia's catalogue of AI tells fire *zero times* across 8107 words of exactly the register they describe.
 - **Tell sets decay.** The rule of three, copula avoidance and the participial significance clause were all catalogued against 2023-24 output. This model does not produce them at a measurable rate. What survives is the markdown habit, which is what [the stylometry work](https://arxiv.org/pdf/2603.27006) predicted would be the last fingerprint.
 - **The gate overshoots.** Against a human control of CPython stdlib docstrings and pre-LLM package documentation, generated prose scores 6.29 structural flags per 1000 words and human prose 0.97 to 2.09. Gated output lands at 0.39, *below* the human band. Humans use bold and horizontal rules in moderation; driving a signal to zero does not make text human, it makes it differently artificial. Calibrating to the human band is the clearest unfinished work here.
-
-And one thing that stayed true in every round: **held-out checks never improve.** Whatever the loop is not pointed at does not get better. That argues for enforcing comprehensively, not for skipping the gate, and it is why the harness always holds a subset back.
+- **The gate does not generalize better than an instruction.** On the 14 checks nobody enforced, the instruction scored 17 and the gate 23 -- indistinguishable (p = 0.58), but it kills the idea that enforcement teaches something a stated rule does not. Everything the gate wins, it wins on the checks it was pointed at. That has now held in four consecutive rounds, and it argues for enforcing comprehensively rather than for skipping the gate. It is why the harness always holds a subset back.
 
 None of this measures whether the writing is *good*. It measures whether it still reads as generated. Those are different questions and only the second is answered here.
 

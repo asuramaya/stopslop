@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Roadmap**\n\nWe keep this page public because the alternative is worse. Teams build on our tools, and guessing what we'll ship next quarter is a bad use of anyone's time.\n\nHere's what it is and isn't. It's the work we've committed to, grouped into what we're building now, what's next, and what we're still arguing about. Dates appear where we're confident enough to name one. Most items don't have dates.\n\nThings move. Items get pushed, reordered, and occasionally deleted. When something drops off, we'll say why in the changelog rather than let it quietly disappear. We'd rather explain a cancellation than pretend the item was never there.\n\nWhat lands on this page comes from support tickets, GitHub issues, conversations at conferences, and disagreements among ourselves. That last category is smaller than it used to be. If something you need isn't here, open an issue. That's the input that actually moves items up.\n\nOne caveat worth stating plainly: this is not a contract. Don't build a launch plan around a \"Next\" item without talking to us first. A roadmap is how we think out loud, and thinking out loud sometimes means changing our minds in public.\n\n*(~205 words)*"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Roadmap**\n\nThis page is public because keeping it private costs more. People build on our tools, and making them guess at next quarter's shipping list wastes their time and ours.\n\nWhat you're looking at: work we've actually committed to, sorted into in progress, up next, and still under debate. Some items carry dates. Most don't, because we only put a date on something when we believe it.\n\nPlans shift. Items slip, swap order, and sometimes get killed outright. When we kill one, the changelog will say so and say why. Silent removal is how roadmaps lose their credibility, so we don't do it.\n\nThe items here come from support tickets, GitHub issues, hallway conversations at conferences, and internal arguments. The internal arguments used to supply more of the list than they do now. If the thing you need is missing, file an issue. Issues are what actually reorder this page.\n\nWorth saying outright: none of this is a commitment we'll honor at your expense. If your launch depends on something sitting in \"Next,\" talk to us before you schedule around it. A roadmap is us thinking in public, and public thinking includes the part where we change our minds."
+}

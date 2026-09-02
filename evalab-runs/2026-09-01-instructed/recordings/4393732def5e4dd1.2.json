@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  }
+ ],
+ "output": "**Dark mode is live**\n\nIt shipped today, on desktop and mobile, for everyone.\n\nDark mode has sat near the top of our feedback inbox for about two years, and the honest reason it took this long is that we kept getting the colors wrong. Pure black backgrounds looked sharp in screenshots and awful at 11pm \u2014 text seemed to vibrate against them, especially on OLED phones. Inverting our light palette was worse. Our highlight yellow turned into a bruise.\n\nSo we rebuilt the palette from scratch instead. Backgrounds sit at a soft charcoal rather than #000. Body text runs at about 87% opacity, which sounds fussy but is the difference between reading for ten minutes and squinting for two. Every highlight color was re-picked by hand against the dark surface, and code blocks, tables, and inline links each got their own pass.\n\nA few details worth knowing:\n\n- Toggle it in Settings \u2192 Appearance, or let it follow your system theme.\n- Images and PDFs stay untouched. We're not dimming your scans.\n- Exported PDFs still come out on white paper. You almost never want a dark PDF, and the people who do can flip a switch in export options.\n\nIf a specific note looks wrong \u2014 a pasted table, an old highlight, something from an import \u2014 send it to us. Screenshots help more than descriptions. We tested against a few thousand notes from our own accounts, which is a decent sample and definitely not yours.\n\nUpdate the app, or reload the web version. It's there.\n\n*\u2014 The [App] team*\n\nSwap in your app name and settings path; the rest should drop in as-is."
+}

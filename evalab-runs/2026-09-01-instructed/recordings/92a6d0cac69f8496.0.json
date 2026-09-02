@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Payments**\nMeridian Capital Systems \u00b7 Chicago or US-remote\n\nWe move about $4B a year for roughly 900 small-business lenders. The ledger service behind that is eleven years old in places and three months old in others, and somebody has to hold both halves in their head at once.\n\nThat's the job.\n\nYou'd own ledger and settlement: Go, some Python we haven't finished migrating, Postgres, Kafka, all of it on EKS. In your first year, specifically \u2014 lead the double-entry rewrite we've scoped but never started, get p99 on the balance API down from 340ms to under 100, and take payments on-call one week in six. That's about two pages a month right now.\n\nWhat we're looking for:\n\n- Six-plus years on backend services that handle other people's money, or something with comparable consequences for being wrong\n- Real Postgres depth. You've chased a lock contention problem at 2am and can tell us what you found.\n- Working familiarity with idempotency, reconciliation, and the annoying reality that ACH settles in days\n\nWhat we don't care about: distributed-systems trivia, any particular framework, a CS degree.\n\nThe band is $195k\u2013$230k plus equity, and we'll say so before the first call rather than after the fourth. Fifteen engineers, four of them on payments. We deploy daily. Review is mandatory and usually same-day.\n\nThe process: a 45-minute conversation about work you've already done, a paid four-hour debugging session in our actual codebase, and coffee with the two people you'd sit next to."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Eighteen Months, Forty Services, One Regret**\n\nWe split our billing monolith because deploys took four hours and one bad migration could stop the whole company. Both problems were real. The fix cost more than we budgeted for.\n\nThis talk walks through the decomposition in the order it actually happened: how we chose the first seam (not the one the architecture diagram suggested), what we did about the shared database, and the six months we spent running old and new code paths side by side because nobody trusted the new one yet.\n\nSome of it worked. Extracting the payments boundary paid for itself within a quarter, and on-call got quieter almost immediately. Some of it didn't. We drew service boundaries around teams instead of around domains, then spent the next year paying that back in cross-team pull requests and release coordination.\n\nYou'll leave with a checklist for deciding whether a given seam is worth cutting, a strangler-fig routing pattern that doesn't require adopting a service mesh first, and a short list of the things we would have left in the monolith if we could do it again.\n\nFor engineers and tech leads weighing a decomposition, or halfway into one and wondering whether to stop.\n\nNumbers and specifics are placeholders \u2014 swap in your real timeline, service count, and the seam you cut first, since review committees weight concrete detail heavily."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Two Years In: What the Split Bought Us, and What It Billed Us**\n\nOur billing monolith took four hours to deploy, and one bad migration could halt the company. Those were genuine problems. The cure ran well past what we'd set aside for it.\n\nI'll retrace the decomposition in the order we lived it: which seam we cut first (not the one on the architecture diagram), what became of the shared database, and the half-year we ran old and new paths in parallel because nobody trusted the replacement yet.\n\nParts of it landed. Pulling out the payments boundary repaid its cost inside a quarter, and on-call quieted down within weeks. Parts of it didn't. We drew boundaries around teams rather than domains, then spent the following year settling that debt in cross-team pull requests and release choreography.\n\nYou'll walk away with a test for whether a given seam is worth cutting, a strangler-fig routing approach that doesn't demand a service mesh up front, and a short list of what we'd have left inside the monolith given another try.\n\nAimed at engineers and tech leads deciding whether to decompose, or partway through and wondering whether to stop.\n\nNote: the numbers here stand in for yours. Substitute your real timeline, service count, and first seam; review committees reward concrete detail."
+}

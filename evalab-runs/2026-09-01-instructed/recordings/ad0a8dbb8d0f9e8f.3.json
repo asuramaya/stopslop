@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**Eighteen Months, Forty Services, One Regret**\n\nWe split our billing monolith because deploys took four hours and one bad migration could stop the whole company. Both problems were real. The fix cost more than we budgeted for.\n\nThis talk walks through the decomposition in the order it actually happened: how we chose the first seam (not the one the architecture diagram suggested), what we did about the shared database, and the six months we spent running old and new code paths side by side because nobody trusted the new one yet.\n\nSome of it worked. Extracting the payments boundary paid for itself within a quarter, and on-call got quieter almost immediately. Some of it didn't. We drew service boundaries around teams instead of around domains, then spent the next year paying that back in cross-team pull requests and release coordination.\n\nYou'll leave with a checklist for deciding whether a given seam is worth cutting, a strangler-fig routing pattern that doesn't require adopting a service mesh first, and a short list of the things we would have left in the monolith if we could do it again.\n\nFor engineers and tech leads weighing a decomposition, or halfway into one and wondering whether to stop.\n\nNumbers and specifics are placeholders \u2014 swap in your real timeline, service count, and the seam you cut first, since review committees weight concrete detail heavily."
+}

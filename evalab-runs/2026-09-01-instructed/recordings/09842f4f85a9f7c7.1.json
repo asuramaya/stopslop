@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Nobody schedules a sprint for the thing they're most afraid to touch.\n\nThat's the shape of this month's issue. We kept hearing the same thing in retros: the file everyone routes around, the deploy step someone still does by hand because automating it would mean understanding it, the dependency pinned to a 2019 version with a comment that reads \"don't.\" None of it is on a roadmap. All of it is on the critical path.\n\nTechnical debt is a bad metaphor and we're using it anyway. Debt implies you chose it \u2014 that there was a moment of borrowing, a principal, a rate. Most of what slows us down was never borrowed. It accumulated from decisions that were right when they were made and quietly stopped being right sometime after, while nobody was assigned to notice.\n\nSo nothing here argues for the big rewrite. [Contributor] walks through an auth refactor that ran eleven weeks past estimate and what they'd tell themselves at week one. [Contributor] makes the case for spending a fixed share of every quarter on cleanup, with the numbers from doing it for a year. And our on-call retro covers an outage whose root cause was five years old.\n\nRead it before your next planning meeting."
+}

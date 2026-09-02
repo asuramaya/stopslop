@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Details are placeholders in brackets \u2014 swap in your specifics.\n\n---\n\n**Subject: [Service Name] is moving to [New Platform] in Q[N]**\n\nHi [Name],\n\nStarting [Migration Date], [Service Name] will run on [New Platform] instead of [Current Platform]. We wanted you to hear it early, with enough lead time to plan around it.\n\nWhy now? [Current Platform] hasn't kept up with what customers are asking for \u2014 [specific limitation, e.g. \"exports cap out at 10,000 rows\" or \"no single sign-on\"]. Rebuilding those on the old stack would have taken most of a year. On [New Platform] they ship in [timeframe].\n\nWhat changes for you:\n\n- **Your login and data carry over.** Nothing to re-enter, no new account.\n- **The URL changes** from [old URL] to [new URL] on [date]. Old links redirect for [duration].\n- **API integrations need an updated endpoint.** Migration guide: [link]. If you're on [API version], you have until [sunset date].\n- **[Feature X] works differently.** [One sentence on the difference.]\n\nWhat doesn't change: pricing, your contract terms, and your support contact.\n\nThe switchover happens [date and time, with timezone]. Expect roughly [duration] of downtime. We'll post live status at [status page URL].\n\nIf you have a custom integration, heavy API traffic, or anything unusual in your setup, reply to this email and we'll walk through your specific case before [date]. We'd rather spend an hour with you now than troubleshoot after the cutover.\n\nQuestions in the meantime: [support email] or [link to FAQ].\n\n\u2014 [Name], [Title]\n\n---\n\n~250 words. If you tell me the actual service, platform, and dates, I'll fill it in and adjust the tone for your audience."
+}

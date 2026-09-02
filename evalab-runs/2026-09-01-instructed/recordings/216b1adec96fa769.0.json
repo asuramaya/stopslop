@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Ferrite 2.0: one client, and a retry log you can actually read\n\nFerrite 2.0 shipped this morning.\n\nThe big change is async all the way down. 1.x gave you a blocking client, then bolted on an `aio` submodule a year later. The two drifted apart. `aio.Client` went three releases without any pagination helpers at all. That split is done. There is one `Client`, its methods return awaitables, and `ferrite.sync` wraps it for scripts that would rather not spin up an event loop.\n\nRetries were rewritten, not patched. 1.x retried every 5xx on a flat 200 ms backoff, which meant a flapping upstream took a synchronized volley from every worker you had, indefinitely. 2.0 uses decorrelated jitter, honors `Retry-After`, and skips POST and PATCH unless you pass an idempotency key. Each attempt shows up on `response.attempts` with its status, latency and reason. When someone asks where nine seconds went, you have an answer.\n\nThe rest: real type hints, with `py.typed` shipped in the wheel; pooling now defaults to 20 connections per host instead of 2; typed exceptions replace the old dict with `error` buried in it.\n\nBreaking changes: Python 3.9 is no longer supported, `Client.get()` returns a `Response` instead of a dict, and a failed call now raises where it previously returned `None`. The `ferrite-migrate` codemod handles the first two. The third wants a human reading the call sites.\n\nDocs are at ferrite.dev/2.0. File bugs on the tracker, as always."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Ferrite 2.0: a single client, and retry logs that make sense\n\nFerrite 2.0 went out this morning.\n\nAsync is now the default from top to bottom. In 1.x you got a blocking client, and an `aio` submodule turned up a year later. The two drifted. `aio.Client` shipped through three releases with no pagination helpers at all. That split is gone. There is one `Client`, its methods return awaitables, and `ferrite.sync` wraps it for scripts that would rather not stand up an event loop.\n\nRetries got rewritten rather than patched. 1.x retried every 5xx on a flat 200 ms backoff, so a flapping upstream drew a synchronized volley from every worker you had, forever. 2.0 uses decorrelated jitter, respects `Retry-After`, and leaves POST and PATCH alone unless you supply an idempotency key. Every attempt lands on `response.attempts` with status, latency and reason. When somebody asks where nine seconds went, you can tell them.\n\nSmaller items: real type hints, with `py.typed` in the wheel; the pool now defaults to 20 connections per host rather than 2; typed exceptions in place of the old dict with `error` buried somewhere inside.\n\nBreaking changes: Python 3.9 is dropped, `Client.get()` hands back a `Response` instead of a dict, and a failed call raises where it used to return `None`. `ferrite-migrate` codemods the first two. The third needs a person reading the call sites.\n\nDocs live at ferrite.dev/2.0. Bugs go on the tracker, same as always."
+}

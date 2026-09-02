@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "Here's the page. I've bracketed the handful of facts I can't invent for you \u2014 swap them in or cut the sentence.\n\n---\n\n# About [Company]\n\nMost clinics still run on a phone tree and a whiteboard. A patient calls, waits on hold, gets offered a slot three weeks out, then no-shows. Meanwhile the 2:15 cancellation goes unfilled, because nobody at the desk had ten free minutes to work the waitlist.\n\nThat gap is why we exist.\n\n[Company] makes scheduling software for outpatient clinics \u2014 primary care, dermatology, physical therapy, anywhere a front desk juggles more calendars than it has people. Online booking. Waitlist backfill that actually calls the next patient. Provider templates that don't shatter when someone changes their Thursday. Reminders by text, not a voicemail nobody plays.\n\nWe're opinionated about three things, and you'll feel all of them in the product. Scheduling is a clinical decision, not a calendar problem: a 20-minute follow-up and a 20-minute new-patient visit are not the same appointment, and software that treats them as interchangeable makes the day worse for everyone. We connect to the EHR you already have instead of asking you to rip it out. And we never charge per booking \u2014 billing a clinic each time it sees a patient is a strange way to make a living.\n\nToday [N] practices run their schedules on us, from solo providers to a [X]-location group in [state].\n\nWe're [N] people in [city]. A few of us worked a front desk before we wrote a line of this, which is mostly why the cancellation queue got built first. Support goes to our own inboxes, not a ticket farm."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Dark mode, at last\n\nDark mode arrives today in Margin 3.4, on Mac, Windows, iOS, and Android. Turn it on in Settings \u2192 Appearance, or leave it on Auto and it tracks your system clock.\n\nThe requests started in 2023. It seems fair to explain the delay.\n\nWe had a version running a year ago. Flip the palette, ship it, done. It read badly. Notes are mostly small text, and white on black smears at 14px; the letterforms bleed into each other, worst of all on OLED. What we shipped instead is #E8E6E3 on #1A1A1A, which measures 13.2:1 and kills the halo.\n\nThen there was the highlighter. All five colors were chosen against a white page, and against a dark one the yellow glowed like a traffic sign. Every color is retuned, and existing highlights convert as the file opens, so a note you marked up in 2024 still looks like what you intended.\n\nTwo other details. Images and PDFs keep their full brightness rather than getting dimmed, since a dimmed screenshot is a screenshot nobody can read. And code blocks get a purpose-built syntax theme instead of the light one with its colors swapped.\n\nIf anything looks off, whether it's a plugin with hardcoded colors or a theme that fights the new tokens, mail support@margin.app with a screenshot. Someone is reading that inbox all week.\n\nUpdate through the App Store, the Play Store, or Help \u2192 Check for Updates.\n\n*(No real app name was supplied, so \"Margin\" and margin.app are left in place for you to swap.)*"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Dark mode is here\n\nMargin 3.4 brings dark mode to Mac, Windows, iOS, and Android as of today. Switch it on under Settings \u2192 Appearance, or set it to Auto and let it follow your system clock.\n\nPeople have been asking since 2023, so the delay deserves a word.\n\nA build existed twelve months ago. Invert the palette and ship. It read terribly. Notes are mostly small text, and white on black smudges at 14px; letterforms run together, and OLED screens make it worse. The version you're getting uses #E8E6E3 on #1A1A1A, a 13.2:1 ratio with no halo around the type.\n\nThe highlighter was its own problem. All five colors were picked to sit on a white page, and on a dark one the yellow burned like a road sign. Each color has been retuned, and old highlights convert when the file opens, so a note you marked up in 2024 reads the way you meant it to.\n\nTwo smaller things. Images and PDFs stay at full brightness instead of being dimmed, because a dimmed screenshot is unreadable. And code blocks use a syntax theme built for dark backgrounds rather than the light one with inverted colors.\n\nSomething looking wrong? A plugin with hardcoded colors, a theme arguing with the new tokens? Send a screenshot to support@margin.app. The inbox is staffed all week.\n\nGrab the update from the App Store, the Play Store, or Help \u2192 Check for Updates.\n\n*(No real app name was supplied, so \"Margin\" and margin.app are left in place for you to swap.)*"
+}

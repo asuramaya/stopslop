@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "**This month: technical debt**\n\nEvery team has the file nobody opens on a Friday.\n\nDebt gets talked about as a moral failing \u2014 the shortcut you shouldn't have taken, the test you meant to write. That framing is useless. It's a financing decision. You borrowed speed, and you pay interest in longer onboarding, flakier deploys, and the meeting where four people argue about what a function was supposed to do. Sometimes the loan was worth it. Sometimes you're still servicing a 2019 launch nobody remembers.\n\nWhat we wanted from this issue was numbers instead of vibes. So the pieces are specific: [Name] on why [service] took nine months to make deletable, and what the migration actually cost. [Name] on the lint rule that killed a whole class of bug, plus the two weeks of red builds it dragged in behind it. And a short list of the debts we've decided to keep, with reasons.\n\nNo cleanup mandate is attached to any of this. There's no quarter of pure refactoring coming. The useful move is smaller \u2014 know what you owe, know the rate, then choose. Most teams can't answer the first part.\n\nRead on. Argue with us in #eng-newsletter.\n\nSwap the bracketed names, service, and numbers for real ones \u2014 the intro leans on them, and generic stand-ins would flatten it."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "No details were given, so I filled in a plausible setup \u2014 a small infra/eng team, an ops-flavored conference. Swap the bracketed bits and the numbers for your own.\n\n---\n\n**Notes from three days at [Conference]**\n\nFive of us flew out Monday. Here's what stuck.\n\nThe hallway track beat the talks. That's not a knock on the program \u2014 two sessions genuinely changed how we think about our on-call rotation \u2014 but the most useful forty minutes was a coffee-line conversation with an engineer at a company four times our size who has already made every mistake we're about to make. She talked us out of building our own feature-flag service. That probably saved us a quarter.\n\nEveryone is drowning in the same thing. We went in half-embarrassed about our alert noise: 340 pages last month, maybe 30 of them real. Turns out that's normal, and nobody has solved it. The teams doing best had just deleted aggressively and accepted they'd miss things.\n\nVendors have stopped promising magic and started showing pricing. Refreshing.\n\nTwo things we're changing:\n\n- Cutting alert rules down to what one person can hold in their head. Rough target: 25.\n- Publishing postmortems as an internal feed, the way [Company] does. Their argument stuck with us \u2014 the audience is the org, not the incident.\n\nOne thing we're deliberately not changing: our deploy process. Three different people told us to move to trunk-based development, and all three described tooling we don't have the staff to run.\n\nSlides and our raw notes are in #conf-notes. Ask us anything. We're still arguing about half of it."
+}

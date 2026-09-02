@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination \u2014 [Award name]: [Team name]**\n\nEighteen months ago, a production release meant a 40-step runbook, a two-hour maintenance window, and someone on the team giving up their evening. Rollbacks were a phone tree. Most of us treated Friday as unshippable.\n\n[Team] rebuilt that. They replaced the runbook with a pipeline, added staged rollouts with automatic health gates, and made rollback a single command that finishes in under a minute. None of this arrived as a big-bang rewrite. They migrated one service at a time, sat with each owning team during their first few deploys, and fixed the rough edges before moving on.\n\nThe numbers: median time from merge to production dropped from [X] to [Y]. Change failure rate fell by [Z]%. Deploy volume roughly tripled, and off-hours pages tied to releases are close to zero.\n\nWhat I want to highlight is the part that doesn't show up in a dashboard. Engineers outside their team now ship small changes without ceremony, because the cost of being wrong got low enough to stop worrying about. [Team] took work nobody finds glamorous and made everyone else's job easier. That deserves recognition.\n\nNominated by [Your name], [Team/Org].\n\nSend me the team name, the real metrics, and one specific incident or migration you want called out, and I'll tighten it around those."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination \u2014 [Award name]: [Team name]**\n\nA year and a half ago, shipping to production meant a 40-step runbook, a two-hour maintenance window, and somebody losing an evening. Rolling back meant calling people. Nobody released on a Friday.\n\n[Team] tore that down and built something better. The runbook became a pipeline. Releases now go out in stages behind automatic health checks, and a rollback is one command that finishes inside a minute. They didn't do it as a single dramatic cutover, either. They moved one service at a time, sat with each owning team through their first few deploys, and smoothed out the problems before starting on the next one.\n\nBy the numbers: median merge-to-production time went from [X] to [Y]. Change failure rate dropped [Z]%. We deploy about three times as often, and after-hours pages tied to releases have all but stopped.\n\nThe part no dashboard captures is this. People on other teams now push small changes without thinking twice, because being wrong stopped being expensive. [Team] took on work that wins no applause and made everyone else's week easier. Please recognize them.\n\nNominated by [Your name], [Team/Org].\n\nGive me the team's name, the actual numbers, and one migration or incident worth naming, and I'll build the draft around those."
+}

@@ -1,0 +1,19 @@
+**Senior Backend Engineer**
+Hybrid, two days a week in our Chicago office · $185–215k + equity
+
+We process about 40 million payments a month for small businesses, and the systems that do it were built by people who are still here. Roughly 300 employees, 60 of them engineers.
+
+You'd join the ledger team, which owns the double-entry core, the reconciliation jobs that run against six bank partners, and the API our merchants integrate against. It's Go and Postgres, with a Kafka layer for event fanout. The oldest service is from 2019 and it shows in places; part of this job is deciding what to fix and what to leave alone.
+
+Some of what's on the roadmap this year: cutting settlement latency from T+2 to same-day, splitting the ledger writes off the monolith, and rebuilding the retry logic for failed ACH returns.
+
+What we're after:
+
+- Six or more years writing backend services, some of it on systems where a bug costs money
+- Real depth in one compiled language. Go is a plus, but we've hired from Java and Rust and it worked out
+- Comfort with the boring parts of correctness: idempotency, transaction isolation, what happens when a partner API times out mid-write
+- Willingness to be on call one week in six, with a rotation that's actually staffed
+
+We don't do whiteboard algorithms. The process is a 45-minute conversation about your work, a take-home you get paid for (four hours, hard cap), and a session where you walk two of our engineers through it.
+
+Apply with a résumé and a paragraph about something you built that broke.

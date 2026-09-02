@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**We Split the Monolith. It Took Three Years and We'd Do It Again (Mostly).**\n\nEveryone tells the microservices story after it worked. This one includes the eighteen months in the middle where nothing worked.\n\nIn 2023 our billing platform was a single Rails app: 400k lines, 45-minute deploys, and one bad migration away from a very bad weekend. We split it into nine services. Two of those splits were mistakes, and we merged them back.\n\nI'll walk through the decisions that mattered and the ones that only felt like they did. Where we drew boundaries, and why \"one service per team\" beat \"one service per domain noun\" for us. How we ran the strangler pattern against a database nobody fully understood. What distributed transactions cost us in engineer-hours before we admitted the boundary was wrong.\n\nAlso the unglamorous part: on-call got worse before it got better. Debugging a request across six hops is a different skill, and we had to teach it.\n\nYou'll leave with a checklist for deciding whether your monolith is actually the problem \u2014 often it isn't \u2014 and a realistic number for what the first year costs. If a slide deck is pushing you toward microservices rather than a bottleneck, come argue with me.\n\nThe specifics (Rails, 400k lines, nine services, the two rollbacks) are placeholders \u2014 swap in your real numbers, since the concreteness is what makes the abstract land."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- vague_intensifier (very):\n- colon_reveal (Also the unglamorous part:):\n- bold_density:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**We Split the Monolith. It Took Three Years and We'd Do It Again (Mostly).**\n\nEveryone tells the microservices story after it worked. This one includes the eighteen months in the middle where nothing worked.\n\nIn 2023 our billing platform was a single Rails app: 400k lines, 45-minute deploys, and one bad migration away from a weekend nobody wanted. We split it into nine services. Two of those splits were mistakes, and we merged them back.\n\nI'll walk through the decisions that mattered and the ones that only felt like they did. Where we drew boundaries, and why \"one service per team\" beat \"one service per domain noun\" for us. How we ran the strangler pattern against a database nobody fully understood. What distributed transactions cost us in engineer-hours before we admitted the boundary was wrong.\n\nThere's an unglamorous part too. On-call got worse before it got better. Debugging a request across six hops is a different skill, and we had to teach it.\n\nYou'll leave with a checklist for deciding whether your monolith is actually the problem \u2014 often it isn't \u2014 and a realistic number for what the first year costs. If a slide deck is pushing you toward microservices rather than a bottleneck, come argue with me.\n\nThe specifics (Rails, 400k lines, nine services, the two rollbacks) are placeholders \u2014 swap in your real numbers, since the concreteness is what makes the abstract land."
+}

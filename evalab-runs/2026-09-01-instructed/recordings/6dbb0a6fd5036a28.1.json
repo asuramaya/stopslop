@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "**What we're building next**\n\nThis page is the honest version \u2014 not the deck we show investors, but the actual list, with the things we've been putting off for two years sitting right next to the work we're excited about.\n\nHere's how to read it. \"Now\" means someone is writing the code this week. \"Next\" means we've scoped it and committed, though a hard bug or a hiring gap can still move it. \"Exploring\" means we suspect there's something there and we might be wrong. Roughly a third of what lands in Exploring never ships. We'd rather say that up front than quietly delete rows.\n\nWe don't put dates on anything past the current quarter. We tried for a year. We missed enough of them that the dates became noise, and support spent more time explaining slipped estimates than answering real questions.\n\nWhat moves an item up: how many teams are blocked, how ugly the workaround is, and whether we can build it without breaking something else. Customer votes count. They don't decide.\n\nIf the thing you need isn't here, open an issue or reply to the changelog email. We read all of it. We answer most of it."
+}

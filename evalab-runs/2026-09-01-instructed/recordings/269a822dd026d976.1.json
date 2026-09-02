@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. The bracketed bits are slots only you can fill \u2014 swap in your real numbers and names and it'll read like you wrote it.\n\n---\n\n## What we actually did this year\n\nEvery year-in-review post I've read opens by saying the year was a journey. Ours was mostly a queue.\n\nWe started [January] with [the checkout service] on fire roughly once a fortnight. It hasn't paged anyone since [June]. That's the headline, and it wasn't a rewrite \u2014 it was [Priya] noticing that the retry storm and the connection-pool limit were the same bug wearing two hats, and then three weeks of unglamorous work to prove it.\n\nThe migration off [Legacy Thing] took nine months instead of the four we planned. I want to be honest about why: we scoped it by counting endpoints, and the cost was in the data, not the endpoints. We know that now. Next time we count rows.\n\nOther things that landed: [deploys went from twice a week to ~14 a day]. On-call load dropped [from 11 pages a week to 2]. [Two people joined; nobody left.] The design-review doc that [Marcus] started as a personal habit is now how we make decisions, which is the best kind of process \u2014 the kind somebody just started doing.\n\nWhat didn't land: the test suite is still [22 minutes], and we've said we'd fix it in three consecutive planning sessions. It's on the roadmap again. I'd rather write that down than quietly drop it.\n\nThanks for a solid year. Go take your holidays properly \u2014 the queue will still be there.\n\n---\n\nAround 250 words. Adjust the closing line if your team's culture is less blunt."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Stop asking whose commit it was**\n\nThe checkout outage in August ran four hours. The write-up landed three weeks later, and I doubt twenty people opened it. That isn't apathy. The review turned into an argument about attribution, and once that happens, the person who understands the failure best has every reason to say as little as possible.\n\nSo: blameless postmortems, the kind Google, Etsy, and Stripe have run for a decade. No names attached to causes. The document asks what the system permitted, not who typed the command.\n\nThe case for this isn't kindness. It's accuracy. Someone who expects to be judged writes the shortest account he or she can defend. Someone who doesn't will tell you the deploy dashboard had been serving stale data for six weeks and the team had quietly stopped trusting it. That's the real failure. You hear it only from a person who feels safe saying it out loud.\n\nI know the objection. Drop blame, drop accountability. Wrong target. Accountability moves from the person to the repair: every postmortem ends with owned action items and dates, and we track whether they close. Blowing a deadline on one of those is a performance conversation. Being on shift when something broke is not.\n\nConcretely, I want one quarter as a trial. Any incident over 30 minutes gets a blameless write-up, published company-wide within five business days, on a template I'll have ready this week.\n\nWho wants in?"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Quit hunting for the guilty commit**\n\nCheckout was down four hours in August. The write-up showed up three weeks later, and I'd bet fewer than twenty people clicked it. Nobody here is lazy. The review turned into a fight over who did it, and once that starts, the person who understands the failure best has every incentive to keep quiet.\n\nSo: blameless postmortems. Google, Etsy, and Stripe have run them this way for ten years. Causes carry no names. The document asks what the system allowed, not who ran the command.\n\nThis isn't about being nice to each other. It's about getting a true account. Someone who expects to be judged writes the narrowest story they can defend. Someone who doesn't will mention that the deploy dashboard had been serving stale data for six weeks and the team had quietly stopped believing it. That's the actual failure, and you only hear it from a person who feels safe saying it out loud.\n\nI know the objection: drop blame, drop accountability. That aims at the wrong thing. Accountability moves from the person to the repair. Every postmortem closes with owned action items and dates, and we track whether they land. Missing one of those dates is a performance conversation. Being on shift when something broke is not.\n\nWhat I want is one quarter as a trial. Any incident over 30 minutes gets a blameless write-up, published company-wide inside five business days, on a template I'll have finished this week.\n\nWho's in?"
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "**Northbeam Payroll: from release night to Tuesday afternoon**\n\nNorthbeam runs payroll for roughly 4,000 small employers in the Netherlands. Until last year it shipped software eleven times annually, always on a Saturday. Two engineers and a DBA would sit in the Utrecht office from six in the evening until the smoke tests went green, usually somewhere around one in the morning.\n\n\"The batch size was the whole problem,\" says Ilse Verkerk, head of engineering. \"Eleven releases a year means every release carries four months of changes. When something broke we had two hundred commits to search through, at midnight, with payroll due Monday.\"\n\nThey moved to Relay in March 2025 and started with the internal admin tool, because nobody outside the company would notice if it fell over. A merge to main now triggers a build, contract tests replayed against six months of recorded payroll runs, then a canary to 5% of tenants for twenty minutes before the rest.\n\nTwelve months in: 240 deploys instead of eleven. Median lead time from merge to production dropped from 19 days to about three hours. Change failure rate fell from 14% to 6%, and a rollback takes 90 seconds instead of a restore from backup.\n\nThe first quarter was rough. Flaky tests blocked the pipeline so often that people started rerunning jobs on reflex, which defeats the point. Northbeam eventually deleted 40 tests rather than repair them. Verkerk still thinks two of those were worth keeping.\n\n\"Saturdays are ours again,\" she says. \"That's the part the team actually cares about.\"\n\n---\nNames, figures, and the platform are invented \u2014 swap in your real customer's data before publishing."
+}

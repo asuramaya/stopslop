@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "No API was named, so I wrote this to be provider-neutral \u2014 swap in the product name and the endpoint count.\n\n---\n\n## Design philosophy\n\nMost of what follows is a list of things we decided not to do.\n\nThe API is small on purpose. Nine endpoints cover the work, and a tenth has to earn its place by making something possible that composition cannot. When we can't agree whether a feature belongs, it stays out. Adding an endpoint later costs us nothing; removing one costs you a rewrite.\n\nNothing is inferred. We don't guess at what a malformed request probably meant, and we don't quietly substitute a default for a field you forgot. Required means required, and a missing one fails at the door rather than three weeks later in your billing reconciliation.\n\nErrors are part of the interface, not an afterthought bolted to the edge of it. Every failure returns a stable machine-readable code, the field that caused it, and one sentence a person on call can act on at 3am. Those codes are versioned as carefully as the endpoints themselves.\n\nOld versions keep working. Changes ship additively, deprecations are announced twelve months out, and we have never removed a field on a shorter clock.\n\nFinally, we optimize for predictable latency over peak latency. An API where every call takes 80ms is easier to build on than one that usually takes 20ms and occasionally takes four seconds."
+}

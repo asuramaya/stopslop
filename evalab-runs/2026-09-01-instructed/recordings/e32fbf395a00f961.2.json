@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**Proposal: dedicate Q4 engineering capacity to paying down technical debt**\n\nWe're asking leadership to allocate one quarter \u2014 roughly [X] engineer-weeks \u2014 to debt reduction rather than new feature work.\n\n**Why now.** Over the past four quarters, our median time from ticket to deploy has grown from [A] days to [B]. The cause isn't headcount. It's that the [service/module] has accumulated three overlapping data access patterns, a test suite that takes [N] minutes and fails intermittently, and a deploy path with manual steps that only two people know. Every new feature now pays a tax to route around all of this. That tax compounds.\n\n**What we'd do.** Consolidate the data access layer onto one pattern. Cut test runtime and fix the flaky cases, so people trust a red build again. Automate the remaining manual deploy steps and document the rest. We'd scope this as ordinary tracked work with weekly demos, not an open-ended cleanup.\n\n**What it costs.** Roughly [N] features slip a quarter. We've listed them in the appendix with our read on which are genuinely time-sensitive; two are, and we propose carving those out and shipping them anyway.\n\n**How we'd know it worked.** Cycle time back under [A] days. Build failures that reflect real breakage. Onboarding a new engineer to first merged PR in under a week.\n\n**The alternative.** We keep paying interest. Our estimate is that another year of this puts the [service] into rewrite territory, which costs far more than a quarter and carries real risk of shipping nothing during it.\n\nHappy to walk through the details."
+}

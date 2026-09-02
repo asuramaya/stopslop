@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "**A year without the office**\n\nWe closed the office in March. Not as a statement about the future of work \u2014 the lease was up and nobody wanted to sign another one mid-pandemic. Twelve months on, here's what actually changed.\n\nMeetings got worse before they got better. For the first quarter we ported the office schedule straight onto Zoom: standup at 9:15, design sync at 11, the Thursday all-hands. By June, calendar time per engineer was up about 40% and we were shipping the same amount. So we killed standup and replaced it with a written thread. Nobody has asked for it back.\n\nWriting turned out to be the whole job. Decisions that used to happen in a hallway and then evaporate now had to survive in a doc, which meant somebody had to make them legible to a person who wasn't there. Every bad incident we had that year traced back to something that was obvious to the team and written down nowhere.\n\nOnboarding broke. We hired eleven people remotely, and the four who struggled most were all early-career \u2014 not because they were less capable, but because they had no way to overhear how the work gets done here. New hires now get a named person for their first six weeks. It costs us real engineering time. It costs less than the alternative did.\n\nThe thing we got wrong at the start: we treated remote as a logistics problem. It's a documentation problem wearing a logistics costume.\n\nWe're not going back. We're also not going to pretend the first six months weren't a mess."
+}

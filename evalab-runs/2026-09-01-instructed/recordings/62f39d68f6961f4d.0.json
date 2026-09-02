@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "No library was named, so I invented one \u2014 swap the names and specifics for yours.\n\n---\n\n# Halyard 2.0\n\nHalyard 1.0 shipped in 2023 with one job: wrap a REST endpoint in something you could call without reading the docs twice. Two years and about 400 issues later, we've rewritten the core.\n\nThe big change is the transport layer. Every request now goes through one path, and that path is async underneath. Sync callers get a thin blocking shim, so `client.get(\"/users\")` behaves exactly as it did. But if you `await` it, you get real concurrency \u2014 200 in-flight requests sharing a connection pool instead of one thread apiece.\n\nRetries changed too. 1.x retried on any exception, which meant a typo in your JSON body got retried five times before it failed. 2.0 retries on status codes and connection errors only, with jittered backoff, and you can hand it your own predicate.\n\nPagination is no longer your problem. Endpoints that return a cursor now come back as an iterator that fetches the next page when you exhaust the current one.\n\nWhat broke:\n\n- `Client(base_url=...)` is positional now.\n- The `timeout` float is gone. Pass a `Timeout` with separate connect and read values.\n- `response.json` is a method again, not a property. That was our mistake in 1.4 and we're taking it back.\n\nThe migration guide lives in `MIGRATING.md`, and `halyard-codemod` handles the mechanical parts \u2014 imports, the timeout change, the `.json` call sites. 1.x keeps getting security patches until March 2027.\n\n```\npip install halyard==2.0.0\n```"
+}

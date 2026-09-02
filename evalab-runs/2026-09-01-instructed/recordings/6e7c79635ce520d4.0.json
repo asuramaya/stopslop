@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Security is not the security team's problem**\n\nNobody on the security team wrote the query that leaked customer emails last spring. We did \u2014 product side \u2014 and then we waited three weeks for a review that would have taken an hour to do ourselves.\n\nThat's the pattern I want to break.\n\nHere's what shared responsibility actually looks like, minus the poster slogans.\n\nYou own the threat model for what you ship. Not a document. A paragraph in the design doc: what could go wrong, who would want it to, and what stops them. If you can't write that paragraph, you don't understand your feature yet.\n\nYou read your own dependencies. When you add a package, look at who maintains it and when they last shipped. Ten minutes.\n\nYou escalate early and badly. A half-formed worry in #security beats a polished writeup after the incident. We have never once been annoyed by a false alarm. We have been annoyed by silence.\n\nThe security team's job changes too. They stop being the gate and start being the people who make the safe path the easy one \u2014 better defaults, libraries that are hard to hold wrong, reviews that come back in days instead of sprints.\n\nNone of this survives if we punish whoever finds the problem. If you break something, or notice something broken, say so. No blame, and I mean that in the boring operational sense: we fix the system, not the person.\n\nStart Monday. Pick one service you own and write the paragraph."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Security isn't something you can hand to the security team**\n\nThe query that leaked customer emails last spring? Nobody in security wrote it. We did, on the product side. Then we sat on our hands for three weeks waiting for a review we could have done ourselves before lunch.\n\nI'd like to stop doing that.\n\nSo here's what sharing the load looks like in practice, with the poster slogans left out.\n\nThreat-model your own work. I don't want a document. I want a paragraph in the design doc saying what could go wrong, who'd want it to, and what stands in their way. Struggling to write it means you don't understand the feature yet.\n\nLook at your dependencies. Adding a package? Check who maintains it and when they last shipped something. That's ten minutes.\n\nRaise things early, even half-baked. A vague bad feeling posted in #security is worth more than a beautiful writeup filed after the outage. No one here has ever been irritated by a false alarm. Silence, though \u2014 silence has irritated us plenty.\n\nSecurity's own job shifts as well. Less gatekeeping. More making the safe road the convenient one: better defaults, libraries that resist misuse, reviews that come back in days rather than sprints.\n\nAll of it collapses if we go after whoever surfaced the problem. Broke something? Spotted something broken? Speak up. Blameless, in the dull operational sense \u2014 we repair the system, not the person.\n\nMonday, then. Take one service you own and write the paragraph."
+}

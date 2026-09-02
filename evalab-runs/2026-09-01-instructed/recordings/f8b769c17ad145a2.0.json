@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Your worst query is not the one anybody filed a ticket about**\n\nMost database tuning is a hunch. A page drags, someone ships an index, p99 looks better for about a week. Then it creeps back.\n\nOn [DATE] at [TIME], [SPEAKER] does it the other way: reading a plan line by line, spotting the index the planner quietly decided to skip, and knowing when the query was fine all along and the connection pool in front of it was choking.\n\nThree slow-query postmortems from production Postgres, live on screen, with the actual EXPLAIN ANALYZE output. Nobody is reading you a list of best practices.\n\nWhat you leave with:\n\n- A method you can rerun monthly to rank your ten most expensive queries\n- Four reasons a perfectly good index goes untouched\n- The point where tuning stops paying and sharding starts\n\nBring a slow query. The last twenty minutes belong to you, and if yours is interesting we will pull up the plan together.\n\nFor engineers who keep a database alive in production. And for anyone told to \"just add an index\" who suspected that wasn't it.\n\n**Save your seat \u2192**"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**The query that's killing you never got a ticket**\n\nMost tuning runs on instinct. A page feels slow, an index goes out, p99 dips for a week, then drifts back up.\n\nOn [DATE] at [TIME], [SPEAKER] works the other direction: read the plan top to bottom, find the index the planner quietly declined to use, and recognize the case where the query was fine and the connection pool in front of it was the thing choking.\n\nThree real slow-query postmortems from production Postgres, on screen, with the EXPLAIN ANALYZE output they came from. No slide of best practices.\n\nYou'll walk out with:\n\n- A routine you can rerun monthly to rank your ten costliest queries\n- Four reasons the planner ignores an index you were sure it would use\n- The line where tuning stops earning its keep and sharding begins\n\nBring a slow query. The final twenty minutes are yours, and if yours is worth the room, we'll open the plan together.\n\nFor people who keep a database alive in production. And for anyone who's been told to \"just add an index\" and doubted that was it.\n\n**Save your seat \u2192**"
+}

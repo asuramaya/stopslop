@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Senior Backend Engineer**\nRemote (US) or Chicago office \u00b7 $180k\u2013$215k + equity\n\nWe move money for about 40,000 small businesses. Payroll clears, invoices settle, and ACH files go out on a schedule that doesn't care whether our on-call engineer is having a bad week. The backend team is nine people. We're hiring a tenth.\n\nWhat you'd work on: the ledger service and the payment orchestration layer built around it. Go and Postgres, plus an old Python service still handling reconciliation that someone will need to retire at some point. Recent wins: settlement latency dropped from 90 seconds to under 10, and we rewrote our idempotency handling after a rough week in March exposed where our thinking had been off.\n\nWe're looking for roughly six years of backend experience, some of it on systems where correctness mattered more than speed. Payments experience helps but isn't required; people arriving from billing, inventory, or any double-entry domain tend to ramp quickly. You should want to own a service end to end, pager and all.\n\nHonestly, the rough parts: we're regulated, so there's compliance work, and audit season drags. Our test suite takes 14 minutes. The reconciliation path has debt we're paying down gradually rather than in one push.\n\nThe good parts: small team, real ownership, no one between you and a deploy. We ship most days. Code review is thorough without getting personal.\n\nHow hiring works: a screen, a systems design conversation, a paid take-home, and a chat with the team. Four to five hours spread over two weeks."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\nRemote (US) or Chicago \u00b7 $180k\u2013$215k + equity\n\nAbout 40,000 small businesses run their money through us. Payroll clears, invoices settle, ACH files go out on a schedule that doesn't care how anyone's week is going. Nine people build the backend. We want a tenth.\n\nThe work sits in the ledger service and the payment orchestration around it \u2014 Go and Postgres, plus a Python service that still does reconciliation and that someone will eventually put out of its misery. Two things we're proud of lately: settlement went from 90 seconds to under 10, and we rebuilt idempotency handling after March showed us where our assumptions had holes.\n\nSix years or so of backend work, ideally somewhere correctness beat velocity. Payments background is a plus, never a requirement; folks coming from billing or inventory or anything double-entry pick this up fast. You want a service that's yours, pager included.\n\nThe parts nobody enjoys: we're regulated, compliance work is constant, and audit season is a slog. Tests take 14 minutes. Reconciliation carries debt we chip at instead of ripping out.\n\nThe parts we'd stay for: nine people, actual ownership, nothing standing between you and a deploy. Most days something ships. Review is careful and never personal.\n\nHiring: a screen, a systems design conversation, a paid take-home, a conversation with the team. Four or five hours total, spread across two weeks."
+}

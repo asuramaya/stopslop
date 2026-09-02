@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "The customer here is invented \u2014 you didn't name one, so treat the numbers as illustrative placeholders.\n\n---\n\n**Northwind Cargo went from a six-week release train to 45 deploys a week**\n\nNorthwind Cargo moves freight for about 400 regional shippers. Its engineering team of 32 spent most of 2025 on a six-week release cadence. Every sixth Thursday, four engineers stayed late, worked through a 140-step manual checklist, and hoped nothing in the batch of 300-odd merged commits broke checkout.\n\n\"The batch size was the problem,\" says Priya Raman, who runs platform engineering there. \"When something failed, we had no idea which of the 300 changes did it. We'd spend two days bisecting.\"\n\nThey adopted the platform in January 2026. The first three months were unglamorous: containerizing two legacy services, turning the checklist's wiki page into real migration steps, and cutting the test suite to under 11 minutes so it could run on every pull request.\n\nThe cadence changed after that. Northwind now merges to main behind feature flags and deploys on merge, roughly 45 times a week. Rollbacks still happen, about twice a month, but they take 90 seconds instead of an evening.\n\nEight months in: change failure rate fell from 18% to 4%. Median time from merge to production went from 31 days to 26 minutes. On-call stopped scheduling around release Thursdays, because there aren't any.\n\nRaman is careful about what she credits. \"The tool didn't fix our tests. We fixed our tests, and then the tool was worth having. Deploy broken code faster and all you get is broken code, faster.\"\n\n---\n\n~250 words. Swap in the real company, quotes, and DORA numbers and it should hold its shape."
+}

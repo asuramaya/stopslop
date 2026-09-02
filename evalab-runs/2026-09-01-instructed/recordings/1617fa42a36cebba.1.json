@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**Why our postmortems should stop naming a culprit**\n\nLast quarter's checkout outage review ended with a line about \"insufficient care during deploy.\" That sentence tells us nothing we can build on. It tells the person who ran the deploy plenty.\n\nHere's the mechanism I care about. When a review can end in blame, people manage the review. They remember less, they volunteer less, and they wait to see what the room thinks before saying what they saw. The result is a document that reads clean and teaches nobody. We wrote four of those last year. Two of the incidents happened again.\n\nA blameless postmortem swaps one question for another. Not \"who pushed the bad config,\" but \"what let a bad config reach production without a single check catching it.\" Same incident, different yield. The first question has one answer and no follow-up work. The second usually produces three or four things we can actually fix: a missing staging step, an alert nobody owned, a runbook that assumed knowledge only one engineer had.\n\nThis isn't about protecting people from consequences. Performance problems are a management conversation, and they stay one. The postmortem is a different instrument, and using it for discipline breaks it for diagnosis.\n\nWhat I'm proposing: for the next two quarters, incident reviews describe systems and decisions, not individuals. Names appear only as \"the on-call engineer\" or \"the deploy operator.\" Every review ends with owned action items and a date.\n\nIf in six months we're repeating fewer incidents, we keep it. If nothing changes, I'll write that postmortem too."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  }
+ ],
+ "output": "Here's the post. I gave the app generic details you'll want to swap for real ones (the hex values, the settings path, the version number) \u2014 but I kept the structure concrete on purpose, since a dark mode announcement with no specifics in it is indistinguishable from every other dark mode announcement.\n\n---\n\n# Dark mode, finally\n\nWe shipped dark mode today. It took eight months longer than we told you it would, and the reason is worth a paragraph.\n\nThe cheap version of this feature is a filter that inverts every color on screen. We built that in February. Screenshots came out solarized, code blocks lost their syntax highlighting, and the yellow highlighter turned a sickly blue. So we threw it out and rebuilt the color system underneath \u2014 about forty hardcoded hex values replaced with semantic tokens that resolve per theme.\n\nThree decisions you'll notice.\n\n**The background is #17171A, not black.** True black looks sharp in a screenshot and smears badly on OLED when you scroll a long note. Body text sits at 87% white instead of 100%, which kills the halo around letterforms.\n\n**Your attachments stay as they are.** We don't dim images or PDFs. If you pasted a white-background diagram, it's still white. You see what you filed.\n\n**Highlights were remixed, not inverted.** All five highlighter colors have dark-theme counterparts picked to hold the same contrast against text, so a note you marked up at noon still reads the way you marked it at midnight.\n\nTurn it on in Settings \u2192 Appearance. You get Light, Dark, and Match System, which follows your OS setting including scheduled switching.\n\nOne rough edge we already know about: tables with custom cell backgrounds still look wrong. That fix is in 2.4."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "Product name is a placeholder \u2014 swap it and the numbers for real ones before this ships.\n\n---\n\n# Kettle\n\n### Team chat for people who get paged.\n\nYou already know what chat costs you. An incident starts in a DM, moves to a channel nobody was watching, and the postmortem gets written from memory three days later.\n\nKettle keeps the thread. Every alert opens its own channel, wired to PagerDuty and your deploy pipeline, and archives itself into a timestamped timeline the moment you close it. Nothing to copy into the doc afterward.\n\n**What your engineers will notice**\nSearch that returns code as code, with syntax highlighting and a working line-jump to the repo. A desktop client that idles at 180 MB instead of 1.4 GB. Keyboard-first everything, including channel creation.\n\n**What you'll notice**\nPer-channel retention you set yourself, so legal stops emailing you about it. SCIM and SSO on every plan, including the cheap one. An export API that hands back JSON \u2014 not a zip of HTML you have to scrape.\n\n**What it doesn't do**\nNo feed. No stories. No auto-summary of a conversation you were already in. If your team wants a social network, buy a different tool.\n\n**Switching**\nImports from Slack and Teams preserve threads, files, and channel membership. Median cutover for a 200-person org is one weekend and one volunteer.\n\n**Pricing**\n$6 per user per month. No message caps, no enterprise upcharge to get audit logs.\n\n**[Start a 30-day trial]** \u2014 no card, every feature on, delete the workspace when you're done.\n\n---\n\n~250 words. Kept one three-item list (\"threads, files, and channel membership\") and no \"not just X, but Y.\""
+}

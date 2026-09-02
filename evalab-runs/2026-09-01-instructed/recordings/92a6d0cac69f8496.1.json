@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer, Payments Core**\nChicago or remote (US) \u00b7 $195\u2013235k + equity\n\nWe move about $4B a year for roughly 900 small-business customers. The ledger that tracks it was written in 2019 by four people in a hurry. It works. It also does a full table scan every time someone disputes a charge, and that's stopped being something we can defer.\n\nYou'd own the ledger and the settlement pipeline \u2014 Go services, Postgres, Kafka between them, running on EKS. The first six months are specific: cut settlement close from nine hours to under two, then move the ledger's write path off the monolith without a maintenance window.\n\n**What we need**\n\n- 7+ years on backend systems, some of it somewhere wrong numbers meant real money.\n- Deep Postgres. Not \"I've used an ORM\" \u2014 you can read an EXPLAIN plan and hold an opinion about isolation levels.\n- Comfort with money-shaped problems: idempotency, reconciliation, double-entry, and the fact that floats don't go near a balance.\n- Writing. Design docs get reviewed here before code does.\n\nHelpful, not required: Go, Kafka, card network settlement files, NACHA.\n\n**What you get**\n\nThirty-eight engineers total, so your name is on things. On-call is one week in six and it's quiet \u2014 two pages last quarter. Four weeks PTO that people take. Full medical, dental, therapy covered.\n\n**Process:** a 45-minute call, a paid four-hour design exercise, then a day with the team. Two weeks start to offer.\n\n---\n\n~255 words. All the numbers are placeholders \u2014 swap in your real headcount, volume, band, and on-call load, since the specificity is what makes it land."
+}

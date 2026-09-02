@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Welcome\n\nToday you'll mostly set up a laptop and meet people. Nobody expects code from you this week.\n\nThree things to do first:\n\n1. **Get on the VPN.** The steps are in the onboarding repo, and they're wrong about one thing: you have to run the profile installer twice. Everyone hits this.\n2. **Clone `platform` and run `make dev`.** It takes about forty minutes the first time. Start it, then go find coffee.\n3. **Message your onboarding buddy.** They're expecting to hear from you, not the other way around.\n\nA few things about how we work here.\n\nWe ship small. A pull request touching nine files will sit unreviewed for two days. One touching two files usually merges before lunch. Learning to cut work into pieces is most of the job.\n\nAsk questions in the open channel, not in DMs. It feels ruder. It isn't. The answer helps whoever hits the same wall next month, and DMs bury knowledge where nobody can search it.\n\nYou will break production at some point. When that happens we write a postmortem, and the postmortem does not name a person as the cause. We mean that literally, and you'll see it hold the first time someone senior takes the site down.\n\nTry to land your first PR this week. Pick anything off the `good-first-issue` list; a typo in a log message counts. The point isn't the change, it's walking the whole path once: branch, review, merge, deploy.\n\nLast thing. If something here looks stupid to you, say so now, while it still looks stupid. In six months you'll have stopped noticing it.\n\nGlad you're here."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Welcome\n\nYour first week is laptops and introductions. Nobody is waiting on code from you.\n\nStart with these three:\n\n1. **VPN access.** The onboarding repo walks you through it, but it's missing a detail: run the profile installer twice. Everybody trips on this once.\n2. **Clone `platform`, then `make dev`.** First build runs about forty minutes. Kick it off and go get coffee.\n3. **Ping your onboarding buddy.** They've been told to expect you, so don't wait for them to reach out.\n\nSome notes on how things run here.\n\nSmall changes win. A pull request across nine files tends to sit for two days. A two-file one is usually merged by lunch. Slicing work into reviewable chunks is most of what the job actually is.\n\nPut questions in the open channel rather than DMs. It seems less polite. It isn't. Someone will hit the same wall in a month, and answers buried in a DM are answers nobody can find.\n\nSooner or later you'll break production. We write a postmortem when that happens, and the postmortem never lists a person as the cause. That's not a slogan; you'll watch it hold the first time a staff engineer drops the site.\n\nAim to merge something this week. Grab anything from `good-first-issue`, even a typo in a log line. The change doesn't matter. Walking the path once does: branch, review, merge, deploy.\n\nOne more thing. If something around here strikes you as dumb, say it now, while it still strikes you that way. Give it six months and you won't see it anymore.\n\nGood to have you."
+}

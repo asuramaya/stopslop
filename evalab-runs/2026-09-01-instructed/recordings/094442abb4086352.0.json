@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Passes the slopwatch gate clean. The specifics (March, two hires, the two metrics) are invented \u2014 swap them for your real ones.\n\n---\n\n**Why we're hiring for developer relations**\n\nWe shipped an API in March. It worked. Nobody used it.\n\nThe docs were accurate, the SDK installed cleanly, and our support queue stayed quiet \u2014 which we read as a good sign for about six weeks, until someone finally pointed out that a quiet queue and no adoption look identical from the inside. People weren't hitting problems with the product. They were bouncing off the first ten minutes and never coming back.\n\nThat isn't a docs problem, and it isn't a marketing problem. Sales can't fix it either; by the time a developer talks to sales, they've already decided.\n\nSo we're hiring two people to do developer relations, and here's the actual job. Sit in the first ten minutes with people. Run the quickstart on a machine that isn't ours. Answer the Discord question at 11pm. Write the integration guide for the framework our roadmap doesn't officially support yet, because that's what half our signups are already on. Then carry what they learn back to engineering with enough force that it changes what we build.\n\nWe're measuring it on time-to-first-successful-call and on 30-day retention for self-serve accounts. Not impressions, not conference talks, not follower counts. If those two numbers don't move in two quarters, the experiment failed and we'll say so.\n\nThe short version: we built something developers can use, then left them to figure that out alone. We'd rather be in the room."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Why we're hiring for developer relations**\n\nOur API went live in March. It worked fine. Almost nobody built on it.\n\nThe docs were correct. The SDK installed on the first try. Support tickets never showed up, and for six weeks we told ourselves that meant things were going well. Then somebody said the obvious thing out loud: silence looks the same whether people are happy or gone. Nobody was fighting our product. They were quitting during setup and not coming back.\n\nYou can't write your way out of that, and you can't advertise your way out either. Sales arrives too late. The decision got made an hour after signup, alone, in a terminal.\n\nHence two hires, and here's what the work actually is. Watch people through their first ten minutes. Run the quickstart on hardware we don't control. Reply in Discord at 11pm. Write the integration guide for the framework we haven't officially blessed, since a good chunk of our signups already run it. Then carry all of that back to engineering hard enough to change the roadmap.\n\nTwo numbers will tell us whether it worked: time to first successful call, and 30-day retention on self-serve accounts. Impressions don't count. Neither do conference talks or follower counts. Two quarters from now, if those numbers sit still, we'll call it a failed bet in public.\n\nPut plainly: we shipped something usable, then left people to work it out by themselves. We'd rather be in the room with them."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "## Welcome\n\nToday you'll mostly set up a laptop and meet people. Nobody expects code from you this week.\n\nThree things to do first:\n\n1. **Get on the VPN.** The steps are in the onboarding repo, and they're wrong about one thing: you have to run the profile installer twice. Everyone hits this.\n2. **Clone `platform` and run `make dev`.** It takes about forty minutes the first time. Start it, then go find coffee.\n3. **Message your onboarding buddy.** They're expecting to hear from you, not the other way around.\n\nA few things about how we work here.\n\nWe ship small. A pull request touching nine files will sit unreviewed for two days. One touching two files usually merges before lunch. Learning to cut work into pieces is most of the job.\n\nAsk questions in the open channel, not in DMs. It feels ruder. It isn't. The answer helps whoever hits the same wall next month, and DMs bury knowledge where nobody can search it.\n\nYou will break production at some point. When that happens we write a postmortem, and the postmortem does not name a person as the cause. We mean that literally, and you'll see it hold the first time someone senior takes the site down.\n\nTry to land your first PR this week. Pick anything off the `good-first-issue` list; a typo in a log message counts. The point isn't the change, it's walking the whole path once: branch, review, merge, deploy.\n\nLast thing. If something here looks stupid to you, say so now, while it still looks stupid. In six months you'll have stopped noticing it.\n\nGlad you're here."
+}

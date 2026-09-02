@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "I don't have the conference or team details, so I've written it with concrete specifics you can swap \u2014 bracketed where I was guessing hardest.\n\n---\n\n**Notes from KubeCon, written on the flight home**\n\nFour of us went. We came back arguing, which is the best sign I know that a conference paid for itself.\n\nThe keynotes were forgettable. The hallway was not. Priya spent forty minutes with a platform team at a mid-size bank who had ripped out their service mesh after eighteen months and gone back to plain load balancers \u2014 their p99 dropped. Nobody said that from a stage. We heard some version of it four separate times standing near the coffee.\n\nThat's the part we keep chewing on. We've been treating our own mesh migration as a question of when, not whether. Three teams we respect have now told us the payoff never arrived at our scale. So Q4 starts with measuring what we'd actually gain before we spend another engineer-quarter on it.\n\nTwo smaller things worth writing down:\n\n- The OpenTelemetry collector story has gotten boring, in the good way. Marco thinks we can drop both vendor agents by March.\n- Everyone is running LLMs somewhere in CI. Almost nobody could name something it caught that a linter wouldn't have.\n\nThe talk we'd all rewatch was [speaker]'s on incident review without the blame theater. Fifteen minutes, three slides, and it changed how we're scoping the postmortem template rewrite.\n\nSlides and our shared notes doc are in #eng-conf. Ask us anything, preferably before we forget it.\n\n---\n\nTell me the real conference, team names, and one or two things that genuinely came up, and I'll redo it with those."
+}

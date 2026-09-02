@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "**Roadmap**\n\nWe keep this page public because the alternative is worse. Teams build on our tools, and guessing what we'll ship next quarter is a bad use of anyone's time.\n\nHere's what it is and isn't. It's the work we've committed to, grouped into what we're building now, what's next, and what we're still arguing about. Dates appear where we're confident enough to name one. Most items don't have dates.\n\nThings move. Items get pushed, reordered, and occasionally deleted. When something drops off, we'll say why in the changelog rather than let it quietly disappear. We'd rather explain a cancellation than pretend the item was never there.\n\nWhat lands on this page comes from support tickets, GitHub issues, conversations at conferences, and disagreements among ourselves. That last category is smaller than it used to be. If something you need isn't here, open an issue. That's the input that actually moves items up.\n\nOne caveat worth stating plainly: this is not a contract. Don't build a launch plan around a \"Next\" item without talking to us first. A roadmap is how we think out loud, and thinking out loud sometimes means changing our minds in public.\n\n*(~205 words)*"
+}

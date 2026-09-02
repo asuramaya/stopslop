@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "Assumption: no company specifics were given, so I invented the concrete details (numbers, rituals). Swap them for your real ones \u2014 the specificity is what makes it not read as boilerplate, and fake specifics are worse than none.\n\n---\n\n**How we work**\n\nSmall changes, shipped often. The median pull request here is 180 lines and merges within a day. We don't do quarterly big-bang releases; the last one was in 2023 and people still bring it up.\n\nEvery change gets reviewed by someone who will have to maintain it. Reviews are for catching real problems \u2014 a race condition, a migration that locks a table for nine minutes \u2014 not for relitigating brace style, which the formatter already settled.\n\nEngineers own what they write. If you build the billing sync, you carry the pager for it, you talk to support about it, and you decide when it gets rewritten. The alternative is code handed over a wall to whoever's on call, and that produces software nobody wants to touch.\n\nWe write things down. A design doc before big work, a short postmortem after every incident. Blameless in the boring, literal sense: nobody has been fired over an outage, and every postmortem goes out company-wide unedited.\n\nMeetings are opt-out. If you're in one and it isn't useful, leave. Nobody takes it personally. Tuesday and Thursday mornings are protected across the whole engineering org \u2014 no meetings, no exceptions for executives.\n\nOne Friday a month goes to paying down whatever is annoying people most. Flaky tests. A slow CI step. The deploy script everyone is quietly afraid of.\n\nWe don't use the word \"rockstar.\""
+}
