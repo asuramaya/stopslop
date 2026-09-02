@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Security isn't the security team's job**\n\nThere are four of us on the security team. There are roughly 180 people shipping code. Do the math on that ratio and you'll see why the review-queue model was never going to hold \u2014 last quarter we sat on 61 pull requests for an average of nine days each, and two of the incidents we had came from code that had passed our review anyway.\n\nSo we're changing how this works.\n\nStarting next sprint, security review moves to the team that owns the service. You know your data flows; we don't, not really. What we'll do instead is give you the tooling and the answers: threat-model templates that take twenty minutes, a Slack channel where someone from the team responds inside an hour, and office hours on Tuesdays for the gnarly stuff.\n\nThree things we're asking for. Model the threat before you design, not after. Treat a dependency bump like a code change, because it is one. And when you find something ugly in your own service, file it \u2014 nobody gets blamed for reporting. We mean that; if it turns out we don't mean it, tell my manager.\n\nThe parts that stay with us: incident response, pen tests, the auth libraries, and anything touching customer payment data. Escalate those, don't handle them.\n\nThis will be worse before it's better. You'll file findings that turn out to be nothing, and we'll write guidance that turns out to be wrong. Fine. Nine-day review queues are worse.\n\nQuestions to #security-eng."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Security is not something you can hand off**\n\nFour people on security. About 180 people writing code. That ratio explains why the review-queue approach broke: last quarter, 61 pull requests waited on us for an average of nine days each, and two of our incidents came out of code we had already signed off on.\n\nSo we're rearranging it.\n\nFrom next sprint, the team that owns a service owns its security review. You understand your own data flows; we mostly don't. Our job becomes supplying the tools and the answers \u2014 threat-model templates you can fill out in twenty minutes, a Slack channel where one of us replies within the hour, and Tuesday office hours for anything genuinely hairy.\n\nThree asks. Threat-model during design, not after it. Treat a dependency bump as a code change, since that is what it is. And when you turn up something bad in your own service, write it up \u2014 reporting never gets anyone in trouble. That's a real promise. If it stops being real, go to my manager.\n\nWhat stays with us: incident response, pen tests, the auth libraries, and anything touching customer payment data. Send those our way rather than handling them yourselves.\n\nExpect a rough patch first. You'll report things that turn out to be nothing, and we'll publish guidance that turns out to be wrong. That's an acceptable trade. Nine-day queues weren't.\n\nAsk in #security-eng."
+}

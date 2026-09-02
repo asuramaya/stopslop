@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome. Glad you're here.\n\nYour laptop's on the desk, your badge works, and someone has already assigned you a mentor who is probably nervous about meeting you. The coffee machine is on the third floor, behind the plants.\n\n**Today**\n\nMorning is IT setup and paperwork. After lunch, your mentor walks you through cloning the main repo and getting it running locally. Budget two hours. It takes three. If the setup script dies partway through, that isn't you \u2014 it dies for everyone, and fixing it has been in the backlog since before you applied.\n\n**This week**\n\nRead code. That's the whole assignment. Pick one service, follow a single request from the load balancer to the database and back, and write down every place you got lost. That list is worth more to us than anything you could ship in week one, because in six weeks you won't be able to see those gaps anymore.\n\nYou'll open your first pull request by Friday. Make it small. Fix a typo in the docs if that's what's there.\n\n**A few things nobody will tell you directly**\n\nAsking a question after twenty minutes of being stuck is correct. Asking after two days is expensive. Nobody is keeping score of what you don't know yet.\n\nWe deploy on Fridays. Yes, really. If that breaks something, we roll back in about four minutes and nobody sends an email about it.\n\nYour mentor's calendar is open. Use it."
+}

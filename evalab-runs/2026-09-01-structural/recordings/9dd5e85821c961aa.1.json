@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "Company name and every specific below are invented \u2014 swap them for your real numbers before publishing.\n\n---\n\n# About Wren\n\nWren started at a front desk.\n\nIn 2017 our co-founder, Dana Ruiz, spent fourteen months answering phones at a three-provider family practice in Tacoma. The software there could book an appointment in four clicks. It could not tell her that the 2:15 had canceled twice already, or that the patient on hold spoke Tagalog, or that Dr. Okafor ran forty minutes behind every Thursday afternoon without fail. So Dana kept a notebook. Every front desk keeps a notebook.\n\nWe build the software that reads the notebook.\n\nToday Wren schedules for about 900 outpatient clinics \u2014 family medicine, dermatology, physical therapy, and a lot of behavioral health. Patients book online or by text in six languages. Reminders go out on a cadence tuned to each practice's own no-show history instead of the generic 24-hour default, which is the unglamorous reason our customers watch no-shows fall from roughly 18% to 11% in the first year.\n\nWe're deliberately narrow. No billing module, no EHR, no plans to become a platform. Wren connects to Epic, athenahealth, eClinicalWorks and a dozen others, and we would rather do one job properly than sell you nine.\n\nForty-one people work here, half in Tacoma and half scattered. Support is answered by humans, most of whom have worked a front desk themselves, and the average reply lands in eleven minutes. Dana still takes a shift on the support queue most Fridays.\n\nIf your schedule is a mess, we've probably seen your exact flavor of mess."
+}

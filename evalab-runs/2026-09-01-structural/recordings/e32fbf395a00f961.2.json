@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "# Proposal: One Quarter of Engineering Capacity for Debt Reduction\n\n**To:** Engineering leadership\n**From:** [Name], [Team]\n**Date:** September 1, 2026\n\n## The ask\n\nDedicate Q4 engineering capacity to paying down accumulated technical debt, in place of new feature commitments. Bug fixes and customer escalations continue as normal.\n\n## Why now\n\nOur velocity is dropping for reasons that have nothing to do with the team. Three examples:\n\n- The checkout service has no test coverage below the integration layer. Every change there requires manual QA, which adds three to five days to work that used to ship in one.\n- We run two authentication paths because the migration begun last year was never finished. New endpoints need both, and we get this wrong often enough that it now accounts for a recurring share of production incidents.\n- Build times have grown past fifteen minutes, so people batch changes into larger, riskier merges.\n\nNone of these will surface as a project. They surface as estimates getting longer and nobody quite able to say why.\n\n## What we would do\n\nFinish the auth migration and delete the old path. Bring checkout to a coverage level where changes can ship without manual QA. Cut CI time by splitting the monolithic test job.\n\n## What it costs, and what it returns\n\nOne quarter of feature work, deferred rather than cancelled. In exchange we expect estimates on checkout work to return to earlier levels, one class of incident to disappear, and CI to stop shaping how people merge.\n\n## The alternative\n\nWe keep paying this in slower quarters, without a line item that names it.\n\nI'm happy to walk through the numbers behind any of the above."
+}

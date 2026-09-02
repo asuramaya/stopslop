@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Roadmap**\n\nWhat we're building, and roughly when.\n\nWe publish this because you're making stack decisions that depend on ours. If the thing you need is six months out, better you learn it now, while there's still time to route around us.\n\nHow to read it. \"Shipping\" means the work is underway and we'd be surprised to slip the quarter. \"Planned\" means engineers are assigned, dates aren't. \"Exploring\" means we're still arguing about it in Slack, so treat those as questions rather than promises. If it isn't on this page, it isn't quietly happening somewhere else.\n\nThe order changes often. Last quarter we pulled SAML forward by three months after roughly forty teams asked inside the same six weeks, and pushed the plugin API back when our first design didn't survive the beta group. It'll happen again. When it does, you'll read about it in the changelog rather than finding the page silently edited.\n\nWant something moved up? Tell us what you're blocked on, in the discussion thread beside each item. Specific beats loud."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Roadmap**\n\nWhat we're building, and roughly when.\n\nWe put this out because your stack decisions depend on ours. If the piece you need is two quarters away, you should hear that now, while you still have room to plan around us.\n\nReading the labels. \"Shipping\" means the work has started and we'd be surprised to miss the quarter. \"Planned\" means people are assigned but no date is. \"Exploring\" means the argument is still live in Slack, so read those as open questions rather than commitments. Nothing ships that isn't listed on this page.\n\nThe ordering moves. Last quarter SAML jumped forward three months after about forty teams asked for it inside six weeks, and the plugin API slid back when our first design didn't hold up with the beta group. That will happen again. When it does you'll hear it in the changelog, not by noticing this page has quietly changed.\n\nWant an item pulled up? Tell us what you're blocked on, in the discussion thread beside it. Specific beats loud."
+}

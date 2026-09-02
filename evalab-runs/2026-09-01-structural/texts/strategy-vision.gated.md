@@ -1,0 +1,9 @@
+Two years from now, shipping a service here should be boring.
+
+Right now it isn't. A team starting a new backend spends its first three weeks on work that has nothing to do with the product. They wire up auth, copy someone else's Terraform, guess at retry semantics, and discover on day nine that the logging format they picked doesn't join with anything in the warehouse. Every team solves it. Every team solves it differently. We are paying for the same work over and over and getting eleven incompatible answers. The bet is that we can turn those three weeks into an afternoon.
+
+In practice, that means a new service starts from a template that already has identity, deploys, dashboards, on-call routing, and a rollback path. The paved road has to be genuinely paved, which is to say the fastest thing to do rather than the thing you do because policy says so. When someone steps off it, that's fine, but they own what they took on, and they know exactly what they gave up.
+
+This is not a platform team building a platform for its own sake. Success gets measured on other people's numbers — time from empty repo to production traffic, and how much of an average team's quarter goes to work no customer will ever see. If those don't move, we were wrong.
+
+The cost is real. Platform work is slow, it competes with roadmap, and for the first six months it will look like we're spending headcount on nothing. We think the compounding is worth it, and this document argues why.

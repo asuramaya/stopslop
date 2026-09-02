@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "I don't have your team's actual numbers, so the specifics below are placeholders in `[brackets]` \u2014 swap them and the post is ready to publish.\n\n---\n\n## The year we stopped shipping features for six weeks\n\nEvery year-in-review post I've read starts with a chart going up. Ours starts with a stall.\n\nIn [March] we froze the roadmap. The [checkout] service had been paging someone every third night since [January], and we'd spent four months treating each page as its own bug. It wasn't. It was one bad assumption about [connection pooling] wearing [nine] different masks.\n\nSix weeks of no new features is an uncomfortable thing to ask for. [Priya] asked for it anyway, and [Dana] backed her in the planning meeting when it would have been easier not to.\n\nWhat came out the other side: p99 down from [1.4s to 310ms], on-call pages down [70%], and \u2014 the part I didn't expect \u2014 a team that now argues about design docs before the code exists instead of after.\n\nThe rest of the year was less dramatic. We shipped [the new billing flow]. We migrated [42 services] off [the old auth library], which nobody will ever thank us for. [Sam] wrote the [migration tooling] that made it a two-day job per service instead of two weeks, and then wrote the docs, which is rarer.\n\nTwo things I want us to keep for [2027]. First: when a bug recurs, stop fixing it and go find the assumption. Second: the six weeks were affordable because we said so out loud, early, to people who could say no.\n\nNext year's post will probably have a chart. This one has a stall."
+}

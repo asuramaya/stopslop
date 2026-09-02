@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "Placeholder copy \u2014 swap in real names, titles, and quotes before publishing.\n\n---\n\n## What our customers say\n\n> \"Last month we had a checkout outage at 2am. I searched across eleven services and found the bad deploy in about four minutes. On our old setup that query would have timed out, and I'd have been grepping tarballs until sunrise.\"\n>\n> **Dana Whitfield**, Staff SRE, Northgate Retail\n\n> \"Honestly, we switched for the pricing. We were paying for ingest we never queried. Now we keep 30 days hot and a year in cold storage for less than our old bill, and I stopped having to argue with finance every quarter about log volume.\"\n>\n> **Marcus Oyelaran**, Director of Infrastructure, Palisade Health\n\n> \"Setup took an afternoon. We pointed our existing agents at the new endpoint, kept our field names, and nothing broke. The part I didn't expect: our support team uses it now. They pull up a customer's request trail themselves instead of filing a ticket with us.\"\n>\n> **Priya Raghunathan**, Engineering Manager, Lumen Freight\n\n> \"It's not perfect. The alerting rules took us a few tries to get right. But two years in, it's the only piece of our observability stack nobody has proposed replacing.\"\n>\n> **Tom Bergqvist**, Platform Lead, Verrick Systems\n\n---\n\nThat's ~200 words of quotes. The fourth one includes a mild criticism on purpose; testimonials with a small concession tend to read as real rather than solicited. Cut it if the page needs to stay upbeat."
+}

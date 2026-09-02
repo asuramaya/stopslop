@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Dark mode is here**\n\nWe shipped dark mode today. It's in 3.2, on iOS, Android, and the web app.\n\nThis took longer than it should have, and the reason is worth saying out loud: the first version we built was just an inverted stylesheet. Pure black background, pure white text. It looked fine in a screenshot and was miserable to read for more than ten minutes \u2014 the contrast ratio was so high that text seemed to vibrate against the background. So we threw it out and started over with a designer who has spent years on typography for screens.\n\nWhat you get instead is a near-black background (#16161A) with off-white text at about 87% opacity. Your highlights, code blocks, and inline links all got their own palettes rather than inheriting a global inversion, which is why a yellow highlight still reads as yellow instead of glowing like a hazard sign. Images and embedded PDFs stay untouched. We tested this on OLED phones at 2am, which is when most of you are writing anyway, based on our usage graphs.\n\nTurn it on in Settings \u2192 Appearance. Three options: Light, Dark, and Match System. Match System follows your OS schedule, so it flips at sunset if that's how your phone is configured.\n\nOne caveat. Custom themes made before 3.2 won't have dark variants and will fall back to light. We're working on a migration path and expect it in 3.3, sometime next month.\n\nTell us what breaks. The feedback thread is pinned in the community forum."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Dark mode is here**\n\nDark mode ships today in 3.2, on iOS, Android, and the web.\n\nIt took us longer than it should have, and the reason is worth stating plainly. Our first attempt was an inverted stylesheet: black background, white text. It photographed well and was awful to read past ten minutes. The contrast was so extreme that letters appeared to shimmer against the page. We scrapped it and started again with a designer who has spent years on screen typography.\n\nWhat shipped instead is a near-black background (#16161A) under off-white text at roughly 87% opacity. Highlights, code blocks, and inline links each got their own palette rather than inheriting one global flip, which is why a yellow highlight still reads as yellow instead of glowing like a warning label. Images and embedded PDFs are left alone. We tested on OLED phones at 2am, which our usage graphs say is when a lot of you are writing.\n\nSwitch it on under Settings \u2192 Appearance. Three choices: Light, Dark, and Match System. Match System follows your OS schedule, so it flips at sunset if your phone is set up that way.\n\nOne caveat. Custom themes built before 3.2 have no dark variant and will fall back to light. A migration path is in progress and we expect it in 3.3, sometime next month.\n\nTell us what breaks. The feedback thread is pinned in the community forum."
+}

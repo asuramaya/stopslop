@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**A Year Without the Office**\n\nWe closed our office in March of last year and told everyone to figure it out. Here's what we know now that we didn't then.\n\nThe first thing that broke was not productivity. It was the hallway. Nobody had planned for the fact that half our decisions used to get made in the twenty seconds between a meeting ending and people scattering. Those decisions didn't move to Slack. They just stopped happening, and we found out weeks later when two teams shipped conflicting versions of the same feature.\n\nOur fix was unglamorous: a standing thirty-minute call on Tuesdays with no agenda. People complained about it for two months. Then they started defending it.\n\nThe second thing we learned is that written communication is a skill, and most of us were bad at it. A vague Slack message that would have been cleared up by a look across the desk now costs someone an afternoon. We started asking people to write longer messages, which sounds backwards until you count the round trips it saves.\n\nHiring got easier and onboarding got harder. We can recruit anywhere now, and we have people in six time zones. But a new engineer used to absorb how we work by sitting near people who already knew. That absorption doesn't happen over video. We had to write down things nobody had ever written down, and the writing took months.\n\nWould we go back? No. But we'd be honest that the office was doing work we never noticed until it was gone."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Twelve Months Without an Office**\n\nWe shut the office in March last year and left everyone to work it out. Here's what we understand now that we didn't then.\n\nProductivity wasn't the first casualty. The hallway was. Nobody had accounted for the fact that half our decisions got made in the twenty seconds after a meeting broke up, while people were still standing there. Those decisions didn't migrate to Slack. They simply stopped, and we found out weeks later when two teams shipped rival versions of the same feature.\n\nThe remedy was dull: a standing thirty-minute call every Tuesday, no agenda. People grumbled about it for two months. Then they started protecting it.\n\nSecond lesson: writing is a skill, and most of us weren't good at it. A fuzzy Slack message that a glance across the desk would have sorted out now burns someone's afternoon. So we began asking people to write longer messages, which sounds like the wrong direction until you tally the round trips it prevents.\n\nHiring got easier. Onboarding got worse. We can recruit anywhere, and we've got people across six time zones. But a new engineer used to pick up how we work by sitting next to people who already knew. That transfer doesn't survive video. We had to write down things nobody had ever bothered to write down, and the writing took months.\n\nWould we go back? No. But we'd admit the office was doing work we never noticed until we lost it."
+}

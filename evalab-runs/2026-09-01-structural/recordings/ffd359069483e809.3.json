@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "## What teams say\n\n> \"We used to grep across 40 boxes at 2 a.m. Now it's one query. The checkout outage in March would have cost us three hours of tailing files \u2014 we found the bad deploy in eleven minutes.\"\n>\n> **Priya Raghunathan** \u2014 Staff SRE, Wexler Freight\n\n> \"I budgeted a full sprint for the migration and felt smug about it. The agent was in production on day four. We decommissioned the old Elasticsearch cluster the following Tuesday and nobody has asked for it back.\"\n>\n> **Daniel Okonkwo** \u2014 Platform Lead, Corvid Health\n\n> \"Our logging bill dropped from $18k a month to about $4,200 while we ingested 30% more. The surprise was retention: seven days to ninety. We stopped having the meeting where we argue about which services get to keep their logs.\"\n>\n> **Mireille Fontaine** \u2014 Director of Engineering, Halden Systems\n\n> \"Support asks me for a customer's request trace maybe twice a week. It used to be a ticket. Now they self-serve, and I hear about it only when something is actually broken.\"\n>\n> **Sam Weatherly** \u2014 Backend Engineer, Tessellate\n\n*Names, companies, and figures above are placeholders \u2014 swap in real, approved quotes before publishing.*"
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination: [Team Name] \u2014 [Award Name]**\n\nA release used to cost four hours and three people, two of whom were there only in case something went wrong. [Team Name] replaced that with a fifteen-minute pipeline any engineer here can run. No reorg. No rewrite.\n\nThe sequence matters as much as the outcome. For the first six weeks they shipped nothing at all. They measured: where the hours went, which steps failed, how often we actually rolled back. The report was unflattering to most of us, and they published it unedited. The tooling work came afterward.\n\nThen the numbers moved. Deploys went from once a week to roughly [N] a day. Failed changes fell from [X]% to [Y]%. Mean time to restore now sits under [Z] minutes, because rolling back is a button instead of a procedure somebody has to recall correctly at 2 a.m.\n\nThe part no dashboard captures: other teams migrate onto the pipeline on their own, working from [Team Name]'s documentation, without opening a ticket first. Adoption that nobody had to mandate is the strongest evidence I can offer for the quality of the work.\n\nI nominate them without reservation.\n\n(~200 words. The bracketed figures need your real ones \u2014 committees weigh the before/after deltas most heavily, so use the true numbers even where they're more modest than the placeholders imply.)"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination: [Team Name] \u2014 [Award Name]**\n\nShipping a release once took four hours and three engineers, two of whom stood by purely in case it went sideways. [Team Name] turned that into a fifteen-minute pipeline that anyone here can run, without a reorg or a rewrite.\n\nHow they got there matters as much as where they landed. Their first six weeks produced no code. They measured instead: where the hours actually went, which steps broke, how often we truly rolled back. The resulting report made most of us look bad, and they published it without softening a line. Tooling came after.\n\nThen the numbers shifted. We went from one deploy a week to about [N] a day. The change failure rate dropped from [X]% to [Y]%. Restoring service now takes under [Z] minutes, because a rollback is a button rather than a procedure someone has to remember correctly at two in the morning.\n\nWhat no dashboard shows: other teams move onto the pipeline by themselves, following [Team Name]'s documentation, without filing a ticket first. Adoption nobody had to mandate is the best evidence I can give for the quality of this work.\n\nI nominate them without hesitation.\n\n(Roughly 200 words. Swap the brackets for your real figures \u2014 committees look hardest at the before-and-after gaps, so use the true numbers even if they're smaller than the placeholders suggest.)"
+}

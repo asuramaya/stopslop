@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Nobody's coming to save your pull request**\n\nLast quarter we merged 340 PRs. Security reviewed 22. That math is the whole problem: three people acting as a gate at the end of a pipeline that eight teams feed. It doesn't scale. It never did.\n\nSo we're changing where the work lives.\n\nEvery team names a security contact. This isn't a new job \u2014 it's ownership of the boring stuff. Read the dependency alerts for your service. Know where your secrets actually live. Be the person who gets pinged first when something looks wrong. Rotate quarterly if you like.\n\nThreat modeling moves into design review. Fifteen minutes, three questions: who can call this thing, what happens when they lie about who they are, and what's inside the blast radius if they get in. Put the answers in the design doc. Can't answer one? That's your finding.\n\nWe're also publishing the checklist the security team has been carrying around in their heads for two years. It's in the handbook as of Monday. Read it once and most of what they'd catch, you'll catch first.\n\nOne more thing, and it matters more than the rest. If you shipped the bug, reporting it fast is the good outcome. We've never punished anyone for raising a hand, and we're not starting. The expensive failures aren't the mistakes \u2014 they're the six weeks between the mistake and someone admitting it.\n\nSecurity stops being a department this quarter. It becomes a habit, or it becomes an incident.\n\nQuestions in #security-guild."
+}

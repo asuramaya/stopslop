@@ -145,22 +145,22 @@ python3 src/evalab/run.py --replay evalab-runs/<date>/recordings     # free, re-
 - Held-out flags fell 41%, which reads well until you notice the control arm fell further. The gate moved that number less than sampling noise did. In absolute terms the ungated corpus held **two** held-out flags and the gated one held one, so the Goodhart question is not answered here -- the run had almost no power to answer it.
 - No flattening was detected. Sentence-length stdev moved less under the gate than between two ungated samples.
 
-**A 30-prompt run has now answered the harder question: does the gate teach writing, or teach avoidance?** See [`evalab-runs/2026-09-01-padding30/FINDINGS.md`](evalab-runs/2026-09-01-padding30/FINDINGS.md). Thirty prompts that invite filler, four arms each, 19 of them revised by the gated loop. The decisive arm is a **blind rewrite**: same prompt, the same generations the gated arm spent, told only to rewrite and never what was wrong.
+**Three 30-prompt runs have now answered the question the project was built on.** Full reads in [`evalab-runs/`](evalab-runs/). The decisive arm throughout is a **blind rewrite**: same prompt, the same generations the gated arm spent, told only to rewrite and never what was wrong.
 
-| arm (19 revised prompts) | enforced flags | held-out flags |
-|---|---|---|
-| ungated | 20 | 19 |
-| control (a second ungated sample) | 22 | 25 |
-| blind rewrite, told nothing | 22 | **16** |
-| gated, told what to fix | **0** | 25 |
+With only the 11 wording checks enforced, the gate barely beat that rewrite -- 25 total tells against 38, directional at best. Then the checks were mapped against Wikipedia's catalogue of what editors actually flag, and the gap turned out not to be more word lists. Every check the tool had looked at word choice. What survives a lexical scrub is the **shape** of the document: uniform paragraph blocks, bold as body emphasis, horizontal rules as filler, title-case headings. Measured directly, a gated arm that scored **zero** on all 11 wording checks still carried structural tells at 6.12 per 1000 words against untouched output's 5.99. The gate had removed everything it was pointed at and moved that layer by nothing.
 
-**Which arm wins depends entirely on what you think the tool is for, and both answers are in that table.**
+Six structural checks then went into the enforced set. Thirty prompts, all thirty revised:
 
-*If the goal is better writing*, the gate does nothing. Held-out flags -- the checks the loop never saw -- land where a second untouched sample lands, 25 against 25. The proxy goes to zero and the thing it stands for does not move, which is Goodhart's law stated plainly. A blind rewrite did better on those unenforced checks, 16 against 25 at identical cost, and was the only arm to improve on the ungated baseline at all. Sentence-length variance stayed flat across all four arms, so the flattening worry found no support either.
+| arm | enforced | held-out | total tells |
+|---|---|---|---|
+| ungated | 75 | 30 | 105 |
+| control (a second ungated sample) | 80 | 34 | 114 |
+| blind rewrite, told nothing | 75 | 18 | 93 |
+| gated | **3** | 26 | **29** |
 
-*If the goal is text that no longer reads as machine-written*, the gate wins clearly, and this is the objective people actually install an anti-slop tool for. Counting every tell, enforced and held-out together, the arms score 39 ungated, 38 for a blind rewrite, and **25 gated** -- a 36% cut that rewriting alone does not come close to. The gate beats a rewrite in 96% of bootstrap resamples. Neither result reaches conventional significance at 19 rows (p = 0.12 and p = 0.27), so both are directional.
+**A blind rewrite moves structural tells from 75 to 75. The gate moves them from 75 to 3.** Told only to rewrite, a model reproduces the same document shape, because nothing tells it that the shape is what gives it away. Total tells fall 72%, the gated arm carried fewer on 26 of 30 prompts and the blind arm on zero, sign test p < 0.000001, favouring the gate in 100% of bootstrap resamples. It costs 2.9 generations per document against 1.6, and every document now trips something, so the gate always fires.
 
-The two readings are not in conflict. The gate removes the specific surface markers it is pointed at, reliably and cheaply, and teaches the model nothing that transfers. Whether that is worth anything depends on whether you wanted the markers gone or the writing better.
+Two limits stand. Held-out flags still do not improve -- 26 against the blind arm's 18 on the 14 checks nobody enforced -- so whatever the loop is not pointed at does not get better, which argues for enforcing comprehensively rather than for not enforcing. And none of this measures whether the prose is good; it measures whether it still reads as generated. Those are different questions and only the second one is answered here.
 
 No number from a run is copied into a pitch here on purpose. A run belongs to one model on one day, and quoting a report out of context is how an evaluation turns into a demo.
 

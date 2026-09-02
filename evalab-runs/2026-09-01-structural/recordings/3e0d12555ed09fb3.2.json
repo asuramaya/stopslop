@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Your slowest query isn't a mystery. It's a missing index \u2014 or three.**\n\nMost teams tune databases by folklore. Someone bumps the connection pool, someone else adds an index they read about on Hacker News, and the p99 sits right where it was.\n\nOn [DATE], [SPEAKER] walks through how we took a checkout endpoint from 1.4 seconds to 90ms without touching a line of application code. Live, against a Postgres instance with 40 million rows in it.\n\nWhat we'll cover:\n\n- Reading an `EXPLAIN ANALYZE` plan \u2014 what the numbers actually mean, and which line is lying to you\n- Why your index isn't being used, and the four reasons that explain most cases\n- Connection pool sizing: how to pick a number instead of doubling the old one\n- When tuning stops paying and you should shard\n\nBring a slow query. We're taking submissions ahead of time and debugging a few of them on the call \u2014 no slides for that part, just plan output on screen.\n\n45 minutes, then Q&A until the questions run out. Everyone who registers gets the recording, so sign up even if the time is bad for you.\n\n**[Register \u2192]**\n\n~205 words. Swap the bracketed date, speaker, and any numbers that don't match your case study \u2014 the specifics are what make it land, so use real ones rather than dropping them."
+}

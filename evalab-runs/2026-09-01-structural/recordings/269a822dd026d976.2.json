@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "**What we shipped, and what shipped us**\n\nWe started the year with one on-call rotation and a queue-depth graph nobody trusted. Both are gone.\n\nThe migration off the legacy job runner took seven months \u2014 three longer than we told you it would. Nobody enjoyed that. What replaced it has run 4.2 million jobs since April with no manual intervention, and the retry logic is now something a new hire can read in an afternoon.\n\nSome numbers. p99 checkout latency went from 1.8s to 410ms, mostly one N+1 query and one cache we should have added in 2023. Deploys: twice a week, now about forty a day. Median PR review time dropped from 26 hours to 4.\n\nThe parts that didn't work are worth saying out loud. We tried to standardize on one frontend test setup in Q2 and quietly gave up in Q3. Two teams still run their own. That's fine \u2014 better to admit it than keep the migration doc open another year, collecting stale checkboxes.\n\nAda rewrote the schema linter over a long weekend; it has caught 61 breaking changes before they reached staging. Marco's incident review template is now used by three other orgs. Neither was on a roadmap.\n\nNext year we're doing fewer migrations and more deleting. There are 40k lines in the repo that no request has touched since 2024, and we know which ones.\n\nThanks for a hard, good year. Go take the holidays.\n\n---\n\nNames, metrics, and dates are placeholders \u2014 send me the real ones (or the team's retro notes) and I'll swap them in."
+}

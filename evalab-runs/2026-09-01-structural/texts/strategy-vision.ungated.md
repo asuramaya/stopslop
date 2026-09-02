@@ -1,0 +1,11 @@
+## Vision
+
+Two years out, a team that wants to ship a new service should get it into production in a week, and should spend most of that week on whatever makes the service different from the last one.
+
+Right now that same path takes six to eight weeks, and almost none of it is novel. Every team writes its own deploy pipeline, its own retry logic around the same three internal APIs, its own answer to "where do the logs go." We have paid for that answer maybe forty times. It is a little different each time, which is the expensive part: when the auth contract changes, forty teams find out separately, at whatever pace their on-call rotation allows.
+
+The bet is that we can pull the common parts into a platform that teams choose to use because it is faster than the alternative, not because a policy says they must. That distinction matters. A platform nobody wants becomes a tax, and a tax gets routed around. So the measure we care about is adoption we did not have to ask for.
+
+Concretely, by the end of the second year we want: one paved road from repo to production that a new hire can walk without a buddy; a shared service chassis that handles identity, config, and telemetry so product code does not; and a platform team whose backlog is set by what product teams are actually blocked on.
+
+None of this shows up in a customer-facing changelog. It shows up as the ten engineers we do not have to hire to keep shipping at the rate we ship today.

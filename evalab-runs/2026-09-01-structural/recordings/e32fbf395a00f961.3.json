@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. The bracketed figures are placeholders \u2014 swap in your real numbers, because the argument only lands if the counts are yours.\n\n---\n\n**Proposal: one quarter of engineering time for debt paydown**\n\n**Ask:** Dedicate Q[X] to paying down debt in [the billing service and the shared auth layer]. No new roadmap features from the [N]-person platform team for those twelve weeks.\n\n**Why now.** Our median PR now takes [4.5] days from open to merge, up from [1.8] a year ago. CI takes [38] minutes and fails spuriously about [one run in six], so people stop trusting it and merge on a re-run. Three of our last five Sev-2 incidents traced back to the same untested config path in billing. We are paying for this quarter's debt whether or not we schedule it \u2014 currently we pay in unplanned incident weekends and in features that slip twice before landing.\n\n**What we'd do.** Split the config path into something with a test harness around it. Retire the [2016-era] job runner that only [two engineers] can safely touch. Cut CI to under [15] minutes by parallelizing the integration suite.\n\n**What we'd measure.** Median PR merge time, CI wall-clock, spurious failure rate, and Sev-2 count \u2014 reported weekly, baseline captured before we start. If merge time hasn't moved by week eight, we stop and reassess rather than finish the plan on principle.\n\n**The cost.** [Two] roadmap items slip a quarter: [feature A] and [feature B]. Both are worth less than the interest we're paying.\n\nI'd rather do this now than negotiate for it after the next incident.\n\n---\n\n~250 words. Tell me the real numbers and the actual systems and I'll tighten it into a version you can send."
+}

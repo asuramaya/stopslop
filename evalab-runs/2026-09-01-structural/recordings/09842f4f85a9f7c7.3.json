@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Every team has a file nobody wants to open. Ours has several.\n\nTechnical debt gets discussed like weather \u2014 everyone complains, no one owns it. That framing is comfortable and wrong. Debt is the residue of decisions we made, usually for defensible reasons, under deadlines that were real at the time. The auth shim shipped because the alternative was missing a launch. It worked. It is still there, four years later, and now three services depend on the shape of its mistakes.\n\nWhat changes over time isn't the debt. It's the interest rate. A shortcut that cost one engineer an afternoon in 2022 costs the on-call rotation a bad night in 2026, and the people paying that bill are rarely the ones who signed for it.\n\nThis month: [NAME] on the payments migration and what the second attempt got right; [NAME] on why we stopped maintaining a debt backlog and started budgeting hours for it instead; and a contrarian piece arguing that some of our debt should be declared bankrupt and left exactly where it is.\n\nOne ask. When you hit something ugly this month, write down what it cost you in minutes, not adjectives. We can argue about priorities forever. We can't argue with a number.\n\n*(~205 words. Swap the auth-shim and payments-migration details for your own \u2014 the specifics are what keep it from reading as filler.)*"
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Title:** We Built 40 Services. Six Were Worth It.\n\nBilling used to be 900,000 lines of Java on a weekly release train, guarded by a 51-minute test suite that never once caught a real bug. Today it's 40 services. I think 34 of them were a mistake.\n\nThere's no triumph arc here. I'll walk through the extractions that paid off (payments, notifications, the fraud scorer) and show the evidence behind each: p99 latency, release frequency, and the headcount required to get one change out the door. Then the wreckage. Splitting the customer record across four services cost us eight months and produced a distributed transaction we still patch over with a nightly reconciliation job.\n\nYou'll leave with one test to run on every service someone proposes: name the team that owns it, and name the deploy it unblocks. If you can't do both, don't cut there. Service boundaries are org boundaries with a network hop bolted on, and a hop nobody needed is latency plus extra pages at 3am.\n\nCome argue with me in the hallway. I've changed my mind on this twice already.\n\nSwap in your own numbers. The skeleton travels, but the specifics are what gets an abstract past a program committee."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Title:** We Built 40 Services. Six Were Worth It.\n\nBilling was 900,000 lines of Java on a weekly release train, protected by a 51-minute test suite that never caught a single real bug. It's now 40 services. Thirty-four of those I would undo.\n\nThis is not a success story. I'll go through the extractions that earned their keep (payments, notifications, the fraud scorer) and put the evidence on screen for each: p99 latency, how often we shipped, how many people it took to land one change. Then the damage. We spread the customer record across four services, spent eight months doing it, and ended up with a distributed transaction that a nightly reconciliation job still papers over.\n\nYou'll leave with one question to ask about every service anyone pitches: which team owns it, and which deploy does it unblock? No answer to both means don't cut there. A service boundary is an org boundary with a network hop attached, and a hop nobody asked for buys you latency plus more 3am pages.\n\nFind me in the hallway and tell me I'm wrong. I've already reversed my position twice.\n\nPut your own numbers in. The frame carries over; the details are what gets you past a program committee."
+}

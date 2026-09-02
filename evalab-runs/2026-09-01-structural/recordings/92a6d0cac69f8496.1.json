@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Payments Platform**\nRemote (US) or Chicago \u00b7 $185\u2013220k + equity\n\nWe move about $4B a year for small businesses that get paid by invoice. Ninety engineers, forty of them on platform. The ledger you'd work on settles roughly 900k transactions a day and has never lost a cent \u2014 we'd like to keep that record.\n\n**What you'd actually do**\n\nThe payments core is Go, on Postgres, with Kafka between services. You'd own a slice of it end to end: schema design, the on-call pager, the postmortem when it breaks at 3am. Right now the biggest open problem is our reconciliation pipeline, which still assumes single-currency settlement and is blocking a Canada launch we promised for Q3.\n\nExpect to spend real time reading other people's code. Our oldest service turns eight this year.\n\n**What we're looking for**\n\nFive-plus years writing backend services that handle money, or something equally unforgiving \u2014 trading, healthcare claims, telecom billing. You should be comfortable arguing about isolation levels and able to explain why you'd pick idempotency keys over distributed transactions. Go isn't required if you've done serious work in Java, Rust, or Elixir; we've hired from all three.\n\nWe don't do take-homes. Two technical conversations, one system design session using a problem from our actual backlog, and a call with the team you'd join.\n\n**The honest parts**\n\nOn-call is one week in six. Compliance reviews slow some work down; that's the trade for touching regulated money movement. We're not hiring for a greenfield rewrite.\n\nApply: careers@[company].com"
+}

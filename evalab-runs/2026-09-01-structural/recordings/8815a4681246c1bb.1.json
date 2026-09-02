@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "**Engineering culture**\n\nSmall teams, long leashes. Most projects here run with three or four engineers and one person who owns the outcome end to end \u2014 design, code, rollout, the pager afterward. If you prefer to hand your work off at the boundary, you'll find this uncomfortable.\n\nWe review everything, and we review it hard. A pull request usually gets two readers and a real argument. Nobody rubber-stamps to be nice. The flip side is speed: median time from merge to production is [40 minutes], and any engineer can deploy without asking permission.\n\nWe write things down. Design docs before code for anything that crosses a service boundary, postmortems after every incident, and no blame in either. Roughly [a third] of what we ship started as a document someone wrote on a Friday because something annoyed them.\n\nOur stack is boring on purpose \u2014 [Postgres, Go, and a monolith we haven't split yet]. We adopt something new when the old thing has visibly run out of room, not before, and whoever introduces it maintains it.\n\nHours are yours. We ask that you're reachable for the few meetings we keep ([standup twice a week, one planning session]) and we don't track the rest. On-call is one week in [six], paid, and a night of interrupted sleep counts as a bug in the system rather than a cost of doing business.\n\nIf that sounds like an argument you want to be in, come have it with us.\n\nBracketed numbers are placeholders \u2014 swap in your real deploy time, on-call rotation, and stack, or cut the sentence rather than fudging it. Vague versions of those claims are what makes careers pages read as noise."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Senior Backend Engineer**\nRemote (US) or Chicago office \u00b7 $180\u2013220k + equity\n\nRoughly $4B a year in ACH and card settlement flows through us, on behalf of small-business lenders. Every one of those transactions crosses services this backend team owns.\n\nEleven engineers total. You'd sit in the payments core group \u2014 four of us who look after the ledger, the settlement engine, and the reconciliation jobs that fire at 2 a.m. and have to come out right.\n\n**The work**\n\nGo, mostly, with a Postgres ledger and Kafka between services. Your first quarter goes to the double-entry rewrite: a nine-year-old balance table has carried us well beyond what it was built for, and we're replacing it with no maintenance window. What comes after that is open, and worth arguing about.\n\nOn call runs one week in six. We cut paging volume by 60% last year instead of telling people to live with it, which is roughly how seriously we take it.\n\n**Who we're after**\n\nFive or more years on backend systems that hold state and cannot lose it. Actual SQL fluency, not ORM fluency. Somewhere in there you've debugged production at an hour you'd have preferred to be asleep, and then written the postmortem.\n\nFintech on your r\u00e9sum\u00e9 helps but isn't required. Payments you can learn; judgment about correctness takes longer to build.\n\n**How hiring goes**\n\nFour conversations across two weeks \u2014 intro call, systems design discussion, a working session on real code from our repo, and time with the CTO. No take-home, no whiteboard algorithms."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\nRemote (US) or Chicago office \u00b7 $180\u2013220k + equity\n\nWe move about $4B a year in ACH and card settlement on behalf of small-business lenders. All of it passes through services this team owns.\n\nEleven engineers company-wide. You'd join payments core, the four of us responsible for the ledger, the settlement engine, and the reconciliation jobs that run at 2 a.m. and have to be right the first time.\n\n**The work**\n\nMostly Go, with a Postgres ledger and Kafka between services. Quarter one is the double-entry rewrite. A nine-year-old balance table has carried far more than anyone designed it to, and we're replacing it with no maintenance window. What comes after that is open, and we'd expect you to have opinions about it.\n\nOn call is one week in six. Last year we cut paging volume by 60% instead of asking people to tolerate it, which tells you most of what you need to know about how seriously we take it.\n\n**Who we're after**\n\nFive-plus years on backend systems that hold state and can't lose it. Real SQL fluency, not ORM fluency. At some point you've debugged production at an hour you'd rather have been asleep, then written the postmortem.\n\nFintech experience is a plus, not a requirement. Payments knowledge is teachable. Judgment about correctness takes years to build.\n\n**How hiring goes**\n\nFour conversations over two weeks: intro call, systems design, a working session on real code from our repo, and time with the CTO. No take-home, no whiteboard algorithms."
+}

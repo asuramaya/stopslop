@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "I've used bracketed placeholders where I'd need real numbers or names from you \u2014 swap those in and the piece stands on its own.\n\n---\n\n**Award Nomination: [Team Name], for the deployment overhaul**\n\nI'm nominating [Team Name] for their work rebuilding how we ship code.\n\nBefore this year, a release took [X hours] and needed [N] people awake for it. The runbook was thirty steps long, and about half of them were \"check with someone.\" Rollbacks meant reversing those steps by hand, usually at a bad hour. Most of us had stopped deploying on Fridays, which quietly cost us a day of throughput every week.\n\nThe team replaced that with an automated pipeline: one merge to main, a staged rollout with health gates, and a rollback that is a single command instead of a procedure. They did it incrementally, migrating [service] first and keeping the old path alive until people trusted the new one. Nobody had to stop shipping while it happened.\n\nThe numbers since: deploy time down from [X] to [Y], failed-deploy rate down [Z]%, and [N] deploys a week where we used to do [M]. Friday deploys are normal again.\n\nWhat I want to recognize is not only the result but the way they got there. They fixed infrastructure that wasn't theirs, took no credit in standups, and wrote documentation good enough that the rest of us stopped asking them questions."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (The numbers since:):\n- bold_density:\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**Award Nomination: [Team Name], for the deployment overhaul**\n\nI'm nominating [Team Name] for their work rebuilding how we ship code.\n\nBefore this year, a release took [X hours] and needed [N] people awake for it. The runbook was thirty steps long, and about half of them were \"check with someone.\" Rollbacks meant reversing those steps by hand, usually at a bad hour. Most of us had stopped deploying on Fridays, which quietly cost us a day of throughput every week.\n\nThe team replaced that with an automated pipeline: one merge to main, a staged rollout with health gates, and a rollback that is a single command instead of a procedure. They did it incrementally, migrating [service] first and keeping the old path alive until people trusted the new one. Nobody had to stop shipping while it happened.\n\nSince then, deploy time has dropped from [X] to [Y] and the failed-deploy rate is down [Z]%. We run [N] deploys a week where we used to do [M]. Friday deploys are normal again.\n\nWhat I want to recognize is not only the result but the way they got there. They fixed infrastructure that wasn't theirs, took no credit in standups, and wrote documentation good enough that the rest of us stopped asking them questions."
+}

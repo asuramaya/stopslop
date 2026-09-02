@@ -1,0 +1,9 @@
+**Roadmap**
+
+We keep this page public because the alternative is worse. When our plans live only in an internal tracker, you find out what changed when it shows up in a release note, and by then you've already built around the gap.
+
+So here is the work, grouped by quarter, with dates we actually believe. Items near the top are in progress and have owners. Items below that are committed but unscheduled. At the bottom is a section called "Considering," which means exactly that: we've heard the request often enough to take it seriously, and we haven't decided yet.
+
+A few things this page is not. It isn't a contract. Dates move, usually because a dependency moved or because we learned something during design that changed the shape of the problem. When that happens, we update the entry and say why, rather than quietly sliding the date to the right. It also isn't complete. Security work, infrastructure migrations, and a good deal of ordinary maintenance never appear here, though they consume real engineering time.
+
+If something you depend on is missing, open an issue or reply in the discussion thread attached to any item. We read them. Several of the entries below started there.

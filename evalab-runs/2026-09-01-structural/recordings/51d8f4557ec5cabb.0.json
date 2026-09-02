@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Since you didn't name the API, I wrote this for a general-purpose HTTP/JSON service. Swap the concrete examples (`/v1/`, idempotency keys, cursors) for yours.\n\n---\n\n## Design philosophy\n\nThree commitments shaped this API, and they explain most of the decisions you'll run into.\n\n**Boring is a feature.** Endpoints follow the same shape: nouns in the path, verbs in the method, one resource per URL. Errors always return the same envelope, with a stable `code` you can branch on and a `message` you shouldn't. Once you've integrated one endpoint, you've mostly integrated all of them.\n\n**Your retries are safe.** Networks fail halfway. Every write accepts an idempotency key, and replaying a request with the same key returns the original response rather than creating a second charge, user, or webhook. We'd rather store a little state on our side than have you write reconciliation logic on yours.\n\n**We don't break what we shipped.** Fields get added; fields don't change meaning or disappear. Breaking changes go into a new dated version, and old versions stay up for at least eighteen months after their replacement lands. Parse defensively for unknown fields and your integration will survive our roadmap.\n\nWhat we've deliberately left out: batch endpoints, partial responses, and a query language. Those save round trips and cost clarity. When you need them, pagination and webhooks usually get you there instead."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "You didn't say which API, so this assumes an HTTP/JSON service. Replace the specifics (`/v1/`, idempotency keys, cursors) with yours.\n\n---\n\n## Design philosophy\n\nMost of what looks arbitrary here traces back to three choices.\n\n**Predictability over cleverness.** Paths name resources, methods do the acting, one URL per thing. Failures come back in a single envelope every time, with a `code` meant for your switch statement and a `message` meant for your logs. Learn one endpoint and the rest hold few surprises.\n\n**Retry without fear.** Half the failures you'll see are the network dropping a response you already earned. Pass an idempotency key on any write; send that key twice and you get the first response back, not a second charge. Keeping that state is our problem, and we'd rather carry it than push reconciliation onto you.\n\n**Shipped means shipped.** New fields appear. Existing fields keep their meaning and stay where they are. Anything that breaks lands in a new dated version, and the old one keeps running for at least eighteen months past its successor. Ignore fields you don't recognize and upgrades stop being events.\n\nA few things are missing on purpose: no batch endpoints, no sparse fieldsets, no query language. Each one trades a round trip for a harder mental model, and we decided the round trip was the cheaper thing to spend. Pagination and webhooks cover most of what you'd have reached for them to do."
+}

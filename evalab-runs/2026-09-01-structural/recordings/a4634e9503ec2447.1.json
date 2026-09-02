@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a page comparing a managed database service with running your own, for a technical audience choosing between them. Around 250 words."
+  }
+ ],
+ "output": "# Managed database, or run your own\n\nThe decision mostly comes down to where you want to spend your on-call budget.\n\nA managed service \u2014 RDS, Cloud SQL, Neon \u2014 sells you a control plane. Backups run. Failover happens. Minor versions get patched on a schedule you can ignore. You pay roughly 2\u20133x raw compute for that, and you give up root: no extensions outside the vendor's list, no kernel tuning, no shell on the box at 3am when replication lag spikes and you want to strace something. Support tickets replace debugging.\n\nSelf-hosting inverts all of it. Any extension you want, whatever page cache settings you want, instances at list price. You also write the failover runbook, and you test the restore path, which almost nobody does. And you keep someone on payroll who understands WAL archiving. That last one is the real cost, and it isn't the hours \u2014 it's that the knowledge lives in one or two heads and leaves when they do.\n\nRough guidance:\n\nGo managed if your team is under ~15 engineers, if your data fits on one large instance, or if nobody on staff has run a production database before. The premium is cheaper than your first outage.\n\nGo self-hosted if you're spending six figures a year on database bills, if you need a version or extension the vendor won't ship, if regulation puts the data somewhere they don't operate, or if you already employ platform engineers who do this work.\n\nAvoid the middle: self-hosting with no named owner. That's how you end up on a five-year-old Postgres nobody will touch."
+}

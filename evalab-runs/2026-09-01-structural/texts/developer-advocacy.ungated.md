@@ -1,0 +1,17 @@
+**Why we're hiring a devrel team**
+
+Last quarter I read every support ticket we got. Not a sample; all 1,900 of them. About a third were people asking questions our docs already answered, badly. Another third were people who'd built something clever on our API and wanted to tell someone. Nobody was listening on the other end.
+
+That's the gap we're paying to close.
+
+The usual argument for developer relations is that it's marketing aimed at engineers who hate marketing. I think that's mostly wrong, or at least it's the least interesting part. The real value is the return path. Developers who integrate your product spend more hours inside it than your own PM does, and they find the sharp edges in week one. Right now those findings die in a Slack thread we're not in.
+
+So: three people, reporting into engineering rather than marketing. Their job is to ship example apps we actually maintain, rewrite the quickstart until a new user can get a working call in under ten minutes, and sit in the community forum answering things. We'll measure them on time-to-first-successful-request and on docs PRs landed, not on conference talks given.
+
+This will be slow. Devrel is a two-year investment, and anyone who tells you it moves a quarterly number is selling something.
+
+But we're a platform company. If building on us is annoying, we don't have a product — we have an API with a support queue.
+
+---
+
+~250 words. I assumed a developer-platform/API company writing in a founder or VP-of-engineering voice; swap the ticket counts and headcount for your real ones. If it's a different kind of company (agency, open-source vendor, hardware), tell me and I'll re-angle it.

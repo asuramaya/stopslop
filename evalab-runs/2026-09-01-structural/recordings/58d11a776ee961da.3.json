@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination: [Team Name] \u2014 [Award Name]**\n\nEighteen months ago a release here took four hours and three people. Two of them were only present in case something broke. [Team Name] cut that to a fifteen-minute pipeline that anyone on the floor can run, and they did it without asking for a reorg or a rewrite.\n\nWhat I want to highlight is the order they worked in. They spent the first six weeks doing nothing but measuring: where the time went, which steps failed, how often a rollback actually happened. That report made for uncomfortable reading, and they published it anyway. Only then did they touch the tooling.\n\nThe results are in the numbers. Deploy frequency went from weekly to roughly [N] per day. The failed-change rate dropped from [X]% to [Y]%. Mean time to restore is now under [Z] minutes, because a rollback is a button instead of a procedure.\n\nHere is the part that does not show up on a dashboard: other teams now move onto the pipeline by themselves, working from [Team Name]'s docs, without filing a ticket. That is the real measure of the work. They built something people adopt without being told to.\n\nI nominate them without reservation.\n\n(~205 words. Bracketed spots need your real figures \u2014 the before/after metrics are what selection committees actually weigh, so swap in the true ones even if they're less dramatic than the placeholders suggest.)"
+}

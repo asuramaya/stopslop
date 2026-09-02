@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "## What we're building next\n\nThis page is the plan. It's public because you're going to build on top of our decisions, and guessing is a bad way to plan a quarter.\n\nHere's how to read it. **Shipping** means the work is in a release branch and dated. **Next** means we've committed engineering time to it. **Exploring** means we think there's a problem worth solving and we don't yet know the shape of the answer \u2014 those items move, get merged into other items, or get killed outright, and we'll say which one happened.\n\nWe won't list everything. Security work and infrastructure migrations don't appear here; they happen anyway. What you'll find instead is the work that changes how the product feels day to day: [the CLI rewrite], [first-class monorepo support], [a local dev loop that doesn't need a network round-trip].\n\nDates slip. When they do we'll update the item rather than quietly delete it, and the changelog at the bottom of this page records every edit we've made.\n\nIf something you need isn't here, tell us. Roughly a third of what we shipped last year started as a GitHub issue that collected more thumbs-up than we expected.\n\n---\n\n~205 words. Three bracketed slots for your actual near-term work, and the \"a third of what we shipped\" number needs checking against your own issue tracker before this goes live \u2014 if it doesn't hold, cut the sentence rather than soften it."
+}

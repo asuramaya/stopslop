@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "**A Year Without the Office**\n\nWe closed our office in March of last year and told everyone to figure it out. Here's what we know now that we didn't then.\n\nThe first thing that broke was not productivity. It was the hallway. Nobody had planned for the fact that half our decisions used to get made in the twenty seconds between a meeting ending and people scattering. Those decisions didn't move to Slack. They just stopped happening, and we found out weeks later when two teams shipped conflicting versions of the same feature.\n\nOur fix was unglamorous: a standing thirty-minute call on Tuesdays with no agenda. People complained about it for two months. Then they started defending it.\n\nThe second thing we learned is that written communication is a skill, and most of us were bad at it. A vague Slack message that would have been cleared up by a look across the desk now costs someone an afternoon. We started asking people to write longer messages, which sounds backwards until you count the round trips it saves.\n\nHiring got easier and onboarding got harder. We can recruit anywhere now, and we have people in six time zones. But a new engineer used to absorb how we work by sitting near people who already knew. That absorption doesn't happen over video. We had to write down things nobody had ever written down, and the writing took months.\n\nWould we go back? No. But we'd be honest that the office was doing work we never noticed until it was gone."
+}

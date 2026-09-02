@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**2025 in review**\n\nBilling migration is done. It took eleven months. In January we said six, which tells you what it costs to estimate work nobody on this team had done before.\n\nNumbers first. 340 deploys, against 190 last year. Checkout p99 fell from 1.8s to 410ms, and almost all of that came from a single N+1 query in the cart service that had been sitting there since 2021. Four incidents at SEV2 or worse, down from nine.\n\nMarch is the one I still think about. Fifty-one minutes of failed payments, and a customer told us on Twitter before our alerting did. We rewrote the alert rules that week. They have caught two real things since.\n\nThe on-call rewrite went better than we hoped. Two people per rotation, a hard cap of three pages a night before it goes to the manager, and any page that fires twice in a month becomes a ticket. Pages per week fell by about half. Nobody quit over on-call this year. The year before, people did.\n\nThe design system went worse. We spent Q2 building it and Q3 learning that two of our four frontend teams had already forked it. That is on us for shipping before we asked them.\n\nNext year the target is the test suite. Forty-one minutes to run, flaky enough that people hit retry on red without reading it, and that reflex costs us more than the forty-one minutes.\n\nThanks for a good year. Go take your holiday."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**2025 in review**\n\nThe billing migration shipped. Eleven months. We told everyone six back in January, which is roughly the tax on estimating work no one here had ever done.\n\nStart with the counts. 340 deploys this year, up from 190. Checkout p99 went from 1.8s to 410ms, and nearly all of the drop traces to one N+1 query in the cart service that had been quietly running since 2021. Four incidents at SEV2 or worse, against nine last year.\n\nMarch stays with me. Payments failed for fifty-one minutes and a customer told us on Twitter before any alert did. We rewrote the rules that same week. They've caught two genuine problems since.\n\nOn-call turned out better than expected. Two people per rotation, a hard ceiling of three pages a night before it escalates to the manager, and any page that fires twice in a month gets written up as a ticket. Weekly page volume dropped roughly in half. Nobody left over on-call this year. The year before, some did.\n\nThe design system was the miss. Q2 went into building it, Q3 into finding out that two of our four frontend teams had already forked it. Our fault, for shipping it before we asked what they needed.\n\nThe test suite is next year's job. Forty-one minutes end to end, flaky enough that people hit retry on a red build without reading the failure, and that habit costs us far more than the forty-one minutes do.\n\nGood year. Thanks. Now go take your holiday."
+}

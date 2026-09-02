@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years out, a team that wants to ship a new service should be able to do it in about a week, and most of that week should go into the part that is actually novel. Right now, a new service costs closer to six weeks, and four of those are spent rediscovering how deploys, secrets, on-call routing, and schema migrations work here. That gap is the whole argument for platform investment.\n\nWe are not trying to build an internal product that competes for attention. The goal is narrower and more useful: one paved path per problem, documented once, owned by a team whose job is to keep it working. Where a paved path exists, taking it should be the lowest-effort option available. Where it doesn't, teams keep their freedom to solve the problem locally, and we watch which local solutions get copied \u2014 those are the candidates for the next paved path.\n\nSuccess looks fairly boring from the outside. Deploy frequency rises because deploying stops being a decision. Incident time-to-mitigate drops because the runbooks describe one system rather than nine variants. New engineers commit to production in their first week. Product teams stop staffing a part-time infrastructure specialist on every roster.\n\nThe risk we accept is a temporary slowdown. Migration work is real work, and for roughly the first three quarters the platform team will be paying down other people's decisions rather than shipping anything visible. We think that trade is correct, and the rest of this document argues for it in specifics."
+}

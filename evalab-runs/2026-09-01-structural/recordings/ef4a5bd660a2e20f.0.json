@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Proposal: one quarter of engineering time for debt paydown**\n\n**The ask.** Give Q[X] to debt work in [billing and the shared auth layer]. For those twelve weeks the [N]-person platform team takes no roadmap features.\n\n**Why now.** A PR now sits [4.5] days between open and merge; a year ago it was [1.8]. CI takes [38] minutes and fails for no reason roughly [one run in six], so nobody reads a red build as a real signal anymore. They re-run it and merge. Three of our last five Sev-2s trace back to one untested config path in billing. We are paying for this quarter's debt no matter what we decide. Today we pay in weekend incident work and in features that slip twice before shipping.\n\n**The work.** Split that config path apart and wrap it in a test harness. Kill the [2016-era] job runner only [two engineers] can safely touch. Parallelize the integration suite and get CI under [15] minutes.\n\n**How we'll know.** Four numbers: median merge time, CI wall-clock, spurious failure rate, Sev-2 count. Baseline them before we start, report weekly. If merge time hasn't moved by week eight, we stop and rethink rather than finish the plan out of stubbornness.\n\n**The bill.** [Two] roadmap items slide a quarter: [feature A] and [feature B]. Both cost less than the interest we're carrying.\n\nI would rather bring this to you now than the week after the next incident.\n\n---\n\n~250 words. Send me the real numbers and the actual systems and I'll tighten it into something forwardable."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Proposal: one quarter of engineering time to pay down debt**\n\n**The ask.** Give us Q[X] for debt work in [billing and the shared auth layer]. For those twelve weeks the [N]-person platform team ships no roadmap features.\n\n**Why now.** A PR sits [4.5] days between open and merge today; a year ago the number was [1.8]. CI runs [38] minutes and fails for no reason about [one run in six], so a red build no longer means anything to anyone. People re-run it and merge. Three of our last five Sev-2s come back to a single untested config path in billing. We will pay for this quarter's debt whichever way you decide. Right now we pay in weekend incident work and in features that slip twice before they ship.\n\n**The work.** Break that config path apart and put it under a test harness. Retire the [2016-era] job runner that only [two engineers] can touch safely. Parallelize the integration suite and bring CI under [15] minutes.\n\n**How we'll know.** Four numbers: median merge time, CI wall-clock, spurious failure rate, Sev-2 count. We baseline them before starting and report weekly. If merge time hasn't moved by week eight, we stop and rethink instead of finishing the plan out of stubbornness.\n\n**The bill.** [Two] roadmap items move a quarter: [feature A] and [feature B]. Both cost less than the interest we carry now.\n\nI'd rather raise this with you today than the week after the next incident.\n\n---\n\n~250 words. Send me the real numbers and the actual systems and I'll tighten it into something forwardable."
+}

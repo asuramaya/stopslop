@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We Split the Monolith. Half of It Was a Mistake.**\n\nTwo years ago our Rails app was 400k lines with a 90-minute test suite. We did what everyone does: drew service boundaries on a whiteboard, picked the ones that looked cleanest, started carving. Twenty-three services later, we merged six of them back.\n\nThis talk is the honest version of that story. I'll walk through the three extractions that paid for themselves \u2014 billing, search indexing, and the notification pipeline \u2014 and what they had in common: a real ownership boundary, and data nobody else wrote to. Then the ones that didn't. Our \"user service\" turned a function call into a network hop with retries, a cache, and a 2 a.m. page.\n\nYou'll get the checklist we now run before any extraction, real numbers on what distributed tracing and per-service CI cost us in engineer-hours, and the migration pattern that let us ship without a code freeze \u2014 strangler fig, on a shared database for far longer than the blog posts permit.\n\nIf someone is asking you to microservice something this quarter, come find out which parts to refuse.\n\n---\n\n~200 words. Say the word if you want a different tone (more neutral/vendor-friendly), a specific conference's format, or a bio to go with it."
+}

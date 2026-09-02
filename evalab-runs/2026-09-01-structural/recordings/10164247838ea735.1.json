@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "## Design Philosophy\n\nThis API is small on purpose. Most of what you can do with it, you can do with four resources and the standard HTTP verbs, and we would rather explain that surface well than ship a larger one you have to keep a tab open for.\n\nWe optimize for predictability over convenience. Endpoints take the same shape, pagination works the same way everywhere, and timestamps are always RFC 3339 in UTC. When a convenience feature would create a second way to do something that already works, we usually leave it out.\n\nErrors are treated as part of the contract. A failed request returns a machine-readable code that we commit to keeping stable, a human-readable message that we don't, and enough detail to tell a client bug apart from an outage. We try never to fail silently or partially succeed without saying so.\n\nNothing changes under you. Breaking changes go into a new version; the old one keeps working for at least twelve months after we announce its retirement. Additive changes \u2014 new fields, new optional parameters \u2014 can land at any time, so write clients that ignore fields they don't recognize.\n\nWhere these principles conflict, we favor the one that makes an integration easier to debug at 3 a.m."
+}

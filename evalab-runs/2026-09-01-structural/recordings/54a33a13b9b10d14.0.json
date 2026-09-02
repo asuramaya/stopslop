@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Roadmap**\n\nHere's what we're building, and roughly when.\n\nWe publish this for one reason: you're making decisions about your stack that depend on ours. If something you need is six months out, you deserve to know that now, while you can still route around it.\n\nA few rules for reading it. \"Shipping\" means the work is in progress and we'd be surprised to miss the quarter. \"Planned\" means we've committed engineers but not dates. \"Exploring\" means we're still arguing about it internally \u2014 treat those as open questions, not promises. Anything not on this page isn't secretly in flight somewhere.\n\nWe reorder this constantly. Last quarter we pulled the SAML work forward by three months because forty-odd teams asked for it inside the same six weeks, and pushed the plugin API back because our first design didn't survive contact with the beta group. That will happen again. When it does, we'll say so in the changelog instead of quietly editing the page.\n\nThe fastest way to move something up the list is to tell us what you're blocked on, in the discussion thread linked beside each item. Specific beats loud.\n\n---\n\n~205 words. The SAML/plugin-API details are placeholders \u2014 swap in a real reordering you've done, since that paragraph is the one doing the credibility work."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Roadmap**\n\nWhat we're building, and roughly when.\n\nWe publish this because you're making stack decisions that depend on ours. If the thing you need is six months out, better you learn it now, while there's still time to route around us.\n\nHow to read it. \"Shipping\" means the work is underway and we'd be surprised to slip the quarter. \"Planned\" means engineers are assigned, dates aren't. \"Exploring\" means we're still arguing about it in Slack, so treat those as questions rather than promises. If it isn't on this page, it isn't quietly happening somewhere else.\n\nThe order changes often. Last quarter we pulled SAML forward by three months after roughly forty teams asked inside the same six weeks, and pushed the plugin API back when our first design didn't survive the beta group. It'll happen again. When it does, you'll read about it in the changelog rather than finding the page silently edited.\n\nWant something moved up? Tell us what you're blocked on, in the discussion thread beside each item. Specific beats loud."
+}

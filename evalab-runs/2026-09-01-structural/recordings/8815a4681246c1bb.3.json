@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "## How we work\n\nWe ship small and often. Most changes reach production the same day they're written, behind a flag, and the person who wrote the change is the person watching the dashboard afterward. There's no separate operations team to hand the pager to. That arrangement sounds unfair right up until you notice what it does to your design instincts \u2014 you build things differently when you know who gets woken up.\n\nCode review here is not a rubber stamp. Expect hard questions on your first pull request, and expect to be asking them on someone else's by your second week. We'd rather spend an afternoon arguing about an interface than spend three years living inside a bad one. But once a call is made, it's made. We write down the reasoning, link it in the repo, and stop relitigating.\n\nNobody counts your tickets. What we care about is whether the thing you built still works in six months and whether the next engineer can understand it without finding you on Slack.\n\nTwo standing meetings a week, both under thirty minutes. The rest of your calendar is yours. Roughly a fifth of each quarter goes to work engineers pick themselves \u2014 tooling, migrations, the refactor everyone complains about. A third of what's in production today started there.\n\nWe hire people who read the code before they rewrite it, who write plainly, and who will tell a senior engineer they're wrong. Seniority buys you more context, not more authority. Titles are for org charts."
+}

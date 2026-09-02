@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security isn't the security team's job**\n\nLast quarter we shipped 412 pull requests. Six people on AppSec reviewed maybe forty of them closely. You do the math.\n\nThat gap isn't a staffing problem we can hire our way out of. It's structural. The people who know what a service does, what data it touches, and which shortcuts got taken at 11pm on a Thursday are the people who wrote it. Not us.\n\nSo here's what changes.\n\nThreat modeling moves into design review. Not a separate meeting, not a form \u2014 three questions in the design doc template: What's the worst thing an attacker does with this? Who can reach it? What breaks if that happens? Half a page. If you can't answer them, that's the finding.\n\nSecond, we're publishing the AppSec queue. You'll see what's in review, what's blocked, and how long we're taking. If we're the bottleneck, say so loudly.\n\nThird: reporting something you broke gets you a thank-you, full stop. The credential someone committed to a public repo in March cost us four hours because they flagged it in eleven minutes. Silence would have cost weeks.\n\nWhat we're not doing is adding gates. No new mandatory training modules, no checklist that everyone clicks through without reading. Those buy compliance, not safety.\n\nOffice hours start next Tuesday, 2pm, #appsec-help. Bring a design, bring a dependency you're nervous about, bring a dumb question. Especially the dumb question.\n\n\u2014 Priya, AppSec\n\n---\n\nThe numbers, names, and channels are placeholders \u2014 swap in your real ones before posting."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Placeholders in brackets are the facts I don't have \u2014 speaker, date, platform.\n\n---\n\n**Your slowest query is probably not the one you think**\n\nMost teams tune the query that shows up in a bug report. Meanwhile the 8ms query running 40,000 times an hour quietly eats half the database.\n\nOn **[DATE] at [TIME]**, [SPEAKER], [ROLE] at [COMPANY], walks through how to find that query \u2014 and what to do once you've found it.\n\nWe work from real execution plans, not toy examples. [SPEAKER] takes a Postgres instance pushing 90% CPU at peak, reads the plan, and fixes it live. Expect arguments about indexes.\n\nWhat you'll leave with:\n\n- A method for reading an execution plan that doesn't depend on guessing\n- Why your index isn't being used, and the four usual reasons\n- When a query rewrite beats an index, and when it's the other way round\n- Connection pool sizing that isn't just \"set it to 100\"\n\nBring your own slow query. The last 15 minutes are open, and we'll get through as many as we can.\n\nFree. Sixty minutes. Recorded, if your calendar is already a disaster.\n\n**[Save your seat \u2192]**\n\n---\n\nTwo notes: the \"90% CPU\" and \"40,000 times an hour\" numbers are placeholders too \u2014 swap in whatever the demo actually shows, or cut them. If the talk isn't Postgres-specific, name the engine you're using; a vague \"your database\" is the line most likely to lose a reader who runs MySQL."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**The query eating your database is one nobody has ever complained about**\n\nTeams tune whatever shows up in a bug report. The 8ms query that runs 40,000 times an hour never shows up in one, and it's quietly taking half your CPU.\n\nOn **[DATE] at [TIME]**, [SPEAKER], [ROLE] at [COMPANY], shows you how to find that query and what to do once you have.\n\nNo toy schemas. [SPEAKER] takes a Postgres box sitting at 90% CPU through peak hours, reads the actual execution plan, and fixes it while you watch. Expect disagreement about indexes.\n\nYou'll leave knowing:\n\n- How to read an execution plan without guessing your way through it\n- The four reasons your index is being ignored\n- Where a rewrite beats a new index, and where it's the reverse\n- How to size a connection pool on something other than habit\n\nBring a slow query of your own. We hold the last 15 minutes open and get through as many as time allows.\n\nFree. Sixty minutes. Recorded, in case your calendar is already beyond saving.\n\n**[Save your seat \u2192]**\n\nTwo notes: \"90% CPU\" and \"40,000 times an hour\" are placeholders as well. Use whatever the demo actually shows, or drop them. And if the talk isn't Postgres, name the engine you're on. A vague \"your database\" is the line most likely to lose anyone running MySQL."
+}

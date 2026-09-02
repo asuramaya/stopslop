@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**We should stop asking who broke it**\n\nLast month's checkout outage cost us four hours. The postmortem doc has a section titled \"Root Cause,\" and the first line names an engineer. That's not a root cause. That's a name.\n\nHere's what actually happened: a config change went out without a staging soak, because the staging soak is a step in a wiki page that nobody reads, because the deploy tool doesn't enforce it. Three of us would have made the same change. One of us happened to be on shift.\n\nI want us to run blameless postmortems. Concretely: no individual names in the write-up, no \"should have caught it,\" and a standing rule that the person closest to the incident writes the timeline and faces zero consequences for doing it honestly.\n\nThe argument isn't kindness. It's data. When people expect to be named, they file thinner reports. They round off the part where they were confused for twenty minutes. They don't mention the runbook that was wrong, because admitting they followed it looks worse than admitting they didn't. We lose exactly the details that would let us fix the system.\n\nGoogle, Etsy and Stripe all landed here, and not because their engineers are gentler than ours. They found that the number of near-misses reported goes up sharply once reporting is safe, and near-misses are free lessons.\n\nI'd like to try it on the next three incidents and compare the write-ups against the last three. If the new ones are vaguer or less useful, I'll drop it."
+}

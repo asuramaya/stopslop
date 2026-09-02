@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "# Platform Engineering \u2014 Team Charter\n\n## Purpose\n\nWe build and run the internal platform that product teams deploy on. Our measure of success is their throughput, not ours: a team that has never met us should be able to ship a service to production on their first week, and know where to look when it breaks.\n\n## Scope\n\nWe own the paved road \u2014 CI/CD pipelines, environment provisioning, service scaffolding, observability defaults, and the runtime substrate underneath them. We do not own product code, and we do not gatekeep it. Teams that need to leave the paved road may, provided they take on the operational load they inherit by doing so.\n\n## How we work\n\nTreat the platform as a product and its users as customers who can walk away. That means published interfaces, real documentation, deprecation notices with dates attached, and a support channel someone actually watches. Golden paths are opinionated and optional; mandates are a last resort and require a written reason.\n\nWe prefer boring technology, small reversible changes, and defaults that are safe when nobody is paying attention.\n\n## Commitments\n\n- Publish and defend SLOs for every service we operate.\n- Respond to platform incidents ahead of feature work, always.\n- Run a monthly review with two product teams to hear what the platform costs them.\n- Say no in writing, with reasoning, rather than by silence.\n\n## First six months\n\nConsolidate the three existing deploy pipelines into one, establish a service catalog, and cut median time-to-first-deploy for a new service to under a day. We will report progress against those three numbers."
+}

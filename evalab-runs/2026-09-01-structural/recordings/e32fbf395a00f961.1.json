@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** [Your name]\n**Re:** Dedicating next quarter to debt reduction\n\n**The ask**\n\nGive the platform team one full quarter with no new feature commitments. We would ship nothing customer-visible and instead pay down the accumulated cost of the last two years of shipping fast.\n\n**Why now**\n\nOur velocity is not falling because people are working less. It is falling because each change costs more than the last one did. Three symptoms:\n\n- Median PR cycle time has gone from [X] days to [Y] days over four quarters.\n- [N]% of on-call pages in the last 90 days traced back to the same three subsystems, all of which we know are undersupported.\n- New hires take roughly [Z] weeks to make an independent change, mostly spent learning workarounds rather than the domain.\n\nNone of these get better on their own, and each quarter we defer, the fix gets larger.\n\n**What we would do**\n\nRoughly in priority order: retire the legacy billing path and its duplicate data model, bring test coverage on the payments service to a level where we trust a green build, and replace the deploy tooling that currently requires manual steps. We will publish a weekly burn-down so progress stays visible.\n\n**What it costs and what we get**\n\nThe cost is one quarter of feature work, deferred rather than cancelled. In exchange we expect cycle time back near its 2024 level, meaningfully fewer pages, and the ability to quote realistic dates again.\n\n**Decision needed by** [date], so we can plan the quarter cleanly."
+}

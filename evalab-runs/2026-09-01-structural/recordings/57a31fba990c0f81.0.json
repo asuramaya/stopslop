@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Security is not something you can hand off**\n\nFour people on security. About 180 people writing code. That ratio explains why the review-queue approach broke: last quarter, 61 pull requests waited on us for an average of nine days each, and two of our incidents came out of code we had already signed off on.\n\nSo we're rearranging it.\n\nFrom next sprint, the team that owns a service owns its security review. You understand your own data flows; we mostly don't. Our job becomes supplying the tools and the answers \u2014 threat-model templates you can fill out in twenty minutes, a Slack channel where one of us replies within the hour, and Tuesday office hours for anything genuinely hairy.\n\nThree asks. Threat-model during design, not after it. Treat a dependency bump as a code change, since that is what it is. And when you turn up something bad in your own service, write it up \u2014 reporting never gets anyone in trouble. That's a real promise. If it stops being real, go to my manager.\n\nWhat stays with us: incident response, pen tests, the auth libraries, and anything touching customer payment data. Send those our way rather than handling them yourselves.\n\nExpect a rough patch first. You'll report things that turn out to be nothing, and we'll publish guidance that turns out to be wrong. That's an acceptable trade. Nine-day queues weren't.\n\nAsk in #security-eng."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**You can't outsource security**\n\nFour of us. Roughly 180 engineers shipping code. That arithmetic is why the review queue fell over: 61 pull requests sat with us last quarter, nine days apiece on average, and two of our incidents came out of code we had already approved.\n\nSo the arrangement changes.\n\nStarting next sprint, whoever owns a service owns its security review. You know how data moves through your system. We mostly don't. What we do instead is hand you the tooling and the answers \u2014 threat-model templates that take twenty minutes to fill in, a Slack channel where someone from the team replies inside an hour, and Tuesday office hours for the genuinely gnarly cases.\n\nThree things we're asking of you. Threat-model while you're still designing, not after. Treat a dependency bump like any other code change, because it is one. And if you turn up something ugly in your own service, write it up. Reporting will not get you in trouble. I mean that literally. If it ever stops being true, take it to my manager.\n\nWhat stays with us: incident response, pen tests, the auth libraries, and anything that touches customer payment data. Route those to us rather than taking them on yourselves.\n\nThe first stretch will be bumpy. You'll flag things that turn out to be nothing, and we'll publish guidance that turns out to be wrong. Worth it. Nine-day queues weren't.\n\nQuestions in #security-eng."
+}

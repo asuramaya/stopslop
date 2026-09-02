@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "## Nobody Wants Dashboards\n\nThe pager goes off at 2:14 a.m. Checkout is failing for some customers \u2014 not all of them, and nobody can say which ones. You open the dashboard your team built last quarter. CPU: fine. Memory: fine. Request rate: normal-ish. Error rate up, from 0.1% to 0.4%. Great. Now what?\n\nThat gap, between knowing something is wrong and knowing *what* is wrong, is where teams burn their nights. It's also the only thing observability is for. The rest is vocabulary.\n\nMonitoring answers questions you thought to ask in advance. You predicted the disk would fill, so you graphed the disk. Observability is what you have when the question is one nobody anticipated: why do checkout failures cluster on requests that went through the new payment retry path, but only for accounts created before last month's schema migration? You can't pre-build a panel for that. You can only build a system where the data is rich enough to ask.\n\nThe difference shows up in numbers most teams never publish. Time to detect. Time to name the failing component. How many engineers get pulled out of bed before the right one is found. I've watched a team drop mean time to resolution from 90 minutes to under 15 without touching a line of application logic \u2014 they changed what their logs carried.\n\nSo this post isn't about picking a vendor. It's about what your systems can tell you on the night you don't already know the answer.\n\n~255 words. One thing to swap: the 90 \u2192 15 minute anecdote is a stand-in \u2014 replace it with a real number from your own incident history, or cut the sentence, since a made-up specific is worse than none."
+}

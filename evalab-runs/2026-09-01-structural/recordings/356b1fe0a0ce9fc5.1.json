@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "# Charter \u2014 Platform Engineering\n\n**Why we exist.** Product teams here spend too much of their week on plumbing: wiring CI, chasing deploy failures, guessing at why staging drifted. We take that work off them. Our customers are the engineers in this building, and they can route around us any time. If they do, that's a defect on our side, not theirs.\n\n**What we own.** Build and deploy pipelines. Environment provisioning. The observability spine \u2014 metrics, logs, traces \u2014 up to the point where a service emits them. Secrets distribution. Base images and the runtime contract that goes with them.\n\n**What we don't own.** Product code. On-call for services we didn't write. Approval authority over other teams' architecture. We publish paved paths; we don't hold a gate. A team that leaves the path keeps the pager.\n\n**How we'll work.** Everything we ship is a product with a version, a changelog, and someone's name on it. No silent breaking changes. We measure ourselves on two numbers to start: median time from merge to production, and the share of deploys that need a human to intervene. Both get published monthly, including the months they look bad.\n\nWe'd rather ship a rough thing three teams use than a polished thing nobody adopts. Adoption is the only evidence that we solved a real problem.\n\n**First ninety days.** Interview every product team. Write down the three worst parts of their delivery process. Fix one of them end to end before we build anything speculative. Then reassess this charter \u2014 it's a draft, and the teams we serve get to mark it up."
+}

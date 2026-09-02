@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, a team that wants to stand up a new service should be able to do it in a week, without filing a ticket against us.\n\nThat sentence is the whole vision. Everything else in this document exists to make it true.\n\nRight now the path from \"we agreed to build this\" to \"it serves production traffic\" runs eight to ten weeks, and most of that time is not spent writing the service. It is spent rediscovering how deploys work, copying a CI config from whichever repo looked healthiest, arguing about which of the three metrics pipelines to emit to, and waiting on us to review an infrastructure change nobody enjoys reviewing. Every team pays this tax, and each one pays it slightly differently, which is why we now maintain forty variations of the same Terraform module.\n\nThe platform we want is boring by design. One paved road: a service template, a deploy pipeline, a single observability stack, and defaults for the things teams should not have to decide. Stepping off the road stays legal, but it becomes a choice a team makes deliberately, not a hole they fall into.\n\nTwo years is the honest horizon. Twelve months buys us the paved road and two or three migrated teams. The second year is the part people underestimate: retiring the old paths so we are not funding both.\n\nThe measure we will hold ourselves to is time-to-first-production-request for a new service, and the number of times a team has to ask us anything to get there."
+}

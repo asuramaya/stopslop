@@ -1,0 +1,11 @@
+## How we work
+
+We're about forty engineers. That number matters, because it's small enough that you'll know who wrote the code you're reading and can go ask them about it.
+
+Nobody here writes a design doc for a two-line fix. But anything that changes how customer data moves gets written down first, circulated for a week, and argued over in the comments. We keep those docs, and the ones from 2021 still explain why the billing service looks the way it does.
+
+Code review is mandatory and it's real. Median time to first review is under three hours. Reviewers are expected to ask "why this way," and authors are expected to have an answer better than "that's how the other service does it." We run our own on-call, too. If you build it, your phone rings for it. That isn't a hazing ritual — it's the fastest way we know to find out whether an abstraction was honest, and a page that fires twice gets a fix rather than a runbook entry.
+
+Disagreement is normal here, and it gets settled in the open: a thread, a prototype, a decision written down with a name attached. We change our minds when the numbers say to. What we don't do is heroics, crunch weeks before a launch, or rewriting a working system because someone read a blog post. Most weeks look pretty ordinary, and that's deliberate. If you like owning something end to end, and explaining your reasoning to people who will push back on it, you'll do well here.
+
+The concrete numbers (forty engineers, three-hour review median, 2021 billing docs) are placeholders — swap in your real ones, or cut the sentence rather than soften it to a vague claim. Word count is roughly 250.

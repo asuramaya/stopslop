@@ -42,6 +42,20 @@ from evalab import metrics
 # openers, hedging, punctuation habits and marketing register, so neither
 # is a soft target. A run may override it, and a run that does should say
 # so in its report.
+# The structural half, added after the 30-prompt run showed the gate
+# reaching zero on every lexical check while the document's SHAPE went
+# untouched (5.99 structural flags per 1000 words before the gate, 6.12
+# after). Enforcing these is the experiment that asks whether a gate
+# pointed at shape can move what a gate pointed at wording could not.
+STRUCTURAL_ENFORCED = frozenset({
+    "bold_density",
+    "thematic_break",
+    "paragraph_uniformity",
+    "title_case_heading",
+    "rule_of_three",
+    "participial_tail",
+})
+
 DEFAULT_ENFORCED = frozenset({
     "filler_opener",
     "colon_reveal",
@@ -57,8 +71,16 @@ DEFAULT_ENFORCED = frozenset({
 })
 
 
+PRESETS = {
+    "lexical": lambda: DEFAULT_ENFORCED,
+    "structural": lambda: DEFAULT_ENFORCED | STRUCTURAL_ENFORCED,
+}
+
+
 def split_checks(ruleset, enforced=None):
     """(enforced, held_out) check-id sets for `ruleset`."""
+    if isinstance(enforced, str):
+        enforced = PRESETS[enforced]()
     every = set(ruleset.list_checks())
     enforced = set(enforced or DEFAULT_ENFORCED) & every
     return frozenset(enforced), frozenset(every - enforced)

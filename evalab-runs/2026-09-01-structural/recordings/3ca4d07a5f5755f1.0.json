@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination: [Team Name] \u2014 [Award Name]**\n\nShipping a release once took four hours and three engineers, two of whom stood by purely in case it went sideways. [Team Name] turned that into a fifteen-minute pipeline that anyone here can run, without a reorg or a rewrite.\n\nHow they got there matters as much as where they landed. Their first six weeks produced no code. They measured instead: where the hours actually went, which steps broke, how often we truly rolled back. The resulting report made most of us look bad, and they published it without softening a line. Tooling came after.\n\nThen the numbers shifted. We went from one deploy a week to about [N] a day. The change failure rate dropped from [X]% to [Y]%. Restoring service now takes under [Z] minutes, because a rollback is a button rather than a procedure someone has to remember correctly at two in the morning.\n\nWhat no dashboard shows: other teams move onto the pipeline by themselves, following [Team Name]'s documentation, without filing a ticket first. Adoption nobody had to mandate is the best evidence I can give for the quality of this work.\n\nI nominate them without hesitation.\n\n(Roughly 200 words. Swap the brackets for your real figures \u2014 committees look hardest at the before-and-after gaps, so use the true numbers even if they're smaller than the placeholders suggest.)"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination: [Team Name] \u2014 [Award Name]**\n\nA release used to eat four hours and pin down three engineers, two of them just standing by in case something broke. [Team Name] got it to fifteen minutes, on a pipeline any of us can run. No reorg. No rewrite.\n\nThe first six weeks, they wrote nothing. They counted: where the hours went, which steps failed, how often we actually rolled back. The writeup embarrassed most of us and they published it uncut. Tools came after that.\n\nThen the numbers moved. One deploy a week became roughly [N] a day. Change failure rate went from [X]% to [Y]%. Getting service back takes under [Z] minutes now, since rolling back is a button instead of a sequence somebody has to recall correctly at 2am.\n\nThe part I like best isn't in any dashboard. Other teams migrate onto the pipeline on their own, off [Team Name]'s docs, without opening a ticket first. Nobody mandated that. I can't think of better proof the work is good.\n\nGive them the award.\n\n(About 200 words. Fill in your real figures \u2014 the committee will stare hardest at the before-and-after gap, so use true numbers even if they're less dramatic than the placeholders.)"
+}

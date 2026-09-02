@@ -55,6 +55,11 @@ def main(argv=None):
                               "base rate")
     parser.add_argument("--prompt", action="append", dest="prompt_ids",
                          help="run only this prompt id (repeatable)")
+    parser.add_argument("--enforce", default="lexical",
+                         choices=sorted(harness.PRESETS),
+                         help="which checks the gated loop enforces: lexical "
+                              "(the original 11) or structural (those plus the "
+                              "six document-shape checks)")
     parser.add_argument("--max-iterations", type=int, default=4)
     parser.add_argument("--workers", type=int, default=1,
                          help="run this many PROMPTS at once; a prompt's own "
@@ -83,9 +88,11 @@ def main(argv=None):
           f"{args.ruleset}", file=sys.stderr)
     try:
         result = harness.run(chosen, ruleset, generator,
+                              enforced=args.enforce,
                               max_iterations=args.max_iterations,
                               on_progress=progress, workers=args.workers)
         result["prompt_set"] = args.prompt_set
+        result["enforce"] = args.enforce
     except GeneratorError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

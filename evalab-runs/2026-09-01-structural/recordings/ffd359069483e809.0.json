@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "## What our customers say\n\n> \"We were grepping across 40 hosts at 3 a.m. Now I run one query and have an answer before the incident channel finishes arguing about who's on call. The retention pricing is the part I didn't expect to care about, and it's now the thing I defend in budget meetings.\"\n>\n> **Priya Raghunathan** \u2014 SRE Lead, Fernwood Health\n\n> \"Setup took an afternoon. Our Rails app, two Go services, and a pile of legacy cron jobs all landed in the same view, and nobody had to write a parser.\"\n>\n> **Marcus Oyelaran** \u2014 Platform Engineer, Tallgrass Logistics\n\n> \"I'm not an engineer, I run support. Searching by customer ID and handing a developer an exact timestamp has cut our back-and-forth down to almost nothing. I stopped dreading escalations.\"\n>\n> **Dana Whitcombe** \u2014 Support Manager, Cobalt Ridge Software\n\n> \"The honest version: our first month was rough, because our log formats were a mess and we knew it. Their team sat with us for a week and rewrote the ingest rules. Two years later we haven't lost a line.\"\n>\n> **Tobias Lenehan** \u2014 CTO, Meridian Parcel\n\n*Names and companies are placeholders \u2014 swap in real quotes with written permission, and keep the specifics (host counts, timeframes, the one thing that went wrong). Vague praise reads as invented.*"
+}

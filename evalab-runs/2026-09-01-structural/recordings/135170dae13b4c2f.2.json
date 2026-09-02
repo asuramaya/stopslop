@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, shipping a service here should be boring.\n\nRight now it isn't. A team starting a new backend spends its first three weeks on things that have nothing to do with the product: wiring up auth, copying someone else's Terraform, guessing at the right retry semantics, discovering on day nine that the logging format they picked doesn't join with anything in the warehouse. Every team solves it. Every team solves it differently. We are paying for the same work over and over and getting eleven incompatible answers.\n\nThe bet is that we can turn that three weeks into an afternoon.\n\nConcretely: a new service starts from a template that already has identity, deploys, dashboards, on-call routing, and a rollback path. The paved road is genuinely paved \u2014 fastest thing to do, not the thing you do because policy says so. When someone steps off it, that's fine, but they own what they took on, and they know exactly what they gave up.\n\nThis is not a platform team building a platform for its own sake. Success is measured on other people's numbers: time from empty repo to production traffic, and how much of an average team's quarter goes to work no customer will ever see. If those don't move, we were wrong.\n\nThe cost is real. Platform work is slow, it competes with roadmap, and for the first six months it will look like we're spending headcount on nothing. We think the compounding is worth it. This document argues why."
+}

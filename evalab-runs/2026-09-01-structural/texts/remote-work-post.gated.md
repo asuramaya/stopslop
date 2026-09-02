@@ -1,0 +1,13 @@
+What a year of remote work actually taught us
+
+We went remote in March and assumed the hard part would be the tooling. It wasn't. We had video calls and a shared doc within a week.
+
+What took eleven months to fix was that nobody knew what anyone else was doing. Here's the pattern we kept hitting. Two engineers would spend a Tuesday solving the same auth bug in different services, and neither found out until code review. In the office that collision got caught by somebody overhearing a conversation at a desk. Remotely there is no overhearing. You have to write things down or they don't exist.
+
+So we started writing things down. Every project got a one-page doc — what we're building, why, who's on it — updated Fridays. Boring. It cut duplicated work to almost nothing by month five.
+
+The second lesson was about meetings, and it surprised us. We cut our recurring meetings from fourteen a week to four, expecting people to feel freed. About a third of the team felt abandoned instead. This hit junior engineers hardest, because they had been learning by proximity, and we'd deleted proximity without replacing it.
+
+We added weekly pairing sessions, which fixed most of it.
+
+If another company asked me for one thing to carry over, it would be this. Remote work doesn't remove the coordination cost, it just moves it from ambient to deliberate. You now pay it on purpose, in writing, on a schedule. Some teams find that clarifying. Others find it exhausting. Both reactions are honest, and you should ask which one your people are having before you decide this is permanent.

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**Title:** We Split the Monolith Into 40 Services. Six Would Have Been Enough.\n\nThree years ago our billing system was 900,000 lines of Java, one deploy a week, and a test suite that took 51 minutes to tell us nothing. Today it's 40 services. I think we overshot by about 34.\n\nThis is the unglamorous version of that migration. I'll walk through the three extractions that paid for themselves \u2014 payments, notifications, and the fraud scorer \u2014 and show the metrics that justified them: p99 latency, deploy frequency, and how many people had to be in a room to ship a change. Then I'll walk through the ones that didn't. Splitting the customer record across four services cost us eight months and bought a distributed transaction we still work around with a nightly reconciliation job.\n\nYou'll leave with a test you can apply on Monday: for each candidate service, name the team that owns it and the deploy it unblocks. If you can't do both, don't cut there. Service boundaries are org boundaries wearing a network hop, and a network hop you didn't need is just latency with extra alerting.\n\nCome argue with me afterward. I've changed my mind on this twice.\n\nSwap the numbers for your own \u2014 the shape holds, but the specifics are what make an abstract land with a program committee."
+}

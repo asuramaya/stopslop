@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the draft. Product name and any numbers are placeholders \u2014 swap in your real figures before this ships.\n\n---\n\n# Halyard\n\nYou already have a chat tool. The real question is what it costs you in attention.\n\nMost chat apps are built for the person typing. Halyard is built for the person catching up: the manager back from two weeks off, the on-call engineer paged at 2am into a channel they've never read.\n\n**Threads that end.** Every thread carries a state \u2014 open, resolved, or handed off. Resolved threads drop out of your digest. Nobody reads 400 messages to find out the deploy was rolled back on Tuesday.\n\n**Search that reaches past chat.** Connect your repos and Halyard indexes PRs, commits, and incident timelines next to messages. Search `auth timeout` and you get the argument, the fix, and the postmortem in one ranked list.\n\n**Quiet unless it matters.** Notification rules live on the channel, not on whoever typed @here. Real escalation routes through PagerDuty or Opsgenie. Chat stops pretending to be a paging system.\n\n**Answers for the boring questions.** Retention policies per channel. SCIM, SAML, audit log export. Data residency in the US, EU, or your own VPC.\n\nMigration takes an afternoon. The importer pulls Slack history, channels, and permissions, and keeps message permalinks working so your runbooks don't rot.\n\n$8 per user per month. Free for 30 days, no card. If your team is under ten people, it stays free.\n\n[Start a trial] \u00b7 [Import from Slack] \u00b7 [Read the security overview]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Halyard\n\nYou've already got a chat tool. The question is what it takes out of your team's attention budget.\n\nMost chat apps are designed around whoever is typing. Halyard is designed around whoever shows up late \u2014 the manager back from two weeks off, the on-call engineer paged at 2am into a channel they have never opened.\n\n**Threads close.** Every thread has a state: open, resolved, handed off. Resolved ones leave your digest. Nobody should have to read 400 messages to learn that Tuesday's deploy got rolled back.\n\n**Search that doesn't stop at chat.** Connect your repos and Halyard indexes PRs, commits, and incident timelines alongside messages. Search `auth timeout` and the argument, the fix, and the postmortem come back in one ranked list.\n\n**Quiet by default.** Notification rules belong to the channel, not to whoever typed @here. Real escalation goes out through PagerDuty or Opsgenie. Chat stops pretending it's a pager.\n\n**The boring questions, answered.** Per-channel retention. SCIM, SAML, audit log export. Data residency in the US, the EU, or your own VPC.\n\nMigration is an afternoon. The importer brings over Slack history, channels, and permissions, and old message permalinks keep resolving, so your runbooks don't quietly rot.\n\n$8 per user per month. Thirty days free, no card. Under ten people on the team? It stays free.\n\n[Start a trial] \u00b7 [Import from Slack] \u00b7 [Read the security overview]"
+}

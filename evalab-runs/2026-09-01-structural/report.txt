@@ -1,0 +1,126 @@
+stopslop A/B evaluation
+==================================================================
+ruleset          slopwatch
+prompt set       padding (CHOSEN to produce flags -- not a base rate)
+generator        claude-cli (2.1.258 (Claude Code))
+prompts          30
+max iterations   4
+wall clock       1322.7s
+
+enforced checks  17: bold_density, canned_question_answer, colon_reveal, emoji_in_prose, entity_encoded_punctuation, filler_opener, id_label_lead, marketing_adjective, not_just_x_but_y, paragraph_uniformity, participial_tail, rule_of_three, solicit_criticism, thematic_break, title_case_heading, vague_intensifier, weasel_attribution
+held-out checks  14: ai_markup_remnant, binary_contrast, bold_bullet_lead, copula_avoidance, dramatic_fragmentation, em_dash_cluster, filler_verb, identifier_in_prose, marketing_cliche, negative_listing, section_template, stock_adverb, terminology, unearned_profundity
+
+The gated arm was shown enforced flags only, never a held-out one.
+Its loop treated EVERY enforced flag as blocking, which is stricter
+than any shipped default -- the question is what a blocking gate
+does to writing, so the arm has to block.
+
+THE GATED LOOP ACTUALLY REVISED 30 OF 30 PROMPTS
+------------------------------------------------------------------
+  Only those 30 carry any signal. On the rest the gated
+  arm is a third independent sample of the same prompt.
+
+TOTAL FLAGS  (a percentage hides how few these are)
+------------------------------------------------------------------
+  arm          words   enforced   held-out    | revised-only: enf  held
+  ungated       7891         75         30   |                 75    30
+  control       7941         80         34   |                 80    34
+  blind         7317         75         18   |                 75    18
+  gated         7655          3         26   |                  3    26
+
+  Read these before any percentage below. A 41% held-out drop in
+  the 2026-09-01 run was two flags becoming one.
+
+AVERAGES over the 30 prompts the loop revised
+  (gate = ungated -> gated;  noise = ungated -> control)
+------------------------------------------------------------------
+  enforced flags /1k             9.31 ->     0.39     -8.92  (-96%)  better
+    ^ noise floor                9.31 ->    10.17     +0.86           (second ungated sample)
+    ^ rewrite alone              9.31 ->    10.18     +0.87           (same compute, no flags)
+
+  HELD-OUT flags /1k             3.79 ->     3.37     -0.42  (-11%)  better
+    ^ noise floor                3.79 ->     4.29     +0.49           (second ungated sample)
+    ^ rewrite alone              3.79 ->     2.54     -1.25           (same compute, no flags)
+
+  sentence length stdev          9.03 ->     8.61     -0.42  (-5%)  WORSE
+    ^ noise floor                9.03 ->     9.53     +0.50           (second ungated sample)
+    ^ rewrite alone              9.03 ->     8.07     -0.96           (same compute, no flags)
+
+  type-token ratio               0.67 ->     0.67     -0.01  (-1%)  WORSE
+    ^ noise floor                0.67 ->     0.68     +0.01           (second ungated sample)
+    ^ rewrite alone              0.67 ->     0.68     +0.01           (same compute, no flags)
+
+  words                        263.03 ->   255.17     -7.87  (-3%)  WORSE
+    ^ noise floor              263.03 ->   264.70     +1.67           (second ungated sample)
+    ^ rewrite alone            263.03 ->   243.90    -19.13           (same compute, no flags)
+
+  gated arm: 2.9 generations per prompt on average, 27/30 reached a clean pass
+
+PER PROMPT (enforced /1k, held-out /1k, stdev)
+------------------------------------------------------------------
+  prompt                  enforced u->g     held-out u->g      stdev u->g
+  launch-announcement      3.6->0.0         7.1->3.6        6.9->5.8   
+  why-it-matters           6.7->0.0         3.4->3.0       11.1->9.5   
+  product-page             9.9->0.0         3.3->0.0        8.4->7.0   
+  conference-abstract      9.8->4.3         0.0->0.0       12.6->10.8  
+  remote-work-post         7.6->0.0         3.8->3.6        8.6->5.5   
+  newsletter-intro         5.0->0.0         0.0->0.0        9.2->14.9  
+  case-study              19.5->0.0         3.2->4.2        9.6->8.1   
+  strategy-vision          0.0->0.0         0.0->3.8       16.2->9.2   
+  job-posting             10.8->0.0         3.6->3.5        9.5->8.7   
+  about-page              14.8->0.0         3.7->4.0        8.6->8.6   
+  onboarding-welcome      13.8->0.0         3.5->3.7        7.3->6.8   
+  product-comparison       6.2->0.0         3.1->3.8       11.0->8.3   
+  year-in-review          16.3->0.0         8.2->7.3        6.2->11.2  
+  award-nomination         4.8->0.0         9.5->0.0        9.3->7.9   
+  open-source-readme-intro     9.8->0.0         4.9->5.3       11.1->8.1   
+  roadmap-intro            4.9->0.0         0.0->0.0        9.1->8.8   
+  postmortem-culture       3.9->0.0         0.0->0.0        7.1->10.1  
+  hiring-brand            11.0->0.0         3.7->3.5        8.5->10.0  
+  webinar-invite          13.6->0.0         4.5->5.3        7.3->9.2   
+  release-blog             7.9->0.0         7.9->0.0       10.6->8.4   
+  customer-testimonial     9.7->0.0         4.8->4.2        9.1->8.0   
+  tech-debt-pitch          7.6->3.5         3.8->3.5        7.0->6.5   
+  mentorship-post          6.8->3.8         3.4->3.8        7.2->9.4   
+  conference-recap         9.9->0.0         6.6->6.7        7.3->9.2   
+  security-culture        10.6->0.0         3.5->7.7        7.6->7.7   
+  api-philosophy           3.9->0.0         3.9->4.4       10.1->7.9   
+  team-charter             7.6->0.0         3.8->0.0        8.7->7.5   
+  pricing-page            11.7->0.0         3.9->4.2        8.8->8.4   
+  migration-announcement    20.9->0.0         3.0->4.2        8.9->7.5   
+  developer-advocacy      10.7->0.0         3.6->7.4        7.8->9.3   
+
+HOW TO READ THIS
+------------------------------------------------------------------
+  These averages cover only the prompts the gate actually acted
+  on. Including the rest does not just dilute an effect, it can
+  invent one: this report's own earlier shape averaged in prompts
+  the loop never touched and showed an 11% drop in sentence-length
+  variance that disappeared once they were excluded.
+
+  Compare every gate delta against the noise floor printed under
+  it. The control arm is a second ungated generation from the same
+  prompt, so its delta is what this model varies by for no reason
+  at all. A gate delta smaller than that is not a finding.
+
+  Compare the gate against REWRITE ALONE too. That arm spent the
+  same generations on the same prompt and was told only to
+  rewrite, never what was wrong. Whatever it gains is what a
+  second pass gains. Only the distance between the gated arm and
+  that one belongs to the flags.
+
+  Enforced flags falling proves nothing on its own. The gated arm
+  rewrote until they fell, so that number only confirms the loop
+  ran.
+
+  The held-out number is the finding. It falls with the enforced
+  one if the gate taught something general. It stays flat while
+  enforced flags collapse if the gate taught avoidance of the
+  specific patterns and nothing else.
+
+  Sentence-length stdev falling is the monotone warning: the model
+  bought a clean score by flattening every sentence to one shape.
+  No check rewards that number, so nothing can be tuned to it.
+
+  30 prompts and one model settle nothing by themselves.
+  Read the saved texts side by side before believing any of it.

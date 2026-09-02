@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 swap in the real conference, speaker, and teammate names.\n\n---\n\n**What we took home from [Conference]**\n\nFour of us went. We came back arguing about one talk, which is usually the sign a conference paid for itself.\n\nThe talk was [Speaker]'s, on incident review. Her argument: most postmortems are written for a reader who never shows up. She'd pulled two years of her team's docs and found the median one got read twice \u2014 once by the author, once by whoever approved it. Then it sat in the wiki. Her fix is small and slightly annoying. Every postmortem has to name a specific runbook, alert, or doc it changes. No change, no postmortem.\n\nWe don't agree on whether that's too strict. [Name] thinks it kills the \"we got lucky\" writeups that produce no action but still teach you something, which is a fair objection. We're going to try it for a quarter anyway and see what we lose.\n\nTwo other things stuck.\n\nThe hallway mood on vector databases has cooled since last year. Nobody was selling us one. Three separate people said some version of \"we moved that back into Postgres,\" unprompted.\n\nAnd the deployment track was quieter and more useful than the AI track \u2014 fewer people, better questions. If you go next year, skip the keynote hall.\n\nSlides are in the shared drive. If you want the long version of the postmortem argument, come find me. I'd rather talk it through than write it up."
+}

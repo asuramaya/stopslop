@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\nRemote (US) or Chicago office \u00b7 $180\u2013220k + equity\n\nWe move money. About $4B a year in ACH and card settlement for small-business lenders, and every one of those transactions passes through services our backend team owns.\n\nThe team is eleven engineers. You'd join the payments core group \u2014 four people responsible for the ledger, the settlement engine, and the reconciliation jobs that run every night at 2 a.m. and cannot be wrong.\n\n**What the work looks like**\n\nMost of our stack is Go, with a Postgres ledger and Kafka between services. You'd spend your first quarter on the double-entry rewrite: we're replacing a nine-year-old balance table that has served us well past its design limits, and doing it without a maintenance window. After that, the roadmap is yours to argue about.\n\nYou will be on call one week in six. We take that seriously enough to have cut paging volume by 60% last year rather than just asking people to tolerate it.\n\n**What we're looking for**\n\nFive-plus years building backend systems that hold state and can't lose it. Real fluency in SQL \u2014 not ORM fluency. You've debugged something in production at an hour you'd rather not have been awake, and you wrote the postmortem afterward.\n\nFintech background is a plus, not a requirement. Payments knowledge is learnable; judgment about correctness is harder to teach.\n\n**Process**\n\nFour conversations over two weeks: intro call, a systems design discussion, a working session on real code from our repo, then a chat with the CTO. No take-home. No whiteboard algorithms."
+}

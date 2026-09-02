@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 swap in your specifics.\n\n---\n\n**Subject: [Service] moves to [new platform] in [Q1 2027]**\n\nHi [name],\n\nStarting [date], [Service] will run on [new platform]. We're telling you now so you can plan around it.\n\nWhy: [current platform can't do X]. The new one gives us [concrete thing \u2014 faster restores, regional hosting, a real API].\n\n**What changes for you**\n\n- Your sign-in URL becomes [new URL]. The old one redirects until [date].\n- API endpoints move to [new base]. The old ones keep working through [date], then return 410.\n- [Feature X] behaves differently: [one sentence].\n\n**What doesn't change**\n\nYour data, account history, billing date, and existing integration credentials. We migrate all of it. You don't need to export or re-upload anything.\n\n**The cutover**\n\n[Date], [time range] [timezone]. Expect [N minutes/hours] where the service is read-only. Live status at [status page].\n\n**What we need from you**\n\nNothing, unless you've hardcoded [old URL] somewhere. If you have, update it before [date]. If you're on [legacy plan] or [SDK below vX], reply to this email and we'll walk through it with you \u2014 those two cases need a manual step.\n\nWe'll send a reminder two weeks out, and again the day before. If something breaks after the move, [support channel] reaches us fastest, and we're staffing it heavier for the first two weeks.\n\n[Name]\n[Title], [Company]\n\n---\n\nTwo things worth deciding before you send: whether to name the old platform (usually don't), and whether the read-only window is short enough to state as a number rather than a range. A range reads like you don't know."
+}

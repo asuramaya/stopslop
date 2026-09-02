@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "Since you didn't name the API, I wrote this for a general-purpose HTTP/JSON service. Swap the concrete examples (`/v1/`, idempotency keys, cursors) for yours.\n\n---\n\n## Design philosophy\n\nThree commitments shaped this API, and they explain most of the decisions you'll run into.\n\n**Boring is a feature.** Endpoints follow the same shape: nouns in the path, verbs in the method, one resource per URL. Errors always return the same envelope, with a stable `code` you can branch on and a `message` you shouldn't. Once you've integrated one endpoint, you've mostly integrated all of them.\n\n**Your retries are safe.** Networks fail halfway. Every write accepts an idempotency key, and replaying a request with the same key returns the original response rather than creating a second charge, user, or webhook. We'd rather store a little state on our side than have you write reconciliation logic on yours.\n\n**We don't break what we shipped.** Fields get added; fields don't change meaning or disappear. Breaking changes go into a new dated version, and old versions stay up for at least eighteen months after their replacement lands. Parse defensively for unknown fields and your integration will survive our roadmap.\n\nWhat we've deliberately left out: batch endpoints, partial responses, and a query language. Those save round trips and cost clarity. When you need them, pagination and webhooks usually get you there instead."
+}

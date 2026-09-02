@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Names and numbers below are invented placeholders \u2014 swap in your real bundle size, marks, and license before shipping.\n\n---\n\n# Strata\n\nYou know the shape of the problem. The stock bar chart looks fine until a designer asks for a dotted median line, and suddenly you're four levels deep in `plugins.annotation.line1.scaleID`, reading GitHub issues from 2019.\n\nStrata is a rendering layer, not a chart menu. You get scales, axes, and five marks \u2014 `bar`, `line`, `area`, `point`, `rule` \u2014 and you compose them yourself. A candlestick is a `rule` behind a `bar`. Nobody had to ship a `candlestick` type.\n\nThe core is 14 kB gzipped, no dependencies. It renders to SVG on the server and hydrates only the marks you made interactive, so a static report ships zero JS.\n\nData goes in as plain arrays or an Arrow table. Colors are yours: we include one neutral palette that holds 3:1 contrast in light and dark, and no brand blue.\n\nIt is not a dashboard framework. There's no theme marketplace, no `<Dashboard>`, no telemetry. Animation stops at scale transitions \u2014 past that, bring your own.\n\nMIT licensed. React and Svelte bindings live in this repo.\n\n---\n\nTwo notes on the draft. The opening leads with a failure you've had rather than a claim about the library, which is the part most README pitches skip. And the \"it is not\" paragraph does real work: saying what you refuse to build is the fastest way to tell someone whether to keep reading."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Strata\n\nIt starts with a bar chart that works. Then someone wants the median marked with a dashed line, and an hour later you're reading a 2019 issue thread about `plugins.annotation.line1.scaleID`.\n\nStrata gives you a renderer instead of a catalog. Scales, axes, and five marks: `bar`, `line`, `area`, `point`, `rule`. You put them together yourself. A candlestick is a `rule` with a `bar` on top of it, which is why we never had to add a candlestick type.\n\n14 kB gzipped, zero dependencies. It draws SVG on the server and hydrates only the marks you asked to be interactive, so a static report ships no JavaScript at all.\n\nFeed it plain arrays or an Arrow table. Bring your own colors. The one palette we include is neutral and holds 3:1 contrast in both light and dark. No brand blue.\n\nWhat it isn't: a dashboard framework. No themes to install, no `<Dashboard>`, no telemetry. Animation covers scale transitions and stops there. Past that, write it yourself.\n\nMIT licensed. React and Svelte bindings live in this repo."
+}
