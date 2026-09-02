@@ -816,6 +816,35 @@ class StructuralTellTests(unittest.TestCase):
         para = " ".join(["word"] * 40)
         self.assertEqual(lint.check_paragraph_uniformity("\n\n".join([para] * 2)), [])
 
+
+    def test_the_two_extensible_structural_checks_reach_a_project_list(self):
+        """copula_avoidance and section_template accept an `extra` list, and
+        a signature that promises extensibility while nothing feeds it is a
+        dead capability. Both are declared in TERM_LISTS and wired into
+        lint_and_gate's extra_by_check, so a phrase added on the Vocabulary
+        page actually reaches the matcher. This is the layer the evaluation
+        found decays as models change, so editing it is the point."""
+        self.assertTrue(lint.check_copula_avoidance(
+            "The cache operates as a buffer.", extra=["operates as"]))
+        self.assertTrue(lint.check_section_template(
+            "Wrapping up, the team shipped.", extra=["wrapping up"]))
+        for list_id in ("copula_avoidance", "section_template"):
+            with self.subTest(list_id=list_id):
+                self.assertIn(list_id, lint.TERM_LISTS)
+                self.assertEqual(lint.TERM_LISTS[list_id]["feeds"], list_id)
+
+    def test_every_check_taking_extra_is_actually_fed(self):
+        """Guards the whole class of bug rather than these two: a check
+        whose matcher takes `extra` must appear in the extra_by_check dict
+        lint_and_gate builds, or its vocabulary list silently does
+        nothing."""
+        import inspect
+        source = inspect.getsource(lint.lint_and_gate)
+        for check_id, check in lint.CHECKS_TABLE.items():
+            if "extra" in inspect.signature(check.fn).parameters:
+                with self.subTest(check=check_id):
+                    self.assertIn(f'"{check_id}"', source)
+
     def test_every_new_check_warns_rather_than_blocks(self):
         """These are tells, not defects, and slopwatch blocks nothing --
         see em_dash_cluster's own note for the reasoning."""

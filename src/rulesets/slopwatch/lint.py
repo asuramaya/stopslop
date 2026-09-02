@@ -485,6 +485,21 @@ def check_terminology(sentence, lexicon=None):
 # pack aimed at ("slopwatch", "marketing_cliche") would work with no code
 # change here -- leaving the door open costs nothing and is the difference
 # between a real abstraction and one shaped around its first user.
+# Word lists for two structural checks. Up here with the other
+# list-shaped constants because TERM_LISTS below reads them, and a
+# project extends both through the Vocabulary page -- this is the
+# layer that decays as models change, so it is meant to be edited.
+COPULA_DODGES = ["serves as", "stands as", "functions as", "acts as",
+                  "boasts", "features a", "marks a", "represents a",
+                  "emerged as", "positioned as"]
+
+
+SECTION_TEMPLATES = ["despite its success", "despite these challenges",
+                     "challenges and future", "future prospects",
+                     "in conclusion", "looking ahead", "the road ahead",
+                     "key takeaways", "final thoughts", "in summary"]
+
+
 TERM_LISTS = {
     "weasel_attribution": {
         "content_kind": "phrase",
@@ -531,6 +546,26 @@ TERM_LISTS = {
         "description": "Filler adverbs safe to delete outright (auto-fixed).",
         "polarity": "deny", "accepts_packs": True,
         "built_ins": STOCK_ADVERBS,
+    },
+    "copula_avoidance": {
+        "content_kind": "phrase",
+        "feeds": "copula_avoidance",
+        "label": "Copula dodges",
+        "description": "Phrases used where \"is\" would do: serves as, "
+                        "boasts, functions as. Extend it as new ones appear "
+                        "-- this layer is the one that decays as models "
+                        "change, so it is meant to be edited.",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": COPULA_DODGES,
+    },
+    "section_template": {
+        "content_kind": "phrase",
+        "feeds": "section_template",
+        "label": "Stock section skeletons",
+        "description": "Section openings that signal a template rather than "
+                        "a point: \"Despite its success\", \"Looking ahead\".",
+        "polarity": "deny", "accepts_packs": True,
+        "built_ins": SECTION_TEMPLATES,
     },
     "terminology": {
         "content_kind": "word",
@@ -686,11 +721,6 @@ def check_rule_of_three(sentence):
                       "information, or make them separate claims"}]
 
 
-COPULA_DODGES = ["serves as", "stands as", "functions as", "acts as",
-                  "boasts", "features a", "marks a", "represents a",
-                  "emerged as", "positioned as"]
-
-
 def check_copula_avoidance(sentence, extra=()):
     """"X serves as a Y" where "X is a Y" was available. Wikipedia lists
     this under syntax rather than vocabulary: the model systematically
@@ -721,12 +751,6 @@ def check_participial_tail(sentence):
               "rule": "slopwatch.participial_tail", "auto_fix": False,
               "note": "a significance clause bolted to the end -- delete it, or "
                       "make it a claim with something behind it"}]
-
-
-SECTION_TEMPLATES = ["despite its success", "despite these challenges",
-                     "challenges and future", "future prospects",
-                     "in conclusion", "looking ahead", "the road ahead",
-                     "key takeaways", "final thoughts", "in summary"]
 
 
 def check_section_template(sentence, extra=()):
@@ -1160,6 +1184,8 @@ def lint_and_gate(text, context=None, file_path=None):
             "marketing_adjective": extra_marketing_adjective,
             "filler_verb": extra_filler_verb,
             "marketing_cliche": extra_marketing_cliche,
+            "copula_avoidance": _custom_terms("copula_avoidance", file_path),
+            "section_template": _custom_terms("section_template", file_path),
             "terminology": lexicon,
             **custom_extra,
         },
