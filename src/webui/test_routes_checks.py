@@ -18,14 +18,17 @@ Run with (needs the venv):
     cd src && ../.venv/bin/python3 -m unittest webui.test_routes_checks -v
 """
 import html
+import json
 import os
 import re
+import tempfile
 import unittest
 
 try:
     from fastapi.testclient import TestClient
 
     import rulesets
+    from webui import routes_checks
     from webui.app import app
     from webui.deps import REPO_ROOT
     client = TestClient(app)
@@ -569,11 +572,30 @@ class CheckDecayCalloutTests(unittest.TestCase):
     """The Checks page reports which checks have never fired, and refuses
     to report it off a sample too small to mean anything.
 
-    A check that genuinely fires on one document in ten sits out four
-    judged writes about 65% of the time. Before the floor existed the page
-    called thirty live slopwatch checks dead off four events, which is the
-    same mistake the evaluation harness spent three rounds learning not to
-    make with its own numbers."""
+    Every case here builds its OWN history log and points the route at
+    it. The first version read whatever this machine happened to have in
+    .claude/stopslop-history.log, which is gitignored -- so it passed
+    locally against 67 real events and failed in CI, where the file does
+    not exist and every check has fired zero times out of zero. A test
+    for "which checks are dead" cannot depend on ambient evidence.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.NamedTemporaryFile("w", suffix=".log", delete=False)
+        self._tmp.close()
+        self.addCleanup(os.unlink, self._tmp.name)
+        self._original = routes_checks.HISTORY_PATH
+        routes_checks.HISTORY_PATH = self._tmp.name
+        self.addCleanup(setattr, routes_checks, "HISTORY_PATH", self._original)
+
+    def _log(self, events):
+        with open(self._tmp.name, "w") as f:
+            for e in events:
+                f.write(json.dumps(e) + "\n")
+
+    def _gate_events(self, n, kinds, ruleset="ste100"):
+        return [{"action": "clean", "ruleset": ruleset, "kinds": list(kinds),
+                  "file": f"/tmp/f{i}.md", "ts": float(i)} for i in range(n)]
 
     def test_the_page_renders_a_hit_count_column(self):
         response = client.get("/checks", params={"ruleset": "ste100"})
@@ -581,18 +603,39 @@ class CheckDecayCalloutTests(unittest.TestCase):
         self.assertIn("<th>Fired</th>", response.text)
 
     def test_a_thin_sample_says_so_instead_of_claiming_decay(self):
-        """slopwatch has a handful of judged writes in this repo's real
-        history, far under the floor."""
-        response = client.get("/checks", params={"ruleset": "slopwatch"})
-        text = re.sub(r"\s+", " ", response.text)
-        self.assertIn("judged writes on record", text)
-        self.assertNotIn("enabled checks never fired", text)
+        """Four judged writes cannot tell a dead check from an unused
+        one: a check firing on one document in ten sits out four writes
+        about 65% of the time."""
+        self._log(self._gate_events(4, ["modal"]))
+        text = re.sub(r"\s+", " ", client.get("/checks", params={"ruleset": "ste100"}).text)
+        self.assertIn("4 judged writes on record", text)
+        self.assertNotIn("never fired across", text)
+
+    def test_a_large_enough_sample_names_the_checks_that_never_fired(self):
+        self._log(self._gate_events(40, ["modal"]))
+        text = re.sub(r"\s+", " ", client.get("/checks", params={"ruleset": "ste100"}).text)
+        self.assertIn("never fired across 40 judged writes", text)
+        self.assertIn("<code>passive</code>", text)
+        # The one check that DID fire must not be listed as dead.
+        listed = text.split("never fired across")[1].split("A check set decays")[0]
+        self.assertNotIn("<code>modal</code>", listed)
+
+    def test_a_check_that_fired_shows_its_count_over_the_denominator(self):
+        self._log(self._gate_events(40, ["modal"]))
+        text = re.sub(r"\s+", " ", client.get("/checks", params={"ruleset": "ste100"}).text)
+        self.assertIn("40&thinsp;/&thinsp;40", text)
 
     def test_a_check_that_never_fired_is_marked_rather_than_left_blank(self):
         """An empty cell reads as "no data". The point is to make dead
         weight visible, so it gets a word."""
-        response = client.get("/checks", params={"ruleset": "ste100"})
-        self.assertIn("never-fired", response.text)
+        self._log(self._gate_events(40, ["modal"]))
+        self.assertIn("never-fired",
+                       client.get("/checks", params={"ruleset": "ste100"}).text)
+
+    def test_another_rulesets_activity_does_not_count_as_this_ones(self):
+        self._log(self._gate_events(40, ["modal"], ruleset="slopwatch"))
+        text = re.sub(r"\s+", " ", client.get("/checks", params={"ruleset": "ste100"}).text)
+        self.assertIn("0 judged writes on record", text)
 
 
 if __name__ == "__main__":
