@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Welcome\n\nYou're here. Someone will hand you a laptop in the next hour, and after that the day is mostly yours.\n\nStart with `setup.sh` in the platform repo. It installs the toolchain, pulls a scrubbed copy of the staging database, and takes about twenty minutes on decent wifi. It will fail at least once \u2014 that's expected, and the fix is almost always in the troubleshooting section at the bottom of the README. If it isn't, ask in #dev-help. People answer there fast.\n\nYour onboarding buddy will find you before lunch. They've blocked out Tuesday and Thursday afternoons this week, so save the questions that need a whiteboard.\n\nOne thing worth saying up front: we expect your first pull request by Friday. Not a big one. Fix a typo in the docs, delete a dead flag, tighten an error message. The point is to walk the whole path \u2014 branch, review, CI, deploy \u2014 while it's still low-stakes enough that breaking something is funny rather than expensive.\n\nYou will not understand the codebase this month. Nobody does. There are eleven services, and most engineers here have a working mental model of three or four. Learn yours deeply and trust your colleagues on the rest.\n\nA few habits that make life here easier. Write the design doc before the code, even when it's four paragraphs. Say \"I don't know\" early. Push back on a review comment if you disagree with it \u2014 silent compliance costs us more than an argument does.\n\nCoffee's on the second floor. Go find it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Welcome\n\nYou made it. A laptop shows up within the hour, and after that the day belongs to you.\n\nStart with `setup.sh` in the platform repo. It pulls the toolchain and a scrubbed copy of staging, and it runs about twenty minutes if the wifi behaves. It will break. Everyone's breaks \u2014 the fix is usually sitting in the troubleshooting notes at the bottom of the README, and when it isn't, drop the error in #dev-help. Somebody answers within minutes.\n\nYour onboarding buddy will track you down before lunch. They've held Tuesday and Thursday afternoons open, so bank the questions that need a whiteboard for those.\n\nSomething we'd rather say now than have you guess at: we want a pull request from you by Friday. Make it small. A typo in the docs, a dead flag you delete, an error message that reads badly. What matters is walking the whole path \u2014 branch, review, CI, deploy \u2014 at a point where breaking something is a story rather than an incident.\n\nYou are not going to understand this codebase this month. No one does. Eleven services, and most people here carry a real mental model of three, maybe four. Go deep on yours and lean on your colleagues for the rest.\n\nThree habits that pay off. Write the design doc first, even when it's four paragraphs. Say \"I don't know\" while it's still cheap. And argue with a review comment when you think it's wrong \u2014 quiet agreement costs us more than the disagreement would.\n\nCoffee's upstairs. Go."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "You didn't say which conference or team, so I wrote it with bracketed slots for the identifying details and kept everything else concrete. Swap the brackets and it's ready.\n\n---\n\n**What we brought back from [Conference], [City]**\n\nFour of us went. Three days, one broken hotel coffee machine, roughly forty hours of talks and hallway arguments.\n\nThe talks were fine. The hallway was better.\n\nThe big one: we're not behind. We flew out half-convinced that everyone else had solved [our problem] and we were about to find out how. Nobody has. Three separate teams \u2014 a bank, a games studio, a logistics outfit \u2014 described the same duct tape we run, with the same complaints about it. One of them spent nine months on a rewrite and rolled it back in March. Worth the airfare on its own.\n\nSecond: [tool] works, and the cost isn't on the pricing page. Two engineers, independently, told us their bill tripled the month someone added a high-cardinality label. If we adopt it, we cap that at ingest.\n\nThird, and this one stung a bit. In every conversation about [our area], the question we got asked first was the one we've been putting off: how do you know when it's wrong? We don't, really. We know when it's down. That gap is now [Name]'s Q4 work.\n\nA thing that didn't survive contact: the migration plan [Name] and I sketched on the flight out. Two talks and one long dinner later it was obviously wrong about ordering. We redrew it on a napkin somewhere over [state]. That napkin is in the doc.\n\nSlides and our raw notes are in [link]. Ask us anything in [#channel]."
+}

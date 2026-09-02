@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Webinar: Why Your Queries Got Slow (And What Actually Fixes Them)**\nThursday, October 9 \u00b7 1:00\u20132:00 PM ET \u00b7 Free\n\nYour p99 latency doubled over six months. Nobody changed the query. The data grew, the plan flipped, and now a report that used to finish in 400ms times out.\n\nThis session walks through how that happens and how to catch it earlier. We'll work from real query plans, not slides of best practices.\n\nWhat we'll cover:\n\n- Reading an execution plan well enough to spot the row-estimate error that caused the bad join order\n- When an index helps, when it just adds write cost, and how to tell the difference before you ship it\n- Connection pool sizing, and why more connections often makes throughput worse\n- Three cases where the fix was schema design, not tuning\n\nOur speaker, Priya Raghavan, has spent eight years on database reliability at companies running Postgres and MySQL at terabyte scale. She'll take questions for the last twenty minutes and answer as many as time allows.\n\nBring a slow query if you have one. We'll look at a few live.\n\nRegistration closes October 8. The recording goes out to everyone who signs up, whether or not you attend.\n\n[Save your seat]"
+}

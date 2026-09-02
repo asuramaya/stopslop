@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Webinar: Why Your Queries Got Slow (And What Actually Fixes Them)**\nThursday, October 9 \u00b7 1:00\u20132:00 PM ET \u00b7 Free\n\nYour p99 latency doubled over six months. Nobody changed the query. The data grew, the plan flipped, and now a report that used to finish in 400ms times out.\n\nThis session walks through how that happens and how to catch it earlier. We'll work from real query plans, not slides of best practices.\n\nWhat we'll cover:\n\n- Reading an execution plan well enough to spot the row-estimate error that caused the bad join order\n- When an index helps, when it just adds write cost, and how to tell the difference before you ship it\n- Connection pool sizing, and why more connections often makes throughput worse\n- Three cases where the fix was schema design, not tuning\n\nOur speaker, Priya Raghavan, has spent eight years on database reliability at companies running Postgres and MySQL at terabyte scale. She'll take questions for the last twenty minutes and answer as many as time allows.\n\nBring a slow query if you have one. We'll look at a few live.\n\nRegistration closes October 8. The recording goes out to everyone who signs up, whether or not you attend.\n\n[Save your seat]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Webinar: The Query Didn't Change. Everything Else Did.**\nThursday, October 9 \u00b7 1:00\u20132:00 PM ET \u00b7 Free\n\nA report that came back in 400ms last spring now times out. Same SQL, same server. The table crossed some threshold the planner cared about, the join order flipped, and nobody noticed until support filed a ticket.\n\nWe'll spend an hour on how that unfolds and how to see it coming. Real query plans on screen, not a checklist of best practices.\n\nOn the agenda:\n\n- Reading an execution plan closely enough to find the bad row estimate behind a bad join order\n- Deciding whether an index earns its write cost, before it reaches production\n- Connection pool sizing, and why raising the limit often drops throughput\n- Three problems that turned out to be schema, not tuning\n\nPriya Raghavan has worked on database reliability for eight years at shops running Postgres and MySQL into the terabytes. The last twenty minutes are yours for questions; she'll get through as many as the clock allows.\n\nHave a slow query? Send it along. We'll pull a few up live.\n\nRegistration closes October 8. Everyone who signs up gets the recording, attend or not.\n\n[Save your seat]"
+}

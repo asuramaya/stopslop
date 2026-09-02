@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## What teams say\n\n> \"We were grepping across forty boxes at 3 a.m. Now whoever's on call types one query and has an answer before the page escalates. The migration took an afternoon, not the quarter we'd budgeted for it.\"\n> \u2014 Priya Raghavan, Staff SRE, Kestrel Health\n\n> \"I assumed the bill would blow up once we stopped sampling and just sent everything. It didn't. Thirty days hot, a year cold, and we're still under what the old self-hosted cluster cost us in EC2 alone \u2014 before anyone's time.\"\n> \u2014 Dan Okonkwo, Platform Lead, Northwind Logistics\n\n> \"The part I didn't expect to care about: structured fields survive intact from our app all the way to the query bar. No regex archaeology, no parsing rules to babysit when someone renames a field.\"\n> \u2014 Mei Lin Tran, Backend Engineer, Foldspace\n\n> \"Support answered on a Sunday, mid-incident, with a working fix instead of a link to the docs. That bought them a lot of goodwill with my team.\"\n> \u2014 Chris Bayard, Director of Engineering, Arcadia Bank\n\n**Trusted by 4,000+ engineering teams.** [Read the full case studies \u2192](#)\n\n---\n\n~200 words. Names, companies, and quotes are placeholders \u2014 swap in real ones with written permission before publishing, and drop the \"4,000+\" line if you can't substantiate the number."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- bold_density:\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## What teams say\n\n> \"We were grepping across forty boxes at 3 a.m. Now whoever's on call types one query and has an answer before the page escalates. The migration took an afternoon, not the quarter we'd budgeted for it.\"\n> \u2014 Priya Raghavan, Staff SRE, Kestrel Health\n\n> \"I assumed the bill would blow up once we stopped sampling and just sent everything. It didn't. Thirty days hot, a year cold, and we're still under what the old self-hosted cluster cost us in EC2 alone \u2014 before anyone's time.\"\n> \u2014 Dan Okonkwo, Platform Lead, Northwind Logistics\n\n> \"The part I didn't expect to care about: structured fields survive intact from our app all the way to the query bar. No regex archaeology, no parsing rules to babysit when someone renames a field.\"\n> \u2014 Mei Lin Tran, Backend Engineer, Foldspace\n\n> \"Support answered on a Sunday, mid-incident, with a working fix instead of a link to the docs. That bought them a lot of goodwill with my team.\"\n> \u2014 Chris Bayard, Director of Engineering, Arcadia Bank\n\nTrusted by 4,000+ engineering teams. [Read the full case studies \u2192](#)\n\n~200 words. Names, companies, and quotes are placeholders \u2014 swap in real ones with written permission before publishing, and drop the \"4,000+\" line if you can't substantiate the number."
+}

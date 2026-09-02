@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Stop asking who broke it**\n\nThe checkout outage in July took four hours. Maybe twenty minutes of that was the fix. The rest was people working out whether it was safe to say what they knew.\n\nThat's the part we don't count. When a review starts with \"who deployed this,\" everyone in the room quietly decides how much to volunteer. The engineer who noticed the config drift two weeks earlier and didn't file anything stays quiet. The one who approved the PR at 6pm on a Friday explains why the PR was fine. Nobody lies. We just get a version of events shaped by what's cheap to admit, and we build the follow-up actions on top of it.\n\nBlameless postmortems aren't about being nice to each other. They're about getting an accurate account of what happened, which we currently do not get. The premise is simple: assume everyone acted reasonably given what they knew and what the system showed them at the time. If the fix looks obvious in hindsight, that's a signal our tooling hid something, not that someone was careless.\n\nConcretely, I'm proposing three things. Write the timeline before assigning any actions. Ban names in the document; use roles. And have someone who wasn't on call facilitate, because the person who was there can't run the room and be honest in it at the same time.\n\nWe'll still hold people accountable. Accountability means owning the fix, not absorbing the blame. Right now we're getting the blame and paying for it in incidents we don't understand.\n\nHappy to run the next one this way and see what turns up."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**We keep asking the wrong first question**\n\nJuly's checkout outage ran four hours. The actual fix took about twenty minutes. Everything else was people deciding how much of what they knew was safe to say out loud.\n\nNone of that shows up in the incident report. When the first question in the room is \"whose deploy was it,\" everybody starts editing. The engineer who spotted the config drift a couple of weeks earlier and never wrote it down says nothing. The one who approved a PR at six on a Friday spends the meeting defending the PR. Nobody lies. We just end up with the version that's cheapest to admit to, and then we write our action items against that version.\n\nBlameless postmortems are not a courtesy we extend to each other. They're a method for getting a true account, which is a thing we currently do not have. Start from the assumption that everyone did something sensible with the information in front of them at the time. If the answer looks obvious afterwards, the interesting question is what our tooling failed to show.\n\nThree changes. Build the timeline first, and let nobody propose an action until it's finished. Keep names out of the write-up, roles only. Get someone who wasn't on the rotation to run the meeting, because you cannot chair a room and be candid in it at the same time.\n\nAccountability survives all of this. It just means owning the repair instead of wearing the fault. Today we get the fault and pay in outages we never actually understood.\n\nI'll facilitate the next one this way if people are willing."
+}

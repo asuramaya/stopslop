@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "Nothing in the repo names a specific library, so I've invented one (Hoot, a Python/JS HTTP client). Swap the names and version specifics for the real ones.\n\n---\n\n# Hoot 2.0\n\nHoot 2.0 is on PyPI and npm as of today. Async is the default, retry behaviour is configurable per request, and the response object has stopped pretending to be a dict.\n\nMost of the work went into retries. Version 1.x retried any 5xx on a fixed 200ms backoff, which was tolerable until a user pointed out that a client hammering an already-struggling API is part of the outage. 2.0 honours `Retry-After` when the server sends one, falls back to exponential backoff with jitter when it doesn't, and gives up against a time budget you set in seconds instead of a count of attempts. You can override any of that per call.\n\nThe other change worth knowing about is `Response`. In 1.x it subclassed `dict`, so `response[\"items\"]` worked, `response.items()` returned something surprising, and every type checker we tried had an opinion. It's now a plain object with `.json()`, `.text`, `.status`, and `.headers`. This will break code.\n\n## Upgrading\n\nTwo things break. Subscripting a response needs `.json()` in front of it, and the old `retries=3` keyword is now `retry=RetryPolicy(budget=10)`. Everything else in the 1.x surface still works, with deprecation warnings on four helpers we plan to remove in 3.0.\n\nIf you have a large 1.x codebase, run `hoot migrate` over it first. It rewrites both patterns and prints what it couldn't decide about, which in our own repos was about one call site in thirty.\n\nChangelog and migration notes are in the docs. Bug reports go on the tracker."
+}

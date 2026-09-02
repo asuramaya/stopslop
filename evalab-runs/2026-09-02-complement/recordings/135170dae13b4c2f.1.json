@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, shipping a new service here should be boring.\n\nRight now it isn't. A team starting something new spends its first three or four weeks on work nobody asked for: wiring up auth, copying a CI config from whichever repo looked healthiest, guessing at how to get metrics into a dashboard, discovering on the day of launch that the deploy path has an undocumented manual step. Every team pays this tax, and every team pays it slightly differently, which is why we now maintain six variations of the same retry logic.\n\nThe bet is simple. We put a small number of engineers on the paths everyone walks \u2014 build, deploy, observability, data access \u2014 and treat those paths as products with users, owners, and a support burden. Not a side project someone picks up between features.\n\nWhat we want on the other side: a new service in production the same week it's scoped. One deploy pipeline, not a genre of them. An on-call engineer who can find the cause of an incident without knowing which team wrote the code. And enough shared ground that a person moving between teams is useful on day two.\n\nThis costs real capacity. Roughly eight engineers, sustained, who would otherwise be building features \u2014 and the first year will feel like pure overhead, because it mostly is. We think the trade is right anyway. We are spending more on internal friction today than the platform team would cost, we're just spending it in a form that doesn't appear on any roadmap.\n\n---\nThe headcount and timeline numbers are placeholders \u2014 swap in your real ones, since the argument leans on them."
+}

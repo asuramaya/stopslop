@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "Drafted below. I don't know your team's actual specifics, so the numbers, names, and months are in brackets \u2014 swap them and it's ready to post.\n\n---\n\n**What we actually did this year**\n\nTwelve months ago a deploy took [40 minutes] and our bug tracker was a place tickets went to die. Both of those are gone.\n\nThe first half of the year went to the migration. [Priya] mapped the dependency graph in January, we found the three services everyone had quietly forked, and we spent until [May] untangling them. Boring work. It also took p99 from [1.4s to 310ms], which is the only reason anyone outside the team noticed.\n\nThen the on-call rewrite. We deleted [62] alerts and kept [11], and paging dropped from about [nine a week] to [two]. Worth being honest: we got this wrong twice first. The initial pass cut alerts we turned out to need, and [October] was miserable because of it.\n\nThings we said we'd do and didn't \u2014 the flaky-test project, the docs rewrite, moving off [RabbitMQ]. The queue is [next year's] problem. I'd rather write that here than bury it in a roadmap slide where it quietly rolls forward for another twelve months.\n\nWhat sticks with me is how much of this year's value came from subtraction. [17,000] lines removed net, two services retired, one database gone. Nobody gets promoted for that, which is a thing we should probably fix.\n\nFor [2027] the shortlist is short on purpose: [the queue migration], [the read-path cache], and whatever the on-call rotation tells us is still broken. Everything else waits.\n\n---\n\n~250 words. Tell me the real numbers and I'll fill them in."
+}

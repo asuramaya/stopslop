@@ -1,0 +1,13 @@
+**Nomination: Release Engineering team**
+
+Eighteen months ago, shipping to production meant a Thursday night, a shared checklist, and one person on call who knew which steps the checklist left out. A deploy took about four hours. We did six a month and two of them went sideways.
+
+The team took that checklist apart one step at a time, automated each step, then deleted it once the automation had earned trust. Migrations run behind a gate now. Rollback is one command, and it works: we've leaned on it twice under real pressure, and both times we were back inside three minutes.
+
+The numbers are good. Six deploys a month became forty a week, median duration eleven minutes, change failure rate down by roughly two thirds.
+
+What I want to recognize is how they got there. No mandate, no freeze, no quarter where the rest of us stopped shipping features while they worked. They absorbed the disruption themselves and handed everyone else the finished thing. Most people in the org can't name the change, only that deploying stopped being frightening.
+
+That's the strongest kind of infrastructure work, and it usually goes unthanked. This award is a chance to fix that.
+
+Swap in the real team name and metrics — the figures above are shaped as placeholders.

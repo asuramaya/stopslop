@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**To:** Engineering leadership\n**From:** H\u00e9ctor Quezada\n**Re:** Giving Q4 to technical debt\n\nI'm asking to pull the platform team off the roadmap for one quarter. Four engineers, twelve weeks, debt work only.\n\nThis is an arithmetic case, not a preference. Our median PR waits 4.1 days to merge; last year it waited 1.6. CI runs 47 minutes and flakes on about one build in six, so most engineers push twice to get one green. Nineteen of the 31 production incidents we logged last quarter trace back to three services sharing a database schema with no owner. We already pay that bill, and it gets bigger every quarter we put this off.\n\nWhere the twelve weeks go, in order: split the shared schema so every service owns its own migrations; cut CI below 15 minutes by parallelizing the integration suite and deleting the ~200 tests that assert nothing; kill the v1 API, which carries 0.3% of traffic and blocks every routing change we want to make.\n\nThere is a cost. Four features slip. I would rather pick which four in October than watch them slip anyway in March. The alternative we've been running, a debt sprint every few months, has failed, because this work crosses service boundaries and doesn't fit in two weeks.\n\nI'll report on those three numbers every two weeks. If none of them has moved by week six, end the quarter early and put the team back on the roadmap.\n\nSwap in your own metrics before this goes out. The argument only works if the numbers are real."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** H\u00e9ctor Quezada\n**Re:** Handing Q4 to technical debt\n\nI want the platform team off the roadmap for a quarter. Four engineers, twelve weeks, nothing but debt.\n\nThe case is arithmetic, not taste. A median PR now sits 4.1 days before it merges; a year ago it sat 1.6. CI takes 47 minutes and fails at random on roughly one build in six, so most engineers push twice to get one green run. Of the 31 production incidents we logged last quarter, 19 trace back to three services sharing a database schema nobody owns. We pay that bill today, and the amount grows every quarter we defer it.\n\nThe twelve weeks, in order: split the shared schema so each service owns its own migrations; get CI under 15 minutes by parallelizing the integration suite and deleting the ~200 tests that assert nothing; retire the v1 API, which carries 0.3% of traffic and blocks every routing change on our list.\n\nIt costs something. Four features slip. I would rather choose which four in October than watch them slip anyway in March. Our current answer, a debt sprint every few months, has not worked, because this work crosses service boundaries and will not fit in two weeks.\n\nI'll report those three numbers every two weeks. If none has moved by week six, cut the quarter short and send the team back to the roadmap.\n\nSwap in your own metrics before this goes out. The argument only holds if the numbers are real."
+}

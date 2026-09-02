@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Written with bracketed placeholders since the service, platform, and dates weren't specified \u2014 fill those in and it's ready to send.\n\n---\n\n**Subject: [Service] moves to [New Platform] on [date]**\n\nHi [Name],\n\n[Service] moves to [New Platform] during [Q1 2027]. Here is the schedule and what you need to do.\n\n**The dates**\n\n- **[Date]** \u2014 [New Platform] opens. You can sign in and start using it.\n- **[Date]** \u2014 the current system goes read-only. You can still view and export your data; you cannot create or edit.\n- **[Date]** \u2014 the current system shuts down for good.\n\n**What we move for you**\n\nYour account, your [projects/records], and your billing history come across automatically. Nothing is lost, and you do not re-enter anything.\n\n**What you have to do**\n\nTwo things. Update your bookmark to [new URL], because the old address stops working on [date]. And if you call our API, point your integration at [new endpoint] before [date] \u2014 the old endpoint returns errors after that.\n\nYour API keys keep working. So do your saved [reports/templates] and your team's permissions.\n\n**What is different**\n\n[One or two concrete differences: faster exports, a rebuilt search, a settings page in a new spot.] [One thing that goes away or changes, stated plainly, if anything does.]\n\n**If something breaks**\n\nWrite to [support email] or open a ticket at [link]. Say \"platform move\" in the subject and it goes to the team handling this specifically. We are staffing extra support through [date].\n\nWe will send one reminder two weeks before the read-only date, and one the day before shutdown.\n\n[Name]\n[Title], [Company]"
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "# Platform Engineering Charter\n\n## Why we exist\n\nProduct teams here spend too much of their week on work that has nothing to do with their product: wiring up CI, chasing flaky deploys, guessing at Kubernetes manifests, waiting on someone in another timezone to grant an IAM role. We exist to take that work off them.\n\n## What we own\n\nWe own the paved road, meaning the default path from a laptop to production. That covers build and release pipelines, environment provisioning, observability defaults, secrets handling, and the internal tooling that ties them together. We own the reliability of those systems the way a product team owns theirs, with on-call rotation and error budgets.\n\n## What we don't own\n\nWe are not a ticket queue and not a gatekeeper. Teams can leave the paved road; if they do, they carry the operational weight themselves. We will not block a deploy to protect a standard.\n\n## How we work\n\nWe treat the platform as a product and the engineers here as its users. We do discovery before we build, we publish what we're planning, and we measure adoption instead of mandating it. If a team routes around something we shipped, we read that as a defect report, not as a compliance problem.\n\n## What year one looks like\n\nA new service reaches production in under a day without asking us for anything. Deployment frequency rises while change failure rate holds flat. Most of our support load moves out of Slack threads and into documentation people can find on their own.\n\n*(Swap in the company name where the charter needs it, and pin the year-one numbers to your current baselines once you have them.)*"
+}

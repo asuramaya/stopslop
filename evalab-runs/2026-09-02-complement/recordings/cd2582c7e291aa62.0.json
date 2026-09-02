@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Year Two Is Where It Gets Expensive**\n\nThe usual migration talk stops at month six: find a seam, pull out a service, ship it. That part went fine for us. What followed was eighteen months of learning what the monolith had quietly handled all along. Foreign keys. Transactions. A deploy that could not strand half the system on last week's schema. Once billing and inventory sat in different databases, we wrote all of that ourselves, poorly, and then again.\n\nThis is a talk about what the architecture diagram leaves out. Why we chose our first three seams, and how the second choice went wrong. What distributed transactions cost, counted in pages at 3am rather than milliseconds. The eleven-service knot we tied before conceding that two of those services should never have been split.\n\nI'll show the numbers we watched: deploy frequency, change failure rate, and the one that mattered more than either, how many weeks a new hire needed before shipping anything real. Two years of those, including the ten months when all three moved the wrong way.\n\nA few months in and harder than the blog posts suggested? That's correct. Here's the shape of what's coming.\n\nThe details here (eleven services, ten bad months, billing and inventory) are placeholders. Drop in your own figures. Program committees respond to the specifics, so keep them real."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**The Second Year Is the One That Bills You**\n\nMost migration talks end at month six: pick a seam, extract a service, deploy. That part went fine for us. Then came eighteen months of discovering everything the monolith had been doing on our behalf without ever mentioning it. Foreign keys. Transactions. A deploy that couldn't leave half the system running last week's schema. With billing and inventory in separate databases, we rebuilt all of that by hand, badly, and then rebuilt it again.\n\nThis talk covers what never makes it onto the architecture diagram. Why we picked our first three seams, and how the second pick went bad. What distributed transactions actually cost, measured in 3am pages rather than milliseconds. The eleven-service tangle we built before admitting that two of those services should have stayed one.\n\nI'll walk through the numbers we tracked: deploy frequency, change failure rate, and the one that turned out to matter most, how long a new engineer took to ship something real. Two years of all three, including the ten-month stretch when every one of them got worse.\n\nA few months in and harder than the blog posts promised? That's the normal reading. Here's what's ahead.\n\nThe specifics here (eleven services, ten bad months, billing and inventory) stand in for yours. Swap them out. Committees react to real numbers, so use ones you actually have."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination \u2014 [Team name], Engineering Excellence Award**\n\nI want to nominate [Team name] for the work they did on our deployment process this year.\n\nBefore they started, a release took most of an afternoon and depended on one person remembering the right order of steps. Rollbacks were worse. Nobody wanted to deploy on a Friday, which meant fixes waited over the weekend.\n\n[Team name] rebuilt it. They replaced the manual runbook with an automated pipeline, added [staged rollouts / automatic rollback / smoke checks] and made the whole thing something any engineer on the team can trigger without asking permission. Deploys went from [X hours] to [Y minutes], and we now ship [N] times a week instead of [M].\n\nWhat makes this award-worthy is less the numbers than the way they got there. They talked to every team that depends on the pipeline before changing anything, migrated services one at a time so nobody was blocked, and wrote documentation people actually read. They took on unglamorous work that no roadmap asked for, because they could see what it cost everyone else.\n\nHalf the engineering org benefits from this daily and most of them do not know whose work it was. That seems like a good reason to give them an award."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination \u2014 [Team name], Engineering Excellence Award**\n\nI'd like to put [Team name] forward for what they did to our deployment process this year.\n\nA release used to eat most of an afternoon, and it ran on one person's memory of which step came next. Rollbacks were worse. Nobody would deploy on a Friday, so fixes sat until Monday.\n\n[Team name] tore that down and built something else. The manual runbook became an automated pipeline with [staged rollouts / automatic rollback / smoke checks], and any engineer can now start a deploy without waiting on someone's approval. We went from [X hours] per deploy to [Y minutes], and from [M] releases a week to [N].\n\nThe numbers are good, but the method is why I'm nominating them. They asked every dependent team what they needed before touching anything. They moved services over one at a time, so nobody was ever stuck waiting. The docs they wrote actually get read. None of this sat on a roadmap; they picked it up because they could see the tax the rest of us were paying.\n\nMost of the engineering org depends on this daily and could not name the people who built it. That strikes me as reason enough."
+}

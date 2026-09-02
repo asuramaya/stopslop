@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "256 words, passes the slopwatch gate clean. (Drafted at `/tmp/darkmode.md`; I invented the app name \"Slate\" and the support address \u2014 swap in yours.)\n\n---\n\n# Dark mode is here\n\nVersion 3.2 of Slate went out this morning with dark mode on iOS, Android, and the web.\n\nYou turn it on in Settings, under Appearance. There are three options: light, dark, and match system. The last one follows whatever your phone or laptop is already doing, including a schedule if you have one set.\n\nDark mode took us longer than it should have, and the delay was mostly about text you have already marked up. Yellow highlighter over near-black is unreadable. Code blocks that looked fine on white turned into grey mush. Inline images with white backgrounds sat in the page like open windows. So we re-tuned the highlight colours for the dark palette, gave code blocks their own background one step off the page colour, and added a per-image toggle that dims a bright image until you hover it.\n\nA few things are still rough. PDF previews render on white regardless of your theme, because we hand that off to the system viewer. Exported HTML always uses the light palette. Both are on the list.\n\nIf you have notes with custom colours from the old tag system, check them once after you switch. Some of those colours were picked for a white page and will look wrong. You can edit any of them from the tag list.\n\nThe switch is instant and does not touch your notes, so try it and go back if you hate it.\n\nBug reports go to support@slate.app, or reply here. We read all of it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Dark mode has landed\n\nSlate 3.2 shipped this morning, and dark mode comes with it on iOS, Android, and the web.\n\nLook in Settings, under Appearance. You get three choices: light, dark, or match system. That last one follows whatever your phone or laptop is already doing, schedule included if you run one.\n\nThis should have shipped sooner. What held it up was your existing markup. Yellow highlighter on near-black is unreadable. Code blocks that were fine on white went to grey mush. Inline images with white backgrounds glared out of the page like open windows. So we retuned the highlight colours for the dark palette, gave code blocks a background one step off the page colour, and added a per-image toggle that dims a bright image until your cursor is over it.\n\nSome rough edges are still there. PDF previews render on white whatever your theme is, because the system viewer handles those and we do not control it. Exported HTML always comes out in the light palette. Both are queued for the next release or the one after.\n\nIf any of your notes carry custom colours from the old tag system, look them over once after you switch. Those colours were picked against a white page, and a few of them will read badly now. You can edit any of them from the tag list.\n\nFlipping the setting is instant and it does not touch your notes, so try it and switch back if you hate it.\n\nSend bugs to support@slate.app, or reply to this post. We read all of it."
+}

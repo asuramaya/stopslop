@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about starting a mentorship program on an engineering team. Around 250 words."
+  }
+ ],
+ "output": "We started pairing juniors with senior engineers in March, and the first version of it failed.\n\nThe failure was predictable in hindsight. We matched eleven pairs by skill overlap, told them to meet biweekly, and gave them nothing to talk about. By week six, four pairs had quietly stopped scheduling. The two pairs that kept going had both invented their own agenda without asking us.\n\nSo we rebuilt it around that. Now every pair starts with a concrete artifact the mentee owns: a service they're on call for, a migration they're leading, a test suite they inherited. The mentor's job is not to answer questions in the abstract. It's to review that specific work every two weeks and say what they'd do differently.\n\nThree things we got wrong that other teams can skip.\n\nMatching by technology stack was useless. What predicted a good pair was whether the mentor had shipped something at the mentee's current level of scope in the last two years. A staff engineer four years removed from writing endpoints gave advice that didn't survive contact with our actual deploy process.\n\nWe also made mentorship invisible in performance review for the first two quarters, then wondered why senior engineers deprioritized it. Two of them told me directly they'd rather ship. Fair. We now count it, and the conversation changed.\n\nAnd we ran it opt-in for mentees but assigned for mentors. Backwards. Mentees who don't want it waste both people's time.\n\nNine months in, seven of the original eleven pairs are still meeting. That's the number I'd watch if you're starting one."
+}

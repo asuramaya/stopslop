@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "**A year remote: the honest accounting**\n\nWe went remote in March and told everyone it was temporary. Twelve months later we handed back two floors of the lease, so we owe people a real account of what it cost.\n\nMeetings ate the calendar first. By June the average engineer sat in 14 hours of scheduled calls a week, up from six. We had lost hallway context and replaced it with invitations. The fix was unglamorous: we cancelled every recurring meeting on one Friday and made teams re-add only the ones they actually missed. About a third came back.\n\nOnboarding broke worse than the meetings did. Four people joined in the first half of the year, and they took around 11 weeks to reach their first solo on-call shift, against five weeks for anyone hired in 2019. Nobody was neglecting them. They simply had no way to overhear how the system worked. We now pair each new hire with a named buddy for six weeks and treat the buddy's time as staffed work, not a favour.\n\nThe thing that surprised us was writing. Decisions that used to happen in a doorway now had to survive a document, and about a quarter of them didn't. That was a gift disguised as friction.\n\nWhat we'd keep: written decisions, async by default, and the four-hour overlap window we settled on for our Berlin and Toronto teams. What we'd undo: the six weeks we spent hunting for a video tool, when the real problem was that we had nothing worth saying in half those calls."
+}

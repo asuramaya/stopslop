@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "## Why observability matters\n\nAt 2:14 on a Tuesday morning, checkout starts failing for roughly one customer in forty. The dashboards are green. CPU is fine, memory is fine, every health check returns 200. The on-call engineer spends forty minutes reading logs before finding it: a third-party address validator began returning a 500 for postcodes with a trailing space, and the retry logic swallowed the error into a generic \"payment declined.\"\n\nNothing in the monitoring setup was broken. It was answering the questions someone thought to ask six months earlier.\n\nThat gap is what observability addresses. Monitoring tells you whether the conditions you predicted have occurred. Observability is whether you can ask a new question of a running system and get an answer without shipping code first. Which customers hit the failure? What did their requests have in common? Was it one region, one client version, one payment provider? If answering takes a deploy, you don't have that ability yet, and the outage lasts as long as your build pipeline.\n\nThe cost of the gap compounds in ways that don't show up on any incident report. Engineers stop trusting the graphs and start guessing. Debugging becomes a matter of seniority, since only the people who have seen a failure before can recognise it again. Post-incident reviews produce another alert rule, then another, until the alert channel is noise everybody mutes.\n\nTeams that invest here aren't chasing lower mean time to recovery, though they usually get it. They're buying the ability to reason about a system too large to hold in one person's head."
+}

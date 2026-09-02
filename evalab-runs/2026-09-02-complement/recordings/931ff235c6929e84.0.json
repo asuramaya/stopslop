@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**We keep getting \"security is everyone's job\" backwards**\n\nEvery company repeats that line. What it means in practice: the security team writes a policy, the rest of us click through a training module, and when something breaks, security still gets paged. Responsibility without capability is just blame with a wider blast radius.\n\nThree changes land this quarter.\n\nSecurity stops running an approval queue. The team is building paved paths instead: a secrets manager that beats an env file for convenience, a dependency bot that opens the PR itself, service templates with auth already wired in. When the safe route costs more time than the unsafe one, people take the unsafe one. They're not wrong to.\n\nThreat modeling joins design review. No new meeting, no new document. Your design doc grows a section on what an attacker wants and how they'd get it. Two paragraphs will do. The point is to think about it while the design is still cheap to change.\n\nIncident write-ups go to the team that owns the code. You understand your system better than security does. They'll read your draft and argue with it, but the account is yours to write.\n\nYou won't be alone in any of this. #security is staffed through business hours, and someone will sit down with you over a design or an ugly finding. What we're asking is that you quit treating security as a gate another team operates, and start treating it as part of the job, the way you already treat tests and on-call.\n\nReply in the thread with questions, objections, or better plans."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**We say \"security is everyone's job\" and mean the opposite**\n\nEvery company says it. Here's what it looks like on the ground: the security team writes a policy, everyone else clicks through a training module, and when something goes wrong, security still carries the pager. Handing people responsibility without the means to act on it just spreads the blame around.\n\nThree things change this quarter.\n\nSecurity is getting out of the approval business. Instead the team is building the easy road: a secrets manager that's less hassle than an env file, a dependency bot that opens the PR for you, service templates with auth already in place. If the safe path costs more time than the unsafe one, people take the unsafe one, and I don't blame them.\n\nThreat modeling moves into design review. No extra meeting, no extra document. Your design doc picks up a section on what an attacker would want and how they'd get it. Two paragraphs is plenty. The value is in thinking it through while the design is still cheap to change.\n\nIncident write-ups belong to whoever owns the code. You know your system better than security does. They'll read your draft and push back on it, but the writing is yours.\n\nNone of this leaves you on your own. #security is staffed through business hours, and someone will sit with you over a design or a nasty finding. The ask is that you stop seeing security as a gate someone else operates and start seeing it as part of the work, like tests or on-call.\n\nQuestions, objections, or better ideas go in the thread."
+}

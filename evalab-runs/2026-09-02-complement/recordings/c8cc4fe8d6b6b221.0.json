@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## About Northgate\n\nNorthgate builds scheduling software for outpatient clinics. That's the whole catalog.\n\nIt began at a front desk. Dana Reyes spent six years running the schedule for a three-provider family practice in Grand Rapids, and a lot of those years went into fighting the tools. A paper overflow list. Two systems with no idea the other existed. A whole afternoon of callbacks every time a provider went home sick. The software wasn't helping her do the job. It sat between her and the job.\n\nShe left in 2019 to build the thing she'd been wanting.\n\nNorthgate now handles per-provider booking rules, automatic waitlist fill when a slot frees up, text reminders, and two-way sync with Epic, athenahealth, and eClinicalWorks. Clinics that move to us cut no-shows by a median of 22% within six months. We publish that figure every quarter, bad quarters included.\n\nAbout 400 practices use it, ranging from two providers to forty. Twice we've turned down hospital systems. Enterprise scheduling is a different problem with different politics, and doing it justice would mean doing ours worse.\n\nNo billing module. No analytics suite. No plan to grow into a platform. Scheduling is plenty of problem on its own.\n\nThirty-one people work here, half in Grand Rapids and half spread out. Support is staffed by people who have worked a front desk, which is how they know what you mean when you say the morning got away from you."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## About Northgate\n\nNorthgate makes scheduling software for outpatient clinics. Nothing else.\n\nThe idea came from a front desk. Dana Reyes ran the schedule at a three-provider family practice in Grand Rapids for six years, and much of that time went to wrestling with the tools. An overflow list kept on paper. Two systems that never spoke to each other. An entire afternoon of callbacks every time a provider called in sick. The software wasn't helping her do the job. It stood between her and the job.\n\nShe left in 2019 to build what she'd been wishing for.\n\nToday Northgate covers booking rules set per provider, waitlists that fill themselves when a slot opens, text reminders, and two-way sync with Epic, athenahealth, and eClinicalWorks. Clinics that switch to us see no-shows fall by a median of 22% inside six months. We publish that number every quarter, the bad ones included.\n\nRoughly 400 practices run on it, from two providers up to forty. Twice we've said no to hospital systems. Enterprise scheduling is a different problem with different politics, and serving it properly would mean serving our own customers worse.\n\nNo billing module. No analytics suite. No ambition to grow into a platform. Scheduling is enough of a problem by itself.\n\nThirty-one people work here, half in Grand Rapids and half scattered elsewhere. Support is staffed by people who have worked a front desk themselves, which is how they know what you mean when you say the morning got away from you."
+}

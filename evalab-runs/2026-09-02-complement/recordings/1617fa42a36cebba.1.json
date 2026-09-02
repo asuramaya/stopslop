@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**Let's stop asking who broke it**\n\nLast month's checkout outage cost us four hours. The review afterward spent most of its time establishing that Priya had merged the config change. Fine. True, even. But we walked out of that room knowing exactly one thing we already knew, and nothing about why a single config value could take down payments with no staged rollout behind it.\n\nThat's the trade we keep making. We buy a name and we give up the mechanism.\n\nI want us to run postmortems blameless, starting with the next incident. Concretely: no individual named as a cause in the writeup, no performance consequences attached to anything said in the review, and the facilitator is someone who wasn't on the page.\n\nThe argument isn't that people never make mistakes. Obviously they do. It's that a person making a mistake is the least interesting fact available, because it's the one thing guaranteed to recur. Systems are the part we can actually change. Google, Etsy and Netflix all landed here independently, and none of them are known for being soft on engineers.\n\nThere's a second effect, harder to measure and probably bigger. Right now people wait before escalating. They poke at it for twenty minutes first, hoping it resolves, because being the person who raised the alarm means being the person attached to the incident. Those twenty minutes are our real cost.\n\nI'll write up a template and facilitate the first one. Push back if you think this makes us sloppy."
+}

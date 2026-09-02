@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome. Here's what your first day looks like.\n\nYour laptop is on your desk. The password is on a sticky note under the keyboard, which is terrible security practice and you should change it before lunch.\n\nSomebody will find you around 10:00 to walk you through setup. Until then, poke around. Read code. Nothing you do today can break anything that matters.\n\n**Your first week has one goal: ship something.** It can be tiny \u2014 a typo fix in the docs, a log line that's been annoying people for months. We care that you touch the pipeline end to end, not that the change is impressive. Most new engineers get a commit merged by Wednesday. If you're stuck on Thursday, that's a failure of our onboarding, not yours, and we want to hear about it.\n\nThree things worth knowing early:\n\nWe review every pull request, and reviews get blunt. It's about the diff, never the person. You'll get the same directness back when you review \u2014 please use it.\n\nAsk questions in the open channel, not DMs. The answer helps whoever searches for it in eight months.\n\nNobody here has read the whole codebase. Not the staff engineers, not the people who wrote most of it. You're not behind.\n\nYour onboarding buddy's name is in your calendar invite. They've blocked out real time for you this week, so use it \u2014 that's the whole reason it's on their calendar.\n\nCoffee's in the kitchen. The good machine is the one on the left."
+}

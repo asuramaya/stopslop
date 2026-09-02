@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**Let's stop asking whose fault it was**\n\nWe had three incidents last quarter. In all three, the write-up went to the person closest to the keyboard, and in all three we learned nothing we could act on.\n\nThat's the pattern I want to break. When a postmortem's implicit question is \"who did this,\" people answer it defensively. They shave details. They wait until the story is tidy before they say anything. The half-hour between \"something's wrong\" and \"we're paging someone\" is exactly the window where the honest account lives, and it's the window we're teaching people to keep quiet through.\n\nA blameless postmortem starts from a different assumption: a competent engineer with good intentions did the thing that broke production, so the interesting question is what made that action look correct at the time. What did the dashboard say? What did the runbook leave out? Where did the deploy tool let a bad config through without complaint?\n\nThose answers become work items. \"Be more careful\" never does.\n\nI'm not proposing we drop accountability. The team still owns the fix, the timeline, and the follow-up. The change is narrow \u2014 we remove names from the causal chain in the written record, and we say plainly, up front, that nobody's review is affected by showing up in one.\n\nConcretely: for the next two incidents, I'll facilitate. We use a template with no \"responsible party\" field, we publish internally within five business days, and every action item gets an owner and a date.\n\nIf that produces worse postmortems than what we have now, I'll drop it."
+}

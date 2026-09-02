@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome\n\nYour laptop is on your desk. The password is on a sticky note under the keyboard, which is terrible security practice and the first thing you'll change.\n\nHere's what today looks like.\n\nMorning is setup. Clone the monorepo, run `./bin/bootstrap`, and go get coffee \u2014 it takes about twenty minutes and fails maybe one time in ten. If it fails, ping #dev-help. Someone will answer. That channel is the most-watched room in the company and nobody there thinks your question is dumb.\n\nBy lunch you should have the test suite running locally. Don't worry if it's red; three tests have been flaky since March and we're pretending not to notice.\n\nAfternoon, you ship something. Really. Your onboarding buddy has a small ticket picked out \u2014 a copy fix, a log line, something with low stakes and a real deploy at the end of it. We do this because the fastest way to learn a system is to push a change through it, not to read about it for a week.\n\nA few things worth knowing early:\n\nWe review every pull request, and reviews are blunt. That's not a temperature reading on you. Nobody is keeping score.\n\nIf production breaks, we write up what happened and never who did it. You will break production eventually. So has everyone here.\n\nAsk questions in public channels instead of DMs. Four other people had the same question and didn't ask.\n\nYour buddy's name and desk are in the calendar invite. Go find them."
+}

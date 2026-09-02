@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. I wrote it as a first-person company post with concrete specifics invented \u2014 swap the numbers for your real ones, since the specificity is what makes it land.\n\n---\n\n**Why we're hiring for developer relations**\n\nWe shipped an API two years ago and then mostly stopped talking about it. It works. People use it. But when we went looking for why adoption flattened out, the answer wasn't in the product.\n\nIt was in the gap between someone deciding to try us and someone getting a first request to return 200. For most people that gap was four hours. For anyone whose stack didn't match our quickstart, it was closer to two days. We know this because we finally sat down and watched five people do it.\n\nSupport tickets don't tell you this. A ticket gets filed by someone who already committed. The people who quit at hour three don't file anything; they close the tab.\n\nDeveloper relations is how we reach those people. Not conference talks, though we'll do some. The job is to write the docs page answering the question our search logs say gets asked forty times a week and never answered. Sit in the issue tracker. Build the sample app in the framework we don't officially support, because a third of our signups use it anyway.\n\nThere's a version of this role that is marketing with a keyboard. We're not hiring for that. The person we want can file a PR against the SDK when an error message is wrong, and has the standing to argue that it's wrong.\n\nIf the docs get better and nobody hears our name at a conference, that's a good year.\n\n---\n\n~265 words. The last line is the one to cut if you need it shorter."
+}

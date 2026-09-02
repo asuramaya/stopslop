@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Why we're hiring a devrel team**\n\nWe shipped [product] eighteen months ago and watched something uncomfortable happen. People signed up. They read the quickstart, got a hello-world running, and then \u2014 nothing. Roughly [X]% never made a second API call.\n\nOur first instinct was that the docs were bad. They were, in places. But the real problem showed up when [name] sat down with five customers and watched them build. Every one of them got stuck at the same place: [specific step]. Not because it was hard, but because nobody had ever written down the part where you connect it to a real system with real auth and real data that isn't clean.\n\nThat gap is not a marketing problem and you cannot patch it with a webinar. It's a craft problem, and it needs people whose job is to build with the thing in public, hit the walls, and then go fix the walls.\n\nSo we're funding a devrel team of [N], reporting into [engineering/product], not marketing. Their mandate: ship reference implementations, answer in the [Discord/forum] within a day, and file bugs against our own onboarding with the same weight as customer bugs. We'll measure them on time-to-second-call and on how many docs PRs land, not on conference talks or follower counts.\n\nThe honest version: we built something developers can use and then made them figure out the hard parts alone. This is us paying that back.\n\n[Roles are open here.]\n\n---\n\nPlaceholders in brackets are for you to fill \u2014 I didn't want to invent metrics or names. Tell me the company and the real numbers and I'll tighten it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Why we're hiring a devrel team**\n\nWe shipped [product] eighteen months ago and then watched something we didn't like. People signed up. They read the quickstart, got a hello-world running, and then stopped. About [X]% never made a second API call.\n\nWe assumed the docs were the problem. In places they were. But the actual issue surfaced when [name] sat with five customers and watched them build. All five stalled in the same spot: [specific step]. Not because it's difficult, but because nobody had written down the part where you wire it into a real system, with real auth, and data that isn't clean.\n\nYou can't fix that with marketing, and a webinar won't touch it. It's a craft problem. It needs people whose job is to build with the thing in public, run into the walls, and then go repair the walls.\n\nSo we're funding a devrel team of [N], reporting into [engineering/product] rather than marketing. Their mandate: ship reference implementations, answer in the [Discord/forum] inside a day, and file bugs against our own onboarding that carry the same weight as customer bugs. We'll judge them on time-to-second-call and on how many docs PRs land \u2014 not on conference talks or follower counts.\n\nPut plainly: we built something developers can use, then left them to work out the hard parts alone. This is us paying that back.\n\n[Roles are open here.]"
+}

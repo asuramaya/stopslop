@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Welcome\n\nYou're here. Your accounts are already made, and the sticker drawer is by the window.\n\nToday is deliberately light: read this, set up your laptop, go to lunch with your team at noon. That's the whole agenda.\n\nYour first week has one goal \u2014 ship something small to production. A copy fix, a log line, a flaky test, anything. Rana on Platform keeps a list of starter tickets and will pair with you on the deploy. People who wait until they understand the whole system before touching it tend to wait a long time. The system is large. Nobody understands all of it.\n\nA few things that aren't written down anywhere else:\n\nAsk questions in the public channel rather than in DMs. The answer usually helps someone who hasn't gotten around to asking yet.\n\nWe review code slowly and merge quickly. Expect comments. They're about the diff, not about you.\n\nIf the build is broken and you know how to fix it, fix it, even when it isn't your code.\n\nNobody works weekends here. If it starts to feel like you have to, that's a planning failure somewhere upstream of you, and we want to hear about it early.\n\nYour manager will come find you around 3pm for half an hour. Bring whatever confused you today. Confusion on day one is information about our documentation, and we collect it.\n\nVPN, passwords, and the on-call rotation are all in the handbook. The rest you'll pick up by asking.\n\nGlad you're here."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Today is deliberately light:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "# Welcome\n\nYou're here. Your accounts are already made, and the sticker drawer is by the window.\n\nToday is deliberately light. Read this, set up your laptop, go to lunch with your team at noon. That's the whole agenda.\n\nYour first week has one goal \u2014 ship something small to production. A copy fix, a log line, a flaky test, anything. Rana on Platform keeps a list of starter tickets and will pair with you on the deploy. People who wait until they understand the whole system before touching it tend to wait a long time. The system is large. Nobody understands all of it.\n\nA few things that aren't written down anywhere else:\n\nAsk questions in the public channel rather than in DMs. The answer usually helps someone who hasn't gotten around to asking yet.\n\nWe review code slowly and merge quickly. Expect comments. They're about the diff, not about you.\n\nIf the build is broken and you know how to fix it, fix it, even when it isn't your code.\n\nNobody works weekends here. If it starts to feel like you have to, that's a planning failure somewhere upstream of you, and we want to hear about it early.\n\nYour manager will come find you around 3pm for half an hour. Bring whatever confused you today. Confusion on day one is information about our documentation, and we collect it.\n\nVPN, passwords, and the on-call rotation are all in the handbook. The rest you'll pick up by asking.\n\nGlad you're here."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "You didn't name the service, the platform, or the dates, so I've written it with bracketed placeholders you can fill in. Swap them and it's ready to send.\n\n---\n\n**Subject: [Service] moves to [New Platform] in [Q_ 20__]**\n\nHi [Name],\n\nWe're moving [Service] to [New Platform] next quarter. Here's what that means for you.\n\nThe short version: your account, your data, and your saved [settings/reports/workflows] come with you. You don't need to export anything or rebuild your setup. We're handling the migration on our side.\n\nWhy we're doing it. [Old Platform] has been running [Service] since [year], and it's reached the end of what we can do with it \u2014 [specific limitation, e.g. \"batch jobs cap out at 500 records\" or \"no support for SSO\"]. [New Platform] fixes that. It also gets you [specific gain: faster exports, an API, whatever is true].\n\nThe dates:\n- [Date] \u2014 new URL goes live. Both platforms work. Log in with your existing credentials.\n- [Date] \u2014 we migrate remaining accounts in batches. You'll get 48 hours' notice by email before yours moves.\n- [Date] \u2014 [Old Platform] switches to read-only.\n- [Date] \u2014 [Old Platform] shuts down.\n\nWhat we need from you. Two things, and only if they apply. If you've hardcoded [old-domain.com] into scripts or integrations, update them to [new-domain.com] before [date]. If your team uses [feature that isn't carrying over], talk to us \u2014 we'll work out a replacement.\n\nExpect one short outage during your migration window, under [X] minutes.\n\nQuestions go to [email] or [support link]. We'd rather hear from you early than fix something after.\n\n\u2014 [Name], [Title]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Subject: [Service] moves to [New Platform] in [Q_ 20__]\n\nHi [Name],\n\nNext quarter we're moving [Service] over to [New Platform].\n\nYour account comes with you, and so does your data and your saved [settings/reports/workflows]. Nothing to export, nothing to rebuild. We run the migration from our end.\n\n[Old Platform] has carried [Service] since [year] and we've hit its ceiling. The blocker is [specific limitation, e.g. \"batch jobs cap out at 500 records\" or \"no support for SSO\"]. That's solved on [New Platform], which also gets you [specific gain: faster exports, an API, whatever is true].\n\nDates:\n- [Date] \u2014 the new URL goes live. Both platforms run side by side. Your existing credentials work.\n- [Date] \u2014 we start moving remaining accounts in batches. You get 48 hours' notice by email before yours moves.\n- [Date] \u2014 [Old Platform] goes read-only.\n- [Date] \u2014 [Old Platform] shuts down.\n\nTwo things we may need from you, and only if they apply to your team. If [old-domain.com] is hardcoded anywhere in your scripts or integrations, point it at [new-domain.com] before [date]. And if you rely on [feature that isn't carrying over], get in touch so we can work out a replacement.\n\nYour migration window includes one short outage, under [X] minutes.\n\nAnything else, write to [email] or [support link]. An early question is far easier for us than a late fix.\n\n\u2014 [Name], [Title]"
+}

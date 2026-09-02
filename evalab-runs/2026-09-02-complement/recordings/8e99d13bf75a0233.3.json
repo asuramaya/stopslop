@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome\n\nYou're here. Someone will hand you a laptop in the next hour, and after that the day is mostly yours.\n\nStart with `setup.sh` in the platform repo. It installs the toolchain, pulls a scrubbed copy of the staging database, and takes about twenty minutes on decent wifi. It will fail at least once \u2014 that's expected, and the fix is almost always in the troubleshooting section at the bottom of the README. If it isn't, ask in #dev-help. People answer there fast.\n\nYour onboarding buddy will find you before lunch. They've blocked out Tuesday and Thursday afternoons this week, so save the questions that need a whiteboard.\n\nOne thing worth saying up front: we expect your first pull request by Friday. Not a big one. Fix a typo in the docs, delete a dead flag, tighten an error message. The point is to walk the whole path \u2014 branch, review, CI, deploy \u2014 while it's still low-stakes enough that breaking something is funny rather than expensive.\n\nYou will not understand the codebase this month. Nobody does. There are eleven services, and most engineers here have a working mental model of three or four. Learn yours deeply and trust your colleagues on the rest.\n\nA few habits that make life here easier. Write the design doc before the code, even when it's four paragraphs. Say \"I don't know\" early. Push back on a review comment if you disagree with it \u2014 silent compliance costs us more than an argument does.\n\nCoffee's on the second floor. Go find it."
+}

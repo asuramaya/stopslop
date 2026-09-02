@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "**Pricing**\n\nEvery plan reviews the whole diff. What changes between them is how much of your history the reviewer gets to read, and who you can call when it's wrong.\n\n**Solo \u2014 free**\nOne person, one repo. Inline comments on every pull request, the same rule set the paid tiers run, and a ceiling of 500 reviews a month that almost nobody working alone will hit. No card, no trial clock.\n\n**Team \u2014 $18 per developer, per month**\nUnlimited repos. The reviewer reads your last 90 days of merged PRs, so it quits flagging the patterns your team already argued about and settled. Custom rules live in YAML, checked into the repo like anything else. Failing checks can block a merge \u2014 off by default, because a linter that cries wolf gets muted by week three. Slack and Linear hooks included. Annual billing knocks off two months.\n\n**Enterprise \u2014 talk to us**\nRuns in your VPC or fully self-hosted. SAML, SCIP-based cross-repo context, audit logs that export to Splunk, and a model tuned on your monorepo instead of on GitHub's median Python file. Contracts start at $30k a year. You get a named engineer with a phone number, not a support queue.\n\nChanging plans is prorated to the day. Cancel from the dashboard; we don't make you email anyone. Open-source repos get Team pricing at zero \u2014 send us the org name and we'll flip it.\n\n---\n\n~245 words. Numbers, limits, and integrations are placeholders \u2014 swap in your real ones, and cut any claim you can't back, since the specificity is what makes this read as written by someone who knows the product."
+}

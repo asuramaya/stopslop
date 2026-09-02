@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "Copy for a code review tool's pricing page, three tiers, ~250 words:\n\n---\n\n## Pricing\n\nEvery plan reviews unlimited repositories. You pay for people, not lines of code.\n\n### Solo \u2014 $0\n\nFor one developer. Public repos, plus one private one.\n\nFull review on every pull request. Inline comments, not a wall of text at the end. You get the same analysis engine everyone else gets \u2014 the paid tiers add scale and control, never smarter reviews.\n\nNo card. No trial clock counting down in the corner.\n\n### Team \u2014 $19 per developer / month\n\nFor teams up to 50.\n\nPrivate repos, all of them. Reviews land in about 90 seconds on a 500-line diff; we publish the p95 on our status page, and it's been under three minutes since March.\n\nYou write the rules. A `review.toml` in the repo root turns checks on and off per directory, so the generated migrations folder stops getting lectured about naming. Slack and Linear hooks are included. So is the audit log.\n\nSupport is email, and a human answers within one business day.\n\n### Enterprise \u2014 talk to us\n\nSelf-hosted, air-gapped if you need it. SSO through SAML or OIDC, SCIM provisioning, role-based access down to the repository.\n\nCustom rule packs written against your internal style guide. A named engineer who knows your codebase. Contractual uptime, invoicing on your terms, and a security questionnaire we've already filled out \u2014 ask and we'll send it before the first call.\n\nPricing starts at 100 seats.\n\n---\n\n**Questions?** Cancel anytime; we bill monthly and refund the remainder of the month, no email thread required."
+}

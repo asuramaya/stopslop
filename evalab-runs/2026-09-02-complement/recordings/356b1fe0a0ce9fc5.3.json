@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "Assumes a typical in-house team serving product engineers; tell me your org's specifics and I'll tailor the scope and metrics.\n\n---\n\n## Platform Engineering Charter\n\n### Why we exist\n\nProduct teams spend too much of their time on work that is not their product: wiring up CI, guessing at Kubernetes manifests, chasing an on-call page into infrastructure they did not build. We take that work off them. Our customers are the engineers inside this company, and we treat them as customers, not as tickets.\n\n### What we own\n\nThe paved road from a commit to production traffic: build and release pipelines, environment provisioning, service scaffolding, secrets and identity plumbing, and the observability that tells a team whether their change worked. We own the defaults. Teams can step off the road, but they carry the pager when they do.\n\n### How we work\n\nWe build products, not projects. Anything we ship has an owner, documentation a new hire can follow, and a plan for its retirement. We prefer a boring tool that people already know over a clever one we would have to teach. We do not accept work by decree; if a request does not reduce load for more than one team, it belongs in a consulting engagement, not in the platform.\n\n### How we will know it is working\n\nTime from empty repository to a service serving production traffic. Change failure rate and time to restore, measured across the teams we serve, not for ourselves. Adoption we did not have to mandate.\n\n### What we are not\n\nWe are not an approval gate, a ticket queue, or the team of last resort for everyone else's outage."
+}

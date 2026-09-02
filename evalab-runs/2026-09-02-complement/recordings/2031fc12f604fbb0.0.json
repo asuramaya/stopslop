@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Webinar: Nothing Changed But the Data**\nThursday, October 9 \u00b7 1:00\u20132:00 PM ET \u00b7 Free\n\nLast spring that report came back in 400ms. Now it times out. Same SQL, same hardware. Somewhere the table crossed a size the planner cared about, the join order flipped, and nobody found out until a customer complained.\n\nOne hour on why that happens and how to catch it earlier. We'll read actual query plans on screen instead of walking through best practices.\n\nWhat we'll cover:\n\n- Finding the bad row estimate behind a bad join order\n- Judging whether an index is worth what it costs on writes, before it ships\n- Sizing a connection pool, and why a higher limit often means less throughput\n- Three slowdowns that turned out to be schema problems\n\nPriya Raghavan has spent eight years on database reliability at companies running Postgres and MySQL at terabyte scale. She'll take questions for the last twenty minutes, as many as the clock allows.\n\nGot a slow query of your own? Send it over. We'll work through a few live.\n\nRegistration closes October 8. Sign up and the recording is yours whether you make it or not.\n\n[Save your seat]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Webinar: Nothing Changed But the Data**\nThursday, October 9 \u00b7 1:00\u20132:00 PM ET \u00b7 Free\n\nThat report returned in 400ms last spring. Now it times out. Same SQL, same hardware. At some point the table grew past a threshold the planner noticed, the join order flipped, and nobody knew until a customer wrote in.\n\nAn hour on why this happens and how to spot it sooner. We'll read real query plans on screen rather than talk through best practices.\n\nOn the agenda:\n\n- Tracing a bad join order back to the row estimate that caused it\n- Deciding whether an index earns its write cost, before you ship it\n- Sizing a connection pool, and why raising the limit often lowers throughput\n- Three slowdowns that turned out to be schema problems\n\nPriya Raghavan has worked on database reliability for eight years at companies running Postgres and MySQL at terabyte scale. The last twenty minutes are questions, as many as we can fit.\n\nHave a slow query of your own? Send it in. We'll work through a few live.\n\nRegistration closes October 8. Register and you get the recording either way, whether or not you attend.\n\n[Save your seat]"
+}

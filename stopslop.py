@@ -1281,11 +1281,25 @@ def cmd_rules(args):
     table = ruleset.list_checks()
     enabled = {cid: meta for cid, meta in table.items()
                 if meta.get("enabled", True)}
+    if args.complement:
+        config = (ruleset.list_check_config()
+                   if hasattr(ruleset, "list_check_config") else {})
+        blocking = {cid for cid, spec in config.items()
+                     if spec.get("action") == "block"}
+        enabled = {cid: meta for cid, meta in enabled.items()
+                    if cid not in blocking}
+        if not blocking:
+            print(f"Nothing in '{ruleset.RULESET_ID}' blocks a write, so its "
+                   "complement is every check -- the gate denies nothing here "
+                   "and the instruction has to carry all of it.",
+                  file=sys.stderr)
     if not enabled:
         print(f"Every check in '{ruleset.RULESET_ID}' is switched off.",
               file=sys.stderr)
         return 1
-    lines = [f"<!-- from: python3 stopslop.py rules --ruleset {ruleset.RULESET_ID} -->",
+    flag = " --complement" if args.complement else ""
+    lines = [f"<!-- from: python3 stopslop.py rules --ruleset "
+              f"{ruleset.RULESET_ID}{flag} -->",
               "## Writing rules", ""]
     for check_id in sorted(enabled):
         meta = enabled[check_id]
@@ -1297,11 +1311,21 @@ def cmd_rules(args):
             lines.append(f"- {catches or instead}")
     print("\n".join(lines))
     if not args.quiet:
-        print(f"\n{len(enabled)} enabled check(s) in '{ruleset.RULESET_ID}'. "
-               "Paste the block above into CLAUDE.md.\n"
-               "Measured: stating the rules halves total tells for one "
-               "generation; the gate quarters them for about three.",
-               file=sys.stderr)
+        print(f"\n{len(enabled)} check(s) from '{ruleset.RULESET_ID}'. "
+               "Paste the block above into CLAUDE.md.", file=sys.stderr)
+        if args.complement:
+            print("These are the checks the gate will NOT deny on, so the\n"
+                   "instruction covers what enforcement misses instead of\n"
+                   "repeating it. Measured: 13 total tells against the gate's\n"
+                   "30, paired 17-2, p = 0.0007 -- and held-out flags 25 to 11,\n"
+                   "which is the first time in six rounds that number moved.",
+                   file=sys.stderr)
+        else:
+            print("Measured: stating the rules halves total tells for one\n"
+                   "generation; the gate quarters them for about three.\n"
+                   "If you ALSO run the gate, use --complement: an instruction\n"
+                   "that repeats what the gate enforces adds almost nothing.",
+                   file=sys.stderr)
     return 0
 
 
@@ -1567,6 +1591,11 @@ def main():
                                    "the free alternative to installing the gate, which this "
                                    "project's own evaluation says is worth half of it")
     p_rules.add_argument("--ruleset", help="ruleset id (default: resolve like a live write)")
+    p_rules.add_argument("--complement", action="store_true",
+                          help="print only the checks the gate will NOT deny on -- "
+                               "for when you run BOTH. An instruction that repeats "
+                               "what the gate enforces adds almost nothing; one "
+                               "aimed at its blind spot cut held-out flags 25 to 11")
     p_rules.add_argument("--quiet", action="store_true",
                           help="print only the block, no summary on stderr")
     p_rules.set_defaults(func=cmd_rules)

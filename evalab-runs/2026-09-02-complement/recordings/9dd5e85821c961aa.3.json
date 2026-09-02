@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "Note: I invented the company name, founder, and specifics \u2014 swap them for your real ones. The concrete details are load-bearing, so replace them with true equivalents rather than deleting them.\n\n---\n\n## About Northgate\n\nNorthgate makes one thing: scheduling software for outpatient clinics.\n\nThe company started at a front desk. Dana Reyes spent six years running the schedule at a three-provider family practice in Grand Rapids, and most of that time went to fighting the tools. A paper overflow list. Two systems that didn't know the other existed. An afternoon of callbacks every time a provider went home sick. The software wasn't doing the job; it was the thing standing between her and the job.\n\nShe left in 2019 to build the version she'd wanted.\n\nToday Northgate handles booking rules per provider, automatic waitlist fill when a slot opens, text reminders, and two-way sync with Epic, athenahealth, and eClinicalWorks. Clinics that switch to us cut their no-show rate by a median of 22% in the first six months. We publish that number every quarter, including the quarters it drops.\n\nWe serve about 400 practices, from two providers to forty. We've turned down hospital systems, twice. Large-enterprise scheduling is a different problem with different politics, and solving it well would mean solving ours worse.\n\nThere's no billing module, no analytics suite, no roadmap toward becoming a platform. Scheduling is enough of a problem.\n\nThirty-one people work here, half of them in Grand Rapids and half scattered. Support is staffed by people who have worked a front desk, which is why they know what you mean when you say the morning got away from you."
+}

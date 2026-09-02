@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "No API was named, so this is written to be dropped in and specialised with your own resource names.\n\n## Design philosophy\n\nThis API is built around four commitments, and every endpoint answers to them.\n\nResources are nouns, and they behave the same way everywhere. If you learn how to list, filter, and paginate one collection, you know how to do it for all of them. Query parameters keep their names and meanings across resources. We would rather repeat a familiar pattern than invent a clever one for a single case.\n\nResponses are explicit. We do not omit a field because it is null, and we do not change a field's type depending on context. An absent value is spelled out, so your deserialiser never has to guess.\n\nErrors are written for the person debugging at 2am. Every failure returns a stable machine-readable code, the specific field or parameter at fault, and a sentence describing what to do differently. HTTP status codes mean what the specification says they mean.\n\nChanges are additive. New fields and new optional parameters can appear in a minor release. Anything that would break a working integration goes behind a version, with a migration note and a deprecation window stated in months, not in vague future terms.\n\nWhen these commitments conflict, predictability wins."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (4 paragraphs, spread 0.19):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "No API was named, so this is written to be dropped in and specialised with your own resource names.\n\n## Design philosophy\n\nFour commitments, and every endpoint answers to them.\n\nResources are nouns, and they behave the same way everywhere. If you learn how to list, filter, and paginate one collection, you know how to do it for all of them. Query parameters keep their names and meanings across resources. We would rather repeat a familiar pattern than invent a clever one for a single case. Responses are explicit in the same spirit: we do not omit a field because it is null, and we do not change a field's type depending on context. An absent value is spelled out, so your deserialiser never has to guess.\n\nErrors are written for the person debugging at 2am. Every failure returns a stable machine-readable code, the specific field or parameter at fault, and a sentence describing what to do differently. HTTP status codes mean what the specification says they mean.\n\nChanges are additive. New fields and new optional parameters can appear in a minor release. Anything that would break a working integration goes behind a version, with a migration note and a deprecation window stated in months, not in vague future terms. When these commitments conflict, predictability wins."
+}

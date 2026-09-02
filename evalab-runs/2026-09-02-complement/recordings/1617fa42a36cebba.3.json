@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**Stop asking who broke it**\n\nThe checkout outage in July took four hours. Maybe twenty minutes of that was the fix. The rest was people working out whether it was safe to say what they knew.\n\nThat's the part we don't count. When a review starts with \"who deployed this,\" everyone in the room quietly decides how much to volunteer. The engineer who noticed the config drift two weeks earlier and didn't file anything stays quiet. The one who approved the PR at 6pm on a Friday explains why the PR was fine. Nobody lies. We just get a version of events shaped by what's cheap to admit, and we build the follow-up actions on top of it.\n\nBlameless postmortems aren't about being nice to each other. They're about getting an accurate account of what happened, which we currently do not get. The premise is simple: assume everyone acted reasonably given what they knew and what the system showed them at the time. If the fix looks obvious in hindsight, that's a signal our tooling hid something, not that someone was careless.\n\nConcretely, I'm proposing three things. Write the timeline before assigning any actions. Ban names in the document; use roles. And have someone who wasn't on call facilitate, because the person who was there can't run the room and be honest in it at the same time.\n\nWe'll still hold people accountable. Accountability means owning the fix, not absorbing the blame. Right now we're getting the blame and paying for it in incidents we don't understand.\n\nHappy to run the next one this way and see what turns up."
+}

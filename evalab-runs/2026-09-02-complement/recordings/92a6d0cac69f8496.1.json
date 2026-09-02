@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\nRemote (US) or Chicago \u00b7 $175k\u2013$210k + equity\n\nWe move money for about 4,000 small businesses \u2014 payroll, invoicing, and the reconciliation that sits underneath both. Roughly 60 people, Series B, profitable on gross margin since last spring.\n\nYou'd join the payments team, six engineers who own the ledger, the ACH and card rails, and the retry logic that keeps a failed transfer from becoming a support ticket. The stack is Go and Postgres, with a Python service still handling settlement reports that someone will eventually rewrite. Kafka between services. AWS.\n\nThe work is less about scale than about being right. We process a few hundred thousand transactions a day, which is not a hard number, but every one of them has to balance, and the failure modes are regulatory as well as technical. Expect to spend real time on idempotency, on audit trails, and on arguing about whether a schema change is safe to ship on a Thursday.\n\nWhat we're looking for: five or more years writing backend services in production, comfort with SQL beyond the ORM, and some history with systems where correctness mattered \u2014 payments, healthcare, logistics, anything where a bad write has consequences. Go experience helps but we've hired from Java and Python and it worked out.\n\nWhat we offer: healthcare covered for you and dependents, four weeks off that people actually take, and no on-call rotation shorter than one week in six.\n\nProcess is a screen, a technical conversation about something you've built, a paid take-home if you want one or a pairing session if you don't, and a team day."
+}

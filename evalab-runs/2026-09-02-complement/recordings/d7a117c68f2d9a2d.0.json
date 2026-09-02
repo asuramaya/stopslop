@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Assumes an in-house team serving product engineers. Send me your org's details and I'll adjust the scope and the metrics.\n\n## Platform Engineering Charter\n\n### Why we exist\n\nProduct teams lose hours to work that has nothing to do with their product: hand-rolling CI, copying Kubernetes manifests they don't understand, following a 3am page down into infrastructure someone else wrote. That work is ours now. The engineers here are our users, and we treat them like users rather than like tickets.\n\n### What we own\n\nEverything between a merged commit and live traffic: build and release pipelines, environments, service templates, secrets and identity, and enough observability for a team to tell whether their change did what they wanted. We set the defaults. Anyone can leave the paved road, and whoever leaves it holds the pager.\n\n### How we work\n\nPlatform work is product work, so everything we ship has a named owner, docs a new hire can follow in their first week, and a date we expect to turn it off. A dull tool the team already knows beats a sharp one we would have to teach. We do not take assignments by decree. If a request only helps one team, it is consulting work, not platform work.\n\n### How we will know it worked\n\nTime from an empty repo to a service taking production traffic. Change failure rate and restore time across the teams we serve, not our own. Adoption nobody had to mandate.\n\n### What we are not\n\nWe are not an approval gate, not a ticket queue, and not the team that gets called when someone else's service falls over."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Platform Engineering Charter\n\n### Why we exist\n\nEvery hour a product engineer spends writing a CI config, cloning a Kubernetes manifest they can't explain, or tracing a 3am page down into infrastructure written by someone who has since left, is an hour not spent on their product. We take those hours back. The engineers here are our users, and we owe them what any team owes its users.\n\n### What we own\n\nThe path from merged commit to live traffic. Build and release pipelines, environments, service templates, secrets and identity, and observability good enough that a team can answer whether its change did what it wanted. We pick the defaults. Anyone is free to go their own way, and whoever does carries the pager for it.\n\n### How we work\n\nWe run platform work the way product work is run. Everything we ship has a name attached to it, docs a new hire can follow in their first week, and a date we expect to switch it off. Given a choice, we take the boring tool people already know over the clever one we would have to teach. Requests reach us as requests, not as orders. If a piece of work helps exactly one team, that is consulting, and we will say so.\n\n### How we'll know it worked\n\nHow long an empty repo takes to reach production traffic. Change failure rate and restore time for the teams we serve, measured on their services rather than ours. Adoption that nobody had to mandate.\n\n### What we're not\n\nWe are not an approval gate, a ticket queue, or the people you call when someone else's service falls over."
+}

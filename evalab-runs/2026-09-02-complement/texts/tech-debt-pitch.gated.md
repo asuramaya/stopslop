@@ -1,0 +1,15 @@
+**To:** Engineering leadership
+**From:** [name]
+**Re:** One quarter of engineering time for debt paydown
+
+I'm asking for Q1 to be spent on technical debt instead of roadmap features.
+
+Here's the case. Over the last three quarters our median time from merge to production went from two days to nine. Two-thirds of that delay comes from CI. The test suite takes 47 minutes and flakes often enough that most engineers rerun it once as a matter of habit. The other third is the release process, which still needs a human to run four scripts in order. None of this shows up as a missed deadline. It shows up as everything taking longer than the estimate, which is why it's been easy to defer.
+
+A quarter buys three things. We split the monolith test suite so PRs run only what they touch, retire the two deprecated payment paths we still maintain for one customer who migrated in March, and automate the release. I'd expect CI back under fifteen minutes and releases down to a single command.
+
+The cost is that [feature A] and [feature B] slip a quarter. I don't want to pretend that's free. But both are follow-on work to things we've already shipped, and neither has a customer commitment attached.
+
+The alternative is the 20% rule we tried last year, where debt work got cut every time a deadline moved. It didn't work, and I'd rather not run it again.
+
+I'd like to talk through scope before planning locks. Happy to bring the CI numbers and a week-by-week plan.

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "**This month: technical debt**\n\nNobody sets out to write bad code. Debt arrives the way it always does \u2014 a deadline, a workaround, a comment that says `# TODO: clean this up` and a calendar that never comes back around. Then someone new joins, opens that file, and asks the question everyone's been avoiding.\n\nWe wanted to spend a month on that question instead of avoiding it too.\n\nThe pieces here aren't a lecture about doing things properly. A few of them are confessions. One engineer walks through a migration that took three attempts, and is honest about why the first two failed. Another argues that some of our oldest, ugliest code should be left exactly where it is \u2014 it works, nobody touches it, and rewriting it buys us nothing but risk.\n\nThat's the thread running through the issue: debt is a financial metaphor, and financial metaphors come with interest rates. Some of ours is cheap. Some of it we're paying on every single sprint without noticing.\n\nThe useful work is telling the two apart. Read on, disagree loudly, and bring examples to the next architecture review.\n\n---\n\nAround 205 words. If you tell me the actual articles in this month's issue, I'll swap the invented examples for the real ones."
+}

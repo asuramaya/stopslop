@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "## Pricing\n\nEvery plan reviews unlimited repos. What changes is how many people can argue with the bot.\n\n**Solo \u2014 free**\n\nFor one person and their side projects. Reviews every pull request you open, comments inline, and shuts up when you tell it to. Public repos only. You get the same review engine the paid tiers run \u2014 no crippled model, no queue behind paying customers. If it's just you, this is genuinely the whole product.\n\n**Team \u2014 $19 per developer / month**\n\nPrivate repos, and the part that matters: the reviewer learns your codebase. Point it at your existing PR history and it picks up the conventions nobody wrote down \u2014 that you never call `db.query` outside the repository layer, that `retries=3` was a decision and not a default. Custom rules in plain English. SSO, audit log, and a Slack digest of what it flagged and what got ignored. Billed on active reviewers, so the contractor who left in March stops costing you money.\n\n**Self-hosted \u2014 from $12k / year**\n\nRuns in your VPC. Nothing leaves your network, including the diffs. You bring the GPU or point it at your own model endpoint. Comes with a named engineer for onboarding and a support line that a human answers within four hours during your working day. Priced by seat band, floor of 50.\n\nAnnual billing takes 20% off Team. Startups under ten people get Team free for a year \u2014 email us, we don't make you fill out a form.\n\nNo trial. The free tier is the trial."
+}

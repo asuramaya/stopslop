@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination: [Team name]**\n\nEighteen months ago a release took most of a day. Someone owned the checklist, someone else watched the graphs, and if anything went wrong the rollback was a manual sequence nobody wanted to run at 11pm. Deploys got batched because they were expensive, and batching made each one riskier.\n\n[Team] took that apart. They rewrote the pipeline so builds are reproducible, pulled environment config out of the deploy scripts, and added canary steps with a rollback that works and gets tested. None of it was glamorous. Most of it was reading old bash and asking why.\n\nThe numbers: median deploy time went from [X hours] to [Y minutes], and we ship [N] times a week now instead of [M]. Change-failure rate dropped [Z%], which matters to me more than the frequency does.\n\nWhat I'd point to beyond the metrics is the effect on everyone else. Teams that used to avoid Fridays deploy on Fridays. New engineers ship in their first week. [Team] fixed something the rest of us had quietly learned to live with, and they did it without asking anyone else to change how they work.\n\n~205 words. Fill the brackets with real figures if you have them \u2014 the specific before/after numbers do most of the persuading. Tell me the team, the award category, or anything particular you want credited and I'll tighten it around that."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (The numbers:):\n- bold_density:\n- paragraph_uniformity (5 paragraphs, spread 0.16):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**Nomination: [Team name]**\n\nEighteen months ago a release took most of a day. Someone owned the checklist, someone else watched the graphs, and if anything went wrong the rollback was a manual sequence nobody wanted to run at 11pm. Deploys got batched because they were expensive, and batching made each one riskier.\n\n[Team] took that apart. They rewrote the pipeline so builds are reproducible, pulled environment config out of the deploy scripts, and added canary steps with a rollback that works and gets tested.\n\nNone of it was glamorous. Most of it was reading old bash and asking why.\n\nMedian deploy time went from [X hours] to [Y minutes], and we ship [N] times a week now instead of [M]. Change-failure rate dropped [Z%], which matters to me more than the frequency does.\n\nWhat I'd point to beyond the metrics is the effect on everyone else. Teams that used to avoid Fridays deploy on Fridays. New engineers ship in their first week. [Team] fixed something the rest of us had quietly learned to live with, and they did it without asking anyone else to change how they work.\n\n~205 words. Fill the brackets with real figures if you have them \u2014 the specific before/after numbers do most of the persuading. Tell me the team, the award category, or anything particular you want credited and I'll tighten it around that."
+}

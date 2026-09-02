@@ -1,0 +1,9 @@
+**Why we're funding developer relations**
+
+We spent a quarter figuring out where signups actually came from. Paid ads did fine. But the biggest bucket, by a wide margin, was one person telling another person — in a Slack thread, at a meetup, in a reply to someone's frustrated post at 1am. You can't buy that channel. You can only staff it.
+
+So we're hiring two devrel engineers and giving them a budget that isn't tied to a lead-gen target. They'll answer questions in public, fix the docs that make people quit on step four, and ship the sample apps we keep promising. When someone files an issue about a confusing error message, they get to go change the error message. That last part matters more than the conference talks.
+
+Developer relations fails when it's a megaphone bolted onto marketing — someone charming with no path back into the product. We're putting these two on the engineering org chart, in the same standup as the API team, with commit access. The measurement will be awkward and we've accepted that. Time-to-first-successful-API-call is the number we care about; it's 40 minutes today and we want it under ten. Nobody should expect us to trace the Slack thread that became a contract eighteen months later, and we're not going to pretend otherwise.
+
+Developers don't hate marketing. They hate being marketed to by people who have never used the thing. We're changing which side of that sentence we're on.

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "No library was specified, so I've written it for a made-up one \u2014 swap the name and the version specifics for yours.\n\n---\n\n# httpkit 2.0\n\nhttpkit 2.0 is on npm. This release rewrites the request pipeline around native `fetch`, which means the bundle drops from 41 kB to 12 kB and the library now runs unmodified in Node, Deno, Bun, and the browser.\n\nThe change most people will notice first is typed responses. If you hand `client.get()` a schema, you get back a parsed, narrowed object instead of `any`, and a validation error at the call site instead of a mystery `undefined` three functions later. Schemas are optional. Untyped calls still work the way they always did.\n\nRetries moved out of the request options and into the client. In 1.x you configured backoff per call, which nobody did consistently, so most projects retried on `POST` by accident. Now you set a policy once, and it only applies to idempotent methods unless you say otherwise.\n\nTwo breaking changes. The `interceptors` array is gone, replaced by a middleware function that wraps the request and can short-circuit it. And `client.raw()` returns a real `Response` rather than the old wrapper object, so `.body` is a stream now.\n\nThe codemod handles both:\n\n```\nnpx httpkit-migrate ./src\n```\n\nIt rewrote about 90% of the call sites in our own test corpus. The rest were interceptors doing something clever with shared mutable state, and those want a human.\n\n1.x gets security fixes through June 2027. Full changelog and the migration guide are in the docs. Bugs to the issue tracker."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "No library was specified, so this is written for an invented one. Swap in your own name and version details.\n\n---\n\n# httpkit 2.0\n\nhttpkit 2.0 is published to npm. The request pipeline now sits on native `fetch`, which takes the bundle from 41 kB down to 12 kB and lets the same build run in Node, Deno, Bun, and the browser with no changes.\n\nTyped responses are the first thing you will notice. Pass a schema to `client.get()` and you get a parsed, narrowed object back instead of `any`, plus a validation error where you made the call rather than an unexplained `undefined` several frames later. Schemas stay optional, and calls without one behave exactly as they did before.\n\nRetries moved from the request options up to the client. Under 1.x you set backoff per call, which almost nobody did consistently, so plenty of projects were retrying `POST` without meaning to. Set one policy now, and it covers idempotent methods only until you tell it otherwise.\n\nThere are two breaking changes. The `interceptors` array is replaced by a middleware function that wraps the request and can end it early. And `client.raw()` hands back a genuine `Response` instead of the old wrapper, so `.body` is a stream.\n\nThe codemod covers both:\n\n```\nnpx httpkit-migrate ./src\n```\n\nOn our own test corpus it rewrote roughly 90% of call sites. What was left were interceptors doing something clever with shared mutable state, and those need a person.\n\nSecurity fixes land in 1.x through June 2027. The changelog and migration guide are in the docs. File bugs on the issue tracker."
+}

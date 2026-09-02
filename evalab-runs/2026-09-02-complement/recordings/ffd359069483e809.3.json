@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "Below is drop-in copy. The quotes and names are **placeholders** \u2014 invented people at invented companies \u2014 so swap in real customers before this goes live; publishing fabricated testimonials is a legal problem, not just an editorial one.\n\n---\n\n## What people tell us after a bad night\n\n[N] engineering teams send us logs. Four of them agreed to say why.\n\n> \"Our old setup dropped events whenever traffic spiked \u2014 exactly when we needed them. We pushed 2 TB through Black Friday and lost nothing.\"\n> \u2014 Priya Raghunathan, SRE lead, Kettleback\n\n> \"I used to keep a personal file of grep incantations. Deleted it.\"\n> \u2014 Tomas Weill, backend engineer, Norrmark Labs\n\n> \"Honest version: onboarding took three weeks, and most of that was us fixing our own log formats. Still worth it. Time to identify the failing service went from about an hour to under five minutes, and I no longer get paged twice for the same outage.\"\n> \u2014 Dana Okonkwo, VP Engineering, Chiral Health\n\n> \"We're four people. Nobody here wants to babysit an Elasticsearch cluster. That's the entire reason we pay you.\"\n> \u2014 Sam Vitelli, CTO, Roamly\n\n[Start free \u2192] [Talk to us about volume pricing]\n\n---\n\nTwo notes on collecting the real versions: ask customers for a number they already track (MTTR, ingest volume, on-call pages), and keep one quote that admits friction. A page of unqualified praise reads as manufactured, and the mild complaint makes the other three credible."
+}

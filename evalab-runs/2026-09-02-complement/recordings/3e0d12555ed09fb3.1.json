@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Subject: Why your queries got slow (and how to find out)**\n\nMost database performance work starts the same way: a page that used to load in 200ms now takes four seconds, nobody changed the query, and the dashboard says CPU is fine.\n\nOn [date], [Name] walks through how to figure out what actually happened. Ninety minutes, live, with query plans on screen.\n\nWhat we'll cover:\n\n- Reading an EXPLAIN plan without guessing \u2014 which numbers mean something and which ones lie\n- Why the optimizer stopped using your index, and the three usual reasons\n- Finding the queries that matter: p99 latency vs. total time spent\n- When adding an index makes things worse\n- Connection pool sizing, and why more connections often means less throughput\n\nExamples come from Postgres and MySQL production systems: real slow logs, real tables with a hundred million rows. Bring your own problem query. The last twenty minutes are questions, and we'll look at whatever people send in advance.\n\nUseful if you write SQL and own the consequences \u2014 backend engineers, data engineers, anyone who's been paged for a lock timeout at 2am.\n\n[Date, time, register link]. Recording goes to everyone who signs up, including the people who meant to attend and didn't."
+}

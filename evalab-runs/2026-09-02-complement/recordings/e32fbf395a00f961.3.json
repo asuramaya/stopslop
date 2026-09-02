@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** H\u00e9ctor Quezada\n**Re:** Dedicating Q4 to technical debt\n\nI'm asking for one quarter of the platform team's time \u2014 four engineers, twelve weeks \u2014 spent entirely on paying down debt rather than shipping roadmap features.\n\nThe case is arithmetic, not aesthetics. Over the last two quarters our median PR took 4.1 days from open to merge, up from 1.6 a year ago. CI runs 47 minutes and flakes on roughly one in six attempts, so most engineers push twice to get one green build. We logged 31 production incidents last quarter; 19 of them traced back to three services that still share a database schema nobody owns. Those numbers are what we're actually paying for the debt, and the payment goes up every quarter we defer it.\n\nWhat the quarter buys, in priority order: split the shared schema and give each service its own migrations; cut CI to under 15 minutes by parallelizing the integration suite and deleting the 200-odd tests that assert nothing; retire the v1 API, which now serves 0.3% of traffic but constrains every change we make to routing.\n\nI'm not claiming this is free. Four features slip a quarter, and I'd rather choose which four now than discover them slipping anyway in March. The alternative we've been running \u2014 a debt sprint every few months \u2014 hasn't worked, because the work spans services and can't be finished in two weeks.\n\nI'll report progress against the three metrics above every two weeks. If they haven't moved by week six, kill it and put the team back on the roadmap.\n\n---\n\nSwap the metrics for your real ones before sending; the argument only holds if the numbers are yours."
+}

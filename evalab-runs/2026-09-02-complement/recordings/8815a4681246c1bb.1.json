@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "Company specifics are placeholders \u2014 swap the numbers for your real ones or cut the claim.\n\n---\n\n## How we build\n\nWe ship small and often. The median pull request here is under 300 lines and most get reviewed the same day, not because there's a rule about it but because a stale branch is somebody else's blocked afternoon.\n\nNobody owns a corner of the codebase. You get a tour of the parts you'll touch in week one, and after that you're free to send a patch anywhere. The engineer who wrote the billing service is a good person to ask. She isn't a gate you have to clear.\n\nWe write things down before we write the code. A design doc here has to say what we rejected and why, which is the part people skip and the part that matters. Six months on, when someone asks why on earth it works this way, the answer is findable.\n\nOn-call is one week in eight. If the pager wakes you twice in a rotation, fixing that comes before the next feature \u2014 we don't hand out medals for staying up late. A quiet night shift is the whole point.\n\nTwo recurring meetings. That's it.\n\nWe hire people who are still curious at 4pm on a Thursday, and we've hired career-switchers, bootcamp grads, and a former air traffic controller. What we look for is someone who reads the error message.\n\nYou will break production at some point. Everyone here has. We'll ask what the system let you do, not what you were thinking."
+}

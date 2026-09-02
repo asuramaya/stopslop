@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**The Monolith We Broke, and the Two Services We Put Back**\n\nWe spent eighteen months splitting a 400,000-line Rails app into services. Some of that work paid off. A fair amount didn't, and we merged two services back into one before the year was out.\n\nThis talk is the unvarnished version. I'll walk through the four extractions in the order we did them: billing, which went well; search, which went fine; notifications, which cost us six weeks and one very patient customer; and the user service, which we abandoned halfway and are still living with today. For each one you'll see the real diagrams, the real p99 numbers, and what the on-call rotation looked like the month after cutover.\n\nWhat I took away is that the hard part was never the code. It was deciding where a boundary belongs when two teams disagree about who owns a customer record, and discovering that a single database transaction had been quietly holding the system together in ways nobody had written down.\n\nYou'll leave with a short list of questions worth asking before an extraction, and a shorter list of signs that you should stop. I won't be offering a maturity model or a migration framework, only an account of what actually happened."
+}

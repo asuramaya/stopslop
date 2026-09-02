@@ -21,9 +21,25 @@ Six committed runs, all replayable from [`evalab-runs/`](evalab-runs/), every p-
 
 **The gate beats every skill file, and every comparison clears p < 0.05** -- 17-5 against stop-slop, 18-7 against anti-slop-writing, 19-5 against no-ai-slop, 24-2 against a blind rewrite at matched compute. It spends 2.93 generations per document to do it. Every skill spends one.
 
-**But the two together beat either alone, and cost less than the gate by itself.** Stating a skill file's rules up front *inside* the gated loop reaches 15 total tells against the gate's 30 -- paired 17-5, p = 0.017 -- in 2.37 generations rather than 2.97, because a draft that starts closer to clean needs fewer revisions. Better and cheaper is not a trade-off. **If you run the gate, state the rules too.**
+**But the two together beat either alone.** Stating rules up front *inside* the gated loop reaches 15 total tells against the gate's 30, paired 17-5, p = 0.017 -- in fewer generations, because a draft that starts closer to clean needs fewer revisions.
 
-One caveat with teeth: this project's *own* generated block barely stacks (23 against the gate's 30, p = 0.17, and no held-out improvement at all), because it is generated from the enforced check table and so tells the model exactly what the gate is about to enforce anyway. stop-slop names other things. An instruction that duplicates your gate adds nothing; one that covers what your gate misses adds exactly that -- which is also why four rounds found the gate never improves held-out checks. Nothing was ever telling it to.
+**And it matters enormously where the instruction points.** A block generated from the checks the gate *already enforces* barely stacks (26 against 30, p = 0.17, no held-out improvement). A block generated from the checks the gate does **not** enforce reaches **13** -- beating the gate alone 17-2, **p = 0.0007**:
+
+| arm | generations | held-out flags | total tells |
+|---|---|---|---|
+| complement + gate | 2.77 | **11** | **13** |
+| stop-slop + gate | 2.43 | 14 | 19 |
+| enforced-set block + gate | 2.43 | 21 | 26 |
+| gate alone | 2.80 | 25 | 30 |
+| complement **alone** | 1.00 | 11 | **77** |
+
+The complement instruction is the *worst* intervention alone and the *best* in combination. It names only the checks that fire rarely, so on its own it misses everything that matters -- and beside a gate it is the only thing covering what the loop ignores.
+
+**That fixes this project's oldest weakness.** Six rounds found held-out checks never improve under a gate: 25 flags, unmoved. With the complement instruction, 11 -- paired 14-2, p = 0.004. Nothing about the loop changed. The gap was never intrinsic to gating; every instruction anyone had tested was pointed at the same place the gate was.
+
+```
+python3 stopslop.py rules --complement >> CLAUDE.md   # if you also run the gate
+```
 
 Three things about that table are not in this project's favour, and they matter more than the win:
 
@@ -93,7 +109,7 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 - `python3 stopslop.py options` lists every tunable option a ruleset has that is not a per-check threshold/action (ste100's word limits and excluded vocabulary types), its current value, and its default. Add `--set KEY=VALUE [KEY=VALUE ...]` to change one or more; an option you do not mention keeps its current value.
 - `python3 stopslop.py status` shows per-ruleset stats, recent gate activity, and whether the hook is even wired up yet.
 - `python3 stopslop.py list-rulesets` lists every registered ruleset (tagging each `[built-in]` or `[custom]`), the glob patterns routed to it, and any custom ruleset that failed to load. Add `--add RULESET_ID [--name NAME]` to scaffold a whole new ruleset -- empty until this ruleset's own `terms`/`checks` commands fill it in, picked up in the same process, no restart -- or `--remove RULESET_ID` to remove a custom one (refused for a built-in one, or one any routing rule still routes to). **Removal deletes the ruleset's package and nothing else.** Its custom checks under `.claude/stopslop/custom_checks/<id>/`, and its `custom_term_lists`, `check_config` and `disabled_checks` entries in `stopslop.config.json`, all stay -- so re-adding the same id brings its checks and settings back, the same "removal is reversible" posture a term list already has. The cost is that a ruleset removed and never re-added leaves that data behind. Nothing purges it; delete that directory and those config keys by hand to reclaim it.
-- `python3 stopslop.py rules` prints the ruleset's enabled checks as a block of writing instructions, ready to paste into `CLAUDE.md`. This is the free alternative to installing the gate, and this project's own evaluation says it is worth about half of it -- see What the evidence says. Only enabled checks are printed, since an instruction naming a check you switched off asks for something nothing here enforces, and the block stamps in its own regeneration command because a pasted block outlives the memory of where it came from. Add `--quiet` for just the block.
+- `python3 stopslop.py rules` prints the ruleset's enabled checks as a block of writing instructions. **Add `--complement` if you also run the gate** -- it prints only the checks the gate will not deny on, which measured 13 total tells against 30 for the gate alone, and is the only thing that has ever moved the held-out number, ready to paste into `CLAUDE.md`. This is the free alternative to installing the gate, and this project's own evaluation says it is worth about half of it -- see What the evidence says. Only enabled checks are printed, since an instruction naming a check you switched off asks for something nothing here enforces, and the block stamps in its own regeneration command because a pasted block outlives the memory of where it came from. Add `--quiet` for just the block.
 - `python3 stopslop.py decay [PATHS]` measures every check in a ruleset against a real corpus and reports hits, files, rate per 1000 words and share of all flags -- **including the zeros**, then names the silent ones. A check that never fires produces no output, which is exactly why a decayed check set is invisible.
   - `--against PATH` adds a control corpus of prose you want to sound *like*, and reports which checks fire more on the measured text than on it: the only evidence that a check detects a machine rather than a style. **Repeat it for a second genre.** One corpus nearly cost this project a good check -- `colon_reveal` reads 1.0x against code documentation and 25.8x against pre-2022 encyclopedia prose, because code docs are full of colons whatever wrote them. A verdict needs every control to agree; controls that disagree give `disputed`, which is the genres disagreeing rather than a weak result.
   - `--calibrate` reports where each check's band sits and which way the gate misses it. Point `--against` at **your own writing** and it calibrates to your voice, which a static skill file cannot do. It reports the gap, never a threshold number: a threshold's meaning is per-check and the contract does not carry it.
@@ -156,7 +172,7 @@ python3 src/evalab/stats.py evalab-runs/2026-09-01-instructed/result.json gated 
 
 `stats.py` pairs any two arms of a saved `result.json` by prompt: an exact two-sided sign test with ties dropped, and a seeded percentile bootstrap on the mean paired difference. Every p-value in this README is reproducible with it, and a test holds the published structural claim against its own saved run so a future change to the harness fails the suite rather than silently rewriting history.
 
-Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The eight committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
+Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The nine committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
 
 ## What it does not do
 
@@ -176,7 +192,7 @@ Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1
 - [How to add a ruleset](docs/adding-a-ruleset.md) -- the full plugin contract: the three required functions, the three required attributes, every optional capability, and what each one adds.
 - [Embedded prose](docs/embedded-prose.md) -- how one routing rule sends a code file's own strings and docstrings through a second, prose ruleset.
 - [ASD-STE100 rules, extracted](docs/ASD-STE100-rules-extracted.md) -- the Part 1 rule set this project built the `ste100` ruleset against. Reference material, not this project's own prose, so the gate does not read it.
-- [The evaluation runs](evalab-runs/) -- all eight, in the order they were run, with what each one asked and what it found. The conclusions change between them.
+- [The evaluation runs](evalab-runs/) -- all nine, in the order they were run, with what each one asked and what it found. The conclusions change between them.
 - [A gate bypass during dictionary extraction](docs/incidents/2026-08-01-ste100-dictionary-extraction-gate-bypass.md) -- an incident report on a real bypass of this project's own gate, and the fix.
 
 ## License

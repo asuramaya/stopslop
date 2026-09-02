@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination \u2014 [Team name], Engineering Excellence Award**\n\nI want to nominate [Team name] for the work they did on our deployment process this year.\n\nBefore they started, a release took most of an afternoon and depended on one person remembering the right order of steps. Rollbacks were worse. Nobody wanted to deploy on a Friday, which meant fixes waited over the weekend.\n\n[Team name] rebuilt it. They replaced the manual runbook with an automated pipeline, added [staged rollouts / automatic rollback / smoke checks] and made the whole thing something any engineer on the team can trigger without asking permission. Deploys went from [X hours] to [Y minutes], and we now ship [N] times a week instead of [M].\n\nWhat makes this award-worthy is less the numbers than the way they got there. They talked to every team that depends on the pipeline before changing anything, migrated services one at a time so nobody was blocked, and wrote documentation people actually read. They took on unglamorous work that no roadmap asked for, because they could see what it cost everyone else.\n\nHalf the engineering org benefits from this daily and most of them do not know whose work it was. That seems like a good reason to give them an award."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the intro \u2014 ~205 words, generic enough to drop in but with placeholders where your team's actual numbers should go.\n\n---\n\n**This month: the debt issue**\n\nNobody schedules technical debt. It shows up anyway, usually on the Tuesday you promised something else.\n\nWe picked the theme because of a conversation that kept repeating in different rooms. Someone proposes a cleanup. Someone else asks what it buys us. And the honest answer \u2014 \"I don't know yet, but the last four incidents all touched that file\" \u2014 never quite wins the argument, because it sounds like a feeling instead of a case.\n\nSo this issue is about making the case. Inside: how the payments team paid down [X] years of accumulated workarounds without a rewrite, and what it cost them in feature velocity while they did it. A short piece on the debt we're choosing to keep, and why that's a legitimate answer. Notes from the migration that went sideways in [month].\n\nOne thing worth saying up front. Debt isn't a moral failure, and the teams shipping the fastest are usually carrying plenty of it deliberately. The problem is the debt nobody decided on \u2014 the kind that accrued while everyone was busy, that now nobody owns, and that only surfaces at 3am.\n\nWrite the decision down. That's most of the work."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- vague_intensifier (quite):\n- colon_reveal (Inside:):\n- bold_density:\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "This month, the debt issue\n\nNobody schedules technical debt. It shows up anyway, usually on the Tuesday you promised something else.\n\nWe picked the theme because of a conversation that kept repeating in different rooms. Someone proposes a cleanup. Someone else asks what it buys us. And the honest answer \u2014 \"I don't know yet, but the last four incidents all touched that file\" \u2014 never wins the argument, because it sounds like a feeling instead of a case.\n\nSo this issue is about making the case. We have a piece on how the payments team paid down [X] years of accumulated workarounds without a rewrite, and what it cost them in feature velocity while they did it. A shorter one on the debt we're choosing to keep, and why that's a legitimate answer. Notes from the migration that went sideways in [month].\n\nOne thing worth saying up front. Debt isn't a moral failure, and the teams shipping the fastest are usually carrying plenty of it deliberately. The problem is the debt nobody decided on \u2014 the kind that accrued while everyone was busy, that now nobody owns, and that only surfaces at 3am.\n\nWrite the decision down. That's most of the work."
+}

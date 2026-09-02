@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 swap in your real numbers before sending.\n\n---\n\n**To:** [Leadership]\n**From:** [Your name], Engineering\n**Re:** Dedicating Q[N] to technical debt\n\nI'm asking for one quarter of engineering time to be spent on maintenance instead of roadmap work.\n\nThe reason is arithmetic, not aesthetics. Over the last two quarters, [X%] of our sprint capacity went to unplanned work: incident response, flaky-test triage, and changes that touched [the legacy payments module] and took three times their estimate. Our median PR now sits [N days] in review, mostly because reviewers can't tell what a change will break. Two of our last [N] outages traced back to the same undocumented coupling.\n\nWe've been paying this cost quarter after quarter without booking it anywhere. It shows up as slipped dates, which then get explained one at a time.\n\nConcretely, the quarter would cover four things: splitting [the monolith's billing path] into testable units, replacing the [N] highest-churn flaky tests, retiring [the deprecated v1 API] and its two remaining callers, and writing down the deployment process that currently lives in one person's head.\n\nWhat I can commit to: we'd ship [feature X] on its current date, since that work is already isolated. What I can't commit to is the [Q+1] roadmap at full width \u2014 I'd expect to defer [initiative Y] by roughly six weeks.\n\nWhat we get back is a capacity estimate we can trust. My expectation, based on where the unplanned work is concentrated, is that we recover [X%] of that lost capacity permanently and cut onboarding for new engineers from [six weeks to three].\n\nHappy to walk through the incident data before you decide."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. I don't know your team's actual year, so the specifics below are invented \u2014 swap them for your real numbers before you post; the shape should hold.\n\n---\n\n**A year of doing less, on purpose**\n\nWe started January with 41 open services and a habit of adding one every time somebody asked a question we couldn't answer. We're ending with 29.\n\nThat's the year, honestly. The rest is detail.\n\nThe migration off the legacy job runner took seven months instead of the three we scoped, which is roughly what everybody privately expected and nobody said out loud in planning. Worth writing down: the slip wasn't the runner. It was the 60-odd cron entries nobody owned, each of which turned into a small archaeology project. Kira's spreadsheet of \"who last touched this\" saved us weeks.\n\np99 checkout latency went from 840 ms to 310 ms. Most of that came from one change \u2014 caching the entitlement lookup \u2014 which took an afternoon and sat in someone's backlog for eleven months. There's a lesson in that and I don't love it.\n\nWe shipped the new onboarding flow, killed the old one, and resisted three separate requests to keep the old one around \"just for enterprise.\" Deleting it felt better than shipping it.\n\nTwo people joined, one left, and we finally wrote down how we do on-call instead of explaining it verbally to each new hire.\n\nNext year: the search index, the last four services on the old runner, and fewer meetings about meetings.\n\nThanks for a good one.\n\n---\n\nAround 250 words. If you send me the real numbers, incidents, and names, I'll rewrite it against them."
+}

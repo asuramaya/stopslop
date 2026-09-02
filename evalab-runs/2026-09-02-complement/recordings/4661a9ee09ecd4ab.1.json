@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "Here's the copy. I invented a name (**Ledge**) and concrete numbers \u2014 swap in your real ones before this ships, since specifics are what carry it.\n\n---\n\n# Ledge\n\n**Team chat for people who have to read it later.**\n\nMost chat tools are optimized for the person typing. Ledge is optimized for the manager who joins on Thursday and needs to know what was decided on Monday.\n\nEvery channel has a decision log. Anyone can mark a message as a decision; it gets pinned to a running list with the author, the date, and the thread it came from. When your new hire asks why the auth service talks to Redis directly, the answer is one click away instead of a 400-message scroll.\n\nThreads are mandatory in channels over 20 people. We know that's opinionated. It's also why our median channel has 11 top-level messages a day instead of 300.\n\nSearch covers messages, files, and code snippets, and it indexes inside pasted stack traces \u2014 which is where half of your team's real documentation lives.\n\n**What it costs you to switch:** the importer pulls Slack history, channels, and DMs. A 200-person workspace with four years of archive takes about six hours, and we run it against a staging workspace first so you can see the result before anyone's URLs change.\n\n**What we don't do:** video calls, whiteboards, project boards. We integrate with the tools you already pay for. If you want one vendor for everything, buy Teams.\n\n$7 per user per month. SOC 2 Type II. Self-hosted option for regulated teams.\n\n[Start a 30-day trial](#) \u2014 no card, full export on the way out."
+}

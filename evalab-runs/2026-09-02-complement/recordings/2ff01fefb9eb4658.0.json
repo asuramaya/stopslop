@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Why we're funding a devrel team**\n\n[product] shipped eighteen months ago. Signups came in. People read the quickstart, got hello-world running, and then went quiet. Roughly [X]% never made a second API call.\n\nOur first theory was the docs. Some of that held up. But the real answer came when [name] sat down with five customers and watched them build. All five stopped at [specific step]. It isn't a hard step. Nobody had ever written up the part where you connect it to a system that already exists, with real auth and data that came from somewhere messy.\n\nMarketing can't fix that. Neither can a webinar. It's a craft problem, and craft problems need people whose job is to build with the thing in public, hit the walls, and then go fix the walls.\n\nSo we're funding a devrel team of [N], reporting to [engineering/product] rather than marketing. We're asking them to ship reference implementations, answer in the [Discord/forum] within a day, and file bugs against our own onboarding that get triaged like customer bugs. We'll measure time-to-second-call and docs PRs merged, not talks given or followers gained.\n\nThe honest version is that we built something developers can use and then left them alone for the hard part. We're paying that back.\n\n[Open roles here.]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Why we're hiring devrel**\n\n[product] has been out for eighteen months. Signups arrived. People read the quickstart, got hello-world running, and then we never heard from them again. About [X]% never made a second API call.\n\nWe blamed the docs first, and part of that was fair. The rest came out when [name] sat with five customers and watched them work. All five stalled at [specific step]. The step isn't hard. It's that nobody had ever written down what happens when you wire this into a system that already exists, with real auth and data that arrived from somewhere messy.\n\nMarketing doesn't fix that, and a webinar won't touch it either. It's a craft problem, and craft problems need people whose job is to build with the thing in public, hit the walls, and then go fix the walls.\n\nSo we're funding [N] devrel roles, reporting into [engineering/product] instead of marketing. Their job is to ship reference implementations, answer in the [Discord/forum] inside a day, and file bugs against our own onboarding that get triaged like customer bugs. We'll track time-to-second-call and merged docs PRs, not talks given or followers gained.\n\nThe plain version is that we built something developers can use, then left them alone for the hard part. Eighteen months of people going quiet is a long time to not notice. This is us paying it back.\n\n[Open roles here.]"
+}

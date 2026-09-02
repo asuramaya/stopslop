@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security is everyone's job, and we keep saying that wrong**\n\nEvery company says security is everyone's responsibility. In practice that means the security team writes a policy, the rest of us click through the training, and when something breaks, security gets paged anyway. Shared responsibility without shared capability is just spread-out blame.\n\nThree things change this quarter.\n\nFirst, security stops being an approval queue. The team is moving to paved paths instead: a secrets manager that's less work than an env file, a dependency bot that opens the PR for you, service templates with auth already wired. If the safe path is slower than the unsafe one, people take the unsafe one, and honestly, they're right to.\n\nSecond, threat modeling moves into design review. No separate ceremony, no separate document. Your design doc gets a section on what an attacker would want and how they'd get it. Two paragraphs is enough. The value is in thinking about it while the design is still cheap to change.\n\nThird, incident write-ups belong to the team that owns the code. You know your system better than security does. They'll review the draft and push back on it, but the story is yours to tell.\n\nNone of this means you're on your own. #security is staffed during business hours and someone will pair with you on a design or a nasty finding. What we're asking is that you stop treating security as a gate someone else operates, and start treating it as part of the work \u2014 the same way you already treat tests and on-call.\n\nQuestions, disagreements, better ideas: reply in the thread."
+}

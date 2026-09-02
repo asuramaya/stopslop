@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about starting a mentorship program on an engineering team. Around 250 words."
+  }
+ ],
+ "output": "Draft is at `/tmp/mentorship.md`, 254 words, clean against the slopwatch ruleset.\n\n# Starting a mentorship program on an engineering team\n\nWe started ours because of a bus factor problem, not because HR asked. One staff engineer answered every question about the billing service, and when they took three weeks off in March the two people who inherited that queue guessed at things they already knew.\n\nThe first version was bad. We paired people by seniority, gave them a shared doc, and told them to meet monthly. Four of the seven pairs never met twice. The ones that stuck had something in common: the mentee had a real problem in front of them that week.\n\nSo we rebuilt it around work instead of calendars. Now a mentee brings a ticket they are stuck on, and the mentor's job is to sit with them for forty-five minutes while they work on it. No agenda template. No goal sheet. The mentor writes two lines afterward in a channel, mostly so the rest of us can see what people are getting stuck on.\n\nThree things that mattered more than we expected. Mentors need permission, in writing, from their own manager, or the time gets eaten. Pairs should be two levels apart at most, since a staff engineer explaining to a new grad tends to skip six steps. And you have to let pairs end. We give every pairing a three-month expiry and ask both people whether to renew.\n\nNine months in, eleven of fourteen pairs renewed at least once. Two people told me it was the reason they stayed.\n\nOne thing to flag: the specifics are invented \u2014 the March absence, the seven pairs, the eleven-of-fourteen renewal number. Swap in your own before this goes anywhere, since the concrete numbers are what make it read as a real account rather than advice."
+}

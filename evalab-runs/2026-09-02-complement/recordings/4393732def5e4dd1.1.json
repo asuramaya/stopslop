@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  }
+ ],
+ "output": "259 words, clean through the slopwatch gate. App name and support address are placeholders.\n\n---\n\n# Dark mode is here\n\nDark mode ships today in Notebird 3.4, on iOS, Android, and the web.\n\nYou turn it on in Settings > Appearance. There are three options: Light, Dark, and Match System, which follows your phone or desktop setting and flips on schedule if you have one set.\n\nIt took a while for a reason. A note is mostly text on a background, and inverting a text editor badly is worse than shipping no dark mode at all. Pure black behind pure white text makes letters bloom and smear at small sizes. So the dark theme sits on a near-black around #16181C with off-white text, which held up better in a dim room over a long writing session.\n\nEverything with a color got remapped, not only the page background: highlighters, code blocks, tag chips, checklists, and all four built-in themes. Your images and PDFs stay exactly as they are. We are not dimming your photos.\n\nTwo caveats. Exported PDFs still print on white, because nobody wanted forty pages of black toner. And a custom CSS theme (web only) keeps working, but it will not follow the system switch until you add a prefers-color-scheme block. Docs are linked below.\n\nThis came out of the support queue. Dark mode has been the top request two years running, with about 1,400 votes on the roadmap board. Thanks for being loud about it.\n\nUpdate from your app store, or reload the web app. Bugs to support@notebird.app, and the forum thread is open for the ones you cannot quite name yet.\n\n---\n\nSwap in your real numbers before publishing: the vote count, the version, and the hex value are invented to fill the shape. Draft is at `/tmp/darkmode.md` if you want it as a file."
+}

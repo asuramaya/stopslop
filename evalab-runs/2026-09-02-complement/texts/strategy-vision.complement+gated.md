@@ -1,0 +1,7 @@
+## Vision
+
+Two years from now, a team that wants to ship a new service spends its first week on the service. Today that week goes to copying a deploy pipeline out of whichever repo looked healthiest, rediscovering how secrets get mounted, and learning on day three that the metrics collector needs a sidecar nobody wrote down. We measured this in Q2 and found a median time from empty repo to a service taking production traffic of 19 days across the six teams we sampled, with 14 of those days having nothing to do with the product.
+
+The target for the end of 2028 is under three days, with the difference coming from paved paths rather than from people getting faster at the same manual steps. Concretely, that means one supported way to define a service, one deploy path that carries the security and observability defaults with it, and one place to look when something breaks at 3am. Teams that need something else can still have it. They pay the cost of the exception themselves instead of pushing it onto everyone who copies their repo next quarter.
+
+The second half of the vision matters more and is harder to sell. Platform work compounds only when the platform team stops taking tickets and starts owning outcomes. We want a group that measures itself on adoption and on the time other teams save, and that has the authority to deprecate the old paths once a replacement exists. Without that, we build a fifth option and call it consolidation.

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Technical debt is the only kind of debt where nobody remembers signing the loan.\n\nSomebody shipped on a Thursday in 2021 because the deadline was Friday. They left a TODO. The TODO is still there. It has outlived the person who wrote it, the framework version it referred to, and two reorgs. Nobody's angry about this. It's just how software accumulates.\n\nThis month we wanted to talk about that accumulation honestly, which means resisting two temptations. The first is treating debt as moral failure, as if the right amount were zero and every shortcut a sin. It isn't, and they aren't. Some of our better decisions were deliberate shortcuts taken with open eyes, and they bought us a year of runway. The second temptation is the opposite: shrugging, calling it all pragmatism, and letting the interest payments quietly eat a third of every sprint.\n\nThe pieces here try to sit between those. [Author] writes about how their team learned to tell load-bearing mess from cosmetic mess. [Author] has a postmortem on a migration that ran four times over estimate, and is candid about why. And there's a short one on writing the commit message your successor will actually need.\n\nRead on. Then go look at that TODO.\n\nContributor names are left as `[Author]` placeholders \u2014 swap in the real bylines and adjust the one-line descriptions to match what they actually wrote."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a page comparing a managed database service with running your own, for a technical audience choosing between them. Around 250 words."
+  }
+ ],
+ "output": "## Managed database or your own\n\nThe pitch for a managed database \u2014 RDS, Cloud SQL, Neon, pick one \u2014 is that someone else is awake when the disk fills. You pay two or three times the cost of the underlying compute, and in exchange you stop thinking about minor-version upgrades, whether the backups actually restore, and failover at 3am.\n\nFor most teams that trade is correct. It's worth being precise about when it isn't.\n\nRun your own when you need something the provider won't hand you: an extension outside the allowlist, superuser, filesystem and kernel tuning you've measured a reason for, or the new major version the week it ships rather than nine months later. Run your own when the pricing model turns against you. A 20TB table on provisioned IOPS gets expensive quickly, and past a certain size the managed premium stops looking like a service fee and starts looking like a salary \u2014 at which point hiring the DBA is the cheaper option, and a better one, because you get judgment along with the labor.\n\nThe mistake in the other direction is budgeting for the install. Setting up a replica pair is an afternoon. The cost is year three: the person who tuned autovacuum has left, the runbook is stale, and nobody has tested a restore since the migration.\n\nSo the real question isn't technical capability. It's whether database operations is something your team will keep doing well after the people who set it up move on. If the answer is no, pay the premium."
+}

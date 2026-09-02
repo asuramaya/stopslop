@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Subject: Your slowest query, explained**\n\nEvery team has one. The report that takes ninety seconds to load, the endpoint that times out on the first of the month, the nightly job that used to finish before anyone got in. You've added an index. It didn't help.\n\nOn Thursday, October 9 at 1:00 PM ET, we're running a 60-minute session on why that happens and what to do about it.\n\nWe'll work through real query plans, not toy examples. Topics:\n\n- Reading an execution plan without guessing: what the numbers actually mean, and which ones lie\n- Why the planner ignores your index, and the four usual reasons\n- Connection pool sizing, and the counterintuitive math behind it\n- When the fix isn't the query at all \u2014 schema, statistics, or hardware\n\nBring your own slow query. We're saving the last 15 minutes for questions, and we'll take them live rather than filtering through a moderator.\n\nYour host is Priya Raghunathan, who spent six years on database reliability at Shopify and now consults on Postgres and MySQL performance.\n\nFree to attend. We'll send the recording and the sample database to everyone who registers, whether or not you make it live.\n\n[Save your seat]\n\n*Replace the host bio, date, and link with your details \u2014 those are placeholders.*"
+}

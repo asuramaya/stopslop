@@ -873,3 +873,67 @@ class RulesCommandTests(unittest.TestCase):
         it was produced. It has to carry its own regeneration command."""
         proc = self._run("--ruleset", "slopwatch", "--quiet")
         self.assertIn("stopslop.py rules --ruleset slopwatch", proc.stdout)
+
+
+class RulesComplementTests(unittest.TestCase):
+    """`rules --complement` prints what the gate will NOT deny on.
+
+    Six rounds found that held-out checks never improve under a gate.
+    They do, the moment something tells the model about them: an
+    instruction aimed at the gate's blind spot took held-out flags from
+    25 to 11 (14-2, p = 0.004) and total tells from 30 to 13 (17-2,
+    p = 0.0007). An instruction that repeats what the gate enforces adds
+    almost nothing.
+    """
+
+    def _run(self, *extra):
+        return subprocess.run(
+            [sys.executable, os.path.join(stopslop.REPO_ROOT, "stopslop.py"),
+             "rules", *extra],
+            capture_output=True, text=True, cwd=stopslop.REPO_ROOT)
+
+    def _bullets(self, text):
+        return [line for line in text.splitlines() if line.startswith("- ")]
+
+    def test_it_omits_every_blocking_check(self):
+        import rulesets as _rulesets
+        ruleset = _rulesets.get_ruleset("codewatch")
+        config = ruleset.list_check_config()
+        blocking = [cid for cid, spec in config.items()
+                     if spec.get("action") == "block"]
+        self.assertTrue(blocking, "codewatch should block at least one check")
+        table = ruleset.list_checks()
+        out = self._run("--ruleset", "codewatch", "--complement", "--quiet")
+        self.assertEqual(out.returncode, 0, out.stderr)
+        for check_id in blocking:
+            instead = (table[check_id].get("instead") or "").strip()
+            if instead:
+                self.assertNotIn(instead, out.stdout)
+
+    def test_it_keeps_every_non_blocking_check(self):
+        import rulesets as _rulesets
+        ruleset = _rulesets.get_ruleset("codewatch")
+        config = ruleset.list_check_config()
+        warning = [cid for cid, spec in ruleset.list_checks().items()
+                    if spec.get("enabled", True)
+                    and config.get(cid, {}).get("action") != "block"]
+        out = self._run("--ruleset", "codewatch", "--complement", "--quiet")
+        self.assertEqual(len(self._bullets(out.stdout)), len(warning))
+
+    def test_it_is_strictly_smaller_than_the_full_block(self):
+        full = self._run("--ruleset", "codewatch", "--quiet").stdout
+        part = self._run("--ruleset", "codewatch", "--complement", "--quiet").stdout
+        self.assertLess(len(self._bullets(part)), len(self._bullets(full)))
+
+    def test_the_regeneration_command_records_the_flag(self):
+        """A pasted block outlives the memory of how it was made, and
+        regenerating it WITHOUT --complement would silently swap it for
+        the arm that barely stacks."""
+        out = self._run("--ruleset", "codewatch", "--complement", "--quiet")
+        self.assertIn("--complement", out.stdout)
+
+    def test_a_ruleset_that_blocks_nothing_says_so(self):
+        """slopwatch warns on everything, so its complement is every
+        check -- true, and useless unless the reason is stated."""
+        out = self._run("--ruleset", "slopwatch", "--complement")
+        self.assertIn("denies nothing", out.stderr)

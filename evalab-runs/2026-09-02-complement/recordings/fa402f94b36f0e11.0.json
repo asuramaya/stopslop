@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "No conference or team was named, so I picked a concrete one \u2014 a four-person platform team at a data-infrastructure conference. Swap the specifics for yours; the shape holds.\n\n---\n\n**Three days at DataCon, and the thing we came home with wasn't on the agenda**\n\nFour of us went. We split up for the talks, which was the right call \u2014 we covered maybe twenty sessions between us instead of the six we'd have sat through together.\n\nThe keynotes were fine. Predictable, mostly: everyone is rebuilding their pipeline around some flavor of streaming, everyone is over budget, nobody wants to say so from a stage.\n\nThe useful stuff happened in the hallway.\n\nTwo things stuck. First, we are not behind. We walked in assuming our ingest setup was embarrassing and left having heard three other teams describe worse versions of the same problem. Priya got a whiteboard sketch out of one of those conversations that killed a design we'd been arguing about for six weeks.\n\nSecond, and this one stung a little: the teams that were clearly ahead of us weren't running better tooling. They were running fewer things. One team of six had deleted four internal services in a year and reported it as their biggest win.\n\nWe're taking that literally. Marcus is drafting a list of what we can retire this quarter, and we'll bring it to planning on the 15th.\n\nSlides and notes are in the shared drive. If you want the hallway version, ask any of us \u2014 that's where the actual content was."
+}

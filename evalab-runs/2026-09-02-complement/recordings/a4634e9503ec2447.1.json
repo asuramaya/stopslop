@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a page comparing a managed database service with running your own, for a technical audience choosing between them. Around 250 words."
+  }
+ ],
+ "output": "# Managed database or run your own\n\nThe engine is the same either way. What differs is who gets paged at 3 a.m., and what you pay to not be that person.\n\nA managed service \u2014 RDS, Cloud SQL, Neon, take your pick \u2014 resells your own operational time at a markup, usually two to four times raw compute. In exchange you stop tracking minor-version upgrades, backup verification, failover drills, and the disk filling up on a Saturday. For a team under roughly ten engineers with nobody whose job title contains \"ops,\" that trade is almost always the right one.\n\nSelf-hosting wins on three axes:\n\n**Cost at scale.** The markup is a rounding error at $200/month and a headcount at $20,000/month. Do the arithmetic before you assume either.\n\n**Control.** Providers ship a menu. If you need an extension not on it, a kernel or filesystem knob, or a replication topology they don't offer, you will hit the wall and there is no way around it.\n\n**Portability.** Proprietary layers (Aurora's storage, BigQuery's dialect) are genuinely hard to leave. Plain Postgres on your own boxes is not.\n\nWhat teams underestimate about self-hosting: restore testing. Backups are easy, and everyone runs them. Restores are the thing nobody rehearses until the night they need one, and a managed provider has rehearsed theirs several thousand times.\n\nA workable rule: start managed. Move off when a specific, named constraint forces it \u2014 a cost line you can point at, a feature you can't get, a compliance boundary. \"We could run this ourselves\" is true and is not a reason."
+}

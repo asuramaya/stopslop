@@ -1,0 +1,13 @@
+# 2026 in review
+
+We shipped the migration off the old scheduler in March, six weeks later than we told ourselves in January. That slip is worth naming, because it bought us the thing everyone asked for afterward: replays that don't need a human watching them. The rest of the year mostly rode on that. Job failures dropped from about 40 a week to 5. On-call pages fell by roughly half, and the ones we still get are real. Two people who used to spend Mondays clearing the queue now spend Mondays on the ingest rewrite.
+
+Some of it didn't land. The query cache went in during August and came back out in September; it saved 80ms on a path nobody complained about and cost us two afternoons of debugging stale reads. We were slow to admit that, and slower to revert it. Next time, we set a kill date before the merge.
+
+Three people joined the team this year. Onboarding took each of them somewhere between two and five weeks to a first production change, which is worse than it needs to be.
+
+The setup doc is the culprit, and it's on the Q1 list.
+
+What I'd like more of in 2027: smaller changes, landed sooner, with the number we expect written down before we start. We got better at the first two.
+
+Thanks for a solid year. The queue is shorter than it was, and so is the doc explaining why it isn't.

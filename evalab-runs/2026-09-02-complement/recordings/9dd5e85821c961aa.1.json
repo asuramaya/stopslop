@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "**About Meridian Scheduling** *(placeholder name and details \u2014 swap in your own)*\n\nMeridian started in a family medicine office in Columbus, where one of our founders worked the front desk for two years. She kept the waitlist in a spiral notebook, because the clinic's software needed four screens and a phone call to fill a same-day cancellation. That notebook is why this company exists.\n\nWe build scheduling software for outpatient clinics \u2014 primary care, dermatology, physical therapy, behavioral health \u2014 for practices with two providers and practices with sixty. The work is less glamorous than the category makes it sound. Most of it is learning how a real schedule breaks: the patient who needs a 40-minute slot and a Spanish interpreter, the surgeon who blocks Thursdays, the no-show rate that climbs every January.\n\nThe product covers booking, reminders, waitlists, and the recall lists that keep patients from vanishing between annual visits. It connects to the major EHRs, and when a connection isn't clean, we say so before you sign rather than after.\n\nWe're 34 people across Ohio and remote. Nine of us have worked in a clinic. We answer support calls ourselves, and every engineer sits in on one a month, which is unpleasant often enough to be useful.\n\nTwo things we won't do: charge per provider seat in a way that punishes you for hiring, or hold your data hostage if you leave. Export is a button, not a support ticket.\n\nIf your front desk is running on a notebook, we'd like to hear about it.\n\n*(~250 words)*"
+}

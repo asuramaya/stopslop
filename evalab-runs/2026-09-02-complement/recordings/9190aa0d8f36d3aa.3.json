@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  }
+ ],
+ "output": "**Why we're hiring a devrel team**\n\nWe shipped [product] eighteen months ago and watched something uncomfortable happen. People signed up. They read the quickstart, got a hello-world running, and then \u2014 nothing. Roughly [X]% never made a second API call.\n\nOur first instinct was that the docs were bad. They were, in places. But the real problem showed up when [name] sat down with five customers and watched them build. Every one of them got stuck at the same place: [specific step]. Not because it was hard, but because nobody had ever written down the part where you connect it to a real system with real auth and real data that isn't clean.\n\nThat gap is not a marketing problem and you cannot patch it with a webinar. It's a craft problem, and it needs people whose job is to build with the thing in public, hit the walls, and then go fix the walls.\n\nSo we're funding a devrel team of [N], reporting into [engineering/product], not marketing. Their mandate: ship reference implementations, answer in the [Discord/forum] within a day, and file bugs against our own onboarding with the same weight as customer bugs. We'll measure them on time-to-second-call and on how many docs PRs land, not on conference talks or follower counts.\n\nThe honest version: we built something developers can use and then made them figure out the hard parts alone. This is us paying that back.\n\n[Roles are open here.]\n\n---\n\nPlaceholders in brackets are for you to fill \u2014 I didn't want to invent metrics or names. Tell me the company and the real numbers and I'll tighten it."
+}

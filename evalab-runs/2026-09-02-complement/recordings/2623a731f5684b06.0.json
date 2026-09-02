@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Pricing\n\n### Solo \u2014 $0\nOne seat. Unlimited public repos, three private. You get the same review engine the paying teams get: no trial clock, no findings held back behind an upgrade prompt. Reviews fire on push and land as inline comments in about 90 seconds.\n\n### Team \u2014 $19 per developer, per month\nFor the point where \"who's reviewing this?\" starts costing you days. Unlimited private repos. Custom rules in plain YAML, so the thing being enforced is your team's convention and not a vendor's guess at it. Shared review history means a pattern flagged in one PR doesn't get re-litigated in the next. Slack and Linear hooks. Reviews start in under 10 seconds, even at 3pm Thursday when everyone merges at once.\n\n### Enterprise \u2014 talk to us\nSelf-hosted, or in your VPC. Your code never leaves your network. SAML, SCIM, audit logs your SOC 2 auditor will accept, and a named support engineer instead of a shared inbox. Org-wide rule packs, and help migrating off whatever you're running today. Price tracks seat count and deployment shape; most orgs land between $40k and $90k a year.\n\n---\n\nAnnual billing takes 20% off Team. Change tiers whenever you want \u2014 we prorate the difference, in both directions.\n\n*(~250 words. The numbers are placeholders \u2014 swap in your real latency, seat price, and Enterprise range. Every specific here is load-bearing: if a claim can't be backed with an actual figure, cut the line rather than soften it into \"fast\" or \"flexible.\")*"
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Every specific here is load-bearing:):\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## Pricing\n\n### Solo \u2014 $0\nOne seat. Unlimited public repos, three private. You get the same review engine the paying teams get, with no trial clock and no findings held back behind an upgrade prompt. Reviews fire on push and land as inline comments in about 90 seconds.\n\n### Team \u2014 $19 per developer, per month\nFor the point where \"who's reviewing this?\" starts costing you days. Unlimited private repos. Custom rules in plain YAML, so the thing being enforced is your team's convention and not a vendor's guess at it. Shared review history means a pattern flagged in one PR doesn't get re-litigated in the next. Slack and Linear hooks. Reviews start in under 10 seconds, even at 3pm Thursday when everyone merges at once.\n\n### Enterprise \u2014 talk to us\nSelf-hosted, or in your VPC. Your code never leaves your network. SAML, SCIM, audit logs your SOC 2 auditor will accept, and a named support engineer instead of a shared inbox. Org-wide rule packs, and help migrating off whatever you're running today. Price tracks seat count and deployment shape; most orgs land between $40k and $90k a year.\n\nAnnual billing takes 20% off Team. Change tiers whenever you want \u2014 we prorate the difference, in both directions.\n\n*(~250 words. The numbers are placeholders \u2014 swap in your real latency, seat price, and Enterprise range. Every specific here has to carry weight, so if a claim can't be backed with an actual figure, cut the line rather than soften it into \"fast\" or \"flexible.\")*"
+}

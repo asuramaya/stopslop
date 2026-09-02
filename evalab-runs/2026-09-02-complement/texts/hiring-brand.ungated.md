@@ -1,0 +1,15 @@
+Passes the slopwatch gate clean (257 words). It's written company-agnostic — no name or product references to swap out.
+
+## How we work
+
+We ship small changes, often. Most of what an engineer starts on Monday is running in production by Wednesday, behind a flag if it looks risky. That only works because rolling back here is boring, and we spent a long time making it boring.
+
+Engineers own what they build, and owning it includes carrying the pager for it. Nothing gets handed to an operations team while its authors move on. The trade is real, so we would rather say it plainly: you will get paged. You also get to spend the next day fixing whatever woke you, without asking anyone's permission first.
+
+Code review is where we argue. Our reviews are slow by industry standards, a day is normal and two is not strange, because we would rather fight about a design before it exists than live inside it for the next three years. The one habit that earns a hard conversation is approving something you did not read.
+
+We write decisions down, including the options that lost and the reason they lost. Whoever inherits your service in 2030 should be able to tell the difference between a choice and an accident.
+
+A few honest caveats. Our roadmap is bigger than our team, so something you care about is always waiting. We have legacy systems that nobody enjoys, and we are not going to pretend a rewrite is scheduled. If you want a tour of the worst code we own before you decide, ask in your first interview and we will show you.
+
+Two things to check against reality before it goes live: the deploy cadence and the on-call arrangement are the load-bearing claims, and a careers page that misstates either gets found out in week one. Saved at `/tmp/careers.md` if you want it in the tree.

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about starting a mentorship program on an engineering team. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "We started pairing juniors with senior engineers in March, and the first version of it failed.\n\nThe failure was predictable in hindsight. We matched eleven pairs by skill overlap, told them to meet biweekly, and gave them nothing to talk about. By week six, four pairs had quietly stopped scheduling. The two pairs that kept going had both invented their own agenda without asking us.\n\nSo we rebuilt it around that. Now every pair starts with a concrete artifact the mentee owns: a service they're on call for, a migration they're leading, a test suite they inherited. The mentor's job is not to answer questions in the abstract. It's to review that specific work every two weeks and say what they'd do differently.\n\nThree things we got wrong that other teams can skip.\n\nMatching by technology stack was useless. What predicted a good pair was whether the mentor had shipped something at the mentee's current level of scope in the last two years. A staff engineer four years removed from writing endpoints gave advice that didn't survive contact with our actual deploy process.\n\nWe also made mentorship invisible in performance review for the first two quarters, then wondered why senior engineers deprioritized it. Two of them told me directly they'd rather ship. Fair. We now count it, and the conversation changed.\n\nAnd we ran it opt-in for mentees but assigned for mentors. Backwards. Mentees who don't want it waste both people's time.\n\nNine months in, seven of the original eleven pairs are still meeting. That's the number I'd watch if you're starting one."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "We paired juniors with senior engineers starting in March. The first version fell apart.\n\nLooking back, it was obvious why. We matched eleven pairs on overlapping skills, told them to meet every two weeks, and handed them no reason to. By week six, four pairs had stopped booking time. The two that were still going had each written their own agenda without telling us.\n\nThat's what we rebuilt around. Every pair now begins with something concrete the mentee owns: a service they carry the pager for, a migration they're running, a test suite someone left them. The mentor isn't there to field abstract questions. They review that work every two weeks and say what they'd have done differently.\n\nThree mistakes other teams can skip.\n\nMatching on tech stack told us nothing. What predicted a good pair was whether the mentor had shipped work at the mentee's current scope within the past two years. A staff engineer four years out from writing endpoints handed down advice that didn't survive our actual deploy process.\n\nWe also kept mentorship out of performance review for two quarters, then acted surprised when senior engineers let it slide. Two of them said flatly they'd rather ship. Fair enough. It counts now, and the conversation shifted.\n\nAnd we made it opt-in for mentees but assigned for mentors. Exactly backwards. A mentee who doesn't want this burns two people's time.\n\nNine months later, seven of the original eleven pairs still meet. If you're starting one, that's the number to watch."
+}

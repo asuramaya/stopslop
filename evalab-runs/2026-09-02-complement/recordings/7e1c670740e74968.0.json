@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination \u2014 [Team name], Engineering Excellence Award**\n\nI'd like to put [Team name] forward for what they did to our deployment process this year.\n\nA release used to eat most of an afternoon, and it ran on one person's memory of which step came next. Rollbacks were worse. Nobody would deploy on a Friday, so fixes sat until Monday.\n\n[Team name] tore that down and built something else. The manual runbook became an automated pipeline with [staged rollouts / automatic rollback / smoke checks], and any engineer can now start a deploy without waiting on someone's approval. We went from [X hours] per deploy to [Y minutes], and from [M] releases a week to [N].\n\nThe numbers are good, but the method is why I'm nominating them. They asked every dependent team what they needed before touching anything. They moved services over one at a time, so nobody was ever stuck waiting. The docs they wrote actually get read. None of this sat on a roadmap; they picked it up because they could see the tax the rest of us were paying.\n\nMost of the engineering org depends on this daily and could not name the people who built it. That strikes me as reason enough."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination \u2014 [Team name], Engineering Excellence Award**\n\nI want to nominate [Team name] for the work they did on our deployment process this year.\n\nShipping a release used to take most of an afternoon, and it depended on one person remembering what order the steps went in. Rolling back was worse. Nobody deployed on a Friday, so fixes waited until Monday.\n\n[Team name] replaced the whole thing. The handwritten runbook is now an automated pipeline with [staged rollouts / automatic rollback / smoke checks], and any engineer can start a deploy without hunting down an approver. Deploys went from [X hours] to [Y minutes]. Releases went from [M] a week to [N].\n\nThe results matter, but what I'm nominating them for is how they got there. They asked every dependent team what it needed before changing anything. They migrated services one at a time, so nobody was ever blocked waiting. The documentation they wrote is documentation people actually read. And none of this was assigned to them. They picked it up because they could see what the old process was costing everyone else.\n\nMost of engineering depends on this daily and could not tell you who built it. That seems like reason enough."
+}

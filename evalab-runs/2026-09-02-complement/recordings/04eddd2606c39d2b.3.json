@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "**A year without an office: what actually changed**\n\nWe closed the office in March. Not as a statement about the future of work \u2014 the lease was up and nobody wanted to renew it.\n\nTwelve months later, here's what held up and what didn't.\n\nAsync writing was the whole game. Our design docs went from a formality nobody read to the place decisions actually got made, because there was no hallway to make them in instead. The docs got longer. Review threads got slower and better. One architecture argument ran for nine days in a comment thread and produced a better answer than any whiteboard session I've sat through.\n\nOnboarding broke. New engineers used to absorb context by overhearing it. Remote, they absorbed nothing, and we didn't notice until two people quit in month five and both said some version of \"I never knew if I was doing okay.\" We now assign a named buddy, schedule three check-ins in the first month, and write down the things that used to live in the air.\n\nMeetings shrank, then crept back. We ended the year with roughly the same number of hours booked as we started with. That's a discipline problem, not a remote problem, and we haven't solved it.\n\nThe thing I didn't expect: seniority stopped predicting influence. The people who wrote clearly moved the org. A few very good engineers who'd coasted on being persuasive in a room went quiet.\n\nWe're not going back. But we stopped pretending the office was doing nothing.\n\n*(Composite account \u2014 details are illustrative, not from a specific company.)*"
+}

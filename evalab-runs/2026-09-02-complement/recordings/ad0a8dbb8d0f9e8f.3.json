@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**The Second Year Is the Hard One**\n\nMost migration talks cover the first six months: pick a seam, extract a service, celebrate. We did that part fine. Then we spent eighteen months discovering everything the monolith had been doing for us for free \u2014 foreign keys, transactions, and a deploy that could never leave half the system on last week's schema. Once billing and inventory lived in separate databases, we rebuilt all of it by hand, badly, twice.\n\nThis talk is about the parts that don't make it into the architecture diagram. How we picked our first three seams and why the second one was wrong. What distributed transactions actually cost us, measured in on-call hours rather than latency. The eleven-service tangle we built before admitting that two of those services belonged back together.\n\nI'll walk through the numbers we tracked: deploy frequency, change failure rate, and the one that turned out to matter most, which was how long a new engineer needed to ship something real. You'll see what those did over two years, including the ten-month stretch where every one of them got worse before it got better.\n\nIf you're a few months in and it feels harder than the blog posts promised, it is. Here's what to expect.\n\nThe specifics (eleven services, the ten-month dip, billing/inventory) are stand-ins \u2014 swap in your real numbers, since the concreteness is what makes this land with a program committee."
+}

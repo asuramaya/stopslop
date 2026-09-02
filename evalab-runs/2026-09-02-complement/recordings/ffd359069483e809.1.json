@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "**What teams say after the first bad night**\n\n> \"We had a checkout bug that only showed up for customers paying in yen. Four services, three languages, and the stack trace was in none of them. I found it in about twenty minutes, because I could put all four streams on one screen and scroll.\"\n> \u2014 Priya Raghunathan, Staff Engineer, Kettle & Co.\n\n> \"Honestly, I was skeptical. We'd already migrated twice and both times the pitch was better than the product. What sold me was the ingest bill. We push 900 GB a week now and pay less than we did for 300.\"\n> \u2014 Marcus Oyelaran, VP Infrastructure, Northbound Freight\n\n> \"Our on-call rotation is six people and two of them joined this year. Last month they handled a Redis eviction storm at 2 a.m. without paging me. I read about it in the morning. That's the whole review.\"\n> \u2014 Dana Kirsch, Engineering Manager, Vestibule Health\n\n> \"The seven-day retention default was wrong for us \u2014 we're audited, we need thirteen months. Support had a tiered archive set up in a day and didn't try to sell us a bigger plan first.\"\n> \u2014 Tom\u00e1s Bergqvist, Head of Platform, Ardal Bank\n\n*Read the full case studies \u2192*\n\n(217 words)"
+}

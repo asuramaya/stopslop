@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "Written for a generic REST API since you didn't name one \u2014 swap the concrete numbers (the 24-month window, the version scheme) for your real policy.\n\n## Design philosophy\n\nThis API is boring on purpose. Resources are nouns, HTTP methods do what the spec says they do, and every error comes back in the same envelope whether it was thrown by an auth check or a validation rule. If you have called two endpoints, you can guess the shape of the third.\n\nNothing is implicit. There are no hidden defaults that quietly change what a request does, no fields that behave differently depending on which plan you are on, and no server-side inference about what you probably meant. When a request is ambiguous, you get a 400 with the offending field named, rather than a 200 and a surprise three weeks later.\n\nCompatibility is a promise with a date on it. Within a major version we add fields and add optional parameters; we do not remove them, rename them, or change what an existing value means. When a version is deprecated, it keeps running for 24 months, and the sunset date appears in a response header from the day the notice goes out.\n\nWhere we do break these rules, we say so in the endpoint's own documentation and explain the tradeoff. Pagination cursors are the main case: they are opaque strings, and their contents will change without notice."
+}

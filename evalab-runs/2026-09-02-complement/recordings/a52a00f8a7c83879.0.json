@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's a draft, about 200 words:\n\n---\n\nThis is what we're building, and roughly when.\n\nWe publish this because the alternative is worse. Without it, you find out about a breaking change from a release note, or you spend a quarter building something we were three weeks from shipping. Neither is fair to you.\n\nSome notes on how to read it. Dates get less reliable the further out they go; anything past the current quarter is an intention, not a commitment. Items move. A few get cut after we prototype them and decide they aren't good enough. When that happens we say so here rather than letting the entry quietly vanish.\n\nWork is grouped into three tracks: the CLI, the API, and everything that makes both easier to run in CI. Each item links to the issue where the real discussion lives. If you want to argue with a priority, argue there. We read those threads, and the order below has changed because of them more than once.\n\nWhat's absent is also information. If something you depend on isn't listed, it isn't secretly underway. Open an issue and tell us what you need it for \u2014 the \"what for\" is the part that moves things up.\n\n---\n\nIf you tell me the actual product and track names, I can swap in the specifics."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Here is what we are building, and roughly when.\n\nWe publish it because not publishing is worse. Otherwise you find out about a breaking change from a release note, or you spend a quarter on something we were three weeks from shipping. Neither is fair to you.\n\nHow to read it: dates decay with distance. Anything past the current quarter is intent, not a promise. Items slip. Some get cut once we prototype them and decide they are not good enough, and when that happens we write it down here instead of letting the entry disappear.\n\nThe work sits in three tracks: the CLI, the API, and the parts that make both easier to run in CI. Every item links to the issue where the real argument happens. If a priority looks wrong to you, say so there. We read those threads, and the order below has shifted because of them more than once.\n\nAbsence carries information too. If something you depend on is not listed, it is not quietly underway somewhere. Open an issue and tell us what you need it for. The \"what for\" is the part that moves things up the list."
+}

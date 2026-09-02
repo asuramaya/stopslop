@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination \u2014 [Award name]**\n\nI'm nominating the [team name] team.\n\nEighteen months ago, shipping to production was a Thursday-night ritual: a 40-step wiki page, two people on a call, and a rollback plan that mostly amounted to hope. Deploys ran about three hours. We did them once a week because nobody wanted to do them twice.\n\n[Team] rebuilt that. They didn't propose a rewrite or ask for a quarter of extra headcount. They took the wiki page apart one step at a time and automated whatever they could prove was safe. Health checks gate each stage now. Rollback is one command and finishes in under 90 seconds.\n\nThe numbers: median deploy time went from three hours to 11 minutes, we ship 40+ times a week instead of once, and the change failure rate fell from 18% to 4%. The pager has gone quiet on deploy nights.\n\nWhat I want to call out is how they did it. They held office hours for every team they migrated and absorbed the ugly migration work themselves rather than pushing it downstream.\n\nAsk anyone here what changed about their week. They'll say deploys.\n\n---\n\nI don't have your actual team name, timeline, or metrics, so I invented plausible ones \u2014 swap in the real figures before submitting. The bracketed fields are the only two placeholders; everything in the numbers paragraph is fabricated and needs replacing."
+}
