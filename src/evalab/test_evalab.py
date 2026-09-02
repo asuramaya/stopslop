@@ -721,3 +721,50 @@ class CalibratedPresetTests(unittest.TestCase):
         Mutating it would quietly make them incomparable."""
         self.assertIn("vague_intensifier", harness.DEFAULT_ENFORCED)
         self.assertIn("marketing_adjective", harness.DEFAULT_ENFORCED)
+
+
+class Ste100MeasurabilityTests(unittest.TestCase):
+    """The ruleset that does the most work in production, unmeasured
+    until now because the harness failed silently.
+
+    ste100 shares no check id with slopwatch, so every slopwatch preset
+    intersected it to nothing: the gated arm never revised, and the
+    report said "the loop revised 0 of 30 prompts" -- which reads like a
+    null result about the gate rather than a broken experiment.
+    """
+
+    def setUp(self):
+        self.ste100 = rulesets.get_ruleset("ste100")
+        self.slopwatch = rulesets.get_ruleset("slopwatch")
+
+    def test_a_preset_naming_none_of_a_rulesets_checks_raises(self):
+        with self.assertRaises(harness.EmptyEnforcedSet):
+            harness.split_checks(self.ste100, "structural")
+
+    def test_the_refusal_names_what_the_ruleset_actually_has(self):
+        """An error that only says 'empty' sends the reader back to the
+        source to find out what they could have enforced."""
+        with self.assertRaises(harness.EmptyEnforcedSet) as caught:
+            harness.split_checks(self.ste100, "lexical")
+        self.assertIn("ing_form", str(caught.exception))
+
+    def test_the_ste100_preset_enforces_real_ste100_checks(self):
+        enforced, held_out = harness.split_checks(self.ste100, "ste100")
+        self.assertTrue(enforced)
+        self.assertTrue(held_out)
+        self.assertTrue(enforced <= set(self.ste100.list_checks()))
+
+    def test_the_split_still_partitions_the_ruleset(self):
+        enforced, held_out = harness.split_checks(self.ste100, "ste100")
+        self.assertEqual(enforced | held_out, set(self.ste100.list_checks()))
+        self.assertFalse(enforced & held_out)
+
+    def test_the_ste100_preset_is_refused_for_slopwatch(self):
+        """Symmetry: pointing ste100's preset at the wrong ruleset must
+        fail the same way rather than enforcing a lucky overlap."""
+        with self.assertRaises(harness.EmptyEnforcedSet):
+            harness.split_checks(self.slopwatch, "ste100")
+
+    def test_an_explicit_empty_set_is_refused_too(self):
+        with self.assertRaises(harness.EmptyEnforcedSet):
+            harness.split_checks(self.ste100, {"not_a_real_check"})

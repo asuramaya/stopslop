@@ -96,20 +96,60 @@ BACKWARDS_ON_EVERY_CONTROL = frozenset({
 })
 
 
+# ste100 shares no check id with slopwatch, so every slopwatch preset
+# intersects it to NOTHING. That is why the ruleset doing the most work in
+# this project's real gate history -- vocabulary, ing_form, modal, length
+# and passive are the five most-fired checks across 77 live gate events --
+# had never once been evaluated: the harness produced an empty enforced
+# set, the gated arm never revised, and the run looked like a null result
+# instead of a broken one.
+#
+# Split by construction like the others: a mix of sentence shape, verb
+# form and punctuation on each side, so neither is a soft target.
+STE100_ENFORCED = frozenset({
+    "ing_form",
+    "length",
+    "passive",
+    "punctuation",
+    "trailing_condition",
+    "perfect_tense",
+})
+
+
 PRESETS = {
     "lexical": lambda: DEFAULT_ENFORCED,
+    "ste100": lambda: STE100_ENFORCED,
     "structural": lambda: DEFAULT_ENFORCED | STRUCTURAL_ENFORCED,
     "calibrated": lambda: (DEFAULT_ENFORCED | STRUCTURAL_ENFORCED)
                             - BACKWARDS_ON_EVERY_CONTROL,
 }
 
 
+class EmptyEnforcedSet(ValueError):
+    """A preset that names none of this ruleset's checks."""
+
+
 def split_checks(ruleset, enforced=None):
-    """(enforced, held_out) check-id sets for `ruleset`."""
+    """(enforced, held_out) check-id sets for `ruleset`.
+
+    Raises when the intersection is empty. Returning an empty enforced
+    set is worse than useless: the gated arm never revises, every arm
+    becomes an independent sample of the same prompt, and the report says
+    "the loop revised 0 of 30 prompts" -- which reads like a null result
+    about the gate rather than a broken experiment. ste100 sat unmeasured
+    behind exactly that silence.
+    """
+    name = enforced if isinstance(enforced, str) else None
     if isinstance(enforced, str):
         enforced = PRESETS[enforced]()
     every = set(ruleset.list_checks())
     enforced = set(enforced or DEFAULT_ENFORCED) & every
+    if not enforced:
+        raise EmptyEnforcedSet(
+            f"preset {name or 'default'!r} names none of "
+            f"{ruleset.RULESET_ID!r}'s checks, so the gated arm would never "
+            f"revise and the run would measure nothing. This ruleset has: "
+            f"{', '.join(sorted(every))}")
     return frozenset(enforced), frozenset(every - enforced)
 
 
