@@ -1,0 +1,9 @@
+Charter for the platform engineering team
+
+Why we exist. Engineers here lose too much of the week to work that isn't their product: wiring up CI, chasing a deploy that failed for reasons nobody can explain, guessing which Terraform module is the current one, waiting on someone in another timezone to grant a role. We take that work off them. Our customers are the engineers in this building, and our product is the shortest sane path from a commit to running code.
+
+What we own. Build and deploy pipelines, environment provisioning, secrets handling, service scaffolding, and the observability defaults every service inherits. We own the defaults, which means we own it when the defaults are wrong. We do not own product code, and we will not become an approval gate in front of it.
+
+How we work. A paved road, not a fence. A team that has a reason to go off-road can go off-road; they carry the operational cost, and we want to hear the reason, because the road should move. We ship in small pieces and run things ourselves before announcing them. We judge ourselves on adoption and on how long it takes a new service to reach production for the first time, not on tickets closed. If a team routes around something we built, we treat that as a bug in our work.
+
+What we ask of you. One named contact per team. Complaints while they're still small. And some patience through the first two quarters, while we pay down what's already broken before we add anything new.

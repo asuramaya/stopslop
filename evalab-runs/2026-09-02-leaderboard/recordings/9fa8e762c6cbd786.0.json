@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**The question we ask after an outage is the wrong one**\n\nRight now, when something breaks, the room wants to know who pushed it. I'd like us to ask something else: what made that easy to do?\n\nThis isn't about being nicer. Blame just doesn't get us anything. The person who took prod down at 2am is already painfully aware of it. What matters is what they do next, and what they do next, currently, is go quiet. The write-up comes back short. It leaves out the three weeks they'd spent unsure what that deploy flag actually did, and it never mentions that two colleagues were unsure about the same thing. That was the useful part. We swapped it for a name.\n\nBlameless doesn't mean unaccountable. The team still owns the fix. Action items still get an owner and a date. Repeat failures still go up the chain. The difference is that the document treats the human as an instrument reading rather than a broken part. When a careful person does the wrong thing, something in the system made the wrong thing look reasonable. Write that down. It's a finding, not an alibi.\n\nWhat I'm asking for is modest. One quarter, three rules: no individual names in incident docs; whoever sat closest to the failure writes the timeline and is never the subject of the review; and the review meeting produces changes to tooling and process, not a conversation about performance.\n\nIf our incident docs aren't better by December, we stop. My guess is we'll be surprised by how many near-misses we've been failing to hear about."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**We're asking the wrong question after an outage**\n\nToday, when something breaks, the first thing the room wants is a name. I'd rather we asked a different question: what made that mistake easy to make?\n\nThis isn't a plea for gentleness. Blame simply doesn't pay. Whoever took prod down at 2am knows it better than anyone in the meeting. What counts is what happens next \u2014 and what happens next, today, is silence. The write-up comes back thin. It omits the three weeks they'd spent unsure what that deploy flag actually did, and it never says two teammates were unsure of the same thing. That was the part worth having. We traded it for a name.\n\nBlameless is not unaccountable. The team still owns the fix. Action items still carry an owner and a date. Repeat failures still travel upward. What changes is that the document treats the person as a reading off a gauge, not a faulty component. When a careful engineer does the wrong thing, something in the system made the wrong thing look sensible. Write that down. It's evidence, not an excuse.\n\nThe ask is small. One quarter, three rules: no individual names in incident docs; the person closest to the failure writes the timeline and is never the subject of the review; and the review produces changes to tooling and process, not a discussion of anyone's performance.\n\nIf our incident docs aren't better by December, we drop it. My bet is we'll be startled by how many near-misses have gone unmentioned."
+}

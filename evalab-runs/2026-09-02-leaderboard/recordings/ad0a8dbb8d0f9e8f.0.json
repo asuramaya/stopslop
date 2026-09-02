@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We Broke Up the Monolith. Twice.**\n\nEveryone has read the migration post with the tidy architecture diagram. This is the other talk.\n\nOver eighteen months we pulled forty-odd services out of a Rails monolith that had been growing since 2014. The first attempt failed. We split along org-chart lines, ended up with six services all writing to the same Postgres tables, and shipped slower than before \u2014 a distributed monolith with worse debugging. The second attempt worked, and the difference wasn't tooling.\n\nI'll walk through what changed: using database write ownership instead of team boundaries to draw the seams, keeping the monolith as system of record two years longer than planned, and the routing layer that let us roll a service back in an afternoon when it went wrong. Which it did, four times.\n\nWe'll also cover the bill. P99 latency went up. Our on-call surface tripled. Observability spend doubled before it paid for itself.\n\nYou'll leave with a checklist for deciding which parts of your monolith should stay a monolith, and a rough sense of whether the pieces you want to extract are worth the year it takes.\n\nSome services are still in there. That's fine.\n\n*(203 words. The specifics \u2014 Rails, 2014, forty services, four rollbacks \u2014 are placeholders; swap in your real numbers, since they're what makes an abstract get accepted.)*"
+}

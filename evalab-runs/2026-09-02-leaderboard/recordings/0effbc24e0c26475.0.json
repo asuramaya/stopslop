@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  }
+ ],
+ "output": "# Tern\n\nTern draws charts in the browser. That's the whole scope.\n\nMost charting libraries start small and end up as a plugin system wrapped around a 400-key options object. Tern takes the opposite bet: a handful of marks \u2014 line, bar, point, area, rule \u2014 that you compose. A stacked bar with a trend line and an annotation layer is three marks in one call, not a config tree with a `series[].overlay.type` branch.\n\nThe output is plain SVG. No canvas fallback, no shadow DOM, no wrapper components. Inspect an axis tick in devtools and you get a `<g>` with a class name you can target from your own stylesheet. Matching a design system means writing CSS, which you already know how to do.\n\n14 kB gzipped, zero dependencies. Renders 50,000 points in roughly 30 ms on a 2019 ThinkPad. Past that you want canvas, and Tern says so in a console warning rather than quietly getting slower.\n\nAccessibility isn't an add-on here. Every chart emits a keyboard-navigable data table behind `aria-describedby`, built from the same array you passed in.\n\nApache 2.0. React, Vue, and Svelte bindings live in this repo, each under 200 lines."
+}

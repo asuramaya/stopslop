@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## How we build\n\nSmall changes, shipped constantly. Most of what gets written here is live before dinner; the median pull request comes in under [200] lines, and if yours is bigger, review will open with the size and get to the code later. The alternative is discovering in March that November was wasted.\n\nYou write it, you own it. Design it yourself, hunt down a reviewer who'll fight you on it, carry the pager when it goes off at 3am. Nobody hands specs down a chain of approvals. That cuts both ways \u2014 you can say no to a feature, a deadline, a dependency you don't trust, as long as you show your work.\n\nReview is the one place we're genuinely hard on each other, and the one place nobody's title counts for anything. Someone four days into the job has blocked a staff engineer's PR. That's the point.\n\nWrite it down. Design docs before the big work, incident reviews after the bad days, blame in neither. When something breaks we ask what made it possible, never whose commit it was.\n\nThings we don't have: quarterly stack ranking, standups you're obliged to sit through, a promotion ladder that pays whoever talks most in planning. What we do have is [roughly a third] of every quarter left unassigned \u2014 for the refactor, the internal tool, the thing that's annoyed you since week one.\n\nOur engineers argue with us. We'd like more of it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## How we build\n\nWe ship in small pieces, all day. Code written this morning is usually running by the time you log off, and the median pull request here is under [200] lines. Send a bigger one and the first comment you get will be about its size, not its contents. We would rather do that than find out in March that we threw away November.\n\nWhoever writes it, keeps it. You do the design, you go find a reviewer who will argue with you about it, and you take the pager when it wakes you at 3am. No chain of approvals hands you a spec. The flip side is that you can refuse a feature, a date, a dependency you do not trust, so long as you can explain why.\n\nReview is where we are actually tough on each other, and where nobody's title counts. A person four days in has blocked a staff engineer's pull request. That was the right outcome.\n\nWrite things down. Design docs before the large work, incident write-ups after the bad nights, blame in neither. After a failure we ask what allowed it, not who typed it.\n\nWhat we do not run: quarterly stack ranking, standups you are obliged to attend, a ladder that rewards whoever talks most in planning. What we do run is [roughly a third] of each quarter with nothing assigned to it, for the refactor, the internal tool, the thing that has bugged you since your first week.\n\nOur engineers argue with us. We want more of that."
+}

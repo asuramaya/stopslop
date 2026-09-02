@@ -1,0 +1,19 @@
+252 words, clean through slopwatch.
+
+# What a Year of Remote Work Actually Taught Us
+
+We went remote in March, expecting a rough quarter and a return by fall. Neither happened. Twelve months in, here is what we got wrong and what stuck.
+
+**Meetings were never the bottleneck.** We cut our recurring meeting load by half in the first month and felt smug about it. Then bug-fix cycle time went up. The meetings had been carrying context nobody had written down — who owned what, which half-finished branch was still alive. We had to rebuild that in writing, and writing it took longer than the meetings ever did.
+
+**Onboarding broke first.** Our three hires in June took roughly eleven weeks to ship anything meaningful, against four weeks for people hired in the office. The fix was boring: a named buddy, a scheduled first commit in week one, and a standing half-hour that the new person controlled.
+
+**Timezone spread cost more than we admitted.** Two engineers moved to Europe. Everyone said async was fine. In practice, decisions waited a day, then two. We now require four overlapping hours. Not ideal for hiring reach, but the alternative was decisions that took a week to make and nobody could explain afterward.
+
+**Nobody wants to go back.** When we offered desks again, four people out of thirty-one took one, and two of those come in twice a week.
+
+What we thought we were doing was moving work into people's houses. What we were really doing was moving every unwritten rule into a document.
+
+---
+
+The numbers (eleven weeks, thirty-one people, four hires) are invented placeholders — swap in your real ones, since the specifics are what keep it from reading generic. Draft saved at `/tmp/remote-post.md`.

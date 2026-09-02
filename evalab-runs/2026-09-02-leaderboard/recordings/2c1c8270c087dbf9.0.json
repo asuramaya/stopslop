@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Security isn't the security team's problem**\n\nWe have four people in AppSec. We ship from thirty-one repos. If \"security\" means those four reviewing everything, what we've built is a queue, not a defense.\n\nLook at last quarter's three worst incidents. None of them involved an exotic attack. A stale IAM role nobody owned. A staging bucket left public after a customer demo in March. A dependency bump waved through because it was \"just a patch.\" Each one was somebody's ordinary Tuesday, and each was catchable by the person who wrote it \u2014 ten minutes earlier, at a fraction of the cost.\n\nSo, three asks, and they're small on purpose.\n\n**Threat-model in the design doc.** One paragraph: what's the worst thing an attacker does with this feature? If you can't answer, the design isn't finished.\n\n**Treat AppSec as consultants, not gatekeepers.** Ping them at design time, when changing your mind is free. A review request filed the day before launch isn't a review; it's a rubber stamp with extra anxiety.\n\n**Report the near-misses.** The credential you accidentally committed and rotated in four minutes \u2014 we want to hear about it. No blame, genuinely. We can't fix what we never see, and the ones we never see are the ones that come back.\n\nAppSec's job is to build the paved road: scanners, secure defaults, libraries that make the safe thing the easy thing. Your job is to notice when you've stepped off it.\n\nOffice hours are Thursdays, 2pm, #appsec-help. Bring your half-finished design docs."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Security isn't AppSec's job alone**\n\nFour of us do application security. Thirty-one repos ship code. If security means those four signing off on everything, we haven't built a defense. We've built a waiting list.\n\nThink about our three worst incidents last quarter. Nothing exotic in any of them. An IAM role that outlived its owner. A staging bucket someone opened for a customer demo in March and never closed. A dependency bump nobody questioned because the version number barely moved. Each one started as somebody's routine Tuesday, and each one was catchable by the person who made it, ten minutes earlier, for almost nothing.\n\nThree asks. They're deliberately small.\n\n**Put a threat model in the design doc.** A paragraph is plenty. What's the best day an attacker has with this feature? If you can't say, the design isn't finished.\n\n**Use AppSec as consultants, not a checkpoint.** Come to us while the design is still soft and changing it costs nothing. A review request that lands the night before launch isn't a review. It's a signature and a lot of anxiety.\n\n**Tell us about the near-misses.** Committed a credential and rotated it four minutes later? We want to hear it. No blame attached, and we mean that. The problems we never hear about are the ones that come back.\n\nOur side of this is the paved road: scanners, safe defaults, libraries that make the right choice the path of least resistance. Your side is noticing when you've wandered off it.\n\nOffice hours Thursdays at 2, #appsec-help. Bring the half-finished docs."
+}

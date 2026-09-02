@@ -1,0 +1,15 @@
+Security is everyone's job — so let's stop saying it and start funding it
+
+We've all seen the poster. "Security is everyone's responsibility." It usually means the security team is understaffed and would like the rest of us to feel bad about that.
+
+I want us to mean it literally instead.
+
+Here's what that looks like. Last quarter, three of the four incidents that cost us on-call time came out of application code, not infrastructure: a missing authorization check on an internal admin route, a secret pasted into a Slack thread, and a dependency we'd pinned in 2023 and never looked at again. None of those were things a five-person security team could have caught by reviewing everything. They're things the person writing the code catches, or nobody does.
+
+So we're changing where the work sits. Starting this month, every team gets a named security owner — not a new job, a rotation, one quarter at a time. That person runs the threat model when a design doc lands, triages the dependency alerts for their service, and has standing permission to say "this ships next sprint" when something looks wrong.
+
+In exchange, security gives you real support: office hours twice a week, a paved-road auth library so you're not rolling your own, and an incident process where reporting your own mistake is genuinely the fast path, not the career-limiting one.
+
+If you find something scary, tell us. We will not be annoyed. The only thing that actually gets punished here is quiet.
+
+Rotation sign-ups are in the #security channel.

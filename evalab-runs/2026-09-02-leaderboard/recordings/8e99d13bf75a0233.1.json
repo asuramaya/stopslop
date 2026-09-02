@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome\n\nYou're here. Someone already put your laptop on your desk, and if the sticker on the lid is wrong, tell Priya in IT and she'll swap it.\n\nHere's the honest version of your first week.\n\nNothing will make sense on day one. Our codebase is fourteen years old in places and three weeks old in others, and the two halves argue with each other constantly. The onboarding doc in `docs/start-here.md` is accurate as of last quarter. Where it's wrong, fix it \u2014 that's your first pull request, and we mean it. Nobody has ever been told off here for correcting a README.\n\nYou'll be paired with a buddy for three weeks. Ask them the dumb questions. Ask them the same dumb question twice. The engineers who ship fastest here are the ones who asked early instead of spending Thursday afternoon reverse-engineering something a colleague could have explained in ninety seconds.\n\nWe deploy on Tuesdays and Thursdays. We don't deploy on Fridays, and no, not even that one.\n\nTwo things worth knowing about how we work. When something breaks in production, we write down what happened and why, and we don't put a person's name in the \"cause\" field. And when you disagree with a design decision, say so in the review, in writing, before it merges. Silence gets read as agreement around here.\n\nYour first commit doesn't need to be impressive. It needs to exist.\n\nCoffee's on the third floor. The good machine is the ugly one."
+}

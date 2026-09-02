@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "Draft below \u2014 swap in your own incident details where I've left generic ones.\n\n---\n\n**We should be doing blameless postmortems**\n\nRight now, when something breaks, the first question in the room is who did it. I've watched it happen three times this quarter. Somebody names the person who ran the migration, everyone relaxes because the mystery is solved, and we move on.\n\nWe didn't solve anything. We found a name.\n\nThe engineer who dropped that table wasn't careless. They ran a command that our tooling happily accepted at 11pm with no confirmation prompt, no dry-run, and no second pair of eyes, because we have never required one. That's the finding. The name is just where the system happened to fail that night.\n\nBlame has a cost, and we're already paying it. People stop reporting the near-misses. The write-up gets vaguer as more managers are added to the thread. Nobody says \"I didn't understand what that flag did\" in a meeting where understanding is what's being graded. So we lose the exact information that would have prevented the next one.\n\nA blameless postmortem is a small change in the rules: we write the timeline, we assume everyone acted reasonably given what they could see, and we fix the thing that let a reasonable action cause an outage. Individuals still own their work. We just stop pretending accountability and punishment are the same word.\n\nI'd like to try it on the next Sev-2. One document, no names in the causal section, action items with owners and dates. If it produces worse fixes than what we do now, we drop it."
+}

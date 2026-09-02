@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\n[Company] \u00b7 Chicago or remote (US) \u00b7 $185k\u2013$225k + equity\n\nWe move money. About $2B a year in payouts for marketplaces that don't want to build ledgers themselves, on a team of 60 with 22 engineers.\n\nYou'd own services in the payments path: the double-entry ledger, our ACH and RTP rails integrations, and the reconciliation jobs that have to agree with the bank every morning by 6am. Go and Postgres, some Python around the edges, Kafka between services, all on AWS. If something you wrote pages someone at 3am, you're in the rotation too.\n\nWhat we actually need from you:\n\n- Six or more years writing backend services that other people depended on, at least two of those somewhere with real money or real compliance pressure.\n- Strong SQL. Not \"I use an ORM\" \u2014 you can read a query plan and tell us why the reconciliation job got slow.\n- Judgment about correctness. Idempotency, retries, partial failure, exactly-once claims you don't believe. Payments punish sloppiness in ways ad-tech doesn't.\n- Willingness to talk to compliance and support without treating it as an interruption.\n\nNice to have: NACHA rules, ISO 20022, SOC 2 audits, or a card processor you've integrated and now hold a grudge against.\n\nThe honest tradeoffs: we're profitable and growing slowly, so the equity is real but not lottery-shaped. There's legacy code from 2019 you will curse. We ship behind feature flags and review everything.\n\nFour interviews, two weeks start to finish, and we tell you no quickly if it's a no.\n\n*[Company] is an equal opportunity employer.*"
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  }
+ ],
+ "output": "# Sparkplug\n\nCharting libraries make you pick a side. Either you get twelve chart types with a theme picker and no escape hatch, or you get d3 and a free weekend.\n\nSparkplug sits in between. It ships a small set of marks \u2014 line, bar, area, point, rule \u2014 plus a layout engine that puts them on scales you control. Everything past that is composition. Want a candlestick? That's a rule and a bar sharing an x-scale. Nobody had to add it for you first.\n\nThe whole thing is 14 kB gzipped, no dependencies. It renders to SVG on the server and hydrates only the parts that answer a pointer, so a static dashboard ships zero JavaScript. Axis labels, tooltips, and legends are real DOM nodes, which means screen readers, ctrl-F, and browser zoom keep working the way they already did.\n\nThere is no config object with 200 keys. There's a function per mark, and the arguments are the ones you'd guess.\n\nMIT-licensed. Works with React, Svelte, Vue, or plain HTML \u2014 the core doesn't know which one you picked, and doesn't care.\n\n---\n\n~200 words. The name and the two hard numbers (14 kB, the mark list) are placeholders \u2014 swap in your real figures, since the pitch leans on them being true."
+}

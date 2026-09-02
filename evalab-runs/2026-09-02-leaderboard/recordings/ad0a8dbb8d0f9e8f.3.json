@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**We split the monolith along the wrong seams. Twice.**\n\nEvery guide tells you to start from bounded contexts. We did. Eighteen months and forty-one services later, one checkout request crossed nine of them and our p99 latency had tripled.\n\nThe problem wasn't microservices. It was that we drew the boundaries from a whiteboard diagram of what the business *should* look like, instead of from what the code actually did at 3am on Black Friday.\n\nThis talk walks through the second attempt, the one that worked. I'll show how we used six weeks of production traces to find the real seams \u2014 the call paths that never crossed, the tables only one module ever wrote to \u2014 and how that cut us from a planned twenty-eight services to eleven. I'll cover the strangler-fig plumbing (an nginx rewrite layer and a dual-write window we kept open for four months), what we got wrong about distributed transactions, and the two services we eventually merged back into the monolith because splitting them bought us nothing but pager noise.\n\nYou'll leave with a way to decide whether a given seam is worth cutting, and permission to leave the rest alone.\n\n*For engineers and architects who've already read the theory and now have to ship it.*"
+}

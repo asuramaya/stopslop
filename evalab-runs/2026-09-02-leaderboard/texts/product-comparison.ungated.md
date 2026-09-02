@@ -1,0 +1,11 @@
+# Managed database vs. running your own
+
+Both options can hold four nines. The real question is narrower: what do you want your on-call engineer thinking about at 3 a.m.?
+
+**What the managed service actually sells you.** Backups someone else has restored from. Point-in-time recovery you didn't script. Minor-version patching in a window you picked. Failover rehearsed across thousands of other tenants' clusters, so the code path is warm before it's ever your turn. RDS, Cloud SQL, and Neon all package roughly this, at a markup that lands somewhere around 2–4x the raw compute underneath.
+
+**What you give up.** Superuser, usually. That rules out unpackaged extensions, custom C functions, and most kernel or filesystem tuning. You inherit the provider's upgrade calendar and their maintenance windows. Debugging gets thinner too: no `perf` on the host, no strace, and support tickets sit between you and the machine that's misbehaving.
+
+**When self-hosting wins.** Three cases, mostly. You need an extension or storage engine the provider won't ship. Your spend is large enough that 3x on database compute is a real headcount — call it past $15k/month, though the crossover depends on how senior your operators are. Or the workload is genuinely unusual, and default tuning fights you.
+
+**How to decide.** Price the operational work honestly. A self-hosted primary needs replica lag monitoring, a tested restore drill, an upgrade plan, and two people who can execute a failover awake or otherwise. If you can't staff that second person, take the managed service. The markup is cheaper than the outage.

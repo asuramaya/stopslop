@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. You didn't say which service or platform, so I've left bracketed placeholders \u2014 swap them and it's ready to send.\n\n---\n\n**Subject: [Service] is moving to [new platform] in [Q_]**\n\nHi [name],\n\nWe're moving [Service] to [new platform] next quarter. Here's what that means for you.\n\nThe move happens on [date]. [Service] will be unavailable from [start time] to [end time] that day while we transfer accounts and data. Everything you have with us \u2014 [projects, saved settings, billing history] \u2014 comes across. You don't need to export anything or re-enter payment details.\n\nTwo things do change. First, the address: after the move, sign in at [new URL] instead of [old URL]. We'll redirect the old address for [six months], but update your bookmarks and anything pointing at [old API endpoint]. Second, [change #2 \u2014 e.g. API v1 retires on <date>; v2 docs are here: <link>].\n\nWhy we're doing it: [one honest sentence \u2014 e.g. the current platform can't hold the uptime we've promised you, and working around that has been eating time we'd rather spend on <thing customers want>].\n\nWhat we need from you before [date]:\n\n- [action 1]\n- [action 2]\n\nWe'll email a reminder a week out, and again the morning of. Live status during the move will be at [status page].\n\nIf this timing is a problem for your team, reply to this email and we'll sort something out. [Name] and I are watching the inbox.\n\n[Signature]\n\n---\n\nTwo notes on choices I made: the \"why\" line is worth keeping honest rather than upbeat \u2014 customers read around vagueness there. And if there's no real customer action required, cut that list instead of padding it."
+}

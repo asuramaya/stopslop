@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Subject: [Service] is moving to [New Platform] on [date]**\n\nIn [quarter], [Service] moves to [New Platform]. Here is what that means for you.\n\nYour account comes with it, along with your data and every invoice you have ever received. There is nothing to export, no settings to key in again, no second sign-up. We do the migration ourselves, one account at a time.\n\nWhy now: the current system was built in [year], and it shows. Search times out on large accounts. The API caps at [N] requests a minute. Most of the features you have asked us for need a new foundation before they can exist, and [New Platform] is that foundation.\n\n**What changes**\n\n- The address becomes [new-url]. Old links keep working for 12 months.\n- Your API keys still work. [old endpoint] shuts down on [date]; [new endpoint] replaces it. Guide here: [link].\n- [Feature X] works differently now. Read [link] before your next batch run \u2014 ten minutes, and it will save you a support ticket.\n\n**What does not change**: your price, your contract, and the person who answers when you write in.\n\n**Timeline**: batches start moving [date]. You get two weeks' warning, then a reminder that morning. Expect roughly [N] minutes of read-only access during the switch, scheduled for [time window] in your time zone.\n\nIf that window is bad for your team, reply and we will move you to another batch.\n\nUntil then, there is nothing for you to do. Questions go to [contact]. We are hosting two live Q&As on [dates], recorded for anyone who cannot attend.\n\n\u2014 [Name], [Title]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Subject: [Service] moves to [New Platform] on [date]**\n\n[Service] moves to [New Platform] in [quarter]. Here is what it means for you.\n\nYour account moves with it: your data, your settings, every invoice going back to day one. Nothing to export. No forms to fill in twice. We handle each account ourselves, one at a time.\n\nThe reason: the current system dates to [year], and it is showing its age. Search stalls on large accounts. The API stops at [N] requests per minute. The features you keep asking for need different plumbing underneath, and [New Platform] is that plumbing.\n\n**What changes**\n\n- The address becomes [new-url]. Old links redirect for 12 months.\n- Your API keys carry over. [old endpoint] closes on [date]; use [new endpoint] instead. Guide: [link].\n- [Feature X] behaves differently now. Skim [link] before your next batch run. Ten minutes now saves you a support ticket later.\n\n**What stays the same**: your price, your contract, and the same person answering when you write in.\n\n**Timeline**: batches begin moving [date]. You get two weeks' notice, then a reminder that morning. Plan on about [N] minutes of read-only access while we switch you over, scheduled for [time window] in your local time.\n\nIf that window lands badly for your team, reply and we will put you in a different batch.\n\nUntil then, sit tight. Send questions to [contact]. We are running two live Q&A sessions on [dates], both recorded for anyone who cannot make it.\n\n\u2014 [Name], [Title]"
+}

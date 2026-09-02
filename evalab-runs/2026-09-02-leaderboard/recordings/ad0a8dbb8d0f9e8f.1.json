@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**Title: We Split the Monolith. The Monolith Split Us First.**\n\nEveryone shows you the architecture diagram at the end. This talk starts with the one we drew at the beginning, and the eleven months it took to find out how wrong it was.\n\nOur billing platform was 400,000 lines of Rails and a 90-minute deploy that three teams queued behind. The plan was clean: carve out payments, then invoicing, then notifications. What actually happened was a distributed monolith with the same coupling, plus network calls and a Kafka cluster nobody wanted to be on call for.\n\nI'll walk through what we got wrong. Splitting by org chart instead of by data ownership. Treating the shared database as a detail to fix later, which meant never. Underestimating that \"eventually consistent\" is a product decision, not an infrastructure one, and that finance will notice.\n\nThen the parts that worked: strangler-fig routing at the edge, one service extracted end to end before starting the second, and a rule that no service ships without an owner who carries the pager.\n\nYou'll leave with a checklist for deciding whether to split at all, and honest numbers on what it cost us.\n\n*(Swap in your own stack and figures \u2014 the structure holds.)*"
+}

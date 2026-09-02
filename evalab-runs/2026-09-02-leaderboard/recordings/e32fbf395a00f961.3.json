@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**Proposal: one quarter of engineering capacity for debt paydown**\n\nWe should spend Q3 on maintenance instead of features.\n\nThe case is not philosophical. Over the last two quarters, our median PR took 6.2 days from open to merge, up from 2.8 a year ago. Most of that is CI: the test suite runs 47 minutes and fails intermittently about one run in five, so people rerun it, wander off, and come back after lunch. On top of that, roughly 40% of engineering hours in Q2 went to unplanned work \u2014 incidents, hotfixes, and the slow archaeology of figuring out why the billing service and the account service disagree about what a \"customer\" is.\n\nWhat I want to fix, in priority order: split the monolithic test suite and quarantine the flaky tests; retire the second ORM we half-migrated to in 2024 and never finished; consolidate the two customer models behind one service. Nothing exotic. All three are things we already know how to do and have deferred four times.\n\nThe cost is real. A quarter of eight engineers is a quarter of roadmap, and two of the customer commitments on the Q3 list would slip to Q4.\n\nThe trade I'm asking you to make is one visible slip now against a delivery rate that keeps degrading. If we defer again, the same proposal comes back next year with worse numbers and a longer list.\n\nI'd like a decision by the 15th so we can plan Q3 around one answer or the other. Happy to walk through the incident data first.\n\n\u2014 [name], Eng Lead\n\nThe figures are placeholders \u2014 swap in your real CI timings, incident share, and headcount before sending, since the argument rests entirely on them."
+}

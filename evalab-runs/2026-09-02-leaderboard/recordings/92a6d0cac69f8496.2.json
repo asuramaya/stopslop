@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer**\nMeridian Pay \u2014 Chicago or remote (US timezones)\n\nWe move about $4B a year for small and mid-sized businesses: payouts, ledgering, reconciliation. Roughly 180 people, 40 in engineering. We are past the stage where things are held together by one person's shell scripts, and not yet at the stage where you need three approvals to rename a column.\n\n**What you'd work on**\n\nOur ledger service is the center of the company. It's Go, backed by Postgres, and it settles a few hundred thousand transactions a day. You'd own a meaningful slice of it \u2014 likely the payout pipeline, which currently has a retry story we are not proud of. Beyond that: API design for partner integrations, and the unglamorous work of making money movement idempotent when a bank's endpoint times out mid-request.\n\n**What we're looking for**\n\nFive-plus years writing backend services that other people depend on. Strong Postgres \u2014 you should have opinions about isolation levels and have been burned at least once. Experience with financial data, or any domain where a wrong number is a real problem rather than a bad chart.\n\nYou don't need fintech on your r\u00e9sum\u00e9. You do need to be comfortable reading a regulation and turning it into a schema.\n\n**Practical details**\n\n$185k\u2013$225k plus equity. Four days a week of meetings-free time is a stated goal and mostly a real one. We're on call one week in six, and the pager is quiet.\n\nInterview: a call with the hiring manager, a code review exercise on our actual codebase, and two technical conversations. Two weeks, start to offer."
+}

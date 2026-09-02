@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Welcome to the team.\n\nYou'll spend today mostly reading and setting things up, and that's fine. Nobody expects code from you this week.\n\nStart with the laptop. The setup script in `onboarding/setup.sh` installs the toolchain and pulls down the main repos. It takes about forty minutes, and it will fail at least once, usually on credentials. When it does, post the error in #eng-help. Somebody will answer, and you'll have filed your first bug report.\n\nYour onboarding buddy will find you before lunch. They're an engineer, not a manager, and their job is to answer the questions that feel too small to ask anyone else. Where's the staging database. Why does that one test always fail. Who actually owns the billing service. Ask them all of it.\n\nA few things worth knowing early. We review every change, including one-line ones. Reviews are usually quick, sometimes blunt, never personal. We deploy several times a day, so you will break production eventually. When it happens, we fix it, write down what we learned, and move on. No blame in postmortems, and we mean that literally. Meetings are optional unless your name is on the invite as required; if you're in one and it isn't useful to you, leave.\n\nYour first task is already assigned, and it's deliberately small: a docs fix or a minor bug. Ship it this week. The point isn't the change, it's walking the whole path from branch to production once while somebody's around who can help.\n\nGlad you're here."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (4 paragraphs, spread 0.28):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Welcome to the team.\n\nYou'll spend today mostly reading and setting things up, and that's fine. Nobody expects code from you this week.\n\nStart with the laptop. The setup script in `onboarding/setup.sh` installs the toolchain and pulls down the main repos. It takes about forty minutes, and it will fail at least once, usually on credentials. When it does, post the error in #eng-help. Somebody will answer, and you'll have filed your first bug report.\n\nYour onboarding buddy will find you before lunch. They're an engineer, not a manager. Ask them the questions that feel too small to ask anyone else: where the staging database lives, why that one test always fails, who actually owns the billing service.\n\nA few things worth knowing early. We review every change, including one-line ones. Reviews are usually quick, sometimes blunt, never personal. We deploy several times a day, so you will break production eventually; when it happens, we fix it, write down what we learned, and move on. No blame in postmortems, and we mean that literally. Meetings are optional unless your name is on the invite as required, and if you're in one that isn't useful to you, leave. None of that is written down anywhere official, which is why you're hearing it on day one instead of finding it out in month six.\n\nYour first task is already assigned, and it's deliberately small: a docs fix or a minor bug.\n\nShip it this week. The point isn't the change, it's walking the whole path from branch to production once while somebody's around who can help.\n\nGlad you're here."
+}

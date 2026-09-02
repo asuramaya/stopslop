@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nBy the end of 2028, a team starting a new service here should not have to decide how logging works, how to get a database, or who approves a deploy. Those answers will already exist on the default path, and taking the default will be easier than not.\n\nThat is not where we are. We run five logging setups, three ways to provision Postgres, and a deploy story that varies by which director signed off in 2024. New engineers spend their first month learning the seams between systems instead of the domain. Teams that want to move quickly end up building infrastructure they never wanted to own, then owning it badly for years.\n\nThe bet is that a small number of paved paths, maintained by people whose actual job is to maintain them, pays for itself in the second year. This is not a platform team that gatekeeps. It is one that makes the supported route the better route, and lets teams step off it when they have a reason worth writing down.\n\nTwo years out, concretely:\n\n- A new service reaches production in under a day, with observability, on-call routing, and CI already wired.\n- Product engineers change the infrastructure they own instead of filing tickets against it.\n- We can upgrade a runtime across the fleet without turning it into a company-wide migration project.\n\nWe will know it worked when platform stops coming up in planning. The infrastructure people notice is the infrastructure that is failing them; the goal is to be unremarkable."
+}

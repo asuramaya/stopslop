@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 swap in your real numbers before sending.\n\n---\n\n**Proposal: One quarter of engineering time for debt paydown**\nTo: [Leadership] \u00b7 From: [Name] \u00b7 [Date]\n\n**The ask:** Dedicate Q[N] to paying down technical debt. No new customer-facing features from the [platform] team for twelve weeks.\n\n**Why now.** Our lead time on a small change has gone from three days to eleven over the past year. Two-thirds of that is spent waiting on a test suite that takes [47] minutes and fails randomly about [one run in five]. Engineers re-run it, get coffee, lose the thread. We are paying for that every day, in a currency nobody puts on a roadmap.\n\nThe other cost is on-call. [Six] of our last [ten] Sev-2 incidents traced back to the same two services \u2014 the ones everybody agrees should have been split up in [2023].\n\n**What we'd do.** Three things, in order: cut the test suite to under ten minutes, split [service A] along its obvious seam, and retire the [legacy config loader] that four teams currently work around. Each has an owner and a written plan. Nothing speculative, nothing architectural for its own sake.\n\n**What we'd measure.** Median PR-to-production time, test flake rate, and Sev-2 count, all baselined this month and reported weekly. If lead time hasn't improved by week eight, we stop and give the remaining time back.\n\n**What it costs.** [Two] roadmap items slip a quarter: [X] and [Y]. I think that's the cheaper trade. The alternative is paying the same tax next year, plus interest.\n\nHappy to walk through the plan in detail."
+}

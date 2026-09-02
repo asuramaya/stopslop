@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "# Charter: Platform Engineering\n\n**Purpose**\n\nWe build and run the shared infrastructure that product teams deploy on. Our customers are the engineers inside this company. A change is worth making if it removes work from their day or removes an outage from their week.\n\n**Scope**\n\nWe own CI/CD pipelines, the deployment platform, observability tooling, environment provisioning, and the golden paths that connect them. We own the defaults. We do not own product code, and we do not gate merges on our own review.\n\n**How we work**\n\nSelf-service first. If a team has to file a ticket with us to get something routine done, that is a defect in the platform, not a support workload to staff up. Ticket volume is a signal we are failing, not a measure of our value.\n\nWe treat the platform as a product. It has users, a roadmap, and a support contract. We talk to teams before we build, and we run at least one internal design partner on anything new before it becomes the default.\n\nPaved roads, not walls. Teams can go off the path. They accept the operational burden when they do, and we will help them come back.\n\n**What we are accountable for**\n\n- Time from commit to production for a standard service\n- Platform availability, published and reviewed monthly\n- Onboarding time for a new service, from repo to first deploy\n- Cost per environment, tracked and shared openly\n\n**Review**\n\nThis charter is revisited every six months, or whenever our team's headcount or reporting line changes. Anyone can propose an amendment."
+}

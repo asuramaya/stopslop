@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 I don't have the date, speaker, or which database, so I picked Postgres for the concrete details. Swap freely.\n\n---\n\n**Your slowest query probably isn't the one you're watching**\n\nMost teams find the same thing when they finally turn on query logging: the 4-second report everyone complains about runs twice a day. The 40-millisecond lookup underneath it runs eleven thousand times an hour. That one is eating the box.\n\nOn [DATE], [SPEAKER] shows you how to find it.\n\nNinety minutes, live, against a real Postgres instance with a deliberately awful schema. We'll read execution plans line by line \u2014 the part most tutorials skip \u2014 and work out why the planner ignored the index you just built. Then indexing strategy: composite column order, partial indexes, and the point where an index costs more in writes than it saves in reads.\n\nBring a slow query. The last half hour is open, and we'll put whatever you paste into the chat up on screen.\n\nFor backend and platform engineers who can write SQL but have never had to make it fast under load. No prior tuning experience assumed.\n\nRecording goes to everyone who registers, whether or not you can make the time.\n\n**[Register \u2014 DATE, TIME, 90 minutes]**\n\n---\n\nRoughly 185 words. If the webinar isn't hands-on or there's no live Q&A, tell me and I'll rework those two paragraphs \u2014 they're carrying most of the specificity."
+}

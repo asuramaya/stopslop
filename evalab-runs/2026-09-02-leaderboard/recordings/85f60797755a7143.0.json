@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Vision\n\nBy the end of 2028, nobody starting a service here should have to work out how logging happens, where their Postgres comes from, or which human signs off on a deploy. The defaults will be there already, and picking them will be the path of least resistance.\n\nWe are nowhere near that. Five logging setups. Three ways to get a database, and a deploy process that depends on which director blessed it back in 2024. A new hire's first month goes to learning where one system hands off to the next, rather than to the domain they were hired for. Teams in a hurry build infrastructure nobody wanted, and then run it badly for years because it is theirs now.\n\nOur bet: a handful of paved paths, kept up by people whose day job is keeping them up, pays back in year two. This is not a team that stands at a gate. It makes the supported route the one you would pick anyway, and lets you leave it when you can write down a reason.\n\nWhere that lands us in two years:\n\n- A service goes to production inside a day, with logs, on-call routing, and CI already attached.\n- Product engineers edit the infrastructure they own rather than filing tickets at it.\n- A runtime upgrade rolls across the fleet without becoming a quarter-long company project.\n\nThe signal that it worked is that platform stops appearing in planning docs. You only notice infrastructure when it is letting you down. We want to be boring."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Vision\n\nTwo years from now, a person spinning up a new service here should not have to figure out how logging works, where a Postgres instance comes from, or whose signature a deploy needs. The defaults will already exist, and taking them will be the easy option.\n\nToday it is the opposite. Five logging setups. Three routes to a database. A deploy process that varies depending on which director approved it back in 2024. New engineers spend their first month mapping the seams between systems instead of learning the domain they were hired for. Teams under deadline pressure build infrastructure nobody asked for, then operate it badly for years, because now it is theirs.\n\nThe bet: a small number of paved paths, maintained by people whose actual job is maintaining them, starts paying off in year two. Platform is not a gate you queue at. It makes the supported route the one you would choose anyway, and it lets you step off when you can write down why.\n\nWhat that looks like by 2028:\n\n- A new service reaches production in a day, with logging, on-call routing, and CI already wired up.\n- Product engineers change the infrastructure they own instead of filing tickets against it.\n- A runtime upgrade moves across the fleet without turning into a quarter-long company initiative.\n\nWe will know it worked when platform stops showing up in planning documents. Infrastructure is the thing you only think about when it is failing you. The goal is to be boring."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nTwo years out, shipping a new service should be boring.\n\nToday it isn't. A team starting something new spends its first three or four weeks on work nobody wanted to do: wiring up CI, arguing with Terraform, copying a Dockerfile from whichever neighbouring repo looked healthiest, then discovering in week six that the thing they copied logs to a bucket nobody watches. We pay that cost every time, and we pay it again in the long tail \u2014 twelve slightly different deploy pipelines, each understood by one person.\n\nSo the bet is this: we build the paved road, and we make it the cheapest path rather than the mandatory one. A team that follows it gets deploys, secrets, metrics, tracing, and on-call routing without writing any of it. A team that needs to leave it can, and owns what they build instead.\n\nTwo years is the horizon because the first year mostly doesn't pay. We'll be extracting patterns from services that already exist and absorbing migrations that feel like tax. The return shows up in year two, when the fifth team onto the platform costs a fraction of the first.\n\nWhat we're measuring: time from empty repo to production traffic, and the share of services on the current supported toolchain. Both are bad right now. We'd like the first under a week and the second above 80%.\n\nWhat we're not promising: a product. This is infrastructure for us, funded from our own headcount, and it should be judged on whether the people using it stop noticing it.\n\n*(Numbers here are placeholders \u2014 swap in the real baselines before circulating.)*"
+}

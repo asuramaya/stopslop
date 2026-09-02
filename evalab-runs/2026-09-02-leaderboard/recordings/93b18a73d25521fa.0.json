@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination: [Team name] \u2014 Engineering Excellence Award**\n\nA year ago, shipping meant reserving a Wednesday evening, walking a 40-step checklist nobody entirely trusted, and keeping a second engineer awake in case the rollback broke too. Four hours per release. Often it ran into Thursday.\n\n[Team] ended that. A merge now builds, tests, and promotes itself. Canary analysis watches each release and reverts within [90 seconds] once the numbers turn. What took [4 hours] takes [11 minutes]. We release [~30 times a week] instead of once, and change-failure rate is down [X%].\n\nHow they did it counts as much as what they did. No rewrite, no freeze. They moved one service at a time, kept the old path running beside the new one, and sat with each team through its first few deploys until the nerves wore off. [Name] wrote the migration guide that let everyone else follow without a shepherd.\n\nOn-call is quiet now. Fixes reach production the day someone writes them. Engineers deploy without asking permission. Infrastructure work like this only becomes visible when you picture going back to what came before.\n\nOne thing I left as you had it: I have no access to your deploy data, so the bracketed figures are still yours to fill."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination: [Team name] \u2014 Engineering Excellence Award**\n\nLast year, a release meant blocking out Wednesday night, working through a 40-step checklist nobody fully believed in, and keeping a second engineer on call in case the rollback failed too. Four hours per release. It often spilled into Thursday.\n\n[Team] put a stop to that. A merge now builds, tests, and promotes itself. Canary analysis watches every release and rolls it back within [90 seconds] when the numbers go wrong. The [4 hours] is now [11 minutes]. We ship [~30 times a week] rather than once, and change-failure rate has dropped [X%].\n\nTheir method matters as much as their result. No rewrite. No freeze. They migrated one service at a time, ran the old path alongside the new one, and sat with each team through its first deploys until the fear wore off. [Name] wrote the migration guide that let everyone else follow without hand-holding.\n\nOn-call is quiet now. A fix written on Monday is live on Monday. Engineers deploy without asking anyone's permission. Work like this stays invisible until you try to imagine going back.\n\nThe bracketed numbers are still yours to fill in. I don't have your deploy data."
+}

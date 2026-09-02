@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**One year remote**\n\nNobody voted for this. A pipe burst above the server closet in March and set the date for us. A year later, here is what survived.\n\nMeetings went first and went easy. The weekly all-hands is now fifteen minutes, and six recurring syncs are gone. Calendar load fell by about 40%. No one has asked for any of it back.\n\nWriting was the part that hurt. In an office, a design decision could live on hallway agreement: three people nodded in a doorway and it was settled. That mechanism does not survive distance. Anything touching more than one service now needs a one-page memo. The memos are boring. They are also why a new engineer can find out why we picked Postgres over the queue we already ran.\n\nOnboarding got worse first. Our first two remote hires took roughly eleven weeks to ship something they owned. The fourth took three. Documentation was not the difference. The difference was one named person whose whole job, for two weeks, was answering that hire's questions inside an hour.\n\nSome of it failed outright. Two Slack workflows we built to collect async standups are dead. Nobody reads a bot.\n\nThe surprise was that seniority stopped being visible. Quiet, capable people drifted out of the company's peripheral vision. We added written peer input twice a year, or else the promotion goes to whoever talks most on Zoom.\n\nGo back? No. But remote did not improve us on its own. It forced us to write things down, and the writing did."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**A year without the office**\n\nWe didn't choose it. A pipe let go above the server closet last March and picked the date for us. Twelve months on, here's what held.\n\nMeetings died first, and nobody mourned them. The all-hands runs fifteen minutes now. Six recurring syncs are gone. Calendar time dropped roughly 40%, and not one person has asked to get any of it back.\n\nWriting was the painful part. In a building, a design call could rest on hallway consensus: three people nod near a doorway, done. Distance kills that. Now anything crossing more than one service gets a one-page memo. The memos are dull reading. They're also the reason a new hire can learn why we chose Postgres over the queue we were already running.\n\nOnboarding got worse before it got better. Our first two remote hires needed about eleven weeks to ship something of their own. The fourth needed three. Documentation wasn't what changed it. What changed it was one named person whose entire job, for two weeks, was answering that hire's questions inside an hour.\n\nParts of it simply failed. Two Slack workflows we built for async standups are dead. Nobody reads a bot.\n\nThe unexpected cost was that seniority went invisible. Quiet, capable people slipped out of the company's side vision. We added written peer input twice a year, or else the promotion goes to whoever talks most on video.\n\nWould we go back? No. But remote didn't fix anything on its own. It forced the writing, and the writing did."
+}

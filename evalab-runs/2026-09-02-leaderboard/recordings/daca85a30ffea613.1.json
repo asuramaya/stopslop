@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 swap in your own names, dates, and numbers. I invented the latency and window figures as examples; replace them or cut the claims.\n\n---\n\n**Subject: [Service] moves to [New Platform] in [Q4]**\n\nShort version: your account, your data, and your integrations come with you. Nothing to rebuild.\n\nHere's what's happening. On [date], [Service] moves off [Old Platform] and onto [New Platform]. We've run both in parallel since [month] and the new stack has held: median API response dropped from 340 ms to 90 ms, and we can ship [feature] without waiting on a six-week release train.\n\n**What you need to do**\n\nBefore [date] \u2014 nothing. We migrate accounts in batches and email each one 14 days ahead, then again that morning.\n\nAfter \u2014 point your calls at `[new-endpoint]`. The old endpoint keeps answering until [sunset date], then returns a permanent redirect. If you run self-hosted connectors, upgrade to [version] first.\n\n**Downtime**\n\nOne window: [date], 02:00\u201304:00 UTC. Reads stay up the whole time. Writes queue and flush when we're back.\n\n**What doesn't change**\n\nPricing. Contract terms. Support response times. Your retention settings, your roles, your audit history.\n\n**What does**\n\n[Old feature] retires \u2014 [replacement] does the same job with a different config screen. Webhook payloads gain two fields; existing parsers won't break.\n\nLive status during the move at [status URL]. If your team can't take that window \u2014 quarter-end close, a launch, an audit \u2014 reply here and we'll schedule you separately. No penalty, no form.\n\nQuestions to [email]. A person reads that inbox.\n\n\u2014 [Name], [Title]"
+}

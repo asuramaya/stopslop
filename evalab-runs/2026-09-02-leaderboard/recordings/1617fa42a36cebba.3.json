@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**We keep asking the wrong question after an outage**\n\nWhen something breaks here, the first question in the room is usually \"who pushed it?\" I want to argue we replace that with \"what made this easy to do?\"\n\nNot because blame is unkind. Because it doesn't work. The engineer who took prod down at 2am already knows. What they do next is what matters, and right now what they do next is get quiet. They write a terse summary, they leave out the part where they'd been confused about that deploy flag for three weeks, and they never mention that two other people had the same confusion. That's the part we needed. We traded it for a name.\n\nA blameless postmortem is not a postmortem without accountability. The team still owns the fix, the action items still have owners and dates, and repeat failures still get escalated. What changes is that the write-up treats the human as a sensor rather than a defect. If a competent, well-meaning person did the wrong thing, the system made the wrong thing plausible. That's a finding, not an excuse.\n\nThe practical ask is small. For the next quarter, three things: no individual names in incident docs, a standing rule that the person closest to the failure writes the timeline and is never the one being reviewed, and a review meeting where the output is changes to tooling and process, not a performance conversation.\n\nIf it doesn't produce better incident docs by December, we drop it. My bet is that we'll find out how many near-misses we've been missing."
+}

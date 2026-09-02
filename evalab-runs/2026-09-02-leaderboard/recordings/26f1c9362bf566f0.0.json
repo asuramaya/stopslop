@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Why we're hiring for developer relations**\n\nWe shipped a good API in March and watched it go nowhere for four months.\n\nNot because it was broken. The docs were accurate, the SDK worked, the pricing page said what it meant. But everyone who tried to build with it hit the same wall around hour two \u2014 auth scoping, which our reference documented in a way that made sense only if you'd already written the code. Twelve support tickets. All of them the same ticket.\n\nWe can keep answering that ticket one person at a time. Or we can hire someone whose whole job is to catch it before the twelfth person files it.\n\nThat's the bet. Developer relations, done properly, isn't marketing in a hoodie. It's a feedback loop with a person in the middle: someone who builds real things on our platform, feels the friction firsthand, and has enough standing inside the company to make engineering care.\n\nSo the role reports to product, not marketing. The metric isn't impressions or conference talks. It's time-to-first-successful-call, currently 51 minutes, which we want under ten by spring. Plus two others we'll publish quarterly: docs PRs merged, and how many rough edges arrive as filed bugs rather than as tweets.\n\nWe'll get parts of this wrong. Every DevRel team drifts toward whatever is easiest to count, and we probably will too for a stretch before we notice.\n\nThe posting is live. Come tell us what we're missing.\n\n~250 words. The specifics \u2014 March, twelve tickets, 51 minutes \u2014 are placeholders; swap in your real numbers, since they're carrying most of the credibility here."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Why we're hiring for developer relations**\n\nOur API shipped in March. It was fine. Nobody built anything on it for four months.\n\nThe docs were correct. The SDK worked. Pricing said what it meant. But developers kept stalling around hour two, all in the same place: auth scoping, which our reference explained clearly to anyone who had already written the code and to nobody else. Twelve support tickets came in. Twelve versions of one ticket.\n\nWe can answer that ticket forever, one developer at a time. Or we can pay someone to notice it before the twelfth person hits send.\n\nWe're doing the second thing. Developer relations, done right, is not marketing wearing a hoodie. It's a feedback loop with a human in it \u2014 someone who builds real things on our own platform, feels where it snags, and carries enough weight internally that engineering actually moves.\n\nWhich is why the role sits under product. No impressions targets, no talk quotas. The number we care about is time-to-first-successful-call: 51 minutes today, under ten by spring. Two more we'll publish each quarter \u2014 docs PRs merged, and the share of rough edges that reach us as bug reports instead of as complaints on the timeline.\n\nSome of this we'll botch. DevRel teams slide toward whatever's easy to measure, and we'll probably drift a while before we catch ourselves.\n\nJob's posted. Come tell us what we haven't thought of."
+}

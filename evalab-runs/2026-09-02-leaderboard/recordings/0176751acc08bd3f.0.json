@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Nobody schedules technical debt. It piles up the way laundry does \u2014 one reasonable shortcut at a time, each defensible on the Tuesday you made it, until the whole heap is load-bearing and you're scared to pull anything out.\n\nThis month we're writing about the heap.\n\nThe usual framing is guilt. We cut corners, we were sloppy, we'll pay it down next quarter. That framing is useless, and it's mostly not even true: half of what we now call debt was the correct decision made with the information available, and the other half is just code that outlived the assumption it was built on. Neither is a moral failure. Both still cost you.\n\nSo the question isn't \"how did we let this happen.\" It's narrower and harder \u2014 which of these do we actually have to fix, and how do we know? A migration that unblocks three teams is worth a quarter. A grim file that nobody has opened since 2023 is worth nothing, and rewriting it is a hobby.\n\nBelow: [three or four pieces from people who picked a fight with something old and won, more or less].\n\n---\n\nSwap the bracketed line for this issue's actual contents \u2014 I don't know what's in it."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Below:):\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Nobody schedules technical debt. It piles up the way laundry does \u2014 one reasonable shortcut at a time, each defensible on the Tuesday you made it, until the whole heap is load-bearing and you're scared to pull anything out.\n\nThis month we're writing about the heap.\n\nThe usual framing is guilt. We cut corners, we were sloppy, we'll pay it down next quarter. That framing is useless, and it's mostly not even true. Half of what we now call debt was the correct decision made with the information available, and the other half is just code that outlived the assumption it was built on. Neither is a moral failure. Both still cost you.\n\nSo the question isn't \"how did we let this happen.\" It's narrower and harder \u2014 which of these do we actually have to fix, and how do we know? A migration that unblocks three teams is worth a quarter. A grim file that nobody has opened since 2023 is worth nothing, and rewriting it is a hobby.\n\nWhat follows is [three or four pieces from people who picked a fight with something old and won, more or less].\n\nSwap the bracketed line for this issue's actual contents \u2014 I don't know what's in it."
+}

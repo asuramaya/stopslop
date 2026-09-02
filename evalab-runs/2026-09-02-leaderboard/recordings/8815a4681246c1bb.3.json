@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "No company details were given, so I wrote it for a small-to-midsize product engineering team and left the two hard numbers in brackets for you to swap.\n\n---\n\n## How we build\n\nWe ship small and we ship often. Most changes go out the day they're written; the median pull request here is under [200] lines, and if yours is bigger, someone will ask why before they ask anything else. Big-bang releases are how you find out in March that the thing you built in November was wrong.\n\nYou own what you write. That means you design it, you review it with someone who'll push back, and you carry the pager for it. Nobody hands a spec down a chain of approvals. It also means you get to say no \u2014 to a feature, to a deadline, to a dependency you don't trust \u2014 as long as you can say why.\n\nCode review is where we're most demanding and least polite about hierarchy. A first-week hire has blocked a staff engineer's PR. That's the point.\n\nWe write things down. Design docs before big work, incident reviews after bad days, and no blame in either. When something breaks at 3am, the question is what made it possible, not who typed the commit.\n\nWhat we don't have: quarterly stack ranking, mandatory standups, or a promotion process that rewards the person who talks loudest in planning. What we do have is [about a third] of engineering time each quarter that isn't spoken for \u2014 for the refactor, the tool, the thing that's been annoying you since you got here.\n\nGood engineers disagree with us regularly. We'd like more of them."
+}

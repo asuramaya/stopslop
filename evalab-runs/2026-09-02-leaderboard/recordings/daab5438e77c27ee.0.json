@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "No company details were given, so I wrote it for a small-to-midsize product engineering team and left the two hard numbers in brackets for you to swap.\n\n---\n\n## How we build\n\nWe ship small and we ship often. Most changes go out the day they're written; the median pull request here is under [200] lines, and if yours is bigger, someone will ask why before they ask anything else. Big-bang releases are how you find out in March that the thing you built in November was wrong.\n\nYou own what you write. That means you design it, you review it with someone who'll push back, and you carry the pager for it. Nobody hands a spec down a chain of approvals. It also means you get to say no \u2014 to a feature, to a deadline, to a dependency you don't trust \u2014 as long as you can say why.\n\nCode review is where we're most demanding and least polite about hierarchy. A first-week hire has blocked a staff engineer's PR. That's the point.\n\nWe write things down. Design docs before big work, incident reviews after bad days, and no blame in either. When something breaks at 3am, the question is what made it possible, not who typed the commit.\n\nWhat we don't have: quarterly stack ranking, mandatory standups, or a promotion process that rewards the person who talks loudest in planning. What we do have is [about a third] of engineering time each quarter that isn't spoken for \u2014 for the refactor, the tool, the thing that's been annoying you since you got here.\n\nGood engineers disagree with us regularly. We'd like more of them."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## How we build\n\nSmall changes, shipped constantly. Most of what gets written goes live the same day; the median pull request runs under [200] lines, and if yours is fatter than that, the first question in review will be about the size, not the code. Big-bang releases are how you learn in March that the November work was a mistake.\n\nWhoever writes it, owns it. You design it, you find a reviewer who'll actually argue with you, you wear the pager when it wakes up at 3am. There's no chain of approvals handing specs downward. The flip side is that you can refuse things \u2014 a feature, a date, a dependency you don't trust \u2014 provided you show your reasoning.\n\nReview is where we're hardest on each other and least interested in titles. A hire in their first week has blocked a staff engineer's PR. Good.\n\nWrite it down. Design docs before the big work, incident reviews after the bad days, blame in neither. When something breaks, we want to know what made the break possible, not whose name is on the commit.\n\nThings you won't find here: quarterly stack ranking, standups you're required to attend, a promotion ladder that pays out to whoever is loudest in planning. What you will find is [roughly a third] of every quarter left unassigned \u2014 for the refactor, the internal tool, the thing that's bugged you since your first month.\n\nOur engineers argue with us. We want more of that."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 swap in your specifics and the concrete details will carry the whole thing.\n\n---\n\n**Subject: [Service] moves to [New Platform] in [Q_ 20__]**\n\nWe're moving [Service] to [New Platform] next quarter. Here's what that means for you.\n\nShort version: your account, your data, and your billing carry over. Nothing to export, no payment details to re-enter. What changes is where you log in \u2014 plus the handful of items below.\n\n**Why now.** [Old Platform] can't do [specific limitation \u2014 e.g. \"audit logs, or uploads over 2 GB\"]. We've been working around that for [duration]. [New Platform] removes the ceiling and gives us room to ship [specific capability] later this year.\n\n**Timeline**\n- **[Date]** \u2014 Migration opens. Switch early at [URL].\n- **[Date]** \u2014 [Old Platform] goes read-only.\n- **[Date]** \u2014 Final cutover. Old logins stop working.\n\n**Check these three things**\n- API keys stay valid, but the base URL becomes [new URL]. Update your integrations before [date].\n- [Feature X] isn't in the first release. It arrives [month]. If you depend on it, email us and we'll arrange a bridge.\n- Custom [reports/webhooks] need rebuilding once. A step-by-step guide goes out [date].\n\nWe're migrating in batches, so no account moves without warning. You'll get a notice [7 days] before yours is scheduled, then a second one the morning of.\n\nQuestions to [email] or [support link]. A person reads every one.\n\n\u2014 [Name], [Title]\n\n---\n\nTwo things worth keeping when you edit: the \"why now\" needs a real limitation (a vague \"to serve you better\" is what makes these read as boilerplate), and the batch/notice promise is what actually calms people down."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "## Platform Engineering \u2014 Team Charter\n\n**Why we exist.** Product teams spend too much of their week on work that isn't their product: wiring CI, chasing environment drift, guessing at deploy steps, waiting on tickets. We build and run the shared infrastructure and tooling that makes the common path fast, safe, and obvious \u2014 so product engineers can ship without becoming part-time infrastructure engineers.\n\n**What we own.** Build and release pipelines, environment provisioning, observability plumbing, the service scaffolding new projects start from, and the paved road that connects them. We own these end to end: design, operation, on-call, and eventual retirement.\n\n**How we work.** We treat internal developer experience as a product, and product engineers as our users. That means we talk to them before we build, we measure adoption rather than assume it, and we retire tools nobody uses. We prefer self-service to ticket queues, defaults to configuration, and documentation written for someone who has never seen the system before.\n\n**What we will not do.** We are not a ticket desk for one-off infrastructure requests, and we are not the approval gate on every change. When a team needs something outside the paved road, we help them get there and then decide whether it belongs in the road itself. Guardrails, not gates.\n\n**How we'll know it's working.** Time from first commit to production for a new service. Deploy frequency and change failure rate across teams. The share of infrastructure work teams complete without filing a request. We will publish these quarterly, including when they get worse."
+}

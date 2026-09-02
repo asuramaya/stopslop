@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a page comparing a managed database service with running your own, for a technical audience choosing between them. Around 250 words."
+  }
+ ],
+ "output": "# Managed vs. self-hosted: picking a side\n\nReliability isn't the deciding factor. A carefully run Postgres box and an RDS instance will both hold five nines if someone competent is watching. The real question is where your team's attention goes.\n\n**What managed buys.** Point-in-time recovery, minor-version patching, a standby in a second AZ, and a failover path nobody on your team had to write. You get an SLA and a phone number.\n\n**What it costs.** Two things. First, money: a db.r6g.2xlarge runs roughly $1,000/month, versus about $350 for the equivalent EC2 instance plus EBS. Call it a 2\u20133\u00d7 premium on compute. Second, and more painful \u2014 the bottom of the stack disappears. No `strace` on the postmaster. No extension the vendor hasn't blessed. No kernel tunables, no custom build. At 2 a.m., with a plan that flipped to a sequential scan, your escalation path is a support ticket.\n\n**Where the line falls.** Do the arithmetic against headcount, not against instance prices. If the annual premium is under ~$150k, it's cheaper than the engineer you'd hire to replace it. Above that, self-hosting starts paying for itself \u2014 assuming you can actually hire the person.\n\nRun your own if you need unblessed extensions, have data-residency rules the vendor can't satisfy, or already employ a DBA. Otherwise take the managed option, even at 3\u00d7 the compute cost.\n\nMost teams that self-host aren't saving money. They're paying an engineer's salary to keep a database on-call rotation staffed, and calling it infrastructure."
+}

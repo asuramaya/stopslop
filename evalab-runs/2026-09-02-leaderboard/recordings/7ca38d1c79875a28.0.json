@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago or remote (US timezones) \u00b7 $185\u2013215k + equity\n\nWe move about $40M a month for roughly 1,200 small-business customers. Ledgers, payouts, reconciliation. The kind of code where an off-by-one costs someone their payroll run.\n\nThe platform is Go and Postgres, with a Python service still handling ACH file generation that we'd like to retire this year. Forty-one engineers total, eight on backend. You'd own a service end to end, including its on-call pager \u2014 we run a one-week rotation, and last quarter the median engineer got paged twice.\n\n**What the first year looks like**\n\nYou'll spend the first month in the ledger, because everything else depends on it. After that, the roadmap is real double-entry accounting for multi-currency balances, and a rewrite of the settlement job that currently takes six hours and can't be resumed halfway.\n\n**What we're looking for**\n\nFive-plus years writing backend services that handle money, or something equally unforgiving \u2014 healthcare claims, airline inventory, ad auctions. You should be comfortable arguing about isolation levels. Go experience is nice; we've hired people from Java, Rust, and Elixir who got productive in a few weeks.\n\nWe care that you write things down. Every non-trivial change here starts as a one-page design doc that anyone can comment on.\n\n**Process**\n\nA 45-minute call with the hiring manager, a take-home you can finish in three hours (paid, $300), then a half-day onsite or video block. Four days from first call to offer, typically. We tell you no quickly if it's a no."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago or remote (US timezones) \u00b7 $185\u2013215k + equity\n\nWe push roughly $40M a month on behalf of about 1,200 small businesses. Ledgers, payouts, reconciliation. Code where an off-by-one means somebody's payroll doesn't land.\n\nGo and Postgres, mostly. There's a Python service that still generates ACH files, and we want it gone by December. Forty-one engineers, eight of them on backend. You'd own a service outright, pager included \u2014 one-week rotations, and the median engineer was woken twice last quarter.\n\n**Your first year**\n\nMonth one is the ledger, since nothing else makes sense until you know it. From there: proper double-entry accounting for multi-currency balances, and a rebuild of the settlement job, which currently runs six hours and has to start over if it dies.\n\n**Who we're after**\n\nFive or more years on backend systems that move money, or systems just as intolerant of error \u2014 healthcare claims, airline inventory, ad auctions. You should have opinions about isolation levels. Go helps but isn't required; people have come to us from Java, Rust, and Elixir and been shipping within a month.\n\nWriting matters here. Anything non-trivial begins as a one-page design doc, open for comment by anyone in the company.\n\n**How hiring works**\n\n45 minutes with the hiring manager, then a paid take-home ($300, three hours or less), then a half day onsite or over video. First call to offer usually takes four days. If it's a no, you'll hear it fast."
+}

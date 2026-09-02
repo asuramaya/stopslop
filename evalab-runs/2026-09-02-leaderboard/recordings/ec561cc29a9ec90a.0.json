@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Subject: Your slowest query probably isn't the one you think**\n\nMost teams tune databases by folklore. Add an index. Bump the connection pool. Throw RAM at it and watch the p99 come down \u2014 until it creeps back two sprints later and nobody can say what changed.\n\nOn **[date]**, we're spending 60 minutes on the boring version of this problem: reading what the database is already telling you. No war stories about the time someone dropped a table.\n\nWhat we'll go through:\n\n- Reading an `EXPLAIN ANALYZE` plan line by line, including the parts everyone skips\n- Why the query that shows up in your slow log is often a symptom of a cheaper query running 40,000 times\n- Index design past \"put one on the foreign key\" \u2014 covering indexes, column order, and when an index makes writes hurt more than it helps reads\n- Connection pooling math, and the sizing mistake that turns a traffic spike into an outage\n\n**[Speaker name]** has spent [N] years on Postgres and MySQL systems in the terabyte range, and will take live questions for the last 15 minutes. Bring a plan you don't understand.\n\nFree. Recorded, so register even if the time doesn't work.\n\n**[Register \u2192]**\n\n---\n\nPlaceholders in brackets for you to fill. Tell me the actual engine, speaker, and audience seniority and I'll tighten the bullets to match."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- bold_density:\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**Subject: Your slowest query probably isn't the one you think**\n\nMost teams tune databases by folklore. Add an index. Bump the connection pool. Throw RAM at it and watch the p99 come down \u2014 until it creeps back two sprints later and nobody can say what changed.\n\nOn [date], we're spending 60 minutes on the boring version of this problem: reading what the database is already telling you. No war stories about the time someone dropped a table.\n\nWhat we'll go through:\n\n- Reading an `EXPLAIN ANALYZE` plan line by line, including the parts everyone skips\n- Why the query that shows up in your slow log is often a symptom of a cheaper query running 40,000 times\n- Index design past \"put one on the foreign key\" \u2014 covering indexes, column order, and when an index makes writes hurt more than it helps reads\n- Connection pooling math, and the sizing mistake that turns a traffic spike into an outage\n\n[Speaker name] has spent [N] years on Postgres and MySQL systems in the terabyte range, and will take live questions for the last 15 minutes. Bring a plan you don't understand.\n\nFree. Recorded, so register even if the time doesn't work.\n\n[Register \u2192]\n\nPlaceholders in brackets for you to fill. Tell me the actual engine, speaker, and audience seniority and I'll tighten the bullets to match."
+}

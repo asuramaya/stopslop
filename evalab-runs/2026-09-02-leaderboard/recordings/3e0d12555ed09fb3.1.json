@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Your slowest query is probably your own fault.**\n\nMost database slowdowns aren't a hardware problem. They come from a query that looked fine in staging, then met a table with 40 million rows and no covering index.\n\nOn **[DATE, TIME]**, join **[SPEAKER, TITLE]** for 45 minutes on performance tuning \u2014 the practical kind. No vendor pitch.\n\nWe'll work through real EXPLAIN plans, live:\n\n- Reading an execution plan without guessing, including where the cost estimates lie to you\n- Why your index isn't being used, and the four usual reasons\n- Catching N+1 queries from the database side instead of the app\n- When to stop tuning and start denormalizing\n\nBring a slow query. The last 15 minutes are yours, and we'll take as many questions from the queue as we can get through.\n\nWho it's for: backend engineers, DBAs, and anyone who's been paged at 3 a.m. because p99 latency doubled after a deploy. Examples are in Postgres and MySQL, though the ideas port to most engines.\n\nFree to attend. We record it, so register even if the time doesn't work \u2014 the link lands in your inbox the next morning.\n\n**[Save my seat \u2192]**\n\nPlaceholders in brackets are yours to fill; swap the Postgres/MySQL line if your audience runs something else."
+}

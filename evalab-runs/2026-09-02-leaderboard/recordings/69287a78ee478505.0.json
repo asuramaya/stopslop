@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Pricing\n\n**Free \u2014 $0**\n\nOne person, one repo. Every pull request gets a review, up to 200 a month. The review engine is the same one paying teams run on; what's missing is memory. Findings stay in the PR thread and go nowhere else.\n\n**Team \u2014 $19 per developer, per month**\n\nFor people who ship with other people. Repos and reviews are uncapped, and here is the part that changes your week: it remembers. Turn down a suggestion about how you handle errors and the suggestion stops coming, in every repo, for everyone. Teams usually tell us the reviews turned useful around week three, once it had learned enough to stop raising things they'd settled long ago.\n\nYou also get rules written in plain English, a CI gate you can set to block or to warn, and hooks into Slack, Linear, and Jira.\n\n**Enterprise \u2014 talk to us**\n\nSelf-hosted or inside your own VPC, so no source leaves your network. SAML, audit logs, rules that flow down from team to team, and a support line that answers inside four hours. Per seat, with the seat price falling steeply past 200 seats.\n\nAnnual billing cuts 20% from Team. Open-source repos run on Team free, forever, and there's no form to fill out. Cancel yourself from the billing page; no one will book a call to change your mind. Full refund within 30 days, and you don't have to say why.\n\nThe figures here ($19, 200 PRs, four hours, week three) stand in for yours. Swap them, or drop the claim outright rather than blur it into \"fast\" and \"generous.\""
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Pricing\n\n**Free \u2014 $0**\n\nOne developer, one repo, up to 200 pull requests a month. You get the same review engine the paid plans run on. What you don't get is memory: findings live in the PR thread and stop there.\n\n**Team \u2014 $19 per developer, per month**\n\nUnlimited repos, unlimited reviews, and the thing that actually changes how your week goes: it remembers. Reject a note about the way you handle errors and that note stops appearing, across every repo, for everyone on the team. Most teams tell us the reviews got useful somewhere around week three, once it had learned enough to quit relitigating decisions they'd made a year ago.\n\nAlso included: rules you write in ordinary English, a CI gate you can set to block or to warn, and connections into Slack, Linear, and Jira.\n\n**Enterprise \u2014 talk to us**\n\nRuns self-hosted or in your own VPC, so your source stays on your network. SAML, audit logs, rules that inherit from parent team to child team, and support that answers within four hours. Priced per seat, with the per-seat price dropping sharply above 200.\n\nPay annually and Team costs 20% less. Open-source repos get Team at no cost, permanently, with no form to fill out. Cancel from the billing page yourself; nobody will try to book a call first. Refunds are full for 30 days and you don't owe us a reason.\n\nThe numbers here ($19, 200 PRs, four hours, week three) are placeholders for yours. Replace them, or cut the claim, instead of softening it into \"fast\" and \"generous.\""
+}

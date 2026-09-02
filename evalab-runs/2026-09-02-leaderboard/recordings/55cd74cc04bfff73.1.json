@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "**Pricing**\n\nEvery plan reviews every pull request. What changes between them is how much history you keep, and how many people you're keeping it for.\n\n**Solo \u2014 Free**\nOne private repo, unlimited public ones. Comments land inline about 90 seconds after you push. You get the same rule engine the paid tiers run; what you don't get is the dashboard, and if you're one person you don't need it. No card.\n\n**Team \u2014 $18 per active contributor / month**\n\"Active\" means someone who opened a PR that month. Nobody else counts, so the bill tracks the work instead of the seat list. Unlimited repos. Custom rules in YAML, shared across the org. Twelve months of history, enough to tell whether that flaky module is actually getting better or you just stopped looking at it. Slack and Linear hooks. SSO through Google or Okta.\n\n**Self-hosted \u2014 from $2,400/year**\nRuns in your VPC. Nothing leaves the network: no source, no diffs, no telemetry. Ships with a Terraform module and an air-gapped install path. A named engineer sits in a shared channel with your team and usually answers the same day. Priced by repo count rather than headcount \u2014 we'll quote you on a 20-minute call.\n\nAnnual billing takes 20% off Team. Downgrading is one click and we refund the unused months. And if a review ever flags something that isn't a problem, tell us. We fix the rule and ship it to everyone.\n\n---\n\nPrices, limits, and integrations are invented placeholders \u2014 swap in your real numbers before this goes live."
+}

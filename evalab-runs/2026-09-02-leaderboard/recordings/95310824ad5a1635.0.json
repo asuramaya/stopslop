@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## How we work\n\nWe're small enough that you'll know what everyone is building, and why.\n\nEngineers here own things end to end. The design sketch, the code, the deploy, the 3 a.m. page. There's no ops team to hand it to. That sounds heavier than it is. Most weeks nobody gets paged, and whoever does takes the next day off.\n\nCode review is required and fast. Median time to first comment is under two hours. If your PR sits for a day, that's our failure, not yours. We argue in the review thread and settle it there, and nobody gets to reopen a merged decision in a meeting three weeks later.\n\nWe run two recurring meetings. One is a 30-minute Monday sync. The other is a Thursday demo where you show something running, not slides about something you plan to run.\n\nEverything else is written down, because written arguments survive people leaving and hallway conversations don't.\n\nYou will ship in your first week. Probably something small and slightly terrifying. We'd rather you learn the deploy pipeline on day three with a one-line change than on day sixty with a migration.\n\nSome things we've decided against. Stack ranking. On-call rotations with fewer than five people. Any version of \"we'll fix the tests later.\" Roughly a fifth of every quarter goes to whatever the team says is rotting, and engineers pick that list, not managers.\n\nIf you want to read the code before you decide, ask in your first interview. We'll send it."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (5 paragraphs, spread 0.21):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## How we work\n\nWe're small enough that you'll know what everyone is building, and why.\n\nEngineers here own things end to end. The design sketch, the code, the deploy, the 3 a.m. page. There's no ops team to hand it to. That sounds heavier than it is. Most weeks nobody gets paged, and whoever does takes the next day off. Code review is required and fast: median time to first comment is under two hours. If your PR sits for a day, that's our failure, not yours. We argue in the review thread and settle it there, and nobody gets to reopen a merged decision in a meeting three weeks later.\n\nTwo recurring meetings. A 30-minute Monday sync, and a Thursday demo where you show something running, not slides about something you plan to run. Everything else is written down, because written arguments survive people leaving and hallway conversations don't.\n\nYou will ship in your first week.\n\nProbably something small and slightly terrifying. We'd rather you learn the deploy pipeline on day three with a one-line change than on day sixty with a migration. Some things we've decided against: stack ranking, on-call rotations with fewer than five people, any version of \"we'll fix the tests later.\" Roughly a fifth of every quarter goes to whatever the team says is rotting, and engineers pick that list, not managers. If you want to read the code before you decide, ask in your first interview. We'll send it."
+}

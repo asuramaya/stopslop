@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Draft \u2014 2026 in review** (swap the placeholder numbers and names for your real ones)\n\n---\n\n### How the year went\n\nIn January a deploy took 41 minutes. Today it takes six. I lead with that because everything else on this list got cheaper once we stopped standing around waiting on it.\n\nBreaking up the monolith took three quarters, not two. That's not on anyone. The billing tables were knottier than the design doc let on, and most of Q2 went to unpicking them before a single service moved. Still the right call: checkout p95 dropped from 900ms to 310ms.\n\nThe tally: 1,247 PRs merged. Four incidents at Sev-2 or worse, against eleven last year. On-call grew from six people to nine, which is the unglamorous reason that second number fell.\n\nWhat we didn't do: clean up feature flags. There are 340 dead ones in the tree, and I have personally bumped that ticket four times. The docs rewrite died in March. If you were waiting on either, that's on me. Both sit on the Q1 list now, and this time each has a name attached.\n\nTwo people joined. Welcome, Priya and Sam. One left: Marcus, thank you for the seven years.\n\nMy ask for next year is unexciting. Fewer things open at once. We ran five initiatives in parallel and finished three. Three, finished, would have felt better and cost less.\n\nSee you Monday.\n\n---\n\nTo make it yours, the two parts doing the most work are the failure paragraph and the number you open with. Pick the metric your team actually griped about in standup."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Draft \u2014 2026 in review** (swap the placeholder numbers and names for your real ones)\n\n---\n\n### The year, briefly\n\nA deploy in January cost us 41 minutes. It now costs six. That goes first because nearly everything below got easier once we stopped sitting on our hands waiting for a pipeline.\n\nSplitting the monolith ran three quarters instead of two. Nobody's fault. The billing tables were tangled in ways the design doc never mentioned, and Q2 went almost entirely to untangling them before we moved a single service. Worth it anyway: checkout p95 fell from 900ms to 310ms.\n\nThe counts: 1,247 PRs merged. Four incidents at Sev-2 or worse, down from eleven. On-call went from six people to nine, which is the boring explanation for that second number.\n\nWhat we skipped: feature flag cleanup. There are 340 dead flags in the tree, and I have pushed that ticket back four times myself. The docs rewrite stalled in March. If you were blocked on either, blame me. Both sit on the Q1 list now, each with a name next to it this time.\n\nTwo people joined. Welcome, Priya and Sam. One left: Marcus, thank you for seven years.\n\nWhat I want next year is dull. Fewer fronts open at once. We ran five initiatives in parallel and shipped three. Three, shipped, would have felt better and cost less.\n\nSee you Monday.\n\n---\n\nThe two parts earning their keep are the paragraph about what went wrong and the number in the opening line. Pick the metric people actually complained about in standup."
+}

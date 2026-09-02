@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security isn't the security team's job**\n\nWe have four people on the security team. We have about three hundred engineers. Do the math on who is actually shipping the code that gets attacked.\n\nThis isn't a plea for everyone to become an appsec expert. It's a plea for a smaller thing: notice when you're the one holding the risk, and say so.\n\nMost of the incidents we've had in the last year didn't need deep expertise to prevent. A token in a config file that got committed. An internal endpoint that skipped auth because it was \"internal.\" A dependency bump nobody read the changelog for. In every case, someone had a quiet feeling that something was off and didn't have an obvious place to put it.\n\nSo here's the obvious place. `#sec-questions` is not a tribunal. Nobody gets a talking-to for asking whether a design is sound. If you want a second pair of eyes on something before it ships, ask there and you'll get them, usually the same day.\n\nTwo things we're changing on our end. Threat modeling moves earlier, into design review, where it's cheap to act on. And the security team is joining sprint planning for teams that want us, rather than showing up at the end with a list of problems.\n\nWhat we're asking from you: when you're about to do the slightly sketchy thing because the deadline is Friday, flag it. We'd much rather help you ship it safely than find it later.\n\nAsk early. That's the whole ask."
+}

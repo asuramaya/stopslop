@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "# Platform Engineering Team Charter\n\n## Purpose\n\nWe build and run the internal systems other engineering teams depend on: CI, deployment, runtime environments, observability, and the connections between them. Our customers are the engineers at this company. We measure ourselves by their throughput, not by our own output.\n\n## What we own\n\n- Build and release tooling, from commit to production.\n- The runtime platform: compute, networking, secrets, and the defaults that ship with them.\n- Developer environments and the local-to-production feedback loop.\n- Observability plumbing (metrics, logs, traces) and the alert routing built on it.\n\n## What we do not own\n\nProduct code, product on-call, and business logic. When a service breaks because of its own bug, we help debug it. We do not take the page.\n\n## How we work\n\n**Paved paths, not gates.** A team can go off the path. It then carries the operational weight itself.\n\n**Self-service first.** If the same request reaches us as a ticket twice, the third time it is an API or a command.\n\n**The platform is a product.** It has a roadmap, users we talk to every week, and deprecations announced with a migration path and a date attached.\n\n## How we know it is working\n\nTime from merge to production. Time for a new engineer to ship their first change. Change failure rate. Manual tickets absorbed per week, trending down.\n\n## Decisions\n\nTechnical direction is set by the team, in writing, in ADRs. Anything that changes another team's daily workflow gets a two-week comment window before it ships."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Welcome\n\nYour laptop, badge, and mentor already exist. The mentor cleared their afternoon for you, so start by finding them.\n\nDay one is thin on purpose. Get logged into everything, run `platform/bootstrap`, and when it breaks (it breaks for roughly a third of new hires, usually at the VPN cert) post in #new-here rather than grinding on it alone until dinner. A setup script that fails is our defect, not a test of you.\n\nTry to ship something this week. Anything. A typo in the docs, a clearer error string, a feature flag nobody has read in two years. What matters is walking the full route once: branch, review, CI, deploy, and the dashboard where you watch it land. People remember their first deploy for years. Nobody remembers what was in it.\n\nSome things you'd otherwise learn by bruising. Code gets reviewed hard; people get treated gently. Ask in the open channel instead of a DM, because an answer in public keeps working after the conversation ends. You can decline a meeting that arrives without an agenda, and no one will think less of you. When you're lost, say so in the first ten minutes, not the first ten days.\n\nWe hired you for judgment we haven't watched work yet, so start spending it now. If something here looks broken or dumb, write it down while it still looks that way to you. That view goes cloudy in about six weeks. After that you're one of us and you can't see it anymore.\n\nCoffee's on two. It's bad. Sorry."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Welcome\n\nSomebody already set up your laptop, cut your badge, and volunteered to be your mentor. They blocked off this afternoon for you. Go find them.\n\nDay one is deliberately light. Log into everything, run `platform/bootstrap`, and when it dies \u2014 it dies for about a third of new hires, almost always on the VPN cert \u2014 post in #new-here instead of quietly wrestling it until seven. A broken setup script is a bug we own. It isn't a hazing ritual.\n\nShip something this week if you can. It can be tiny: a misspelling in the docs, an error message that actually says what went wrong, a feature flag that's been dead since 2023. The point is to walk the whole path once \u2014 branch, review, CI, deploy, then the dashboard where you watch it go out. Years later people still remember their first deploy. Not one of them remembers the diff.\n\nA few things you'd otherwise learn the hard way. We're blunt about code and kind about people. Ask in the channel, not the DM, because a public answer keeps paying out long after you've stopped needing it. Declining an agendaless meeting costs you nothing here. And when you're lost, say it in the first ten minutes rather than the first ten days.\n\nYou were hired for judgment none of us has seen in action yet. Start spending it. Write down whatever looks broken or stupid to you now, while it still looks that way \u2014 six weeks in, the fog rolls over it and you'll be one of us, blind like the rest.\n\nCoffee's on two. It's bad. Sorry."
+}

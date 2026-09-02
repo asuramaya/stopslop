@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "Written in your README's voice \u2014 blunt, evidence-first. The specifics (headcount, review timing, the work sample) are placeholders you'll want to swap for true ones.\n\n---\n\n## Engineering culture\n\nWe build a tool that flags hollow writing. Running the team on slogans would be embarrassing, so this page is specific or it isn't here.\n\nClaims get tested. Every number in our README came out of a harness that also ran the control arm \u2014 including the arm where you skip our product entirely and add one line to a config file instead. That result was bad for us. We put it at the top of the page anyway. The same standard applies internally: if you think a design is wrong, the burden is a measurement, not a meeting.\n\nSmall scope, real ownership. An engineer here owns a surface end to end \u2014 the code, the docs for it, and the page at 2am when it breaks. There are eleven of us. Nobody is going to route your decision through three approvers.\n\nReview is slow on purpose. Your pull request gets read by someone who will argue with you, down to the naming and the wording of error messages, and often that someone has been here six months. Merges take a day. Sometimes three.\n\nWe write things down. Design notes before code, postmortems with no names in them, a decision log that goes back to the first commit. A choice that can't survive a paragraph of prose usually can't survive contact with users either.\n\nNo whiteboard interviews, no mandatory standups. What we do have is a four-hour paid work sample on a real branch of the actual repo, and we pay for it whether or not we hire you."
+}

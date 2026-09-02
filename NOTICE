@@ -252,3 +252,43 @@ copyleft terms are not compatible with a citation-only credit; using its
 code would require this entire repository to relicense under AGPL-3.0.
 Noted here so a future contributor does not assume this repository already
 cleared that project for reuse.
+
+## Competing interventions vendored for evaluation (src/evalab/interventions/)
+
+These are other people's anti-slop tools, vendored so this project's
+evaluation harness can measure itself against them on the same prompts.
+They are evaluation subjects, not dependencies: nothing in the gate, the
+CLI, the dashboard or the MCP server reads them, and removing the
+directory changes no behaviour except that `--compare` has nothing left
+to compare against.
+
+Each is used in full and unmodified, with its own LICENSE file beside it
+under the same basename. All three are MIT.
+
+- `stop-slop.md` -- Stop Slop, Copyright (c) Hardik Pandya.
+  https://github.com/hardikpandya/stop-slop -- MIT.
+  SKILL.md concatenated with its own references/phrases.md,
+  references/structures.md and references/examples.md, so the comparison
+  is against the whole skill rather than the summary a progressive
+  loader reads first.
+- `no-ai-slop.md` -- No AI Slop, Copyright (c) Peter Yang.
+  https://github.com/petergyang/no-ai-slop -- MIT.
+  skills/no-ai-slop/SKILL.md.
+- `anti-slop-writing.md` -- Anti-Slop Writing, Copyright (c) Ade Naufal.
+  https://github.com/adenaufal/anti-slop-writing -- MIT.
+  english/system-prompt.md.
+
+Deliberately NOT vendored: jalaalrd/anti-ai-slop-writing. It ships no
+license file, which reserves every right, so it cannot be included here
+whatever its star count.
+
+## Vale rule imports
+
+`stopslop.py import --vale` converts a Vale style package into custom
+checks under `.claude/stopslop/custom_checks/`. Nothing from any Vale
+package is vendored in this repository -- the command reads a directory
+the user supplies. A project that imports someone's rules takes on that
+package's own license for the checks it generates and must add its own
+NOTICE entry for them. The command was verified against
+krishnasunkam/vale-ai-tells (MIT), cited here as the test subject and
+not redistributed.

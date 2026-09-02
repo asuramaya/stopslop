@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Pricing\n\nEvery plan reviews every pull request. What changes is how much of your history the reviewer gets to read \u2014 and who you can call when it's wrong.\n\n**Solo \u2014 free**\nOne private repo, unlimited public ones. Reviews land as a comment within about 90 seconds of a push. You get the same checks the paid plans get: logic errors, unhandled cases, the function someone already wrote in a different file two weeks ago. No card.\n\n**Team \u2014 $18 per contributing seat / month**\nUnlimited repos. The reviewer reads your last 12 months of merged PRs and learns what your team actually rejects, so it stops re-arguing the parameter order you settled in March. Owners get a ruleset file, per-directory severity, and a Friday digest of what slipped through. Seats are counted by who pushed code that month, so a dormant account costs you nothing. Email support, two business days.\n\n**Enterprise \u2014 from $12,000/year**\nRuns in your VPC or on your own hardware; the code never leaves. SAML, SCIM, audit logs piped to your SIEM. You get a named engineer, a four-hour response window, and a quarterly session where we tune the rules against your last 500 reviews. Volume pricing opens at 200 seats.\n\nAnnual billing takes 15% off Team. Nonprofits and classrooms pay nothing on either plan \u2014 just email us.\n\n---\n\nSwap in your product name and real numbers; the prices, SLA, and the \"reads 12 months of merged PRs\" claim are placeholders I invented to give the copy something concrete to stand on."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- bold_density:\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "# Pricing\n\nEvery plan reviews every pull request. What changes is how much of your history the reviewer gets to read, and who you can call when it's wrong.\n\n**Solo \u2014 free.** One private repo, unlimited public ones. Reviews land as a comment within about 90 seconds of a push. You get the same checks the paid plans get: logic errors, unhandled cases, the function someone already wrote in a different file two weeks ago. No card.\n\n**Team \u2014 $18 per contributing seat / month.** Unlimited repos. The reviewer reads your last 12 months of merged PRs and learns what your team actually rejects, so it stops re-arguing the parameter order you settled in March. Owners get a ruleset file, per-directory severity, and a Friday digest of what slipped through. Seats are counted by who pushed code that month, so a dormant account costs you nothing. Email support, two business days.\n\n**Enterprise \u2014 from $12,000/year.** Runs in your VPC or on your own hardware; the code never leaves. SAML, SCIM, audit logs piped to your SIEM. You get a named engineer, a four-hour response window, and a quarterly session where we tune the rules against your last 500 reviews. Volume pricing opens at 200 seats.\n\nAnnual billing takes 15% off Team. Nonprofits and classrooms pay nothing on either plan; just email us.\n\nA note on the draft: swap in your product name and real numbers. The prices, the SLA, and the \"reads 12 months of merged PRs\" claim are placeholders I invented to give the copy something concrete to stand on."
+}

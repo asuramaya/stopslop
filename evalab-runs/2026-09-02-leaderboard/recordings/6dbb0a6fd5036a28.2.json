@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "Here's the draft. I've left `[Company]` as a swap-in, and bracketed the two numbers you'd replace with your real ones.\n\n---\n\n## What we're building next\n\nThis page is the honest version.\n\nFor the last two years we shipped in the dark and told you about it afterward. That worked when there were [400] of you. It doesn't work now \u2014 teams are betting release processes on our CLI, and they need to know six months out whether we're going to support the thing they're about to depend on. So we're opening the board.\n\nThree columns: shipping now, next two quarters, and things we've argued about internally without deciding. That third column is the useful one. It's where you'll find remote build caching, the Windows runner, and the plugin API we keep half-designing and shelving. Nothing there is a promise. It's a list of what has our attention.\n\nWe update this monthly, on the first Tuesday, and we move items backward as well as forward. When something slips, the card says why. When we kill a feature, it stays on the page with a note, because a dead feature you can read about is more useful than one that quietly disappears.\n\nComment on any card. We read them before planning.\n\n---\n\n~205 words. If you'd rather it be less blunt about past opacity, say the word and I'll retune the register \u2014 that opening paragraph is the load-bearing choice here."
+}

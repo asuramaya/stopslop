@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nobody ever files a ticket about the query that's costing you**\n\nTeams fix whatever shows up in the error log. Meanwhile the real expense is a report nobody has ever complained about: it runs at 2am, scans 40 million rows, and holds a lock long enough that everything behind it in the queue shows up late.\n\n**[DATE]** \u2014 [SPEAKER, TITLE], 60 minutes on the unglamorous half of performance work. Where does the time actually go?\n\nOn the agenda:\n\n- Reading `EXPLAIN ANALYZE` properly. What it means when a row estimate is off by 100x.\n- Indexes that cost more than they save: heavy write paths, and the one your planner refuses to touch.\n- Pool arithmetic, and why raising `max_connections` slowed everything down.\n- The moment tuning stops paying and the schema has to give.\n\nBring a slow query. The last 15 minutes are unscripted: [SPEAKER] puts audience plans on screen and works through them live.\n\nFor engineers who already live in SQL and have run out of ideas. There's nothing for sale. Examples run on Postgres, but the diagnostic method transfers to MySQL without much trouble.\n\n**Register: [LINK]**\n\nSign up and the recording is yours whether or not you make it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**The expensive query is the one nobody complains about**\n\nTeams tune whatever surfaces in the error log. The actual bill comes from a report no one has ever flagged: it fires at 2am, reads 40 million rows, and sits on a lock long enough that everything queued behind it lands late.\n\n**[DATE]** \u2014 [SPEAKER, TITLE], 60 minutes on the tedious half of performance work. Where is the time going?\n\nWe'll cover:\n\n- Reading `EXPLAIN ANALYZE` without fooling yourself. What a row estimate off by 100x is telling you.\n- Indexes that lose money: hot write paths, and the one your planner keeps ignoring.\n- Connection pool math, and why bumping `max_connections` made things worse.\n- The point where tuning stops helping and the schema has to change.\n\nBring a slow query. The last 15 minutes have no script: [SPEAKER] pulls audience plans up on screen and works them live.\n\nAimed at engineers who already write SQL every day and have hit a wall. We're not selling anything. Demos run on Postgres, though the diagnostic approach carries over to MySQL with little friction.\n\n**Register: [LINK]**\n\nSign up and the recording is yours either way."
+}

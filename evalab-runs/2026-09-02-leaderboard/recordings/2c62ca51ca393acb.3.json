@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about starting a mentorship program on an engineering team. Around 250 words."
+  }
+ ],
+ "output": "We started a mentorship program six months ago. Here's what I got wrong.\n\nThe first version was a spreadsheet. Pair every junior with a senior, meet weekly, done. Three pairs had quietly stopped meeting by week four. The seniors felt like they were being graded on someone else's output, and the juniors didn't know what to bring to a meeting with no agenda.\n\nWhat fixed it was shrinking the scope. Each pair now picks one thing for the quarter: getting comfortable in the deploy pipeline, learning to run a design review, writing a doc that survives contact with the staff engineers. One goal, written down, checked at the end. If they hit it early they pick another, or they stop. Stopping is allowed.\n\nI dropped the reporting too. No dashboard, no completion rate. The only number I watch is how many pairs are still meeting in month three. Right now it's seven of nine.\n\nTwo things surprised me. The best mentors weren't the most senior people \u2014 they were the engineers about two years ahead, who still remembered being confused by the same things. And the program turned out to matter more to the mentors than the mentees. Three of them told me it was the first time in years they'd had a reason to explain their reasoning out loud to someone.\n\nIf you're starting one: begin with five pairs, not twenty. Give them a question to answer rather than a relationship to maintain. Check in at week six and end the pairs that aren't working."
+}

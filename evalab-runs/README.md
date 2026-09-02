@@ -18,9 +18,11 @@ pointed at.
 | `2026-09-01-structural/` | What if the gate is pointed at document shape instead of wording? | A blind rewrite moves structural tells 75 to 75. The gate moves them to 3. The first result a rewrite cannot substitute for. |
 | `2026-09-01-instructed/` | Does the gate beat simply telling the model the rules, for free? | The instruction does about half the gate's work in one generation. The gate closes the other half for roughly 3x the compute. |
 
+| `2026-09-02-leaderboard/` | Does the gate beat the tools people actually install? | It beats all three, every comparison under p = 0.05. It is also last on held-out checks, and its generated instruction ties the 16.7k-star hand-written one at p = 0.84. |
+
 The last one is the one to read if you read only one. It measures this
-project against the alternative that costs nothing, which is the
-comparison the first four rounds all routed around.
+project against the tools people actually install, which is the
+comparison every earlier round routed around.
 
 ## Replaying a run
 

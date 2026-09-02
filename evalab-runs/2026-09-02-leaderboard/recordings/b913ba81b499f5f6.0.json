@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "No specific API was named, so this is written as a drop-in section any JSON/HTTP API can adapt \u2014 swap the concrete choices (cursor pagination, RFC 3339, NDJSON) for whatever yours actually does.\n\n---\n\n## Design philosophy\n\nEvery endpoint follows a few rules we haven't broken since v1.\n\n**Nouns, then verbs.** Resources have stable URLs. What you can do to them lives in the HTTP method, not in an `?action=` parameter. If you can guess the URL for something you haven't read about yet, we got this right.\n\n**One obvious way.** Where two designs both worked, we shipped one. There is no second pagination style, no alternate date format, no legacy field kept alive out of politeness. Requests carry JSON, timestamps are RFC 3339 in UTC, and lists page by opaque cursor.\n\n**Errors are part of the contract.** A 4xx response names the field that was wrong and says what would have been accepted. We treat a confusing error message as a bug and fix it like one.\n\n**Boring beats clever.** No client library is required. curl and a JSON parser get you everything, including streaming, which is newline-delimited JSON over a long-lived connection.\n\n**Additions, not surprises.** We add fields and enum values without warning, so parse leniently and ignore what you don't recognize. We never remove or repurpose one inside a major version. Breaking changes get a new version number and a year of overlap."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Design philosophy\n\nFive rules. We've held all of them since v1.\n\n**Nouns first.** Every resource has a stable URL, and what you do to it lives in the HTTP method \u2014 never in an `?action=` parameter. The test we hold ourselves to: you can guess an endpoint you've never read about.\n\n**One way to do it.** Where two designs both worked, we picked one and threw the other out. No second pagination scheme. No alternate date format. No dead field kept alive to spare someone's feelings. JSON in, RFC 3339 UTC timestamps out, cursor-based paging on every list.\n\n**Errors are part of the contract.** A 4xx tells you which field failed and what we would have taken instead. If a message leaves you guessing, file it as a bug \u2014 that's how we treat it internally.\n\n**Boring wins.** No SDK required. curl and a JSON parser reach everything we offer, streaming included; that's newline-delimited JSON over a connection we hold open.\n\n**We add, we don't yank.** New fields and enum values ship without notice, so parse loosely and skip what you don't recognize. Nothing gets removed or repurposed inside a major version. Breaks earn a new version number and a year of overlap."
+}

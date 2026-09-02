@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago, or remote within US timezones \u00b7 $185\u2013215k plus equity\n\nAbout 1,200 small businesses run roughly $40M a month through us. Ledgers, payouts, reconciliation. An off-by-one here means someone's payroll doesn't arrive Friday.\n\nThe stack is Go and Postgres. One Python service still writes our ACH files, and we'd like it retired by December. We have 41 engineers, 8 of them on backend. You'd own a service end to end, pager included. Rotations run a week, and the median engineer got woken twice last quarter.\n\n**The first year**\n\nYou start on the ledger, because nothing downstream makes sense until you understand it. After that: real double-entry accounting for multi-currency balances, and a rewrite of the settlement job, which takes six hours today and restarts from zero whenever it dies.\n\n**What we're looking for**\n\nFive-plus years on backends that move money, or on ones equally unforgiving \u2014 healthcare claims, airline inventory, ad auctions. You should have views on isolation levels. Go is a plus, not a requirement; people have joined from Java, Rust, and Elixir and were shipping inside a month.\n\nWe write things down. Anything non-trivial starts as a one-page design doc that anyone at the company can comment on.\n\n**The process**\n\nA 45-minute call with the hiring manager, then a paid take-home ($300, capped at three hours), then half a day onsite or on video. First call to offer runs about four days. If the answer is no, it comes quickly."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago, or remote within US timezones \u00b7 $185\u2013215k plus equity\n\nRoughly 1,200 small businesses move about $40M a month across our rails. Ledgers, payouts, reconciliation. Get an off-by-one wrong and somebody's payroll misses Friday.\n\nWe run Go on Postgres. A lone Python service still generates our ACH files; we want it gone by December. Of 41 engineers, 8 work on backend. You'd own a service outright, pager and all. Rotations are a week long, and last quarter the median engineer got paged awake twice.\n\n**The first year**\n\nThe ledger comes first, since nothing downstream makes sense until you've got it in your head. Then: proper double-entry accounting for multi-currency balances, and a rewrite of the settlement job, which currently runs six hours and starts over from scratch every time it falls down.\n\n**What we're looking for**\n\nFive years or more on money-moving backends, or on systems just as punishing \u2014 healthcare claims, airline inventory, ad auctions. You should have opinions about isolation levels. Go helps but isn't required; we've hired out of Java, Rust, and Elixir, and those people were shipping within a month.\n\nWriting matters here. Anything non-trivial begins as a one-page design doc, open for comment to everyone at the company.\n\n**The process**\n\n45 minutes with the hiring manager, then a paid take-home ($300, three hours max), then half a day onsite or over video. About four days from that first call to an offer. A no arrives fast."
+}

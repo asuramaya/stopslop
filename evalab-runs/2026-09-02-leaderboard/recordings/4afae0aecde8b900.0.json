@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**The query that's hurting you never throws an error**\n\nTeams tune whatever the error log surfaces. But the expensive thing is usually a report nobody has ever filed a ticket about: it fires at 2am, scans 40 million rows, and sits on a lock long enough that everything queued behind it arrives late.\n\n**[DATE]** \u2014 [SPEAKER, TITLE], 60 minutes on the boring half of performance work. Where is the time actually going?\n\nWe'll cover:\n\n- Reading `EXPLAIN ANALYZE` for real. What a 100x row-estimate miss is telling you.\n- Indexes that cost more than they save: fat write paths, and the index your planner keeps ignoring.\n- Pool arithmetic, and why bumping `max_connections` made everything slower.\n- The point where tuning stops paying and the schema has to change instead.\n\nBring a slow query. We keep the last 15 minutes open, and [SPEAKER] will pull up audience plans on screen and work through them.\n\nWritten for engineers who live in SQL and have hit a wall. Nothing to buy here. Our examples run on Postgres, though the diagnostic approach carries over to MySQL fine.\n\n**Register: [LINK]**\n\nSign up and the recording is yours either way \u2014 show up or don't."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nobody ever files a ticket about the query that's costing you**\n\nTeams fix whatever shows up in the error log. Meanwhile the real expense is a report nobody has ever complained about: it runs at 2am, scans 40 million rows, and holds a lock long enough that everything behind it in the queue shows up late.\n\n**[DATE]** \u2014 [SPEAKER, TITLE], 60 minutes on the unglamorous half of performance work. Where does the time actually go?\n\nOn the agenda:\n\n- Reading `EXPLAIN ANALYZE` properly. What it means when a row estimate is off by 100x.\n- Indexes that cost more than they save: heavy write paths, and the one your planner refuses to touch.\n- Pool arithmetic, and why raising `max_connections` slowed everything down.\n- The moment tuning stops paying and the schema has to give.\n\nBring a slow query. The last 15 minutes are unscripted: [SPEAKER] puts audience plans on screen and works through them live.\n\nFor engineers who already live in SQL and have run out of ideas. There's nothing for sale. Examples run on Postgres, but the diagnostic method transfers to MySQL without much trouble.\n\n**Register: [LINK]**\n\nSign up and the recording is yours whether or not you make it."
+}

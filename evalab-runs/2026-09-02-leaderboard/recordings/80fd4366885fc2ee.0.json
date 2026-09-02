@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Platform Engineering Team Charter\n\n## Purpose\n\nWe build and run the internal systems other engineering teams depend on: CI, deployment, runtime environments, observability, and the connections between them. Our customers are the engineers at this company. We measure ourselves by their throughput, not by our own output.\n\n## What we own\n\n- Build and release tooling, from commit to production.\n- The runtime platform: compute, networking, secrets, and the defaults that ship with them.\n- Developer environments and the local-to-production feedback loop.\n- Observability plumbing (metrics, logs, traces) and the alert routing built on it.\n\n## What we do not own\n\nProduct code, product on-call, and business logic. When a service breaks because of its own bug, we help debug it. We do not take the page.\n\n## How we work\n\n**Paved paths, not gates.** A team can go off the path. It then carries the operational weight itself.\n\n**Self-service first.** If the same request reaches us as a ticket twice, the third time it is an API or a command.\n\n**The platform is a product.** It has a roadmap, users we talk to every week, and deprecations announced with a migration path and a date attached.\n\n## How we know it is working\n\nTime from merge to production. Time for a new engineer to ship their first change. Change failure rate. Manual tickets absorbed per week, trending down.\n\n## Decisions\n\nTechnical direction is set by the team, in writing, in ADRs. Anything that changes another team's daily workflow gets a two-week comment window before it ships."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Platform Engineering Team Charter\n\n## Why we exist\n\nWe build and operate the internal systems every other engineering team relies on: CI, deployment, runtime, observability, and the wiring between them. Our users are the engineers here. Our success shows up in their throughput, not in our own ticket count.\n\n## What we own\n\n- Build and release tooling, from commit through production.\n- The runtime platform: compute, networking, secrets, and the defaults they ship with.\n- Developer environments, and the loop between a laptop and production.\n- Observability plumbing (metrics, logs, traces) and the alerting routed on top of it.\n\n## What we don't own\n\nProduct code, product on-call, business logic. If a service falls over because of its own bug, we will sit with you and debug it. The page still goes to you.\n\n## How we work\n\n**Paved paths, not gates.** Any team can step off the path. That team then carries the operational weight.\n\n**Self-service first.** When the same request arrives as a ticket twice, the third one is an API or a command.\n\n**The platform is a product.** It gets a roadmap, users we talk to weekly, and deprecations that arrive with a migration path and a date on them.\n\n## How we'll know it works\n\nMerge-to-production time. Days until a new engineer ships their first change. Change failure rate. Manual tickets absorbed per week, and that number falling.\n\n## Decisions\n\nThe team sets technical direction, in writing, in ADRs. Anything that changes another team's day gets two weeks of comment before it ships."
+}

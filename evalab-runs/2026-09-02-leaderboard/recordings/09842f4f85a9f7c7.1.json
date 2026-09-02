@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "**This month: the stuff we owe**\n\nNobody sets out to write bad code. You ship the thing on Tuesday because it has to be there Tuesday, you leave a comment promising to come back to it, and then you don't. That's the whole story. Technical debt isn't a moral failing; it's the interest rate on decisions that were correct at the time.\n\nWhat makes it worth an issue is that the interest stays invisible until it isn't. Nobody files a ticket called \"this module is confusing.\" It shows up as a two-day estimate on a change that used to take an hour, as the on-call engineer who happens to know one specific piece of folklore, as the reason we've started saying no to things we used to say yes to.\n\nSo we asked around. [Name] explains why they deleted a service instead of fixing it. [Name] argues that some debt is worth keeping \u2014 you leave the ugly code alone, you write down why it's ugly, and you get on with your life. And there's a piece on making the case for cleanup work in a roadmap meeting without sounding precious about it.\n\nRead it before your next estimate.\n\n~205 words. Two `[Name]` slots for you to fill; swap the described pieces for whatever actually landed this month."
+}

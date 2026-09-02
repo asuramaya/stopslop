@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Draft \u2014 2026 in review** (numbers and names are placeholders; swap in your real ones)\n\n---\n\n### The year, roughly\n\nWe started January with a deploy pipeline that took 41 minutes and we're ending it with one that takes six. That's the change I'd point to first, because everything else got easier once we stopped waiting on it.\n\nThe migration off the monolith took three quarters instead of two. Nobody's fault \u2014 the billing tables were more tangled than the design doc admitted, and we spent most of Q2 untangling them before a single service moved. Worth it. Checkout p95 went from 900ms to 310ms.\n\nSome numbers: 1,247 PRs merged. Four incidents at Sev-2 or worse, down from eleven. On-call went from six people to nine, which is the quiet reason that second number moved.\n\nWhat didn't happen: the feature-flag cleanup. We have 340 dead flags in the codebase and I have personally pushed that ticket four times. The docs rewrite stalled in March. If you were counting on either, I'm sorry. Both are on the Q1 list and this time they have an owner.\n\nTwo people joined (welcome, Priya and Sam) and one left. Marcus \u2014 thank you for the seven years.\n\nWhat I want for next year is boring: fewer things in flight. We ran five parallel initiatives and finished three. Three initiatives, finished, would have felt better and cost less.\n\nSee you Monday.\n\n---\n\n~250 words. To make it yours, the parts that carry the most weight are the failure paragraph and the number you lead with \u2014 pick the metric your team actually complained about in standup."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Draft \u2014 2026 in review** (swap the placeholder numbers and names for your real ones)\n\n---\n\n### How the year went\n\nIn January a deploy took 41 minutes. Today it takes six. I lead with that because everything else on this list got cheaper once we stopped standing around waiting on it.\n\nBreaking up the monolith took three quarters, not two. That's not on anyone. The billing tables were knottier than the design doc let on, and most of Q2 went to unpicking them before a single service moved. Still the right call: checkout p95 dropped from 900ms to 310ms.\n\nThe tally: 1,247 PRs merged. Four incidents at Sev-2 or worse, against eleven last year. On-call grew from six people to nine, which is the unglamorous reason that second number fell.\n\nWhat we didn't do: clean up feature flags. There are 340 dead ones in the tree, and I have personally bumped that ticket four times. The docs rewrite died in March. If you were waiting on either, that's on me. Both sit on the Q1 list now, and this time each has a name attached.\n\nTwo people joined. Welcome, Priya and Sam. One left: Marcus, thank you for the seven years.\n\nMy ask for next year is unexciting. Fewer things open at once. We ran five initiatives in parallel and finished three. Three, finished, would have felt better and cost less.\n\nSee you Monday.\n\n---\n\nTo make it yours, the two parts doing the most work are the failure paragraph and the number you open with. Pick the metric your team actually griped about in standup."
+}

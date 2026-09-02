@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "## What our customers say\n\n> \"We were paying for three tools that each held one week of logs. Now we hold thirteen months in one place, and the bill went down. The migration took an afternoon.\"\n> **Dana Okoro**, Platform Lead, Rivenmark\n\n> \"Our checkout service started throwing 502s on a Saturday night. I searched across every region at once and had the bad deploy identified in about four minutes. Before, that was a two-hour phone tree.\"\n> **Sam Vittori**, SRE, Halcyon Freight\n\n> \"Honestly, I was skeptical. Log tools promise a lot. But the query language is close enough to grep that nobody on my team needed training, and ingest hasn't dropped a line since we switched in March.\"\n> **Priya Raghunathan**, Director of Engineering, Northgate Health\n\n> \"The alerting is what sold us. We route parse failures straight to the team that owns the schema, so the noise stops at the source instead of piling up in one channel.\"\n> **Marcus Bell**, Observability Engineer, Coastline Labs\n\n---\n\nA note on these: the names, companies, and figures are placeholders. Swap in real quotes before this goes live, and get written sign-off from each customer on the exact wording and title \u2014 the numbers especially, since those are the parts a prospect will hold you to."
+}

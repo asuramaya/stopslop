@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**We split the monolith along the wrong seams. Twice.**\n\nEvery book tells you to start from bounded contexts. We did. Forty-one services and eighteen months later, a single checkout request hit nine of them, and our p99 latency had tripled.\n\nThe architecture wasn't the culprit. We'd drawn the boundaries from a whiteboard picture of how the business was supposed to work, instead of from what the code actually did at 3am on Black Friday.\n\nThis is the story of the second attempt, the one that held. I'll show what six weeks of production traces told us about the real seams: call paths that never crossed, tables that only one module ever wrote to. That evidence took the plan from twenty-eight services down to eleven. I'll walk through the strangler-fig plumbing (an nginx rewrite layer, and a dual-write window we kept open for four months), where we misread distributed transactions, and the two services we folded back into the monolith because splitting them earned us nothing but pager noise.\n\nYou'll leave with a test for whether a given seam is worth cutting, and with permission to leave the rest alone.\n\n*For engineers and architects who've read the theory and now have to ship it.*"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**We cut the monolith in the wrong places. Twice.**\n\nThe books say to start from bounded contexts, so we did. Eighteen months later we had forty-one services, one checkout request touching nine of them, and a p99 that had tripled.\n\nMicroservices weren't the problem. Our boundaries came from a whiteboard drawing of how the business supposedly worked, not from what the code actually did at 3am on Black Friday.\n\nThis talk is about the second attempt, which stuck. I'll show what six weeks of production traces revealed about the real seams: call paths that never once crossed, tables that exactly one module wrote to. That evidence cut the plan from twenty-eight services to eleven. I'll go through the strangler-fig plumbing we built (an nginx rewrite layer, plus a dual-write window we left open for four months), the places we got distributed transactions wrong, and the two services we merged back into the monolith after splitting them bought us nothing except pages at night.\n\nYou'll leave with a way to decide whether a given seam is worth cutting, and with a reason to leave the rest of them alone.\n\n*For engineers and architects who know the theory and now have to ship it.*"
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "You didn't name the library, so I've written it around a placeholder (`apiclient` / \"Pathfinder\") with invented specifics \u2014 swap in your real numbers before publishing.\n\n---\n\n# apiclient 2.0\n\nWe shipped 2.0 today. Here's what changed and what it'll cost you to upgrade.\n\nThe big one: connections are pooled by default. In 1.x every call opened its own socket, which was fine for scripts and terrible for anything running under load. A customer benchmark that spent 340 ms per request now spends 90 ms, and most of that is the network.\n\nRetries got smarter too. The old `retry=True` flag hammered a failing endpoint five times in a row and then gave up. 2.0 reads `Retry-After`, backs off exponentially with jitter, and refuses to retry anything non-idempotent unless you say so explicitly. If you were relying on the old behavior, you'll want to look at `RetryPolicy` before you upgrade.\n\nAsync is no longer a separate package. `apiclient-async` is deprecated; `AsyncClient` lives in the main package and shares the same request pipeline, so middleware you wrote for one works in the other.\n\nBreaking changes, honestly: we dropped Python 3.8, renamed `Client.request()` to `Client.send()`, and removed the global config singleton. There's a codemod in `tools/migrate.py` that handles the first two. The singleton removal is manual \u2014 sorry. It was a bad idea in 2019 and it's a worse one now that people run us in multi-tenant services.\n\nFull changelog and migration guide are in the docs. If something breaks in a way the guide doesn't cover, open an issue and tag it `2.0-migration`; we're watching that label closely for the next few weeks."
+}

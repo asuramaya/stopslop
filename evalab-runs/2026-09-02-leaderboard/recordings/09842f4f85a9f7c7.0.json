@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Debt is a bad metaphor and we keep using it anyway.\n\nBad, because it implies somebody chose the loan. Most of what slows us down was never a decision \u2014 it's code that was correct in 2021 and quietly stopped being correct, or a service that outgrew the one assumption holding it up. Nobody signed for that.\n\nUseful, though, because it gets the second half right. You pay either way. You pay in a planned Tuesday afternoon or you pay on a Saturday at 2 a.m.\n\nSo this month we're looking at what we actually owe. [NAME] traces the four-week detour that began with a single nullable column. [NAME] makes the case for deleting half our deploy scripts instead of rewriting them again. And there's a short piece on writing a debt ticket someone will actually pick up; the honest answer involves less pathos and more arithmetic.\n\nOne request while you read. Everybody here has a file they dread opening. Write down its name and roughly what it cost you in hours this month, and bring both to planning. Vague suffering never gets prioritized. A number sometimes does.\n\n~200 words. Swap the `[NAME]` placeholders and the article descriptions for your real lineup \u2014 and if you give me the actual pieces, I'll retune the middle paragraph to match them."
+}

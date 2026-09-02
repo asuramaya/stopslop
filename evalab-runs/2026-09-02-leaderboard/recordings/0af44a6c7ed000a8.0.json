@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Stop putting names in outage reports**\n\nOur last incident writeup named a person in the second paragraph. It never got around to why the deploy tool let a single command drain a production pool with no confirmation step. We found a culprit and lost the bug.\n\nThat's the trade blame makes. It feels like accountability, and it buys you silence.\n\nI want us to adopt blameless postmortems \u2014 the practice, not the word. In practice the writeup describes what the system made easy, what information the on-call actually had at 3am, and which guardrail was missing. Nobody's name appears next to a mistake. The question is never \"who ran it\" but \"why was running it possible.\"\n\nThe objection I expect is that this lets people off the hook. It doesn't. Blameless postmortems are strict about systems and generous about people, and the strictness is the point. A reviewer who can't blame Sarah has to go find the real defect, which is harder and more useful. There's a selfish argument too. Right now people route around incidents: they fix quietly, they downplay, they wait to see if anyone noticed. Every hour of that is an hour we're not learning.\n\nGoogle, Etsy, and roughly everyone who runs infrastructure at scale figured this out a decade ago, and the reason is boring. Engineers report more when reporting is safe. I'll draft a template and run the next incident this way, and if the writeup is worse than what we do today, we go back."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Right now people route around incidents:):\n- bold_density:\n- paragraph_uniformity (4 paragraphs, spread 0.30):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Stop putting names in outage reports\n\nOur last incident writeup named a person in the second paragraph. It never got around to why the deploy tool let a single command drain a production pool with no confirmation step. We found a culprit and lost the bug. That's the trade blame makes. It feels like accountability, and it buys you silence.\n\nI want us to adopt blameless postmortems, the practice rather than the word. In practice the writeup describes what the system made easy, what information the on-call actually had at 3am, and which guardrail was missing. Nobody's name appears next to a mistake. The question is never who ran the command but why running it was possible at all.\n\nThe objection I expect is that this lets people off the hook. It doesn't. Blameless postmortems are strict about systems and generous about people, and the strictness is the point. A reviewer who can't blame Sarah has to go find the real defect, which is harder and more useful.\n\nThere's a selfish argument too. Right now people route around incidents. They fix quietly, they downplay, they wait to see if anyone noticed. Every hour of that is an hour we're not learning.\n\nGoogle, Etsy, and roughly everyone who runs infrastructure at scale figured this out a decade ago, and the reason is boring. Engineers report more when reporting is safe.\n\nI'll draft a template and run the next incident this way. If the writeup is worse than what we do today, we go back."
+}

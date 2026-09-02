@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## What we're building next\n\nHere's the plan for the next three quarters, published before we've finished arguing about it internally.\n\nWe do this for one reason: you build on top of us, and guessing is expensive. If we're about to change how the CLI handles auth, you should hear it in March \u2014 not from a changelog entry in August.\n\nRead it as intent, not contract. Dates slip. Items get cut when we discover the demand was three loud customers rather than three hundred. Two things on last year's roadmap, the plugin registry and the on-prem runner, died exactly that way. We'd rather say so than quietly delete the row.\n\nEach item carries a status (exploring, building, shipping), the name of whoever owns it, and a link to the GitHub issue where the real conversation lives. Argue there. We read all of it and reply to less than we'd like.\n\nWhat's missing: security fixes, performance work, and anything under a week of effort. That's most of what we actually ship in a given month. This page covers the roughly one-fifth that's big enough to change how you use the product \u2014 the parts worth planning your own quarter around."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## What we're building next\n\nThe next three quarters, posted while the internal arguments are still going.\n\nThe reason is simple: your code sits on top of ours, and guessing costs you money. If the CLI's auth flow is about to change, March is when you should hear it, not August when somebody gets around to writing the changelog.\n\nTreat this as intent, not a promise. Dates move. Items get dropped once we work out that the demand came from three loud customers rather than three hundred. That is how the plugin registry and the on-prem runner both ended last year. We would sooner say so than quietly delete the rows and hope nobody noticed.\n\nEvery item shows a status (exploring, building, shipping), the person who owns it, and a link to the GitHub issue where the actual discussion happens. Take it up there. We read all of it and answer less of it than we would like.\n\nNot on this page: security patches, performance work, anything under a week of effort. Which is most of what ships in a normal month. What is here is the other fifth or so, the changes big enough to alter how you use the product, and worth building your own quarter around."
+}

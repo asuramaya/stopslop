@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "Here's a draft. I left bracketed spots for the details only you have \u2014 swap in real numbers and it'll land harder.\n\n---\n\n**Nomination: [Team name] \u2014 Engineering Excellence Award**\n\nA year ago, shipping to production meant a Wednesday-night window, a 40-step checklist nobody trusted, and two people on standby in case the rollback went sideways. Releases took four hours. Half of them slipped.\n\n[Team] rebuilt it. They replaced the hand-run checklist with a pipeline that builds, tests, and promotes on merge, added automated canary analysis so a bad release rolls itself back in under [90 seconds], and cut deploy time from [4 hours to 11 minutes]. Deploy frequency went from [weekly to ~30 times a week]. Change-failure rate dropped by [X%].\n\nWhat I want to call out is how they did it. No big-bang rewrite, no six-month freeze. They migrated one service at a time, kept the old path working alongside the new one, and sat with each team through their first few deploys until it stuck. [Name] wrote the migration guide that made it self-serve for everyone else.\n\nThe result is quieter on-call, faster fixes, and engineers who ship without asking permission. That's infrastructure work at its best \u2014 the kind you only notice once it's gone.\n\n---\n\nRoughly 200 words. Want a shorter version, or one aimed at a non-engineering award committee?"
+}

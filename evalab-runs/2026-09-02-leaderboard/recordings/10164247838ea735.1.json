@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "Grounded in this repo's actual contract (`docs/adding-a-ruleset.md`), so it can drop into the docs as-is:\n\n## Design philosophy\n\nThe ruleset API is six names wide. Three constants, three functions, and nothing else crosses the boundary. The hook, the CLI, the MCP server and `core/` know that a ruleset exists and what it returns; they know nothing about its checks, its vocabulary, or how it decides. That ignorance is the point. It is what lets `ste100` enforce a controlled language for runbooks while `slopwatch` reads a README, without either one growing a special case in the caller.\n\nFlags are data, not prose. A check emits `{kind, label, detail, text}` and lets the caller decide whether to dedup it, log it, print it, or block on it. Formatting a deny message is somebody else's job.\n\nWe took one strong position on where the line falls: a check blocks when it catches a defect and warns when it catches a tell. `except: pass` is a defect. An em-dash is a correlate. Text that dodges all 31 slopwatch checks and says nothing still passes, and that is the correct outcome -- this gate measures whether prose reads as generated, not whether it is any good.\n\nWhere we chose flexibility, we chose it once. `file_path` is in every signature so vocabulary packs can attach per routing rule. Ignore the argument if you like. Refuse to accept it and the live gate breaks.\n\n*(207 words. Tell me the real API if this was meant for a different one and I'll re-cut it.)*"
+}

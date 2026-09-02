@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Proposal: give Q3 to paying down technical debt**\n\nI want us to spend Q3 on maintenance instead of features.\n\nThis is an argument about numbers, not principle. A year ago the median PR went from open to merge in 2.8 days. It now takes 6.2. Most of that increase is CI. The suite runs 47 minutes and fails at random on roughly one run in five, so people rerun it, switch tasks, and come back after lunch. Separately, about 40% of Q2's engineering hours went to work nobody planned: incidents, hotfixes, and long digs into why the billing service and the account service disagree about what a \"customer\" is.\n\nThree fixes, in this order. Split the monolithic test suite and quarantine the flaky tests. Finish retiring the second ORM we half-migrated to in 2024. Merge the two customer models into one service.\n\nNone of this is research. We know how to do all three. We have also deferred all three four times.\n\nThe cost is real. A quarter of eight engineers is a quarter of the roadmap, and two customer commitments currently sitting in Q3 slide to Q4.\n\nThat's the trade: one visible slip now, against a delivery rate that keeps degrading. Defer again and I send this memo next year with worse numbers and a longer list.\n\nPlease decide by the 15th so we can plan Q3 one way or the other. Happy to walk through the incident data first.\n\n\u2014 [name], Eng Lead\n\nThe figures above are placeholders. Swap in our real CI timings, incident share, and headcount before this goes out; the argument stands or falls on them."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Proposal: spend Q3 paying down technical debt**\n\nI'm asking for one quarter on maintenance instead of features.\n\nThe case is arithmetic, not philosophy. A year ago our median PR took 2.8 days from open to merge. Today it takes 6.2. CI accounts for most of the gap: the suite runs 47 minutes and fails randomly about one run in five, so engineers rerun it, context-switch, and return after lunch. On top of that, roughly 40% of Q2's engineering hours went to unplanned work \u2014 incidents, hotfixes, and long excavations into why the billing service and the account service disagree on what a \"customer\" is.\n\nThree fixes, in order. Split the monolithic test suite and quarantine the flaky tests. Finish retiring the second ORM we half-migrated to in 2024. Collapse the two customer models into one service.\n\nNone of this is research. We know how to do all three. We have also postponed all three four times.\n\nThe cost is real. A quarter of eight engineers is a quarter of the roadmap, and the two customer commitments currently sitting in Q3 move to Q4.\n\nThat's the trade: one visible slip now, versus a delivery rate that keeps eroding. Postpone again and I'll send this memo next year with worse numbers and a longer list.\n\nPlease decide by the 15th so we can plan Q3 either way. I'm glad to walk through the incident data first.\n\n\u2014 [name], Eng Lead\n\nThe figures above are placeholders. Substitute our real CI timings, incident share, and headcount before this goes out; the argument lives or dies on them."
+}

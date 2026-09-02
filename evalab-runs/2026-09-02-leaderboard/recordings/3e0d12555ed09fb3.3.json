@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "Placeholders in brackets \u2014 swap in your real details.\n\n---\n\n**Your slowest query is probably not the one you think**\n\nMost teams tune whatever shows up in the error logs. Meanwhile the real cost is a report nobody complains about: it runs at 2am, scans 40 million rows, and holds a lock just long enough to back up everything behind it.\n\nOn **[DATE]**, [SPEAKER, TITLE] spends 60 minutes on the unglamorous half of database performance \u2014 finding out where the time actually goes.\n\nWhat we'll get through:\n\n- Reading an `EXPLAIN ANALYZE` plan without guessing. What it means when row estimates are off by 100x.\n- Index choices that backfire \u2014 bloated write paths, and indexes the planner quietly refuses to use.\n- Connection pool math, and why raising `max_connections` made things worse.\n- Knowing when to stop tuning and change the schema instead.\n\nBring a slow query. The last 15 minutes are open, and [SPEAKER] will read real plans from the audience live.\n\nThis is for engineers who already write SQL every day and have hit a wall. No product demo. Examples are Postgres, but the diagnostic method carries over to MySQL.\n\n**Register: [LINK]**\n\nEveryone who signs up gets the recording, whether or not you make it on the day."
+}

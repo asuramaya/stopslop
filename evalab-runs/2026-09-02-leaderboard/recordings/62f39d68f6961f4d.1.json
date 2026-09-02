@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "# Introducing [Library] 2.0\n\nVersion 2.0 is out today. It is the first release in three years that breaks compatibility, so before anything else: here is what will stop working, and how to fix it.\n\n**Callbacks are gone.** Every method now returns a promise. If you were passing a callback as the last argument, wrap the call in `await` and delete the callback. The codemod in `tools/migrate` handles the common shapes; the odd ones you will have to do by hand.\n\n**Configuration moved.** The old flat options object grew twenty-one keys over the years and half of them only applied to two methods. Config is now split into `transport`, `retry`, and `auth`. The old shape still works in 2.0 and logs a deprecation warning. It goes away in 3.0.\n\n**Retries are built in.** Previously you wrapped calls yourself or reached for a third-party library. The client now retries idempotent requests with exponential backoff and honors `Retry-After`. Set `retry: false` if you would rather own that logic.\n\nTwo smaller things worth knowing. Types are generated from the OpenAPI spec now, so they match the server instead of drifting behind it. And the bundle dropped from 94kB to 31kB, mostly by removing a date library we used in one place.\n\nUpgrade with `npm install [library]@2`. The full migration guide lives in `MIGRATING.md`, and there is a compatibility table for anyone still on 1.4.\n\nThanks to the forty-odd people who filed issues against the 2.0 betas. Several of them changed the API for the better.\n\n---\n\nSwap `[Library]` for the real name \u2014 and the version numbers, sizes, and specifics are placeholders you'll want to replace with the actual changelog. Tell me the real details and I'll fit them in."
+}

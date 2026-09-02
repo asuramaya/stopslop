@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "Written with placeholder specifics \u2014 swap the bracketed bits for your team's real numbers.\n\n---\n\n# The Year We Stopped Shipping Sideways\n\nJanuary went badly. [Checkout] fell over on the 14th and stayed down for nine hours, and the cause turned out to be a retry loop one of us wrote in 2023 that had been quietly hammering our own primary database every time latency crept above a threshold nobody remembered setting. That outage set the agenda for the rest of the year.\n\nQ1 was cleanup. We tore out the retry logic, put real circuit breakers in front of [payments] and [inventory], and wrote the first runbooks this team has ever had. Boring work. It moved p99 from [840ms to 210ms] and dropped on-call pages from [61 a month to 9].\n\nThe surprise was how much of that came from deletion. We removed [31,000 lines] this year \u2014 two dead feature flags, an entire caching layer that predated [Redis], and the admin panel three people used. Less code, fewer places to be wrong.\n\nNot everything landed. The [Postgres 16] migration stalled in August when we hit the extension incompatibility, and it's still sitting in a branch. We under-scoped it, plainly. [Sam] and [Priya] joined in the spring and have been carrying the [billing] rewrite since June.\n\nNext year I want us to get better at the thing we're worst at: saying no early. Half of what we deleted in Q1 was work we agreed to in a meeting where nobody wanted to be the one objecting.\n\nThanks for a good year. See you in January."
+}
