@@ -12,10 +12,10 @@ import statistics
 def _arms(rows):
     """Arms present in this result, in reading order.
 
-    `blind` is absent from runs recorded before that arm existed, so a
-    saved result from an earlier run still renders.
+    `blind` and `instructed` are absent from runs recorded before those
+    arms existed, so a saved result from an earlier run still renders.
     """
-    order = ("ungated", "control", "blind", "gated")
+    order = ("ungated", "control", "blind", "instructed", "gated")
     return [a for a in order if rows and a in rows[0]]
 
 
@@ -137,6 +137,10 @@ def render(result):
             blind = _mean(scope, "blind", key)
             add(f"  {'  ^ rewrite alone':<26} {base:8.2f} -> {blind:8.2f}   "
                 f"{blind - base:+7.2f}           (same compute, no flags)")
+        if scope and "instructed" in scope[0]:
+            told = _mean(scope, "instructed", key)
+            add(f"  {'  ^ TOLD THE RULES':<26} {base:8.2f} -> {told:8.2f}   "
+                f"{told - base:+7.2f}           (ONE generation, no gate)")
         add("")
 
     iterations = statistics.fmean([r["gated"]["iterations"] for r in rows])
@@ -176,6 +180,14 @@ def render(result):
     add("  second pass gains. Only the distance between the gated arm and")
     add("  that one belongs to the flags.")
     add("")
+    if "instructed" in _arms(rows):
+        add("  Compare the gate against TOLD THE RULES hardest of all. That")
+        add("  arm spent ONE generation with the enforced checks' own wording")
+        add("  pasted into the prompt, the way a line in CLAUDE.md would")
+        add("  arrive. It costs no hook, no install and no extra generation.")
+        add("  Whatever it reaches is what this project competes against --")
+        add("  not zero. A gate that only matches it buys nothing.")
+        add("")
     add("  Enforced flags falling proves nothing on its own. The gated arm")
     add("  rewrote until they fell, so that number only confirms the loop")
     add("  ran.")

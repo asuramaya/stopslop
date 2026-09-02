@@ -29,7 +29,9 @@ def _save(out_dir, result):
     text_dir = os.path.join(out_dir, "texts")
     os.makedirs(text_dir, exist_ok=True)
     for row in result["rows"]:
-        for arm in ("ungated", "gated"):
+        for arm in ("ungated", "instructed", "gated"):
+            if arm not in row:
+                continue
             with open(os.path.join(text_dir, f"{row['id']}.{arm}.md"), "w") as f:
                 f.write(row[arm]["text"].rstrip() + "\n")
     rendered = report.render(result)

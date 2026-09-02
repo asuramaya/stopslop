@@ -210,15 +210,21 @@ class ControlArmTests(unittest.TestCase):
     def test_run_produces_a_control_arm_from_the_same_prompt(self):
         a = "The cache keeps results on disk for an hour."
         b = "Results live on local disk until they expire."
-        generator = ScriptedGenerator([a, b, a, a])
+        generator = ScriptedGenerator([a, b, a, a, a])
         result = harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
                               generator, max_iterations=1)
         row = result["rows"][0]
         self.assertEqual(row["control"]["text"], b)
-        # Same first prompt for all three arms, or the comparison is
-        # between different questions.
+        # Byte-identical first prompt for the ungated, control and gated
+        # arms, or the comparison is between different questions. The
+        # instructed arm is the one deliberate exception: it carries the
+        # rules the gate would otherwise have delivered as a denial, and
+        # it still has to end in the same prompt.
         self.assertEqual(generator.seen[0], generator.seen[1])
-        self.assertEqual(generator.seen[1], generator.seen[2])
+        instructed = generator.seen[2][0]["content"]
+        self.assertNotEqual(generator.seen[0], generator.seen[2])
+        self.assertTrue(instructed.endswith(row["prompt"]))
+        self.assertEqual(generator.seen[0], generator.seen[3])
 
     def test_report_prints_a_noise_floor_next_to_every_gate_delta(self):
         a = "The cache keeps results on disk for an hour."
@@ -388,10 +394,12 @@ class RevisedOnlyScopeTests(unittest.TestCase):
         """One prompt the loop revises, one it does not."""
         dirty = "Needless to say, this is a seamless and very robust tool."
         clean = "The cache stores query results on disk."
-        # readme-section: dirty first, then clean, so the loop runs once.
+        # readme-section: ungated, control and instructed take a dirty
+        # each, then the gated loop takes dirty -> clean, so it revises
+        # once; the blind arm's matched two follow.
         # incident-report: clean throughout, so the loop never fires.
         generator = ScriptedGenerator(
-            [dirty, dirty, dirty, clean, dirty, dirty] + [clean] * 8)
+            [dirty] * 4 + [clean] + [dirty, dirty] + [clean] * 8)
         return harness.run(prompts.by_ids(["readme-section",
                                              "incident-report"]),
                             self.ruleset, generator, max_iterations=2)
@@ -427,9 +435,9 @@ class WorkerParallelismTests(unittest.TestCase):
         self.assertEqual(serial, parallel)
         self.assertEqual(serial, self.ids)
 
-    def test_every_prompt_still_gets_all_four_arms(self):
+    def test_every_prompt_still_gets_all_five_arms(self):
         for row in self._run(3)["rows"]:
-            for arm in ("ungated", "control", "gated", "blind"):
+            for arm in ("ungated", "control", "gated", "blind", "instructed"):
                 self.assertIn(arm, row, f"{row['id']} lost its {arm} arm")
 
     def test_the_blind_arm_still_matches_its_own_prompts_gated_count(self):
@@ -439,6 +447,98 @@ class WorkerParallelismTests(unittest.TestCase):
         for row in self._run(4)["rows"]:
             self.assertEqual(row["blind"]["iterations"],
                               row["gated"]["iterations"], row["id"])
+
+
+class InstructedArmTests(unittest.TestCase):
+    """The free alternative the gate has to beat.
+
+    Every other arm answers "does the gate beat trying again". This one
+    answers the cheaper question three rounds of experiments routed
+    around: does the gate beat simply telling the model the rules in the
+    prompt, the way a line in CLAUDE.md would?
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+
+    def test_the_instruction_names_every_enforced_check_rule(self):
+        """It has to be the STRONGEST form of the alternative. An
+        instruction weaker than the denials the gate sends would rig the
+        comparison in this project's own favour."""
+        enforced, _ = harness.split_checks(self.ruleset)
+        text = harness.build_instruction(self.ruleset, enforced)
+        table = self.ruleset.list_checks()
+        for check_id in enforced:
+            instead = (table[check_id].get("instead") or "").strip()
+            self.assertTrue(instead, f"{check_id} has no instead line")
+            self.assertIn(instead, text, f"{check_id}'s rule went missing")
+
+    def test_the_instruction_leaks_no_held_out_check(self):
+        """Held-out checks measure transfer in this arm too. Naming one
+        would turn a transfer measurement into instruction-following."""
+        enforced, held_out = harness.split_checks(self.ruleset)
+        text = harness.build_instruction(self.ruleset, enforced)
+        table = self.ruleset.list_checks()
+        for check_id in held_out:
+            self.assertNotIn(check_id, text)
+            instead = (table[check_id].get("instead") or "").strip()
+            if instead and not any(
+                    instead == (table[e].get("instead") or "").strip()
+                    for e in enforced):
+                self.assertNotIn(instead, text, f"{check_id}'s rule leaked")
+
+    def test_it_spends_exactly_one_generation(self):
+        """The whole point is that it is cheaper than the gate. If it
+        ever costs a second call the comparison stops meaning anything."""
+        generator = ScriptedGenerator(["some text"] * 4)
+        arm = harness.run_arm_instructed(generator, "write something", "RULES\n")
+        self.assertEqual(arm["iterations"], 1)
+        self.assertEqual(len(generator.seen), 1)
+
+    def test_the_instruction_reaches_the_model_ahead_of_the_prompt(self):
+        generator = ScriptedGenerator(["some text"])
+        harness.run_arm_instructed(generator, "write a README", "RULES:\n\n")
+        sent = generator.seen[0][0]["content"]
+        self.assertTrue(sent.startswith("RULES:"))
+        self.assertIn("write a README", sent)
+
+    def test_run_records_the_instruction_it_actually_used(self):
+        """A result that cannot show its own instruction cannot be
+        argued with -- the arm would be an unfalsifiable number."""
+        generator = ScriptedGenerator(["The cache stores results."] * 12)
+        result = harness.run(prompts.by_ids(["readme-section"]),
+                              self.ruleset, generator, max_iterations=2)
+        self.assertIn("instruction", result)
+        self.assertIn(harness.INSTRUCTION_HEADER, result["instruction"])
+
+    def test_the_arm_is_scored_like_every_other(self):
+        generator = ScriptedGenerator(["The cache stores results."] * 12)
+        result = harness.run(prompts.by_ids(["readme-section"]),
+                              self.ruleset, generator, max_iterations=2)
+        scores = result["rows"][0]["instructed"]["scores"]
+        for key in ("enforced_per_1k", "held_out_per_1k", "words"):
+            self.assertIn(key, scores)
+
+    def test_the_report_prints_it_beside_the_gate(self):
+        generator = ScriptedGenerator(
+            ["Needless to say, this is a seamless and very robust tool.",
+             "The cache stores query results on disk."] * 12)
+        result = harness.run(prompts.by_ids(["readme-section"]),
+                              self.ruleset, generator, max_iterations=3)
+        rendered = report.render(result)
+        self.assertIn("TOLD THE RULES", rendered)
+        self.assertIn("instructed", rendered)
+
+    def test_an_older_result_without_the_arm_still_renders(self):
+        """Four committed runs predate this arm. A report that crashed on
+        them would erase the evidence this project already published."""
+        generator = ScriptedGenerator(["The cache stores results."] * 12)
+        result = harness.run(prompts.by_ids(["readme-section"]),
+                              self.ruleset, generator, max_iterations=2)
+        for row in result["rows"]:
+            del row["instructed"]
+        rendered = report.render(result)
+        self.assertNotIn("TOLD THE RULES", rendered)
 
 
 if __name__ == "__main__":

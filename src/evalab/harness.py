@@ -5,7 +5,12 @@ The gated arm reproduces what a real session does against the live hook:
 write, get denied with a list of flags, rewrite, try again. It stops when
 the text passes the ENFORCED checks or the iteration budget runs out.
 
-Four arms, and three rules keep the result honest.
+Five arms, and three rules keep the result honest.
+
+The fifth arm is INSTRUCTED: the enforced checks' rules stated in the
+prompt itself, one generation, no gate. It is the free alternative --
+a line in CLAUDE.md -- and the gate has to beat it to be worth
+installing. See build_instruction.
 
 The gated arm is never told about a held-out check. Not in the first
 prompt, not in a revision. `_revision_message` is built only from
@@ -185,11 +190,12 @@ def score(ruleset, text, enforced, held_out):
 
 
 def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
-              on_progress):
+              on_progress, instruction):
     if on_progress:
         on_progress(prompt["id"])
     ungated = run_arm_ungated(generator, prompt["text"])
     control = run_arm_ungated(generator, prompt["text"])
+    instructed = run_arm_instructed(generator, prompt["text"], instruction)
     gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
                            max_iterations=max_iterations)
     # Matched compute: the same number of generations the gated arm spent
@@ -204,6 +210,9 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
                                                 enforced, held_out)},
         "control": {**control, "scores": score(ruleset, control["text"],
                                                 enforced, held_out)},
+        "instructed": {**instructed,
+                        "scores": score(ruleset, instructed["text"],
+                                         enforced, held_out)},
         "gated": {**gated, "scores": score(ruleset, gated["text"],
                                             enforced, held_out)},
         "blind": {**blind, "scores": score(ruleset, blind["text"],
@@ -224,7 +233,9 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
     """
     enforced, held_out = split_checks(ruleset, enforced)
     started = time.time()
-    args = (ruleset, generator, enforced, held_out, max_iterations, on_progress)
+    instruction = build_instruction(ruleset, enforced)
+    args = (ruleset, generator, enforced, held_out, max_iterations, on_progress,
+            instruction)
     if workers > 1:
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             futures = [pool.submit(_run_one, p, *args) for p in prompts]
@@ -241,6 +252,62 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
         "enforced": sorted(enforced),
         "held_out": sorted(held_out),
         "max_iterations": max_iterations,
+        "instruction": instruction,
         "seconds": round(time.time() - started, 1),
         "rows": rows,
     }
+
+
+# ---------------------------------------------------------------------------
+# The instructed arm.
+#
+# Every arm above answers "does the gate beat trying again". None of them
+# answers the cheaper question the operator asked and this harness kept
+# routing around: does the gate beat simply TELLING the model the rules
+# up front, the way a line in CLAUDE.md would?
+#
+# That alternative costs one generation, no hook, no install, no latency.
+# If it captures most of what the gate captures, the gate is a
+# complicated way to buy very little, and this project should say so.
+#
+# The instruction is built from the enforced checks' OWN metadata, not
+# hand-written, for two reasons. It cannot be accidentally weakened
+# relative to what the gate enforces, and a ruleset that gains a check
+# gains it in both arms at once. This is deliberately the STRONGEST form
+# of the alternative: the same information the gate would have delivered
+# as a denial, delivered before the first word instead.
+
+INSTRUCTION_HEADER = (
+    "Follow these writing rules. They matter as much as the content:")
+INSTRUCTION_FOOTER = (
+    "Now write the following. Return only the requested text.")
+
+
+def build_instruction(ruleset, enforced):
+    """A CLAUDE.md-style preamble naming every enforced check's rule."""
+    table = ruleset.list_checks()
+    lines = [INSTRUCTION_HEADER, ""]
+    for check_id in sorted(enforced):
+        meta = table.get(check_id) or {}
+        catches = (meta.get("catches") or "").strip()
+        instead = (meta.get("instead") or "").strip()
+        if catches and instead:
+            lines.append(f"- {catches} -- {instead}")
+        elif catches or instead:
+            lines.append(f"- {catches or instead}")
+        else:
+            lines.append(f"- avoid whatever {check_id} names")
+    lines += ["", INSTRUCTION_FOOTER, ""]
+    return "\n".join(lines)
+
+
+def run_arm_instructed(generator, prompt, instruction):
+    """One generation, rules stated up front, no gate and no rewrite.
+
+    Deliberately the cheapest arm in the run: it spends exactly what the
+    ungated arm spends. If it lands near the gated arm, the gate's whole
+    cost -- the extra generations, the hook, the install -- bought the
+    difference between them and nothing more.
+    """
+    text = generator([{"role": "user", "content": instruction + prompt}])
+    return {"text": text, "iterations": 1, "passed": None}
