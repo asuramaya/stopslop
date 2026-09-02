@@ -18,7 +18,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import rulesets
 from evalab import harness, prompts as prompt_set, report
-from evalab.generators import ClaudeCliGenerator, GeneratorError, RecordedGenerator
+from evalab.generators import (ClaudeCliGenerator, GeneratorError,
+                                RecordedGenerator, ResumingGenerator)
 
 
 def _save(out_dir, result):
@@ -47,6 +48,10 @@ def main(argv=None):
                          help="generate with `claude -p` (costs tokens)")
     source.add_argument("--replay", metavar="DIR",
                          help="replay a recordings directory, no model calls")
+    source.add_argument("--resume", metavar="DIR",
+                         help="replay what DIR already holds and generate "
+                              "only what it does not -- for finishing a live "
+                              "run that died partway")
     parser.add_argument("--ruleset", default="slopwatch")
     parser.add_argument("--out", default=None,
                          help="directory for result.json, report.txt and texts/")
@@ -79,6 +84,12 @@ def main(argv=None):
         out_dir = args.out or "evalab-runs/latest"
         generator = ClaudeCliGenerator(
             record_to=os.path.join(out_dir, "recordings"))
+    elif args.resume:
+        # The recordings directory is the run's own, so --out defaults to
+        # its parent: a resumed run finishes the run it is resuming
+        # rather than scattering a second one beside it.
+        out_dir = args.out or os.path.dirname(args.resume.rstrip("/"))
+        generator = ResumingGenerator(args.resume, ClaudeCliGenerator())
     else:
         generator = RecordedGenerator(args.replay)
         out_dir = args.out
@@ -99,6 +110,9 @@ def main(argv=None):
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
+    if isinstance(generator, ResumingGenerator):
+        print(f"resumed: {generator.replayed} replayed, "
+              f"{generator.generated} newly generated", file=sys.stderr)
     rendered = _save(out_dir, result) if out_dir else report.render(result)
     print(rendered)
     if out_dir:

@@ -9,14 +9,17 @@ metrics that detect a flattened register actually detect one.
 No test here calls a model. ScriptedGenerator supplies the text.
 """
 import os
+import shutil
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import rulesets
 from evalab import harness, metrics, prompts, report
-from evalab.generators import GeneratorError, ScriptedGenerator
+from evalab.generators import (ClaudeCliGenerator, GeneratorError,
+                                ResumingGenerator, ScriptedGenerator)
 
 
 class SplitTests(unittest.TestCase):
@@ -539,6 +542,85 @@ class InstructedArmTests(unittest.TestCase):
             del row["instructed"]
         rendered = report.render(result)
         self.assertNotIn("TOLD THE RULES", rendered)
+
+
+class ResumingGeneratorTests(unittest.TestCase):
+    """A transient failure must not cost a whole run.
+
+    The first live structural+instructed run died at call ~258 of 264 --
+    `claude` exited 1 with an empty stderr -- and finishing it meant
+    paying for the other 257 generations again.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.dir)
+
+    def _messages(self, text):
+        return [{"role": "user", "content": text}]
+
+    def test_it_replays_what_is_there_and_generates_what_is_not(self):
+        live = ScriptedGenerator(["fresh"])
+        recorder = ClaudeCliGenerator(record_to=self.dir)
+        recorder._record(self._messages("asked before"), "recorded")
+        gen = ResumingGenerator(self.dir, live)
+        self.assertEqual(gen(self._messages("asked before")), "recorded")
+        self.assertEqual(gen(self._messages("never asked")), "fresh")
+        self.assertEqual((gen.replayed, gen.generated), (1, 1))
+
+    def test_what_it_generates_it_records_so_a_second_resume_finds_it(self):
+        gen = ResumingGenerator(self.dir, ScriptedGenerator(["fresh"]))
+        gen(self._messages("new"))
+        again = ResumingGenerator(self.dir, ScriptedGenerator([]))
+        self.assertEqual(again(self._messages("new")), "fresh")
+
+    def test_the_same_question_twice_resumes_as_two_separate_answers(self):
+        """The control arm asks the ungated arm's exact question again.
+        A resume that collapsed them would restore the recording-key bug
+        that once reported a noise floor of exactly zero."""
+        recorder = ClaudeCliGenerator(record_to=self.dir)
+        recorder._record(self._messages("same"), "first")
+        recorder._record(self._messages("same"), "second")
+        gen = ResumingGenerator(self.dir, ScriptedGenerator([]))
+        self.assertEqual(gen(self._messages("same")), "first")
+        self.assertEqual(gen(self._messages("same")), "second")
+
+    def test_it_refuses_an_inner_generator_that_also_records(self):
+        """Two occurrence counters over one directory disagree, and the
+        disagreement would be silent."""
+        with self.assertRaises(ValueError):
+            ResumingGenerator(self.dir, ClaudeCliGenerator(record_to=self.dir))
+
+
+class CliRetryTests(unittest.TestCase):
+    def test_a_transient_failure_is_retried_before_it_kills_a_run(self):
+        gen = ClaudeCliGenerator(attempts=3, backoff=0)
+        calls = []
+
+        def flaky(messages):
+            calls.append(messages)
+            if len(calls) < 3:
+                raise GeneratorError("claude exited 1: ")
+            return "eventually"
+
+        gen._once = flaky
+        self.assertEqual(gen(self._m()), "eventually")
+        self.assertEqual(len(calls), 3)
+
+    def test_a_failure_that_never_clears_still_raises(self):
+        """Retrying widens the window. It must not hide a broken
+        executable behind a run that silently produces nothing."""
+        gen = ClaudeCliGenerator(attempts=2, backoff=0)
+
+        def broken(messages):
+            raise GeneratorError("could not run 'claude'")
+
+        gen._once = broken
+        with self.assertRaises(GeneratorError):
+            gen(self._m())
+
+    def _m(self):
+        return [{"role": "user", "content": "write something"}]
 
 
 if __name__ == "__main__":

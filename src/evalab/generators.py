@@ -17,6 +17,7 @@ import json
 import os
 import subprocess
 import threading
+import time
 
 
 class GeneratorError(RuntimeError):
@@ -51,10 +52,21 @@ class ClaudeCliGenerator:
 
     name = "claude-cli"
 
-    def __init__(self, executable="claude", timeout=240, record_to=None):
+    def __init__(self, executable="claude", timeout=240, record_to=None,
+                  attempts=3, backoff=5):
         self.executable = executable
         self.timeout = timeout
         self.record_to = record_to
+        # A 30-prompt run is ~260 subprocesses. At that count a transient
+        # non-zero exit is not an anomaly, it is expected, and the first
+        # live structural+instructed run died on one at call ~258 of 264
+        # -- exit 1 with an EMPTY stderr, nothing to diagnose. Retrying a
+        # handful of times is the difference between losing 25 minutes of
+        # generations and not. A failure that survives every attempt
+        # still raises: this widens the window, it does not paper over a
+        # broken executable.
+        self.attempts = max(1, attempts)
+        self.backoff = backoff
         self._seen = {}
         # A run may drive several prompts at once (harness.run's workers).
         # Two threads bumping the same digest without this would hand both
@@ -71,6 +83,21 @@ class ClaudeCliGenerator:
             return "unknown"
 
     def __call__(self, messages):
+        last = None
+        for attempt in range(self.attempts):
+            try:
+                text = self._once(messages)
+            except GeneratorError as exc:
+                last = exc
+                if attempt + 1 < self.attempts:
+                    time.sleep(self.backoff * (attempt + 1))
+                continue
+            if self.record_to:
+                self._record(messages, text)
+            return text
+        raise last
+
+    def _once(self, messages):
         prompt = "\n\n".join(m["content"] for m in messages)
         try:
             proc = subprocess.run(
@@ -88,8 +115,6 @@ class ClaudeCliGenerator:
         text = proc.stdout.strip()
         if not text:
             raise GeneratorError(f"{self.executable} returned nothing")
-        if self.record_to:
-            self._record(messages, text)
         return text
 
     def _record(self, messages, text):
@@ -159,3 +184,58 @@ class ScriptedGenerator:
         if not self.outputs:
             raise GeneratorError("scripted generator ran out of outputs")
         return self.outputs.pop(0)
+
+
+class ResumingGenerator:
+    """Replays a recording when one exists, generates when it does not.
+
+    A live run is a couple of hundred subprocesses over half an hour.
+    Losing all of them because the last one failed is not acceptable, and
+    it happened: the first structural+instructed run died at call ~258 of
+    264 and the only way to finish was to pay for the other 257 again.
+
+    Resume is safe here for the reason replay is safe. A recording is
+    keyed by the exact message list plus how many times that list has been
+    asked this run, so a resumed call either matches the question the
+    recorded answer belongs to or misses and is generated fresh. It cannot
+    hand back an answer to a different question -- the failure mode a
+    naive cache would have.
+
+    The inner live generator must NOT record. This one owns the occurrence
+    counter, and two counters over one directory would disagree.
+    """
+
+    name = "resuming"
+
+    def __init__(self, directory, live):
+        if getattr(live, "record_to", None):
+            raise ValueError(
+                "the inner generator must not record: ResumingGenerator "
+                "owns the occurrence counter and two would disagree")
+        self.directory = directory
+        self.live = live
+        self._seen = {}
+        self._lock = threading.Lock()
+        self.replayed = 0
+        self.generated = 0
+
+    def version(self):
+        return self.live.version()
+
+    def __call__(self, messages):
+        digest = _key(messages).rsplit(".", 1)[0]
+        with self._lock:
+            occurrence = self._seen.get(digest, 0)
+            self._seen[digest] = occurrence + 1
+        path = os.path.join(self.directory, f"{digest}.{occurrence}.json")
+        if os.path.exists(path):
+            with open(path) as f:
+                self.replayed += 1
+                return json.load(f)["output"]
+        text = self.live(messages)
+        os.makedirs(self.directory, exist_ok=True)
+        with open(path, "w") as f:
+            json.dump({"messages": messages, "output": text}, f, indent=1)
+            f.write("\n")
+        self.generated += 1
+        return text
