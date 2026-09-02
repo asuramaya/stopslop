@@ -119,3 +119,87 @@ class ArmTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CombinedArmTests(unittest.TestCase):
+    """Does instruction STACK with enforcement, or compete with it?
+
+    The leaderboard found a clean division of labour: skill files
+    generalise (10 to 12 held-out flags) while the gate enforces (8
+    enforced flags). Every arm before this one was either/or, so nobody
+    had tested both at once -- which is the arm that decides whether this
+    project should recommend the hook INSTEAD of a skill file or
+    ALONGSIDE one.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+
+    def _run(self, combined, names=()):
+        chosen = {n: interventions.load(n) for n in names}
+        generator = ScriptedGenerator(
+            ["Needless to say, this is a seamless and very robust tool.",
+             "The cache stores query results on disk."] * 30)
+        return harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
+                            generator, max_iterations=3,
+                            instructions=chosen or None, combined=combined)
+
+    def test_a_combined_arm_is_scored_like_any_other(self):
+        result = self._run(["instructed"])
+        row = result["rows"][0]
+        self.assertIn("instructed+gated", row)
+        self.assertIn("held_out_per_1k", row["instructed+gated"]["scores"])
+
+    def test_it_runs_the_real_loop_and_can_spend_more_than_one_generation(self):
+        """If it generated once it would be an instructed arm wearing the
+        gate's name, and the comparison would be meaningless."""
+        result = self._run(["instructed"])
+        self.assertGreater(result["rows"][0]["instructed+gated"]["iterations"], 1)
+        self.assertIn("passed", result["rows"][0]["instructed+gated"])
+
+    def test_the_instruction_leads_the_first_prompt(self):
+        generator = ScriptedGenerator(["clean text."] * 30)
+        harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
+                     generator, max_iterations=1, combined=["instructed"])
+        prompt = prompts.by_ids(["readme-section"])[0]["text"]
+        self.assertTrue(any(m[0]["content"].endswith(prompt)
+                             and harness.INSTRUCTION_HEADER in m[0]["content"]
+                             for m in generator.seen))
+
+    def test_a_revision_keeps_the_instruction_rather_than_dropping_it(self):
+        """A revision that restates the bare prompt would quietly remove
+        the very thing this arm is testing, halfway through the loop."""
+        generator = ScriptedGenerator(
+            ["Needless to say, this is seamless."] * 30)
+        harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
+                     generator, max_iterations=3, combined=["instructed"])
+        revisions = [m for m in generator.seen if len(m) == 3]
+        self.assertTrue(revisions)
+        # The plain gated arm revises in this run too and carries no
+        # instruction by design, so the claim is that the combined arm's
+        # revisions keep theirs -- not that every revision has one.
+        instructed = [m for m in revisions
+                       if harness.INSTRUCTION_HEADER in m[0]["content"]]
+        self.assertTrue(instructed, "the combined arm dropped its "
+                                     "instruction on revision")
+
+    def test_the_plain_gated_arm_still_carries_no_instruction(self):
+        """The combined arm is only interpretable against a gate that was
+        told nothing."""
+        generator = ScriptedGenerator(["clean text."] * 30)
+        harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
+                     generator, max_iterations=1, combined=["instructed"])
+        prompt = prompts.by_ids(["readme-section"])[0]["text"]
+        self.assertTrue(any(m[0]["content"] == prompt for m in generator.seen))
+
+    def test_a_competitor_can_be_combined_too(self):
+        result = self._run(["stop-slop"], names=["stop-slop"])
+        self.assertIn("stop-slop+gated", result["rows"][0])
+
+    def test_combining_something_that_never_ran_is_ignored_not_fatal(self):
+        result = self._run(["no-such-tool"])
+        self.assertEqual(result["combined_arms"], [])
+
+    def test_the_result_names_its_combined_arms(self):
+        result = self._run(["instructed"])
+        self.assertEqual(result["combined_arms"], ["instructed+gated"])

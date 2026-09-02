@@ -125,7 +125,8 @@ def render(result):
     add("  the 2026-09-01 run was two flags becoming one.")
     add("")
 
-    competitors = result.get("intervention_arms") or []
+    competitors = (result.get("intervention_arms") or []) + \
+        (result.get("combined_arms") or [])
     if competitors:
         add("LEADERBOARD  (total tells, fewer is better; generations spent)")
         add("-" * 66)

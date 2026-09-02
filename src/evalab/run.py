@@ -32,6 +32,7 @@ def _save(out_dir, result):
     for row in result["rows"]:
         saved_arms = ["ungated", "instructed", "gated"]
         saved_arms += result.get("intervention_arms") or []
+        saved_arms += result.get("combined_arms") or []
         for arm in saved_arms:
             if arm not in row:
                 continue
@@ -74,6 +75,14 @@ def main(argv=None):
                          help="also run a competing intervention as its own "
                               "arm, by name from src/evalab/interventions/ "
                               "(repeatable; 'all' runs every vendored one)")
+    parser.add_argument("--combine", action="append", dest="combine",
+                         metavar="NAME",
+                         help="also run an arm that states NAME's rules up "
+                              "front AND runs the gated loop -- does "
+                              "instruction stack with enforcement, or compete "
+                              "with it? ('all' combines every chosen "
+                              "intervention; 'instructed' is this project's "
+                              "own block)")
     parser.add_argument("--max-iterations", type=int, default=4)
     parser.add_argument("--workers", type=int, default=1,
                          help="run this many PROMPTS at once; a prompt's own "
@@ -96,6 +105,11 @@ def main(argv=None):
             except (KeyError, FileNotFoundError) as exc:
                 print(f"error: {exc}", file=sys.stderr)
                 return 2
+
+    combined = []
+    if args.combine:
+        combined = (["instructed"] + sorted(chosen_interventions)
+                     if "all" in args.combine else list(args.combine))
 
     ruleset = rulesets.get_ruleset(args.ruleset)
     if args.live:
@@ -126,7 +140,8 @@ def main(argv=None):
                               enforced=args.enforce,
                               max_iterations=args.max_iterations,
                               on_progress=progress, workers=args.workers,
-                              instructions=chosen_interventions or None)
+                              instructions=chosen_interventions or None,
+                              combined=combined)
         result["prompt_set"] = args.prompt_set
         result["enforce"] = args.enforce
     except GeneratorError as exc:

@@ -161,15 +161,26 @@ def run_arm_blind_revision(generator, prompt, iterations):
     return {"text": text, "iterations": iterations, "passed": None}
 
 
-def run_arm_gated(generator, prompt, ruleset, enforced, max_iterations=4):
-    messages = [{"role": "user", "content": prompt}]
+def run_arm_gated(generator, prompt, ruleset, enforced, max_iterations=4,
+                   instruction=""):
+    """The real write-lint-revise loop.
+
+    `instruction`, when given, prefixes the FIRST prompt and every
+    revision's restatement of it -- the combined arm. The leaderboard
+    found a clean division of labour: a skill file generalises (10 to 12
+    held-out flags) while the gate enforces (8 enforced flags), and
+    every arm before this one was either/or. This asks whether they
+    stack or compete for the same attention.
+    """
+    opening = instruction + prompt
+    messages = [{"role": "user", "content": opening}]
     text = generator(messages)
     iterations = 1
     while iterations < max_iterations:
         flags = _blocking_enforced(ruleset, text, enforced)
         if not flags:
             return {"text": text, "iterations": iterations, "passed": True}
-        messages = [{"role": "user", "content": prompt},
+        messages = [{"role": "user", "content": opening},
                     {"role": "assistant", "content": text},
                     {"role": "user", "content": _revision_message(flags)}]
         text = generator(messages)
@@ -190,7 +201,7 @@ def score(ruleset, text, enforced, held_out):
 
 
 def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
-              on_progress, instructions):
+              on_progress, instructions, combined):
     if on_progress:
         on_progress(prompt["id"])
     ungated = run_arm_ungated(generator, prompt["text"])
@@ -199,6 +210,10 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
              for name, text in instructions.items()}
     gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
                            max_iterations=max_iterations)
+    for name in combined:
+        arms[f"{name}+gated"] = run_arm_gated(
+            generator, prompt["text"], ruleset, enforced,
+            max_iterations=max_iterations, instruction=instructions[name])
     # Matched compute: the same number of generations the gated arm spent
     # on THIS prompt, so the two differ only in whether the rewrite was
     # told what to fix.
@@ -222,7 +237,7 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
 
 
 def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
-        on_progress=None, workers=1, instructions=None):
+        on_progress=None, workers=1, instructions=None, combined=None):
     """Every arm over every prompt. Returns a result dict for report.py.
 
     `workers` parallelizes across PROMPTS, never within one. A prompt's
@@ -236,8 +251,9 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
     started = time.time()
     instructions = dict(instructions or {})
     instructions.setdefault("instructed", build_instruction(ruleset, enforced))
+    combined = [name for name in (combined or []) if name in instructions]
     args = (ruleset, generator, enforced, held_out, max_iterations, on_progress,
-            instructions)
+            instructions, combined)
     if workers > 1:
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             futures = [pool.submit(_run_one, p, *args) for p in prompts]
@@ -257,6 +273,7 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
         "instruction": instructions["instructed"],
         "instructions": {name: text for name, text in instructions.items()},
         "intervention_arms": sorted(n for n in instructions if n != "instructed"),
+        "combined_arms": [f"{n}+gated" for n in combined],
         "seconds": round(time.time() - started, 1),
         "rows": rows,
     }
