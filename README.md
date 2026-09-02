@@ -6,7 +6,7 @@ A pluggable text gate for Claude Code that reads your prose at the moment of the
 
 ## What the evidence says
 
-Four rounds of 30 prompts, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). Two arms decide whether this tool earns its place. A **blind rewrite** spends the same generations the gate spends, told only to rewrite and never what was wrong. **Told the rules** pastes the enforced checks' own wording into the prompt and generates once -- what a line in `CLAUDE.md` costs you, which is nothing.
+Five committed runs, three of them at 30 prompts, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). Two arms decide whether this tool earns its place. A **blind rewrite** spends the same generations the gate spends, told only to rewrite and never what was wrong. **Told the rules** pastes the enforced checks' own wording into the prompt and generates once -- what a line in `CLAUDE.md` costs you, which is nothing.
 
 | arm | generations | total tells | per 1k words |
 |---|---|---|---|
@@ -34,7 +34,7 @@ Five things qualify the rest of it:
 - **Four checks did the work, not seventeen.** Bold as body emphasis, horizontal rules, uniform paragraph blocks and the colon reveal. Five of the nine checks added from Wikipedia's catalogue of AI tells fire *zero times* across 8107 words of exactly the register they describe.
 - **Tell sets decay.** The rule of three, copula avoidance and the participial significance clause were all catalogued against 2023-24 output. This model does not produce them at a measurable rate. What survives is the markdown habit, which is what [the stylometry work](https://arxiv.org/pdf/2603.27006) predicted would be the last fingerprint.
 - **The gate overshoots.** Against a human control of CPython stdlib docstrings and pre-LLM package documentation, generated prose scores 6.29 structural flags per 1000 words and human prose 0.97 to 2.09. Gated output lands at 0.39, *below* the human band. Humans use bold and horizontal rules in moderation; driving a signal to zero does not make text human, it makes it differently artificial. Calibrating to the human band is the clearest unfinished work here.
-- **The gate does not generalize better than an instruction.** On the 14 checks nobody enforced, the instruction scored 17 and the gate 23 -- indistinguishable (p = 0.58), but it kills the idea that enforcement teaches something a stated rule does not. Everything the gate wins, it wins on the checks it was pointed at. That has now held in four consecutive rounds, and it argues for enforcing comprehensively rather than for skipping the gate. It is why the harness always holds a subset back.
+- **The gate does not generalize better than an instruction.** On the 14 checks nobody enforced, the instruction scored 17 and the gate 23 -- indistinguishable (p = 0.58), but it kills the idea that enforcement teaches something a stated rule does not. Everything the gate wins, it wins on the checks it was pointed at. That has now held in every round, and it argues for enforcing comprehensively rather than for skipping the gate. It is why the harness always holds a subset back.
 
 None of this measures whether the writing is *good*. It measures whether it still reads as generated. Those are different questions and only the second is answered here.
 
@@ -79,6 +79,7 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 - `python3 stopslop.py options` lists every tunable option a ruleset has that is not a per-check threshold/action (ste100's word limits and excluded vocabulary types), its current value, and its default. Add `--set KEY=VALUE [KEY=VALUE ...]` to change one or more; an option you do not mention keeps its current value.
 - `python3 stopslop.py status` shows per-ruleset stats, recent gate activity, and whether the hook is even wired up yet.
 - `python3 stopslop.py list-rulesets` lists every registered ruleset (tagging each `[built-in]` or `[custom]`), the glob patterns routed to it, and any custom ruleset that failed to load. Add `--add RULESET_ID [--name NAME]` to scaffold a whole new ruleset -- empty until this ruleset's own `terms`/`checks` commands fill it in, picked up in the same process, no restart -- or `--remove RULESET_ID` to remove a custom one (refused for a built-in one, or one any routing rule still routes to). **Removal deletes the ruleset's package and nothing else.** Its custom checks under `.claude/stopslop/custom_checks/<id>/`, and its `custom_term_lists`, `check_config` and `disabled_checks` entries in `stopslop.config.json`, all stay -- so re-adding the same id brings its checks and settings back, the same "removal is reversible" posture a term list already has. The cost is that a ruleset removed and never re-added leaves that data behind. Nothing purges it; delete that directory and those config keys by hand to reclaim it.
+- `python3 stopslop.py rules` prints the ruleset's enabled checks as a block of writing instructions, ready to paste into `CLAUDE.md`. This is the free alternative to installing the gate, and this project's own evaluation says it is worth about half of it -- see What the evidence says. Only enabled checks are printed, since an instruction naming a check you switched off asks for something nothing here enforces, and the block stamps in its own regeneration command because a pasted block outlives the memory of where it came from. Add `--quiet` for just the block.
 - `python3 stopslop.py --version` prints the installed version.
 - `python3 stopslop.py dashboard` opens the live web dashboard. Needs the venv.
 
@@ -113,17 +114,28 @@ Uses the venv `stopslop.py init` already sets up (see Quickstart). `.mcp.json` i
 
 ## The evaluation harness (`src/evalab/`)
 
-The instrument behind every number above. Each prompt runs four arms: **ungated** generates once, **gated** runs the real write-lint-revise loop, **blind** spends the gated arm's exact compute on a rewrite that is never told what was wrong, and **control** is a second ungated generation whose delta is the run's noise floor.
+The instrument behind every number above. Each prompt runs five arms:
 
-Three design rules keep it from flattering the tool. The gated arm is never shown a held-out check, so those measure transfer rather than instruction-following. The blind arm has matched compute, so a gain cannot be credited to the flags when a second pass would have done it. And the averages cover only prompts the loop actually revised -- including the rest does not dilute an effect, it invents one, which this harness demonstrated on itself before the scoping was fixed.
+- **ungated** generates once. The baseline.
+- **control** is a second ungated generation. Its delta is the run's noise floor, and a gate delta smaller than it is not a finding whatever direction it points.
+- **blind** spends the gated arm's exact compute on a rewrite that is never told what was wrong. Whatever it gains is what a second pass gains.
+- **instructed** pastes the enforced checks' own wording into the prompt and generates once. This is the free alternative to installing anything, and the gate has to beat it to be worth the install.
+- **gated** runs the real write-lint-revise loop against the live ruleset.
+
+Four design rules keep it from flattering the tool. The gated arm is never shown a held-out check, so those measure transfer rather than instruction-following -- and neither is the instructed arm, which a test enforces. The blind arm has matched compute, so a gain cannot be credited to the flags when a second pass would have done it. The instructed arm's text is built from the ruleset's own check metadata rather than hand-written, so it cannot be quietly weakened relative to what the gate enforces, and a ruleset gaining a check gains it in both arms at once. And the averages cover only prompts the loop actually revised -- including the rest does not dilute an effect, it invents one, which this harness demonstrated on itself before the scoping was fixed.
 
 ```
 python3 src/evalab/run.py --live --prompt-set padding --enforce structural --workers 5
-python3 src/evalab/run.py --replay evalab-runs/2026-09-01-structural/recordings \
+python3 src/evalab/run.py --replay evalab-runs/2026-09-01-instructed/recordings \
     --prompt-set padding --enforce structural
+python3 src/evalab/stats.py evalab-runs/2026-09-01-instructed/result.json gated instructed
 ```
 
-`--live` costs tokens and records every call, so a run replays for free afterwards. Each run writes `result.json`, `report.txt` and all four arms' full text under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence.
+`--live` costs tokens and records every call, so a run replays for free afterwards. A live run is a couple of hundred subprocesses over half an hour and one of them will eventually fail for no reason: `--resume DIR` replays what a recordings directory already holds and generates only what it does not, which is how the run above was finished after `claude` exited 1 at call 258 of 264. Resume is safe for the same reason replay is -- a recording is keyed by the exact message list plus how many times that list has been asked, so a resumed call either matches its own question or misses and is regenerated.
+
+`stats.py` pairs any two arms of a saved `result.json` by prompt: an exact two-sided sign test with ties dropped, and a seeded percentile bootstrap on the mean paired difference. Every p-value in this README is reproducible with it, and a test holds the published structural claim against its own saved run so a future change to the harness fails the suite rather than silently rewriting history.
+
+Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The five committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
 
 ## What it does not do
 
@@ -135,7 +147,7 @@ python3 src/evalab/run.py --replay evalab-runs/2026-09-01-structural/recordings 
 - **One file, one ruleset.** First match wins, except for `embedded_prose`, which sends a code file's strings and docstrings through a second prose ruleset.
 - **The human control is small.** Under 12000 words across two genres, and stdlib docstrings carry no markdown, so three of the structural checks cannot fire there.
 
-Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (963 tests). See [docs/incidents/](docs/incidents/) for a real bypass of this project's own gate, and [CONTRIBUTING.md](CONTRIBUTING.md) for the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
+Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1008 tests). See [docs/incidents/](docs/incidents/) for a real bypass of this project's own gate, and [CONTRIBUTING.md](CONTRIBUTING.md) for the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
 
 ## Documentation
 
@@ -143,6 +155,7 @@ Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (9
 - [How to add a ruleset](docs/adding-a-ruleset.md) -- the full plugin contract: the three required functions, the three required attributes, every optional capability, and what each one adds.
 - [Embedded prose](docs/embedded-prose.md) -- how one routing rule sends a code file's own strings and docstrings through a second, prose ruleset.
 - [ASD-STE100 rules, extracted](docs/ASD-STE100-rules-extracted.md) -- the Part 1 rule set this project built the `ste100` ruleset against. Reference material, not this project's own prose, so the gate does not read it.
+- [The evaluation runs](evalab-runs/) -- all five, in the order they were run, with what each one asked and what it found. The conclusions change between them.
 - [A gate bypass during dictionary extraction](docs/incidents/2026-08-01-ste100-dictionary-extraction-gate-bypass.md) -- an incident report on a real bypass of this project's own gate, and the fix.
 
 ## License

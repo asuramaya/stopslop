@@ -21,6 +21,10 @@ If a file fails a live write, the command exits non-zero. Fix the flags it
 names. A note that does not stop the write is still only a note, not a
 failure. Read it anyway.
 
+`python3 stopslop.py rules` prints the same rules as a block for a
+`CLAUDE.md` file. This project measured that block at about half the effect
+of the gate, for no cost.
+
 To see the rules that apply to Markdown, read `.claude/skills/ste100/SKILL.md`.
 
 ## Run the tests
@@ -52,6 +56,42 @@ A new ruleset is a plugin, not a change to the engine. Read
 `docs/adding-a-ruleset.md` for the full contract. Every test in
 `src/test_contract_doc.py` checks that document against the real code, so a
 change to the contract needs a change to both.
+
+## Add or change a check
+
+A check earns its place with evidence. A plausible story about a pattern is
+not evidence. This project added nine checks from a published catalogue of
+AI text tells. Five of the nine fire zero times across 8107 words of the
+exact register they describe. Of seventeen enforced checks, only four did
+measurable work. A tell from 2023 is not always a tell today.
+
+Test a new check against real text first:
+
+```
+python3 stopslop.py scan docs/ --ruleset slopwatch --all
+```
+
+The dashboard Checks page then shows how often each check fires, out of how
+many judged writes. It also names each check that never fired. A dead check
+costs nothing at the gate. It costs a reader attention on every read of the
+list.
+
+## Change the evaluation harness
+
+`src/evalab/` is an instrument. Its output must stay something a person can
+dispute.
+
+Recompute every number this project publishes from a committed run.
+`src/evalab/stats.py` does the arithmetic. `evalab-runs/*/recordings/`
+replays a run with no model. A p-value that lives only in a transcript is
+not evidence. `PublishedNumbersTests` holds the current claim against its own
+saved run. A change to that number fails the suite.
+
+A new arm obeys the same rules as the others. It must not see a held-out
+check. If it does, it measures obedience and not transfer. It must state its
+own compute cost, because a second pass alone improves text. An older
+`result.json` from before your arm must still produce a report, because those
+runs are the published evidence.
 
 ## License terms
 

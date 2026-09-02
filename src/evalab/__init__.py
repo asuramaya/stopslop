@@ -5,20 +5,39 @@ Named `evalab` rather than `eval` so no import here ever shadows the
 builtin.
 
 The experiment, in one paragraph. Take a fixed set of writing prompts.
-Run each one twice. The UNGATED arm generates once and stops. The GATED
-arm generates, lints against a subset of the ruleset's checks, feeds any
-blocking flags back as a revision request, and repeats until the text
-passes or the iteration budget runs out -- the same loop a real session
-runs against the live hook. Then score BOTH arms with the checks the
-gated arm never saw, and with shape metrics that match no check at all.
+Run each one through five arms. UNGATED generates once. CONTROL is a
+second ungated generation, so its delta is the run's own sampling noise
+and a gate delta smaller than that is not a finding. GATED generates,
+lints against a subset of the ruleset's checks, feeds any blocking flags
+back as a revision request, and repeats until the text passes or the
+budget runs out -- the same loop a real session runs against the live
+hook. BLIND spends the gated arm's exact compute on a rewrite told only
+to rewrite, so a gain cannot be credited to the flags when a second pass
+would have done it. INSTRUCTED states the enforced checks' own rules in
+the prompt and generates once, which is what a line in CLAUDE.md costs.
+Then score every arm with the checks the loop never saw, and with shape
+metrics that match no check at all.
 
-The prediction under test is the uncomfortable one. If the gate teaches
-better writing, held-out flags fall in the gated arm along with enforced
-ones. If it teaches nothing but avoidance, held-out flags sit still while
-enforced flags collapse, and the gated arm's own iteration count is the
-price paid for the illusion. The harness is built to be able to return
-that second answer, and the enforced/held-out split exists so the result
-cannot be talked out of.
+Two predictions were under test and the harness returned an
+uncomfortable answer to both.
+
+If the gate taught better writing, held-out flags would fall along with
+enforced ones. They do not, and they have not in any round with the
+signal to measure it.
+The gate improves what it is pointed at and nothing else. The
+enforced/held-out split exists so that result cannot be talked out of.
+
+If the gate were worth installing, it would have to beat the free thing.
+The instructed arm was added last, after three rounds had routed around
+it, and it captures about half the gate's effect for one generation and
+no install. The gate closes the other half for roughly three times the
+compute. Both effects are real; the honest pitch is the trade, not the
+72% figure that came from comparing against a rewrite nobody was going to
+use instead.
+
+Every number those rounds produced is replayable from `evalab-runs/` and
+recomputable with `stats.py`, which is the point: a published p-value
+that lives only in a transcript is not evidence.
 
 Nothing here runs during a gate call. This is an offline instrument.
 """

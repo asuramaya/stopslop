@@ -51,7 +51,7 @@ held-out checks. But it kills a specific claim: the gate does not
 generalize better than simply saying what you want. Everything it wins,
 it wins on the checks it was pointed at.
 
-This is the fourth consecutive round showing the same thing. Whatever the
+Every round so far has shown the same thing. Whatever the
 loop is not aimed at does not improve.
 
 ## What survives

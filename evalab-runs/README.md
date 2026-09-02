@@ -1,0 +1,55 @@
+# Evaluation runs
+
+Every number this project publishes comes from one of these directories.
+Each holds the whole run: `result.json`, the rendered `report.txt`, the
+generated text under `texts/`, the raw `recordings/` that replay it
+without a model, and a `FINDINGS.md` written against that run alone.
+
+Read them in order. The conclusions change between them, and the later
+ones are not corrections of sloppy work in the earlier ones -- they are
+what happens when a harness is allowed to answer the question it was
+pointed at.
+
+| run | what it asked | what it found |
+|---|---|---|
+| `2026-09-01/` | Does the gate change anything on real technical prose? | Almost nothing tripped a check. The question could not be asked at this base rate. |
+| `2026-09-01-padding/` | Same question on prose chosen to produce flags. Two runs; `run-3` adds the blind-rewrite arm. | A plain "rewrite this" beat the gate on the checks nobody enforced, at the same cost. Four prompts, single digits, not settled. |
+| `2026-09-01-padding30/` | The same comparison at 30 prompts, lexical checks enforced. | Directional at best. The lexical layer is nearly exhausted; a rewrite gets most of it. |
+| `2026-09-01-structural/` | What if the gate is pointed at document shape instead of wording? | A blind rewrite moves structural tells 75 to 75. The gate moves them to 3. The first result a rewrite cannot substitute for. |
+| `2026-09-01-instructed/` | Does the gate beat simply telling the model the rules, for free? | The instruction does about half the gate's work in one generation. The gate closes the other half for roughly 3x the compute. |
+
+The last one is the one to read if you read only one. It measures this
+project against the alternative that costs nothing, which is the
+comparison the first four rounds all routed around.
+
+## Replaying a run
+
+```
+python3 src/evalab/run.py --replay evalab-runs/<run>/recordings \
+    --prompt-set padding --enforce structural
+```
+
+Match `--prompt-set` and `--enforce` to what the run's own `report.txt`
+names, or the replay asks a question the recordings do not answer and
+raises rather than guessing. `2026-09-01-padding/run-2/` does not replay
+at all: it predates the blind arm and recorded three generations per
+prompt where the harness now asks for five. The refusal is correct. Its
+files are kept because they hold every intermediate revision, which
+`texts/` does not.
+
+## Rechecking a claim
+
+```
+python3 src/evalab/stats.py evalab-runs/<run>/result.json gated instructed
+```
+
+Paired by prompt: an exact two-sided sign test with ties dropped, and a
+seeded percentile bootstrap on the mean paired difference. With no arms
+named it compares the gated arm against every other one present.
+
+## What none of this measures
+
+Whether the writing is any good. Every metric here answers whether text
+still reads as machine-written. Those are different questions, and the
+saved `texts/` are the only evidence for the first one. Read them side by
+side before believing any table.
