@@ -2,57 +2,44 @@
 
 [![tests](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml/badge.svg)](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml)
 
-stopslop is a prototype of a pluggable text-enforcement gate for Claude Code. It reads your prose at the moment of the write, inside a live Claude Code session, instead of in review afterward. On the write paths it does see, it can deny before the text reaches disk. It does not see every write path, and it is not a security boundary -- [SECURITY.md](SECURITY.md) is specific about what it misses and why. ASD-STE100 (Simplified Technical English) was the first ruleset it enforced, and is one of three the engine runs.
+A pluggable text gate for Claude Code that reads your prose at the moment of the write, and an evaluation harness that measures whether the gate is worth running. The harness is the unusual part. Most tools in this category assert that they remove AI writing tells; this one tests the claim against a control, and the answer is narrower and stranger than the pitch would be.
 
-Most AI output has a problem. It uses weak modals. It uses passive voice with no named actor. It uses jargon. It uses long sentences. ASD-STE100 exists to remove exactly this from human maintenance manuals. A linter that runs after the fact does not fix this well. By the time a reviewer reads the pull request, the bad text is already on disk. Someone must notice it, flag it, and fix it. stopslop instead works at the point of the write. It intercepts most `Write`, `Edit`, and `Bash` file writes before they land on disk. It runs the text through the active ruleset's rule engine. Clean text passes through. A ruleset can auto-fix mechanical problems, like contractions and semicolons. A ruleset can deny text that needs real judgment, like an unnamed passive actor.
+## What the evidence says
 
-## Why this exists
+Three rounds of 30 prompts, four arms each, all replayable from [`evalab-runs/`](evalab-runs/). The arm that matters is a **blind rewrite**: the same prompt, the same number of generations the gated arm spent, told only to rewrite and never what was wrong. Anything a plain rewrite achieves is not worth building a gate for.
 
-ASD-STE100 is the aerospace industry's own answer to this exact problem, but for human writers, not AI ones. It has a closed vocabulary of about 875 approved words. It has a small set of grammar rules: one tense at a time, no complex verb constructions, no unclear pronouns. It has a length limit per sentence. The standard exists to make maintenance text clear across a global workforce, many of whom do not have English as a first language. It also fits an unrelated, newer problem well: it constrains a language model's tendency to write long sentences, weak modals, and passive voice. The two problems are not related. Both come from the same root cause: too much freedom in how you say something.
+**A blind rewrite moves structural tells from 75 to 75. The gate moves them from 75 to 3.**
 
-## Rulesets
+That is the finding. Told only to rewrite, a model reproduces the same document shape, because nothing tells it the shape is what gives it away. Total tells fell 72%, the gated arm carried fewer on 26 of 30 prompts and the blind arm on zero, sign test p < 0.000001, favouring the gate in 100% of bootstrap resamples. It costs 2.9 generations per document.
 
-ASD-STE100 is one ruleset, not the whole system. A ruleset is a small Python package under `src/rulesets/`. It plugs into the same gate, the same CLI, and the same MCP server. It supplies its own rules, its own auto-fix logic, and its own decision about what actually blocks a write. The gate itself does not know anything about ASD-STE100's vocabulary or grammar. It only knows how to call three required functions every ruleset supplies (`lint_and_gate`, `blocking_semantic_flags`, `apply_mechanical_fixes`), plus three attributes naming and describing it (`RULESET_ID`, `RULESET_NAME`, `CAPABILITIES`) -- see `docs/adding-a-ruleset.md` for the full contract, including what each optional capability (terms, checks, custom checks, and so on) adds on top.
+Four things qualify that, and they are the reason to trust it:
 
-Three rulesets ship today:
+- **It only works when the checks are pointed at formatting.** With just the 11 wording checks enforced, the gate barely beat a rewrite: 25 total tells against 38, directional at best. The lexical layer is nearly exhausted.
+- **Four checks did the work, not seventeen.** Bold as body emphasis, horizontal rules, uniform paragraph blocks and the colon reveal. Five of the nine checks added from Wikipedia's catalogue of AI tells fire *zero times* across 8107 words of exactly the register they describe.
+- **Tell sets decay.** The rule of three, copula avoidance and the participial significance clause were all catalogued against 2023-24 output. This model does not produce them at a measurable rate. What survives is the markdown habit, which is what [the stylometry work](https://arxiv.org/pdf/2603.27006) predicted would be the last fingerprint.
+- **The gate overshoots.** Against a human control of CPython stdlib docstrings and pre-LLM package documentation, generated prose scores 6.29 structural flags per 1000 words and human prose 0.97 to 2.09. Gated output lands at 0.39, *below* the human band. Humans use bold and horizontal rules in moderation; driving a signal to zero does not make text human, it makes it differently artificial. Calibrating to the human band is the clearest unfinished work here.
 
-- **`ste100`.** The ASD-STE100 rule engine described above. It also has a project glossary, so a user can register domain words the standard does not cover.
-- **`slopwatch`.** The default for prose. Targets ordinary AI prose habits: an opener that stalls before the point, a dramatic colon reveal, an unnamed authority claim. Every check warns and none blocks, on purpose (see the block/warn rule below). It started as a small, original demo ruleset. It now also consolidates checks ported from several MIT-licensed prose linters, each one credited in NOTICE. ASD-STE100 erases individual voice on purpose, for one uniform result. `slopwatch` protects individual voice on purpose, against generic AI polish. The two rulesets aim in nearly opposite directions. The same gate runs both.
-- **`codewatch`.** Targets the tells an AI agent leaves in Python source while it writes code. Examples: a comment that only restates the next line, a bare `except: pass`, a mutable default argument. It proves the plugin contract works past prose entirely. It ports checks from an MIT-licensed code-quality linter, credited in NOTICE.
+And one thing that stayed true in every round: **held-out checks never improve.** Whatever the loop is not pointed at does not get better. That argues for enforcing comprehensively, not for skipping the gate, and it is why the harness always holds a subset back.
 
-A config file, `stopslop.config.json`, at the repository root, picks which ruleset applies to which file. Each rule is a glob pattern and a ruleset name, checked in order. The first match wins. Without this file, the gate falls back to the built-in defaults: `slopwatch` on `.md`, `.txt`, and `.rst` files; `codewatch` on `.py` files; `.claude/` out of scope.
-
-  **`ste100` is opt-in, and reaches no file until a project names it.** That is a reversal, and the reason is worth stating plainly. ASD-STE100 is a controlled language for maintenance procedures, where one reading of a sentence has to be the only reading, and it buys that with a deliberate monotone: short declaratives, one tense, roughly 875 approved words. That is right for a procedure a technician follows at 3am. It is a category error for a README or a design note, and the monotone it enforces is close kin to the flat generated register this project exists to catch. This tool proved that on itself: `ste100` called 23 sentences of `SECURITY.md` blocking failures over the words "blocking", "warning" and "reading", none of which that document can avoid. So route your procedures to it by name, above the general rule, e.g. `{"glob": "docs/runbooks/*.md", "ruleset": "ste100"}`. This repository routes exactly one file that way, `CONTRIBUTING.md`. See `stopslop.config.json.example` for the format.
-
-Run `python3 stopslop.py list-rulesets` to see every registered ruleset, and which files route to each one under the current config.
+None of this measures whether the writing is *good*. It measures whether it still reads as generated. Those are different questions and only the second is answered here.
 
 ## What it actually does
 
-- **Real ASD-STE100 dictionary.** Not a hand-picked stand-in. The `ste100` ruleset loads the actual extracted dictionary: 787 approved words and 1203 forbidden ones, each with an approved replacement. A team verified the extraction against the source PDF before it became enforcement data. Read the next sentence before you weigh that number, though: the `vocabulary` check **warns and never blocks**, so the dictionary informs a report and denies nothing. Applied to software prose a closed 875-word aerospace vocabulary fires constantly, and the gap list below says why that stays off.
-- **A live PreToolUse gate.** `src/pretool_hook.py` intercepts `Write`, `Edit`, and detected `Bash` file writes. It resolves the target path to a ruleset, then hands the text to that ruleset. Clean text passes through with no change. A ruleset can auto-fix mechanical violations, like contractions and semicolons. A ruleset can deny text that needs judgment, like a bad verb tense or an unnamed passive actor. It lists the specific violations, so an agent or a human can resolve them before the write proceeds.
-- **One vocabulary model, shared by every ruleset.** Every ruleset declares its own named **term lists**. Each list has a polarity, either **allow** (says what the gate should stop flagging, e.g. `ste100`'s project vocabulary) or **deny** (says what it should start flagging, e.g. `slopwatch`'s marketing cliches, `codewatch`'s generic name stems). Each list layers three sources, in that precedence: built-ins, opt-in **vocabulary packs**, then the project's own registrations. Run `stopslop.py terms --ruleset ID` to see any of them; the dashboard's `Vocabulary` page reaches every term from every list through its one search box, each hit tagged by ruleset, list and source. Every term is removable, including a built-in or a pack word: those cannot be deleted (the words live in a ruleset's source file or a built-in pack) so removing one records a suppression the project can restore later. Without that the layers could only ever grow.
+A `PreToolUse` hook. Before Claude Code writes or edits a file, the hook gets the text, resolves the path to a ruleset through `stopslop.config.json` (first glob match wins), lints it, and either passes it, auto-fixes mechanical problems, or denies the write with the list of what to fix. A `pre-commit` hook gates the staged tree, ratcheted against HEAD.
 
-  A project can also declare its own **custom term list** on any ruleset, not just add terms to a built-in one, from the dashboard's `Vocabulary` page, `stopslop.py terms --new-list`, or `stopslop.config.json`'s `custom_term_lists` key -- id, label, polarity, whether it takes new words, whether it takes packs. It's browsable, searchable and curatable exactly like a built-in list right away. A built-in check can never read it (a built-in check's own source names its list, fixed at ship time), but a **custom** check can: the check names which list feeds it (`feeds`), the same direction a built-in check's own declaration already uses, set from the Checks page's own "Vocabulary list" field, or `--terms-list` on the CLI, when the check is added or edited (the MCP tools cannot add or edit a check at all -- see [SECURITY.md](SECURITY.md)). A list with nothing bound is pure organized vocabulary, still fully usable by hand. Removing a custom list only removes its *declaration* -- any terms already registered under it stay on disk, reappearing if the same ruleset/list id is declared again, the same "removal is reversible" posture every other removal in this project already takes.
+It is not a security boundary and does not see every write path. [SECURITY.md](SECURITY.md) is specific about what it misses.
 
-  A project can also add a whole **custom check** to any ruleset -- a real Python matcher, not a word list -- from the dashboard's `Checks` page: an id, what it catches, what to do instead, a threshold and action, the matcher's own body, and an optional vocabulary-list binding (above). It runs against a single sentence, one line, or the whole document (per ruleset), exactly like a built-in check, and reaches the live gate immediately, with no dashboard restart. It's a real file at `.claude/stopslop/custom_checks/<ruleset_id>/<check_id>.py`, safe to hand-edit or remove outright. The dashboard's own "Edit" link on a custom check's row is the only place its matcher body is visible again once saved -- it doubles as both viewer and editor, prefilled from the file on disk; "Remove" only ever offers this file, never a built-in check.
+## Rulesets
 
-  Beyond extending an existing ruleset, a project can scaffold a whole **new ruleset** of its own -- no code, no fork of this repo -- from the dashboard's `Routing` page: an id and a display name produce a real package at `.claude/stopslop/custom_rulesets/<ruleset_id>/__init__.py`, empty until the same Checks/Vocabulary UI fills it in with its own checks and lists. It's routable, checkable, and curatable exactly like `ste100`/`slopwatch`/`codewatch`, and picking it up needs no dashboard restart either -- the one step in this whole system that does anything more than re-read a file, since a ruleset's own registration is the one thing this tool caches at all.
+A ruleset is a small Python package under `src/rulesets/` supplying three functions (`lint_and_gate`, `blocking_semantic_flags`, `apply_mechanical_fixes`) and three attributes. The gate knows nothing else about it. See [docs/adding-a-ruleset.md](docs/adding-a-ruleset.md) for the contract.
 
-  Vocabulary packs are bulk word lists. The three built-in ones are pulled from real, license-checked outside sources (see `src/core/glossary_packs/` and NOTICE); a project can also add its own from the dashboard's `Vocabulary` page (id, name, source, license, content kind, and a one-term-per-line list) -- a custom pack writes the same self-describing file shape a built-in one has, under `.claude/stopslop/custom_packs/`, and can be removed the same way it was added. Built-in packs can't be removed, only a project's own custom ones. A pack is **inert content** that names its source and nothing else. Where it applies (a path glob) and what it feeds (a term list) are both project decisions, written on the routing rule:
+- **`slopwatch`** -- the default for prose, 31 checks. AI writing tells: wording habits, and the formatting habits that outlast them. Every check warns; none blocks.
+- **`codewatch`** -- `.py` files, 10 checks. The tells an agent leaves in source. Blocks one thing, `swallowed_exception`, because a bare `except: pass` is a defect rather than a tell.
+- **`ste100`** -- ASD-STE100 Simplified Technical English, 13 checks, 12 of them blocking. **Opt-in: it reaches no file until a rule names it.** It is a controlled language for maintenance procedures, and it buys precision with a deliberate monotone. Right for a runbook, a category error for a README -- this tool proved that on itself, flagging 23 sentences of `SECURITY.md` over the words "blocking", "warning" and "reading".
 
-  ```json
-  {"glob": "docs/security/*.md", "ruleset": "ste100",
-   "packs": {"project_terms": ["nist-security"]}}
-  ```
+Defaults with no config file: `slopwatch` on `.md`/`.txt`/`.rst`, `codewatch` on `.py`, `.claude/` out of scope. Route procedures to `ste100` by name, above the general rule. This repository routes exactly one file that way.
 
-  Packs bind to a path rather than a ruleset because a pack is domain content and domain is a property of the text: NIST security vocabulary belongs to `docs/security/`, not to every file `ste100` happens to gate. The rule names the list rather than the pack naming it because the MDN glossary is not `ste100` content -- it is vocabulary `ste100` happens to read as an allow list, and the same pack could reasonably feed a different list in another repo, feed two at once, or be read at the opposite polarity. Turn one on with `stopslop.py packs --glob 'docs/security/*.md' --list project_terms --enable nist-security`. Every pack stays off by default, the same opt-in-by-config shape a ruleset itself uses. A pack may fill a coverage gap; it may never cancel a rule the reading ruleset's own standard states, and refused terms are reported rather than dropped silently.
-
-  For `ste100` specifically the standard behind that list is real: Tier 1 is the extracted ASD-STE100 dictionary, Tier 2 is the project vocabulary above, Tier 3 is the forbidden-word-to-replacement map. Registering a Tier 2 word is checked against Tier 1 and Tier 3 first, so adding a word the standard explicitly forbids needs an on-the-record reason (`--force REASON`), not a casual default. That validation is the one thing that makes `ste100`'s list different from the others -- a callback on the shared mechanism, not a separate one.
-- **Per-check toggles, threshold and block/warn action, for every ruleset.** All 45 checks are on by default: 22 for slopwatch, 13 for ste100, 10 for codewatch. A user can turn any one off per project with `stopslop.py checks --ruleset ID --enable ...`. Every check carries its own `threshold` (how many times it has to fire in a document before it counts as triggered) and `action` (`block`, denying the write once triggered, or `warn`, shown but never denying by itself) -- real per-check settings, not one shared ruleset-wide flag-count number nobody could tune per check. The block/warn split follows one rule: a check blocks when it detects a **defect**, and warns when it detects a **tell**. slopwatch warns on all 22, because every one of them catches a surface correlate of empty writing rather than emptiness itself -- text that dodges all 22 and says nothing still passes, so blocking would only hand a writer a loop to iterate against until the checker goes quiet. codewatch blocks `swallowed_exception` alone, because a bare `except: pass` is wrong on its own terms whatever the prose around it reads like. ste100 blocks nearly everything, and that is consistent rather than an exception: a project opts into ste100 to say "this text must have one reading", so in that text ambiguity IS the defect. Its `vocabulary` check is the holdout, and warns. Set either with `stopslop.py checks --ruleset ID --set-threshold CHECK_ID=N --set-action CHECK_ID=block|warn`. A check's own extra numbers (ste100 length's `procedure_word_limit`/`description_word_limit`) set the same way: `--set-param length.procedure_word_limit=18`. All of this lives in `stopslop.config.json`, the same way vocabulary packs already work, and all of it is editable live from the dashboard's `Checks` page.
-- **The gate runs on its own source.** A routing rule can name a second, prose ruleset for the string literals and docstrings inside code files (`"embedded_prose"` on the rule -- see `docs/embedded-prose.md`). This repo uses it on itself. `*.py` routes to `codewatch` for the code and to `slopwatch` for the prose embedded in it, and the project lexicon (`slopwatch`'s `terminology` check: one word, one meaning) bans the synonyms this repo's own UI once mixed. Every comment and docstring in `src/webui/`'s own Python files passes through the same gate they configure -- the Jinja templates under `src/webui/templates/` don't (routing has no rule for `.html` yet), so the dashboard's own on-page prose isn't gated the same way its Python is.
-- **A memory loop, per ruleset.** The gate logs each decision and updates a short summary right away, not on a delay. The next session gets this summary as context, so an agent starts already aware of its own recent mistakes. Each ruleset gets its own summary file, since two rulesets can disagree about what a good sentence looks like.
-- **Bash bypass detection.** The most obvious way around a `Write`/`Edit`-only gate is `cat > file.md <<EOF`. stopslop detects this. It detects a heredoc write through `cat` or `tee`, in either direction. It detects a quoted `echo`/`printf` write too. It also detects one piped through `tee`.
-- **Integrity checks.** At each session start, the gate hashes its own code and every registered ruleset's own enforcement data. It compares the hash against the last known value. This makes an unexpected change to any of it visible.
+The block/warn split follows one rule: a check blocks when it catches a **defect**, and warns when it catches a **tell**. A tell is a correlate, and text that dodges all 31 and says nothing still passes.
 
 ## Quickstart
 
@@ -79,6 +66,7 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 - `python3 stopslop.py list-rulesets` lists every registered ruleset (tagging each `[built-in]` or `[custom]`), the glob patterns routed to it, and any custom ruleset that failed to load. Add `--add RULESET_ID [--name NAME]` to scaffold a whole new ruleset -- empty until this ruleset's own `terms`/`checks` commands fill it in, picked up in the same process, no restart -- or `--remove RULESET_ID` to remove a custom one (refused for a built-in one, or one any routing rule still routes to). **Removal deletes the ruleset's package and nothing else.** Its custom checks under `.claude/stopslop/custom_checks/<id>/`, and its `custom_term_lists`, `check_config` and `disabled_checks` entries in `stopslop.config.json`, all stay -- so re-adding the same id brings its checks and settings back, the same "removal is reversible" posture a term list already has. The cost is that a ruleset removed and never re-added leaves that data behind. Nothing purges it; delete that directory and those config keys by hand to reclaim it.
 - `python3 stopslop.py --version` prints the installed version.
 - `python3 stopslop.py dashboard` opens the live web dashboard. Needs the venv.
+
 
 ## Dashboard (optional)
 
@@ -107,62 +95,32 @@ Uses the venv `stopslop.py init` already sets up (see Quickstart). `.mcp.json` i
 
 `.mcp.json` is project-scoped. It only connects when Claude Code's own working directory is this repository. For a session rooted elsewhere (a separate tool that reaches this repo by absolute path, say) to see these tools too, register it at user scope instead: `claude mcp add stopslop --scope user -- python3 /absolute/path/to/stopslop/src/mcp_launch.py`.
 
+
+## The evaluation harness (`src/evalab/`)
+
+The instrument behind every number above. Each prompt runs four arms: **ungated** generates once, **gated** runs the real write-lint-revise loop, **blind** spends the gated arm's exact compute on a rewrite that is never told what was wrong, and **control** is a second ungated generation whose delta is the run's noise floor.
+
+Three design rules keep it from flattering the tool. The gated arm is never shown a held-out check, so those measure transfer rather than instruction-following. The blind arm has matched compute, so a gain cannot be credited to the flags when a second pass would have done it. And the averages cover only prompts the loop actually revised -- including the rest does not dilute an effect, it invents one, which this harness demonstrated on itself before the scoping was fixed.
+
+```
+python3 src/evalab/run.py --live --prompt-set padding --enforce structural --workers 5
+python3 src/evalab/run.py --replay evalab-runs/2026-09-01-structural/recordings \
+    --prompt-set padding --enforce structural
+```
+
+`--live` costs tokens and records every call, so a run replays for free afterwards. Each run writes `result.json`, `report.txt` and all four arms' full text under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence.
+
 ## What it does not do
 
-This is a prototype, not a finished product. Here is the honest gap list:
+- **It is not a detector, and it is not evasion.** It removes constructions that make text read as generated. Whether that is worth wanting is your call; it makes no claim about quality.
+- **It does not catch every write.** Bash detection is conservative and misses `printf` with real arguments and non-heredoc appends. `git commit --no-verify` skips the pre-commit hook.
+- **`ste100` vocabulary warns and never blocks.** The dictionary holds 787 approved and 1203 forbidden words, each with a replacement, but a closed 875-word aerospace vocabulary fires constantly on software prose, so it informs a report and denies nothing.
+- **`ste100` has no part-of-speech data.** The standard approves "check" as a noun and forbids it as a verb; the checker sees only the word.
+- **Vocabulary auto-fix is off on purpose.** An early version substituted a word's single listed replacement without checking its part of speech and silently broke real sentences. A person caught it by hand, in this project's own README.
+- **One file, one ruleset.** First match wins, except for `embedded_prose`, which sends a code file's strings and docstrings through a second prose ruleset.
+- **The human control is small.** Under 12000 words across two genres, and stdlib docstrings carry no markdown, so three of the structural checks cannot fire there.
 
-- Vocabulary enforcement is not a denial reason yet for `ste100`, on purpose. The real dictionary improves flag quality now. Unknown or forbidden words do not block a write yet. This waits until the project glossary is mature enough to avoid new friction on ordinary software vocabulary.
-- The `ste100` dictionary does not track part of speech. The standard approves about 70 words in one part of speech. It forbids the same words in another part of speech. For example, the standard approves "check" as a noun. It forbids "check" as a verb. The checker only looks at the word, not its role in the sentence.
-- Bash detection is deliberately conservative. It does not catch every write. `printf` with real format arguments, or a multi-line `cat >>` append with no heredoc, both pass through undetected.
-- Each ruleset carries its own test suite. Run `python3 -m unittest discover -s src -p 'test_*.py'` from the repository root to run all of them, and everything else, together -- one command covers the whole suite. The file `src/test_stopslop.py` covers the root CLI's own ruleset-resolution logic directly. The file `src/test_pretool_hook.py` runs the live hook as a real subprocess. It uses a throwaway copy of the project, so it never touches this project's own real gate history. The file `src/test_mcp_server.py` covers the MCP server's tool functions directly. It needs the venv. Without `mcp` installed, the file skips cleanly. It does not fail.
-- One file only ever routes to one ruleset. `stopslop.config.json` picks a single ruleset per glob pattern, first match wins. Two rulesets never both check the same write.
-- Vocabulary auto-fix is off, on purpose, for every unapproved `ste100` word, not just the hard ones. An early version fixed a word to its one listed replacement with no check of the replacement's own part of speech. That silently broke real sentences. A person found this by hand, in this project's own README, not through any automated check. Real replacement-aware auto-fix needs new data this project does not have yet.
-
-See `docs/incidents/` for a real incident this project had with its own gate, and the fix that followed.
-
-## Does any of this work? (`src/evalab/`)
-
-For most of its life this project could not answer that. It had elaborate machinery for expressing rules and nothing for telling whether a rule helps. `src/evalab/` is the instrument that answers it, and it was built to be able to return the answer nobody wants.
-
-The experiment runs each of a fixed set of writing prompts three times. The **ungated** arm generates once. The **gated** arm generates, lints against a subset of the checks, feeds the flags back as a revision request, and repeats until the text passes or a budget runs out, which is the loop a real session runs against the live hook. The **control** arm generates once more, ungated, and exists because two independent generations differ for no reason but sampling. The control delta is the run's noise floor, and a gate delta smaller than it is not a finding.
-
-Two things make the result hard to talk out of:
-
-- **Held-out checks.** Only some checks are enforced during the loop. The gated arm is never shown a flag from the rest, in the first prompt or in any revision. Enforced flags falling proves nothing, since the loop rewrote until they did. Held-out flags falling is the only evidence that anything transferred, and held-out flags sitting still while enforced flags collapse is what Goodhart's law looks like in a table.
-- **Shape metrics no check rewards.** Sentence-length standard deviation measures a flattened register directly: prose that moves between a four-word sentence and a thirty-word one has a high one, and clipped three-beat declaratives all the way down have a low one. No check in this project touches that number, so nothing can be tuned to it.
-
-```
-python3 src/evalab/run.py --live --out evalab-runs/$(date +%F)      # costs tokens
-python3 src/evalab/run.py --replay evalab-runs/<date>/recordings     # free, re-scores a saved run
-```
-
-`--live` shells out to `claude -p` and records every call, so a run replays for free afterwards. A run writes `result.json`, `report.txt`, and both arms' full text under `texts/` for reading side by side, because no metric here settles whether prose is better and the saved texts are the actual evidence.
-
-**The first run has been done, and it did not flatter the tool.** See [`evalab-runs/2026-09-01/FINDINGS.md`](evalab-runs/2026-09-01/FINDINGS.md) for the full read, and `texts/` beside it for the output both arms actually produced. The short version:
-
-- Across 1451 words of ungated output over six documents, the whole of `slopwatch` fired **seven times**. Two of the six drafts were clean on the first attempt. The dominant finding of the run is a base rate, and it is low: this model, writing ordinary technical documentation, mostly does not do the things these checks look for.
-- The gate cleared every enforced flag, 6 of 6, in 1.7 generations on average. That proves the loop terminates and nothing more, since the arm rewrote until the checks went quiet.
-- Held-out flags fell 41%, which reads well until you notice the control arm fell further. The gate moved that number less than sampling noise did. In absolute terms the ungated corpus held **two** held-out flags and the gated one held one, so the Goodhart question is not answered here -- the run had almost no power to answer it.
-- No flattening was detected. Sentence-length stdev moved less under the gate than between two ungated samples.
-
-**Three 30-prompt runs have now answered the question the project was built on.** Full reads in [`evalab-runs/`](evalab-runs/). The decisive arm throughout is a **blind rewrite**: same prompt, the same generations the gated arm spent, told only to rewrite and never what was wrong.
-
-With only the 11 wording checks enforced, the gate barely beat that rewrite -- 25 total tells against 38, directional at best. Then the checks were mapped against Wikipedia's catalogue of what editors actually flag, and the gap turned out not to be more word lists. Every check the tool had looked at word choice. What survives a lexical scrub is the **shape** of the document: uniform paragraph blocks, bold as body emphasis, horizontal rules as filler, title-case headings. Measured directly, a gated arm that scored **zero** on all 11 wording checks still carried structural tells at 6.12 per 1000 words against untouched output's 5.99. The gate had removed everything it was pointed at and moved that layer by nothing.
-
-Six structural checks then went into the enforced set. Thirty prompts, all thirty revised:
-
-| arm | enforced | held-out | total tells |
-|---|---|---|---|
-| ungated | 75 | 30 | 105 |
-| control (a second ungated sample) | 80 | 34 | 114 |
-| blind rewrite, told nothing | 75 | 18 | 93 |
-| gated | **3** | 26 | **29** |
-
-**A blind rewrite moves structural tells from 75 to 75. The gate moves them from 75 to 3.** Told only to rewrite, a model reproduces the same document shape, because nothing tells it that the shape is what gives it away. Total tells fall 72%, the gated arm carried fewer on 26 of 30 prompts and the blind arm on zero, sign test p < 0.000001, favouring the gate in 100% of bootstrap resamples. It costs 2.9 generations per document against 1.6, and every document now trips something, so the gate always fires.
-
-Two limits stand. Held-out flags still do not improve -- 26 against the blind arm's 18 on the 14 checks nobody enforced -- so whatever the loop is not pointed at does not get better, which argues for enforcing comprehensively rather than for not enforcing. And none of this measures whether the prose is good; it measures whether it still reads as generated. Those are different questions and only the second one is answered here.
-
-No number from a run is copied into a pitch here on purpose. A run belongs to one model on one day, and quoting a report out of context is how an evaluation turns into a demo.
+Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (963 tests). See [docs/incidents/](docs/incidents/) for a real bypass of this project's own gate, and [CONTRIBUTING.md](CONTRIBUTING.md) for the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
 
 ## Documentation
 
