@@ -59,6 +59,7 @@ core mechanism to support a different deny policy: it's just a function
 each ruleset owns.
 """
 import re
+import statistics
 
 from core.blocks import (
     tokenize_sentences, split_into_blocks,
@@ -654,6 +655,199 @@ _DEDUP_EXCLUDE_KINDS = {"em_dash_cluster"}  # document-level, one flag total -- 
 # bold_bullet_lead/id_label_lead operate on the raw list-item line
 # (marker included), not a tokenized sentence -- LINE is the closest
 # fit until a future run-loop unification adds a dedicated unit for that.
+
+# --- Structural tells -----------------------------------------------------
+# Added from Wikipedia's "Signs of AI writing" (see NOTICE), which is the
+# community-maintained catalogue of what editors actually flag, and from
+# the observation that survives every lexical scrub: you can swap every
+# banned word and the text still reads as generated, because the paragraph
+# shape, the sentence rhythm and the rhetorical moves are the tell. This
+# project measured that directly -- a gated arm reached ZERO flags on 11
+# enforced checks while the 11 held-out checks did not move -- so these
+# aim at the residue rather than adding more word lists.
+
+_RULE_OF_THREE_RE = re.compile(
+    r"\b(\w+ing)\b,\s+(\w+ing)\b,?\s+and\s+(\w+ing)\b", re.I)
+_TRIPLE_ADJ_RE = re.compile(
+    r"\b(\w+),\s+(\w+),\s+and\s+(\w+)\b(?=\s|[.,;:])")
+
+
+def check_rule_of_three(sentence):
+    """Three parallel items in a series, the shape Wikipedia calls the
+    rule of three. A human writes triads sometimes; a model reaches for
+    one whenever it needs to sound complete, which is why density matters
+    more than any single instance."""
+    m = _RULE_OF_THREE_RE.search(sentence)
+    if not m:
+        return []
+    return [{"phrase": m.group(0)[:60], "rule": "slopwatch.rule_of_three",
+              "auto_fix": False,
+              "note": "three parallel -ing items -- cut to the one that carries "
+                      "information, or make them separate claims"}]
+
+
+COPULA_DODGES = ["serves as", "stands as", "functions as", "acts as",
+                  "boasts", "features a", "marks a", "represents a",
+                  "emerged as", "positioned as"]
+
+
+def check_copula_avoidance(sentence, extra=()):
+    """"X serves as a Y" where "X is a Y" was available. Wikipedia lists
+    this under syntax rather than vocabulary: the model systematically
+    avoids the copula, which inflates register without adding meaning."""
+    low = sentence.lower()
+    for phrase in list(COPULA_DODGES) + list(extra):
+        if phrase in low:
+            return [{"phrase": phrase, "rule": "slopwatch.copula_avoidance",
+                      "auto_fix": False,
+                      "note": "says \"is\" the long way round -- use the plain verb"}]
+    return []
+
+
+_PARTICIPIAL_TAIL_RE = re.compile(
+    r",\s+(highlighting|underscoring|emphasizing|showcasing|reflecting|"
+    r"demonstrating|illustrating|signaling|marking|ensuring|allowing|"
+    r"enabling|providing|offering|making it|solidifying|cementing)\b", re.I)
+
+
+def check_participial_tail(sentence):
+    """A comment clause bolted to the end of a sentence, offering
+    significance instead of information: "..., underscoring the
+    importance of X". Wikipedia files this under superficial analysis."""
+    m = _PARTICIPIAL_TAIL_RE.search(sentence)
+    if not m:
+        return []
+    return [{"phrase": m.group(0).strip()[:50],
+              "rule": "slopwatch.participial_tail", "auto_fix": False,
+              "note": "a significance clause bolted to the end -- delete it, or "
+                      "make it a claim with something behind it"}]
+
+
+SECTION_TEMPLATES = ["despite its success", "despite these challenges",
+                     "challenges and future", "future prospects",
+                     "in conclusion", "looking ahead", "the road ahead",
+                     "key takeaways", "final thoughts", "in summary"]
+
+
+def check_section_template(sentence, extra=()):
+    """The stock section skeleton: a challenges paragraph, then a
+    forward-looking close. Wikipedia names it as one of the most
+    reliable article-level tells."""
+    low = sentence.lower().lstrip("#* -")
+    for phrase in list(SECTION_TEMPLATES) + list(extra):
+        if low.startswith(phrase) or f" {phrase}" in low:
+            return [{"phrase": phrase, "rule": "slopwatch.section_template",
+                      "auto_fix": False,
+                      "note": "stock section skeleton -- say the specific thing "
+                              "this section is for, or drop the section"}]
+    return []
+
+
+_BOLD_SPAN_RE = re.compile(r"\*\*[^*\n]{1,80}\*\*")
+
+
+def check_bold_density(text):
+    """Bold used as emphasis throughout the body, not for the rare
+    callout. Counted per document because one bold span says nothing and
+    fifteen is a fingerprint."""
+    count = len(_BOLD_SPAN_RE.findall(text))
+    if count == 0:
+        return []
+    return [{"count": count, "occurrences": count,
+              "rule": "slopwatch.bold_density", "auto_fix": False,
+              "note": f"{count} bold span(s) in this document -- reserve bold for "
+                      f"a rare callout"}]
+
+
+_THEMATIC_BREAK_RE = re.compile(r"^\s*(?:---+|\*\*\*+|___+)\s*$", re.M)
+
+
+def check_thematic_break(text):
+    """Horizontal rules dropped between sections as visual filler.
+    Excludes a YAML front-matter fence, which is structural."""
+    body = text
+    if body.startswith("---"):
+        end = body.find("\n---", 3)
+        if end != -1:
+            body = body[end + 4:]
+    count = len(_THEMATIC_BREAK_RE.findall(body))
+    if count == 0:
+        return []
+    return [{"count": count, "occurrences": count,
+              "rule": "slopwatch.thematic_break", "auto_fix": False,
+              "note": f"{count} horizontal rule(s) -- headings already separate "
+                      f"sections"}]
+
+
+_HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.M)
+_SMALL_WORDS = {"a", "an", "the", "and", "or", "but", "for", "of", "in", "on",
+                "to", "with", "at", "by", "from", "as", "is", "it"}
+
+
+def check_title_case_heading(text):
+    """Headings Capitalised Like This. Wikipedia lists title case as a
+    styling anomaly; it is also the default a model reaches for."""
+    for _level, heading in _HEADING_RE.findall(text):
+        words = [w for w in re.findall(r"[A-Za-z][\w'-]*", heading)]
+        if len(words) < 3:
+            continue
+        candidates = [w for w in words[1:] if w.lower() not in _SMALL_WORDS]
+        if len(candidates) < 2:
+            continue
+        if all(w[0].isupper() and not w.isupper() for w in candidates):
+            return [{"phrase": heading[:60],
+                      "rule": "slopwatch.title_case_heading", "auto_fix": False,
+                      "note": "title case heading -- use sentence case"}]
+    return []
+
+
+_AI_REMNANT_RE = re.compile(
+    r"oaicite|\[cite:\s*\d+\]|grok_card|contentReference|"
+    r"as an ai language model|i cannot browse|my knowledge cutoff|"
+    r"as of my last update|\[INSERT [A-Z ]+\]|\bTODO: (?:fill|add) (?:in|the)\b",
+    re.I)
+
+
+def check_ai_markup_remnant(text):
+    """Scaffolding that leaked from the generator itself: citation stubs,
+    tool markup, refusal boilerplate, unfilled placeholders. Unlike every
+    other check here this one has no false-positive story worth arguing
+    -- the text is simply not finished."""
+    m = _AI_REMNANT_RE.search(text)
+    if not m:
+        return []
+    return [{"phrase": m.group(0)[:50], "rule": "slopwatch.ai_markup_remnant",
+              "auto_fix": False,
+              "note": "generator scaffolding left in the text -- this was never "
+                      "finished or read"}]
+
+
+def check_paragraph_uniformity(text):
+    """Paragraphs all the same size. The most purely structural tell in
+    this ruleset: human prose varies its paragraph length with what each
+    one has to do, and generated prose tends to a uniform block. Reports
+    only when there are enough paragraphs for the number to mean
+    something, and when they are long enough that uniformity is not just
+    an artifact of a short list."""
+    paras = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    paras = [p for p in paras
+             if not p.lstrip().startswith(("#", "-", "*", ">", "|", "```"))]
+    lengths = [len(p.split()) for p in paras]
+    lengths = [n for n in lengths if n >= 20]
+    if len(lengths) < 4:
+        return []
+    mean = sum(lengths) / len(lengths)
+    if mean <= 0:
+        return []
+    spread = statistics.stdev(lengths) / mean
+    if spread >= 0.35:
+        return []
+    return [{"phrase": f"{len(lengths)} paragraphs, spread {spread:.2f}",
+              "rule": "slopwatch.paragraph_uniformity", "auto_fix": False,
+              "note": f"{len(lengths)} body paragraphs nearly identical in length "
+                      f"-- vary them with what each one actually has to do"}]
+
+
 CHECKS_TABLE = {
     "filler_opener": _checks.Check(
         id="filler_opener", unit=_checks.Unit.SENTENCE, fn=check_filler_opener,
@@ -684,6 +878,44 @@ CHECKS_TABLE = {
     # codewatch's swallowed_exception blocks precisely because a bare
     # except-then-pass is a DEFECT rather than a tell: it is wrong on its
     # own terms, whatever the surrounding prose reads like.
+    "rule_of_three": _checks.Check(
+        id="rule_of_three", unit=_checks.Unit.SENTENCE, fn=check_rule_of_three,
+        catches="Three parallel -ing items in a series",
+        instead="keep the one that carries information"),
+    "copula_avoidance": _checks.Check(
+        id="copula_avoidance", unit=_checks.Unit.SENTENCE, fn=check_copula_avoidance,
+        catches="Saying \"is\" the long way: serves as, boasts, functions as",
+        instead="use the plain verb"),
+    "participial_tail": _checks.Check(
+        id="participial_tail", unit=_checks.Unit.SENTENCE, fn=check_participial_tail,
+        catches="A significance clause bolted to a sentence: \", underscoring the...\"",
+        instead="delete it, or make it a claim with something behind it"),
+    "section_template": _checks.Check(
+        id="section_template", unit=_checks.Unit.SENTENCE, fn=check_section_template,
+        catches="Stock section skeleton: \"Despite its success\", \"Looking ahead\"",
+        instead="name the specific thing the section is for"),
+    "bold_density": _checks.Check(
+        id="bold_density", unit=_checks.Unit.DOCUMENT, fn=check_bold_density,
+        catches="Bold used as body emphasis throughout",
+        instead="reserve bold for a rare callout",
+        default_threshold=8, default_action="warn", dedup=False),
+    "thematic_break": _checks.Check(
+        id="thematic_break", unit=_checks.Unit.DOCUMENT, fn=check_thematic_break,
+        catches="Horizontal rules dropped between sections",
+        instead="headings already separate sections",
+        default_threshold=2, default_action="warn", dedup=False),
+    "title_case_heading": _checks.Check(
+        id="title_case_heading", unit=_checks.Unit.DOCUMENT, fn=check_title_case_heading,
+        catches="Headings Capitalised Like This",
+        instead="sentence case"),
+    "ai_markup_remnant": _checks.Check(
+        id="ai_markup_remnant", unit=_checks.Unit.DOCUMENT, fn=check_ai_markup_remnant,
+        catches="Generator scaffolding left in: oaicite, [cite: 1], placeholders",
+        instead="finish the text and read it"),
+    "paragraph_uniformity": _checks.Check(
+        id="paragraph_uniformity", unit=_checks.Unit.DOCUMENT, fn=check_paragraph_uniformity,
+        catches="Body paragraphs nearly identical in length",
+        instead="vary them with what each paragraph has to do"),
     "em_dash_cluster": _checks.Check(
         id="em_dash_cluster", unit=_checks.Unit.DOCUMENT, fn=check_em_dash_cluster,
         catches="Em dashes clustering in one document",

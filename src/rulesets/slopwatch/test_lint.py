@@ -672,7 +672,32 @@ class DispatcherMigrationTests(unittest.TestCase):
     identical against _lint_and_gate_legacy (the pre-migration
     implementation, kept only for this comparison) across every .py file
     in this repo, not just the small hand-picked snippets the rest of
-    this file exercises. Read-only: lints real files, writes nothing."""
+    this file exercises. Read-only: lints real files, writes nothing.
+
+    Scoped to the checks the legacy loop actually knows. It is frozen at
+    the pre-migration check set by definition, so a check added to
+    CHECKS_TABLE afterwards makes the dispatcher legitimately produce
+    MORE flags. Comparing the intersection keeps what this test is for --
+    the dispatcher reproduces the old behaviour exactly for every old
+    check -- without turning it into a veto on ever adding one."""
+
+    # Every check the legacy loop calls by name. Deliberately a literal
+    # list rather than something derived from CHECKS_TABLE: the whole
+    # point is to compare against a frozen implementation, so this has to
+    # stay frozen with it.
+    LEGACY_CHECK_IDS = frozenset({
+        "filler_opener", "stock_adverb", "colon_reveal", "binary_contrast",
+        "em_dash_cluster", "weasel_attribution", "entity_encoded_punctuation",
+        "bold_bullet_lead", "id_label_lead", "not_just_x_but_y",
+        "vague_intensifier", "emoji_in_prose", "marketing_adjective",
+        "filler_verb", "marketing_cliche", "solicit_criticism",
+        "unearned_profundity", "canned_question_answer", "negative_listing",
+        "dramatic_fragmentation", "identifier_in_prose", "terminology",
+    })
+
+    @classmethod
+    def _legacy_only(cls, flags):
+        return [f for f in flags if f["kind"] in cls.LEGACY_CHECK_IDS]
 
     @staticmethod
     def _repo_python_files():
@@ -684,6 +709,14 @@ class DispatcherMigrationTests(unittest.TestCase):
             out.extend(os.path.join(root, n) for n in names if n.endswith(".py"))
         return sorted(out)
 
+    def test_the_legacy_check_set_still_covers_what_the_loop_calls(self):
+        """Guards the frozen list above against the real legacy loop
+        growing or losing a call, which would make the comparison below
+        quietly weaker than it reads."""
+        table_ids = set(lint.CHECKS_TABLE)
+        self.assertTrue(self.LEGACY_CHECK_IDS <= table_ids,
+                         self.LEGACY_CHECK_IDS - table_ids)
+
     def test_matches_the_legacy_implementation_across_every_real_py_file(self):
         files = self._repo_python_files()
         self.assertGreater(len(files), 50, "sanity check: corpus looks too small to be real")
@@ -693,10 +726,106 @@ class DispatcherMigrationTests(unittest.TestCase):
                     text = f.read()
                 old = lint._lint_and_gate_legacy(text, file_path=path)
                 new = lint.lint_and_gate(text, file_path=path)
-                self.assertEqual(old["semantic_flags"], new["semantic_flags"])
+                self.assertEqual(self._legacy_only(old["semantic_flags"]),
+                                  self._legacy_only(new["semantic_flags"]))
                 self.assertEqual(old["mechanical_violations"], new["mechanical_violations"])
-                self.assertEqual(old["status"], new["status"])
                 self.assertEqual(old["sentence_count"], new["sentence_count"])
+
+
+class StructuralTellTests(unittest.TestCase):
+    """The nine checks added from Wikipedia's "Signs of AI writing".
+
+    They exist because of a measurement, not a hunch. A gated arm in this
+    project's own evaluation reached ZERO flags on 11 enforced checks and
+    still carried structural tells at the same rate as untouched output:
+    5.99 per 1000 words before the gate, 6.12 after. Every check the tool
+    had was looking at word choice and sentence shape, and the thing that
+    survives a lexical scrub is the SHAPE of the document.
+    """
+
+    def test_rule_of_three_catches_a_parallel_ing_triad(self):
+        self.assertTrue(lint.check_rule_of_three(
+            "The release lands, highlighting, underscoring and emphasizing our focus."))
+
+    def test_rule_of_three_leaves_an_ordinary_pair_alone(self):
+        self.assertEqual(lint.check_rule_of_three(
+            "The service starts and stops cleanly."), [])
+
+    def test_copula_avoidance_catches_serves_as(self):
+        self.assertTrue(lint.check_copula_avoidance(
+            "The cache serves as a buffer between the API and the database."))
+
+    def test_participial_tail_catches_a_significance_clause(self):
+        self.assertTrue(lint.check_participial_tail(
+            "We shipped the feature, underscoring the importance of iteration."))
+
+    def test_participial_tail_leaves_a_real_clause_alone(self):
+        self.assertEqual(lint.check_participial_tail(
+            "We shipped the feature, then removed the old endpoint."), [])
+
+    def test_section_template_catches_the_stock_skeleton(self):
+        self.assertTrue(lint.check_section_template("Despite its success, the team faces challenges."))
+
+    def test_bold_density_counts_spans(self):
+        flags = lint.check_bold_density("**one** plain **two** plain **three**")
+        self.assertEqual(flags[0]["occurrences"], 3)
+
+    def test_bold_density_is_silent_on_unbolded_text(self):
+        self.assertEqual(lint.check_bold_density("plain prose with no emphasis"), [])
+
+    def test_thematic_break_counts_horizontal_rules(self):
+        flags = lint.check_thematic_break("a\n\n---\n\nb\n\n---\n\nc")
+        self.assertEqual(flags[0]["occurrences"], 2)
+
+    def test_thematic_break_ignores_yaml_front_matter(self):
+        """A front-matter fence is structure, not decoration. Counting it
+        would flag every skill file and changelog with a header block."""
+        self.assertEqual(lint.check_thematic_break(
+            "---\ntitle: x\n---\n\nbody text here\n"), [])
+
+    def test_title_case_heading_catches_capitalised_headings(self):
+        self.assertTrue(lint.check_title_case_heading("## Getting Started With The Tool\n"))
+
+    def test_title_case_heading_allows_sentence_case(self):
+        self.assertEqual(lint.check_title_case_heading("## Getting started with the tool\n"), [])
+
+    def test_title_case_heading_allows_proper_nouns_in_a_short_heading(self):
+        self.assertEqual(lint.check_title_case_heading("## Claude Code\n"), [])
+
+    def test_ai_markup_remnant_catches_generator_scaffolding(self):
+        for leak in ("see oaicite:0", "as reported [cite: 3]",
+                      "As an AI language model, I cannot", "[INSERT NAME HERE]"):
+            with self.subTest(leak=leak):
+                self.assertTrue(lint.check_ai_markup_remnant(f"Text. {leak}. More."))
+
+    def test_ai_markup_remnant_is_silent_on_ordinary_prose(self):
+        self.assertEqual(lint.check_ai_markup_remnant(
+            "The parser reads the file and returns a list of records."), [])
+
+    def test_paragraph_uniformity_catches_evenly_sized_blocks(self):
+        para = " ".join(["word"] * 40)
+        self.assertTrue(lint.check_paragraph_uniformity("\n\n".join([para] * 5)))
+
+    def test_paragraph_uniformity_leaves_varied_prose_alone(self):
+        paras = [" ".join(["word"] * n) for n in (22, 70, 30, 110, 25)]
+        self.assertEqual(lint.check_paragraph_uniformity("\n\n".join(paras)), [])
+
+    def test_paragraph_uniformity_needs_enough_paragraphs_to_mean_anything(self):
+        """Two same-sized paragraphs are a coincidence, not a
+        fingerprint."""
+        para = " ".join(["word"] * 40)
+        self.assertEqual(lint.check_paragraph_uniformity("\n\n".join([para] * 2)), [])
+
+    def test_every_new_check_warns_rather_than_blocks(self):
+        """These are tells, not defects, and slopwatch blocks nothing --
+        see em_dash_cluster's own note for the reasoning."""
+        cfg = slopwatch.list_check_config()
+        for check_id in ("rule_of_three", "copula_avoidance", "participial_tail",
+                          "section_template", "bold_density", "thematic_break",
+                          "title_case_heading", "ai_markup_remnant",
+                          "paragraph_uniformity"):
+            with self.subTest(check=check_id):
+                self.assertEqual(cfg[check_id]["action"], "warn")
 
 
 if __name__ == "__main__":

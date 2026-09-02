@@ -168,6 +168,28 @@ own terms:
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
+2b. Patterns derived from Wikipedia's "Signs of AI writing"
+------------------------------------------------------------
+
+Nine checks in src/rulesets/slopwatch/lint.py (rule_of_three,
+copula_avoidance, participial_tail, section_template, bold_density,
+thematic_break, title_case_heading, ai_markup_remnant,
+paragraph_uniformity) implement patterns catalogued by Wikipedia editors
+at "Wikipedia:Signs of AI writing"
+(https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+
+Wikipedia text is licensed CC BY-SA 4.0
+(https://creativecommons.org/licenses/by-sa/4.0/). No prose from that
+page is reproduced here: what was taken is the IDENTIFICATION of a
+pattern -- that editors reliably flag title-case headings, the rule of
+three, copula avoidance and so on -- and every regex, threshold, message
+and docstring implementing it is this project's own work, the same
+treatment already given to the pattern catalogues in section 2 below.
+Facts about which patterns occur are not themselves copyrightable, so
+this repository's MIT license covers that code. The attribution is here
+because the catalogue is the source of the idea and saying so costs
+nothing.
+
 3. Vocabulary pack sources (src/core/glossary_packs/)
 -------------------------------------------------------------------
 
