@@ -17,7 +17,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import rulesets
-from evalab import harness, prompts as prompt_set, report
+from evalab import harness, interventions, prompts as prompt_set, report
 from evalab.generators import (ClaudeCliGenerator, GeneratorError,
                                 RecordedGenerator, ResumingGenerator)
 
@@ -30,7 +30,9 @@ def _save(out_dir, result):
     text_dir = os.path.join(out_dir, "texts")
     os.makedirs(text_dir, exist_ok=True)
     for row in result["rows"]:
-        for arm in ("ungated", "instructed", "gated"):
+        saved_arms = ["ungated", "instructed", "gated"]
+        saved_arms += result.get("intervention_arms") or []
+        for arm in saved_arms:
             if arm not in row:
                 continue
             with open(os.path.join(text_dir, f"{row['id']}.{arm}.md"), "w") as f:
@@ -67,6 +69,11 @@ def main(argv=None):
                          help="which checks the gated loop enforces: lexical "
                               "(the original 11) or structural (those plus the "
                               "six document-shape checks)")
+    parser.add_argument("--compare", action="append", dest="compare",
+                         metavar="NAME",
+                         help="also run a competing intervention as its own "
+                              "arm, by name from src/evalab/interventions/ "
+                              "(repeatable; 'all' runs every vendored one)")
     parser.add_argument("--max-iterations", type=int, default=4)
     parser.add_argument("--workers", type=int, default=1,
                          help="run this many PROMPTS at once; a prompt's own "
@@ -78,6 +85,17 @@ def main(argv=None):
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
+
+    chosen_interventions = {}
+    if args.compare:
+        names = (interventions.available() if "all" in args.compare
+                  else args.compare)
+        for name in names:
+            try:
+                chosen_interventions[name] = interventions.load(name)
+            except (KeyError, FileNotFoundError) as exc:
+                print(f"error: {exc}", file=sys.stderr)
+                return 2
 
     ruleset = rulesets.get_ruleset(args.ruleset)
     if args.live:
@@ -99,11 +117,16 @@ def main(argv=None):
 
     print(f"running {len(chosen)} {args.prompt_set} prompt(s) against "
           f"{args.ruleset}", file=sys.stderr)
+    for name in sorted(chosen_interventions):
+        meta = interventions.provenance(name)
+        print(f"  vs {name} ({meta['upstream']}, {meta['license']})",
+              file=sys.stderr)
     try:
         result = harness.run(chosen, ruleset, generator,
                               enforced=args.enforce,
                               max_iterations=args.max_iterations,
-                              on_progress=progress, workers=args.workers)
+                              on_progress=progress, workers=args.workers,
+                              instructions=chosen_interventions or None)
         result["prompt_set"] = args.prompt_set
         result["enforce"] = args.enforce
     except GeneratorError as exc:

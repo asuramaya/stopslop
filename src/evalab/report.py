@@ -14,9 +14,18 @@ def _arms(rows):
 
     `blind` and `instructed` are absent from runs recorded before those
     arms existed, so a saved result from an earlier run still renders.
+    Competing interventions are named at runtime, so anything present on
+    a row that is not a known arm and carries scores is one of those, and
+    it is listed after `instructed` in a stable alphabetical order.
     """
-    order = ("ungated", "control", "blind", "instructed", "gated")
-    return [a for a in order if rows and a in rows[0]]
+    order = ("ungated", "control", "blind", "instructed")
+    if not rows:
+        return []
+    known = set(order) | {"gated"}
+    extra = sorted(k for k, v in rows[0].items()
+                    if k not in known and isinstance(v, dict) and "scores" in v)
+    return [a for a in order if a in rows[0]] + extra + (
+        ["gated"] if "gated" in rows[0] else [])
 
 
 def _revised(rows):
@@ -115,6 +124,28 @@ def render(result):
     add("  Read these before any percentage below. A 41% held-out drop in")
     add("  the 2026-09-01 run was two flags becoming one.")
     add("")
+
+    competitors = result.get("intervention_arms") or []
+    if competitors:
+        add("LEADERBOARD  (total tells, fewer is better; generations spent)")
+        add("-" * 66)
+        base = _total(rows, "ungated", "enforced_flags") + \
+            _total(rows, "ungated", "held_out_flags")
+        board = []
+        for arm in _arms(rows):
+            total = _total(rows, arm, "enforced_flags") + \
+                _total(rows, arm, "held_out_flags")
+            gens = statistics.fmean([r[arm]["iterations"] for r in rows])
+            cut = f"{(total - base) / base * 100:+.0f}%" if base else "--"
+            board.append((total, arm, gens, cut))
+        for total, arm, gens, cut in sorted(board):
+            add(f"  {arm:<22} {total:6}  {cut:>6}   {gens:.2f} generations")
+        add("")
+        add("  Every arm above ran the same prompts in the same run. The")
+        add("  competing skill files are vendored under src/evalab/")
+        add("  interventions/ with their licenses; each is used in full,")
+        add("  references included, which is the strongest form of it.")
+        add("")
 
     scope = signal if signal else rows
     scope_label = (f"the {len(signal)} prompts the loop revised"

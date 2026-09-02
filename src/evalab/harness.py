@@ -190,12 +190,13 @@ def score(ruleset, text, enforced, held_out):
 
 
 def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
-              on_progress, instruction):
+              on_progress, instructions):
     if on_progress:
         on_progress(prompt["id"])
     ungated = run_arm_ungated(generator, prompt["text"])
     control = run_arm_ungated(generator, prompt["text"])
-    instructed = run_arm_instructed(generator, prompt["text"], instruction)
+    arms = {name: run_arm_instructed(generator, prompt["text"], text)
+             for name, text in instructions.items()}
     gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
                            max_iterations=max_iterations)
     # Matched compute: the same number of generations the gated arm spent
@@ -210,9 +211,9 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
                                                 enforced, held_out)},
         "control": {**control, "scores": score(ruleset, control["text"],
                                                 enforced, held_out)},
-        "instructed": {**instructed,
-                        "scores": score(ruleset, instructed["text"],
-                                         enforced, held_out)},
+        **{name: {**arm, "scores": score(ruleset, arm["text"],
+                                          enforced, held_out)}
+            for name, arm in arms.items()},
         "gated": {**gated, "scores": score(ruleset, gated["text"],
                                             enforced, held_out)},
         "blind": {**blind, "scores": score(ruleset, blind["text"],
@@ -221,7 +222,7 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
 
 
 def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
-        on_progress=None, workers=1):
+        on_progress=None, workers=1, instructions=None):
     """Every arm over every prompt. Returns a result dict for report.py.
 
     `workers` parallelizes across PROMPTS, never within one. A prompt's
@@ -233,9 +234,10 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
     """
     enforced, held_out = split_checks(ruleset, enforced)
     started = time.time()
-    instruction = build_instruction(ruleset, enforced)
+    instructions = dict(instructions or {})
+    instructions.setdefault("instructed", build_instruction(ruleset, enforced))
     args = (ruleset, generator, enforced, held_out, max_iterations, on_progress,
-            instruction)
+            instructions)
     if workers > 1:
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             futures = [pool.submit(_run_one, p, *args) for p in prompts]
@@ -252,7 +254,9 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
         "enforced": sorted(enforced),
         "held_out": sorted(held_out),
         "max_iterations": max_iterations,
-        "instruction": instruction,
+        "instruction": instructions["instructed"],
+        "instructions": {name: text for name, text in instructions.items()},
+        "intervention_arms": sorted(n for n in instructions if n != "instructed"),
         "seconds": round(time.time() - started, 1),
         "rows": rows,
     }
