@@ -75,3 +75,45 @@ python3 src/evalab/run.py --replay evalab-runs/2026-09-01-structural/recordings 
 `texts/` holds all four arms for all 30 prompts. The blind and gated
 versions of the same prompt, read side by side, show the difference more
 plainly than the table does.
+
+## The human control, and what it shows about calibration
+
+The earlier rounds said a real human baseline was the missing validation
+and that no corpus was available offline. One was, in the interpreter
+itself. CPython's stdlib module docstrings and a handful of pre-LLM
+`.rst`/`.md` package docs (numpy's masked-array README, CPython's
+`email/architecture.rst`, matplotlib and lazr documentation) are human
+technical prose written years before any of this.
+
+| corpus | structural flags /1k |
+|---|---|
+| CPython stdlib docstrings (8265 words) | 0.97 |
+| human .rst/.md docs, pre-LLM (3831 words) | 2.09 |
+| generated, ungated (8107 words) | 6.29 |
+| generated, gated on structural | 0.39 |
+
+Three to six times separation against text no model wrote. The checks are
+not merely firing on everything.
+
+They do fire on human prose sometimes: three thematic breaks, two copula
+dodges, a triad and a uniform-paragraph run across the human markdown.
+That is the correct behaviour for density signals rather than defect
+detectors, and it is why all nine warn rather than block.
+
+**The gate overshoots.** Gated output scores 0.39 per 1000 words, well
+BELOW both human corpora. Text with no horizontal rules, no bold and
+perfectly varied paragraph lengths is not what human documentation looks
+like -- humans use all three, in moderation. Driving a signal to zero
+when the human distribution sits at one to two per 1000 words does not
+make text more human, it makes it differently artificial.
+
+That is the next calibration: target the human band rather than zero, by
+raising the thresholds until gated output lands inside it instead of
+under it. It needs its own run to verify, and it is the clearest piece of
+unfinished work this evaluation has produced.
+
+Caveat on the control's size. Under 12000 words total across two genres,
+and stdlib docstrings carry no markdown at all, so `bold_density`,
+`thematic_break` and `title_case_heading` cannot fire there. The markdown
+corpus is the fair comparison for those three and it is the smaller of
+the two.
