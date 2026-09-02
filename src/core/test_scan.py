@@ -341,3 +341,66 @@ class CompareActivityTests(unittest.TestCase):
         for row in rows.values():
             self.assertIn(row["verdict"], {"discriminates", "no signal",
                                             "backwards", "silent"})
+
+
+class ConsensusVerdictTests(unittest.TestCase):
+    """Why one control corpus is not enough.
+
+    This project nearly cut a good check on a single corpus. colon_reveal
+    scored 1.0x against code documentation -- no signal, apparently a
+    style preference -- and 25.8x against pre-2022 encyclopedia prose.
+    Code documentation is full of colons whatever wrote it, and only a
+    second genre could show that.
+    """
+
+    def _rows(self, **verdicts):
+        return {k: {"verdict": v, "ratio": None, "per_1k": 0.0,
+                     "control_per_1k": 0.0} for k, v in verdicts.items()}
+
+    def test_unanimous_discrimination_carries(self):
+        out = scan.consensus_verdicts([self._rows(a="discriminates"),
+                                        self._rows(a="discriminates")])
+        self.assertEqual(out["a"], "discriminates")
+
+    def test_unanimous_backwards_is_the_only_grounds_for_cutting(self):
+        out = scan.consensus_verdicts([self._rows(a="backwards"),
+                                        self._rows(a="backwards")])
+        self.assertEqual(out["a"], "backwards")
+
+    def test_disagreeing_controls_produce_disputed_not_a_majority(self):
+        """A majority vote here would have cut colon_reveal the moment a
+        second code-documentation corpus was added."""
+        out = scan.consensus_verdicts([self._rows(a="no signal"),
+                                        self._rows(a="discriminates")])
+        self.assertEqual(out["a"], "disputed")
+
+    def test_backwards_on_one_control_alone_does_not_condemn(self):
+        out = scan.consensus_verdicts([self._rows(a="backwards"),
+                                        self._rows(a="discriminates")])
+        self.assertEqual(out["a"], "disputed")
+
+    def test_silent_everywhere_stays_silent(self):
+        out = scan.consensus_verdicts([self._rows(a="silent"),
+                                        self._rows(a="silent")])
+        self.assertEqual(out["a"], "silent")
+
+    def test_silent_on_one_control_only_is_disputed(self):
+        """Firing nowhere in one genre and discriminating in another is
+        two different facts, not a settled one."""
+        out = scan.consensus_verdicts([self._rows(a="silent"),
+                                        self._rows(a="discriminates")])
+        self.assertEqual(out["a"], "disputed")
+
+    def test_a_single_control_can_never_produce_disputed(self):
+        """With one corpus every verdict is provisional, which is what
+        one corpus is worth -- the command says so."""
+        for verdict in ("discriminates", "backwards", "no signal", "silent"):
+            out = scan.consensus_verdicts([self._rows(a=verdict)])
+            self.assertEqual(out["a"], verdict)
+
+    def test_no_controls_at_all_yields_nothing_rather_than_a_default(self):
+        self.assertEqual(scan.consensus_verdicts([]), {})
+
+    def test_a_check_missing_from_a_later_control_is_still_judged(self):
+        out = scan.consensus_verdicts([self._rows(a="backwards"), {}])
+        self.assertEqual(out["a"], "backwards")

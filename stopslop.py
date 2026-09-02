@@ -833,60 +833,81 @@ def cmd_list_rulesets(args):
     return 0
 
 
-_VERDICT_ORDER = {"discriminates": 0, "no signal": 1, "backwards": 2, "silent": 3}
+_VERDICT_ORDER = {"discriminates": 0, "no signal": 1, "backwards": 2,
+                   "disputed": 3, "silent": 4}
+
+
+_CONSENSUS_NOTES = {
+    "backwards": ("fires MORE on every control than on the measured text. "
+                   "This is the only verdict that justifies cutting a check."),
+    "no signal": ("fires about equally on the measured text and on every "
+                   "control. Not a tell -- a style preference."),
+    "disputed": ("the controls DISAGREE. Not a result: the genres differ on "
+                  "this check and neither one settles it. colon_reveal read "
+                  "1.0x against code documentation and 25.8x against "
+                  "pre-2022 encyclopedia prose, and cutting it on the first "
+                  "corpus alone would have removed a real check."),
+}
 
 
 def _print_discrimination(ruleset, summary, comparison):
     """A check earns the word "tell" only by firing more on generated
     prose than on human prose. Everything else is a style preference
     wearing a detector's clothes."""
-    rows = comparison["rows"]
-    control = comparison["control"]
+    controls = comparison["controls"]
+    consensus = comparison["consensus"]
+    labels = [c["label"] for c in controls]
     print(f"{ruleset.RULESET_ID}: {summary['documents']} measured documents "
-          f"({summary['words']} words) against {control['documents']} control "
-          f"documents ({control['words']} words)")
+          f"({summary['words']} words) against "
+          f"{core_text.n(len(controls), 'control corpus', 'control corpora')}")
+    for control in controls:
+        print(f"  control '{control['label']}': "
+              f"{control['control']['documents']} documents, "
+              f"{control['control']['words']} words")
     print()
-    print(f"  {'check':<26} {'measured/1k':>11} {'control/1k':>10} "
-          f"{'ratio':>7}  verdict")
-    ranked = sorted(rows.items(),
-                     key=lambda kv: (_VERDICT_ORDER[kv[1]["verdict"]],
-                                      -(kv[1]["ratio"] or 9e9),
-                                      kv[0]))
-    for check_id, row in ranked:
-        if row["verdict"] == "silent":
+    header = f"  {'check':<26} {'meas/1k':>8}"
+    for label in labels:
+        header += f" {label[:11]:>11}"
+    print(header + "   verdict")
+    ranked = sorted(consensus.items(),
+                     key=lambda kv: (_VERDICT_ORDER.get(kv[1], 2), kv[0]))
+    for check_id, verdict in ranked:
+        if verdict == "silent":
             continue
-        ratio = "  --" if row["ratio"] is None else f"{row['ratio']:.1f}x"
-        print(f"  {check_id:<26} {row['per_1k']:11.2f} "
-              f"{row['control_per_1k']:10.2f} {ratio:>7}  {row['verdict']}")
+        measured = controls[0]["rows"][check_id]["per_1k"]
+        line = f"  {check_id:<26} {measured:8.2f}"
+        for control in controls:
+            row = control["rows"][check_id]
+            ratio = ("  --" if row["ratio"] is None
+                      else f"{row['ratio']:.1f}x")
+            line += f" {ratio:>11}"
+        print(line + f"   {verdict}")
 
     buckets = {}
-    for check_id, row in rows.items():
-        buckets.setdefault(row["verdict"], []).append(check_id)
+    for check_id, verdict in consensus.items():
+        buckets.setdefault(verdict, []).append(check_id)
     print()
-    for verdict, note in (
-            ("no signal",
-             "fires about as often on the control as on the measured text. "
-             "Not a tell -- a style preference. Enforcing it moves prose "
-             "AWAY from the control distribution, not toward it."),
-            ("backwards",
-             "fires MORE on the control than on the measured text. Worse "
-             "than useless: it penalises the thing the writer is aiming "
-             "at.")):
+    for verdict in ("backwards", "no signal", "disputed"):
         names = sorted(buckets.get(verdict, []))
         if names:
             print(f"{core_text.n(len(names), 'check')} -- {verdict}: "
                   f"{', '.join(names)}")
-            print(f"  {note}")
+            print(f"  {_CONSENSUS_NOTES[verdict]}")
             print()
     silent = sorted(buckets.get("silent", []))
     if silent:
-        print(f"{core_text.n(len(silent), 'check')} fired on neither corpus: "
+        print(f"{core_text.n(len(silent), 'check')} fired nowhere: "
               f"{', '.join(silent)}")
         print()
-    print("GENRE IS A CONFOUND AND THIS COMMAND CANNOT CONTROL FOR IT.")
-    print("A control corpus of code documentation is full of identifiers and")
-    print("colons whatever wrote it. Read a 'backwards' verdict as a question")
-    print("about the check AND about the corpus, never as a settled answer.")
+    if len(controls) == 1:
+        print("ONE CONTROL CORPUS. Every verdict above is provisional.")
+        print("Genre is a confound and a single corpus cannot separate it from")
+        print("the check. Add a second `--against` in a different genre before")
+        print("cutting anything.")
+    else:
+        print("Only a verdict every control AGREES on is worth acting on.")
+        print("A 'disputed' check is not a weak result -- it is the genres")
+        print("disagreeing, and it means neither corpus settles that check.")
     return 0
 
 
@@ -927,9 +948,9 @@ def cmd_decay(args):
                                   glob_pattern=args.glob)
     summary = core_scan.check_activity(report, ruleset)
 
-    comparison = None
-    if args.against:
-        control_paths = [os.path.abspath(p) for p in args.against]
+    controls = []
+    for group in args.against or []:
+        control_paths = [os.path.abspath(p) for p in group]
         for path in control_paths:
             if not os.path.exists(path):
                 print(f"{path!r} does not exist.", file=sys.stderr)
@@ -939,10 +960,15 @@ def cmd_decay(args):
                                               glob_pattern=args.control_glob)
         control = core_scan.check_activity(control_report, ruleset)
         if not control["documents"]:
-            print("No in-scope files matched the control corpus.", file=sys.stderr)
+            print(f"No in-scope files matched control corpus {group}.",
+                  file=sys.stderr)
             return 1
-        comparison = {"rows": core_scan.compare_activity(summary, control),
-                       "control": control}
+        label = os.path.basename(control_paths[0].rstrip("/")) or control_paths[0]
+        controls.append({"label": label, "control": control,
+                          "rows": core_scan.compare_activity(summary, control)})
+    comparison = {"controls": controls,
+                   "consensus": core_scan.consensus_verdicts(
+                       [c["rows"] for c in controls])} if controls else None
     if not summary["documents"]:
         print("No in-scope files matched, so nothing was measured. A check "
                "set cannot be judged against an empty corpus.", file=sys.stderr)
@@ -951,9 +977,12 @@ def cmd_decay(args):
     if args.json:
         payload = dict(summary)
         if comparison:
-            payload["comparison"] = comparison["rows"]
-            payload["control"] = {k: v for k, v in comparison["control"].items()
-                                   if k != "activity"}
+            payload["controls"] = [
+                {"label": c["label"], "rows": c["rows"],
+                 "documents": c["control"]["documents"],
+                 "words": c["control"]["words"]}
+                for c in comparison["controls"]]
+            payload["consensus"] = comparison["consensus"]
         print(json.dumps(payload, indent=2, default=str))
         return 0
 
@@ -1307,7 +1336,7 @@ def main():
     p_decay.add_argument("paths", nargs="*", help="files or directories (default: the repo)")
     p_decay.add_argument("--ruleset", help="ruleset to measure (default: resolve like a live write)")
     p_decay.add_argument("--glob", default="*", help="narrow which filenames are included")
-    p_decay.add_argument("--against", nargs="+", metavar="PATH",
+    p_decay.add_argument("--against", nargs="+", action="append", metavar="PATH",
                           help="a control corpus of prose you want to sound LIKE. "
                                "Reports which checks fire more on the measured "
                                "text than on it -- the only evidence that a check "

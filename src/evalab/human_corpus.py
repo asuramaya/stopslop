@@ -28,7 +28,10 @@ corpus is the only fair comparison, and it is the smaller of the two.
 import ast
 import hashlib
 import os
+import sys
 import sysconfig
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Directories under the stdlib that are not prose worth measuring:
 # tests, vendored third-party code, and generated data tables.
@@ -134,20 +137,37 @@ def write_corpus(entries, out_dir):
     return written
 
 
-def build(out_dir, include_package_docs=True):
-    entries = [(f"stdlib/{label}", text) for label, text in stdlib_docstrings()]
-    if include_package_docs:
-        entries += [(f"packages/{label}", text) for label, text in package_docs()]
+def build(out_dir, include_package_docs=True, wikipedia=False):
+    """Build one control corpus into `out_dir`.
+
+    `wikipedia=True` builds the NON-CODE control instead, from article
+    revisions dated before 2022. Keep the genres in separate directories
+    and compare a check against each: a check that fires equally on both
+    is far harder to explain away than one that fires equally on either
+    alone. Condemn a check only when every control agrees.
+    """
+    if wikipedia:
+        from evalab import wikipedia_corpus
+        entries = wikipedia_corpus.fetch()
+    else:
+        entries = [(f"stdlib/{label}", text)
+                    for label, text in stdlib_docstrings()]
+        if include_package_docs:
+            entries += [(f"packages/{label}", text)
+                         for label, text in package_docs()]
     write_corpus(entries, out_dir)
     return manifest(entries)
 
 
 if __name__ == "__main__":
     import json
-    import sys
 
-    target = sys.argv[1] if len(sys.argv) > 1 else "human-corpus"
-    info = build(target)
+    argv = sys.argv[1:]
+    wikipedia = "--wikipedia" in argv
+    argv = [a for a in argv if not a.startswith("--")]
+    target = argv[0] if argv else ("wikipedia-corpus" if wikipedia
+                                     else "human-corpus")
+    info = build(target, wikipedia=wikipedia)
     print(json.dumps({k: v for k, v in info.items() if k != "sources"},
                       indent=1))
     print(f"wrote {info['documents']} files to {target}/", file=sys.stderr)

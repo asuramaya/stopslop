@@ -117,3 +117,51 @@ class WriteTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WikipediaCorpusTests(unittest.TestCase):
+    """The second control genre. Nothing here touches the network."""
+
+    def setUp(self):
+        from evalab import wikipedia_corpus
+        self.mod = wikipedia_corpus
+
+    def test_it_extracts_paragraphs_and_drops_furniture(self):
+        """Wikipedia's rendered HTML carries tables, infoboxes,
+        references and navigation. Measuring those would be measuring
+        MediaWiki rather than a writer."""
+        parser = self.mod._TextExtractor()
+        parser.feed(
+            "<p>" + "word " * 30 + "</p>"
+            "<table><p>" + "table " * 30 + "</p></table>"
+            "<p>short</p>"
+            "<p>" + "prose " * 30 + "<sup>[1]</sup></p>")
+        self.assertEqual(len(parser.paragraphs), 2)
+        self.assertNotIn("table", " ".join(parser.paragraphs))
+        self.assertNotIn("[1]", " ".join(parser.paragraphs))
+
+    def test_a_short_paragraph_is_not_prose_worth_measuring(self):
+        parser = self.mod._TextExtractor()
+        parser.feed("<p>too short</p>")
+        self.assertEqual(parser.paragraphs, [])
+
+    def test_whitespace_is_normalised_so_word_counts_are_comparable(self):
+        parser = self.mod._TextExtractor()
+        parser.feed("<p>" + "a\n\n  b " * 20 + "</p>")
+        self.assertNotIn("\n", parser.paragraphs[0])
+        self.assertNotIn("  ", parser.paragraphs[0])
+
+    def test_the_date_bound_is_before_the_llm_era(self):
+        """An article's CURRENT text may well have been edited by a
+        model. The bound is the whole point of the corpus."""
+        self.assertTrue(self.mod.BEFORE.startswith("2022-01-01"))
+
+    def test_the_title_list_is_fixed_and_sorted_for_reproducibility(self):
+        """A corpus built from whatever a search returned that day is
+        not a control."""
+        titles = list(self.mod.DEFAULT_TITLES)
+        self.assertEqual(titles, sorted(titles))
+        self.assertGreater(len(titles), 15)
+
+    def test_it_identifies_itself_to_the_api(self):
+        self.assertIn("stopslop", self.mod.USER_AGENT)

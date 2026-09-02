@@ -191,3 +191,47 @@ def compare_activity(measured, control):
         rows[check_id] = {"per_1k": gen, "control_per_1k": hum,
                            "ratio": ratio, "verdict": verdict}
     return rows
+
+
+def consensus_verdicts(per_control):
+    """One verdict per check across SEVERAL control corpora.
+
+    Two controls do not make a genre confound disappear; they make it
+    visible. This project nearly cut a good check on one corpus alone:
+    `colon_reveal` scored 1.0x against code documentation -- no signal,
+    apparently a style preference -- and 25.8x against pre-2022
+    Wikipedia prose. Code documentation is full of colons whatever wrote
+    it, and only a second genre could show that.
+
+    So the rule is unanimity, and it is deliberately hard to condemn a
+    check with:
+
+      "discriminates" -- every control agrees it fires more on the
+          measured text.
+      "backwards" -- every control agrees it fires more on the control.
+          This is the only verdict that justifies cutting a check.
+      "silent" -- it fired nowhere at all.
+      "disputed" -- the controls disagree. Not a result. It means the
+          genres differ on this check and neither one settles it.
+
+    With a single control, "disputed" cannot occur and every verdict is
+    provisional. That is not a flaw in the arithmetic; it is what one
+    corpus is worth.
+    """
+    if not per_control:
+        return {}
+    consensus = {}
+    for check_id in per_control[0]:
+        verdicts = {rows.get(check_id, {}).get("verdict") for rows in per_control}
+        verdicts.discard(None)
+        if verdicts == {"silent"}:
+            consensus[check_id] = "silent"
+        elif verdicts == {"discriminates"}:
+            consensus[check_id] = "discriminates"
+        elif verdicts == {"backwards"}:
+            consensus[check_id] = "backwards"
+        elif verdicts == {"no signal"}:
+            consensus[check_id] = "no signal"
+        else:
+            consensus[check_id] = "disputed"
+    return consensus
