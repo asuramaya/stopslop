@@ -299,7 +299,8 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
 
 
 def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
-        on_progress=None, workers=1, instructions=None, combined=None):
+        on_progress=None, workers=1, instructions=None, combined=None,
+        complement=False):
     """Every arm over every prompt. Returns a result dict for report.py.
 
     `workers` parallelizes across PROMPTS, never within one. A prompt's
@@ -313,6 +314,21 @@ def run(prompts, ruleset, generator, enforced=None, max_iterations=4,
     started = time.time()
     instructions = dict(instructions or {})
     instructions.setdefault("instructed", build_instruction(ruleset, enforced))
+    if "complement" in (instructions.get("_want") or ()) or complement:
+        # The COMPLEMENT instruction: built from the checks the gate does
+        # NOT enforce. The combined run showed why this matters. A block
+        # generated from the enforced table restates what the gate is
+        # about to enforce anyway, and barely stacks with it (23 tells
+        # against 30, p = 0.17). stop-slop stacks properly (15, p = 0.017)
+        # because it names things no check here enforces.
+        #
+        # Scoring note that must travel with any number from this arm:
+        # for it, held-out flags are NO LONGER a transfer measurement.
+        # They are instruction-following, because this arm was told about
+        # them. Total tells is the only honest headline here, and it is
+        # the one a reader cares about anyway.
+        instructions["complement"] = build_instruction(ruleset, held_out)
+    instructions.pop("_want", None)
     combined = [name for name in (combined or []) if name in instructions]
     args = (ruleset, generator, enforced, held_out, max_iterations, on_progress,
             instructions, combined)

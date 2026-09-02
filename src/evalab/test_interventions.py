@@ -203,3 +203,79 @@ class CombinedArmTests(unittest.TestCase):
     def test_the_result_names_its_combined_arms(self):
         result = self._run(["instructed"])
         self.assertEqual(result["combined_arms"], ["instructed+gated"])
+
+
+class ComplementInstructionTests(unittest.TestCase):
+    """An instruction built from what the gate does NOT enforce.
+
+    The combined run found the mechanism. A block generated from the
+    enforced check table restates what the gate is about to enforce
+    anyway and barely stacks with it (23 tells against 30, p = 0.17).
+    stop-slop stacks properly (15, p = 0.017) because it names things no
+    check here enforces. This arm asks whether the complement of the
+    enforced set reproduces that advantage from this project's own table.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+
+    def _run(self, **kwargs):
+        generator = ScriptedGenerator(
+            ["Needless to say, this is a seamless and very robust tool.",
+             "The cache stores query results on disk."] * 40)
+        return harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
+                            generator, enforced="structural",
+                            max_iterations=3, complement=True, **kwargs)
+
+    def _bullets(self, text):
+        return {line[2:].strip() for line in text.splitlines()
+                 if line.startswith("- ")}
+
+    def _bullet_for(self, check_id):
+        meta = self.ruleset.list_checks()[check_id]
+        catches = (meta.get("catches") or "").strip()
+        instead = (meta.get("instead") or "").strip()
+        return f"{catches} -- {instead}" if catches and instead else (
+            catches or instead)
+
+    def test_it_names_only_checks_the_gate_does_not_enforce(self):
+        """If it named an enforced check it would be the block that
+        already exists, and the experiment would compare a thing to
+        itself.
+
+        Compared BULLET BY BULLET, not by substring: solicit_criticism's
+        remedy is "cut them", which is a prefix of a held-out check's
+        longer line, and a substring test calls that a leak when nothing
+        leaked.
+        """
+        enforced, _ = harness.split_checks(self.ruleset, "structural")
+        bullets = self._bullets(self._run()["instructions"]["complement"])
+        for check_id in enforced:
+            self.assertNotIn(self._bullet_for(check_id), bullets,
+                              f"{check_id} leaked into the complement")
+
+    def test_it_asks_for_every_held_out_check(self):
+        _, held_out = harness.split_checks(self.ruleset, "structural")
+        bullets = self._bullets(self._run()["instructions"]["complement"])
+        for check_id in held_out:
+            self.assertIn(self._bullet_for(check_id), bullets,
+                           f"{check_id} was not asked for")
+
+    def test_it_differs_from_the_enforced_block(self):
+        result = self._run()
+        self.assertNotEqual(result["instructions"]["complement"],
+                             result["instructions"]["instructed"])
+
+    def test_it_can_be_combined_with_the_gate(self):
+        row = self._run(combined=["complement"])["rows"][0]
+        self.assertIn("complement+gated", row)
+        self.assertGreater(row["complement+gated"]["iterations"], 1)
+
+    def test_it_is_absent_unless_asked_for(self):
+        """Seven committed runs have no complement arm and their reports
+        must keep rendering."""
+        generator = ScriptedGenerator(["clean text."] * 20)
+        result = harness.run(prompts.by_ids(["readme-section"]), self.ruleset,
+                              generator, enforced="structural",
+                              max_iterations=1)
+        self.assertNotIn("complement", result["rows"][0])

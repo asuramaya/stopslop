@@ -83,6 +83,11 @@ def main(argv=None):
                               "with it? ('all' combines every chosen "
                               "intervention; 'instructed' is this project's "
                               "own block)")
+    parser.add_argument("--complement", action="store_true",
+                         help="add an arm instructed from the HELD-OUT checks "
+                              "-- the ones the gate does not enforce. For that "
+                              "arm held-out flags measure instruction-following "
+                              "rather than transfer; read total tells")
     parser.add_argument("--max-iterations", type=int, default=4)
     parser.add_argument("--workers", type=int, default=1,
                          help="run this many PROMPTS at once; a prompt's own "
@@ -110,6 +115,8 @@ def main(argv=None):
     if args.combine:
         combined = (["instructed"] + sorted(chosen_interventions)
                      if "all" in args.combine else list(args.combine))
+        if args.complement and "all" in args.combine:
+            combined.append("complement")
 
     ruleset = rulesets.get_ruleset(args.ruleset)
     if args.live:
@@ -141,7 +148,8 @@ def main(argv=None):
                               max_iterations=args.max_iterations,
                               on_progress=progress, workers=args.workers,
                               instructions=chosen_interventions or None,
-                              combined=combined)
+                              combined=combined,
+                              complement=args.complement)
         result["prompt_set"] = args.prompt_set
         result["enforce"] = args.enforce
     except GeneratorError as exc:
