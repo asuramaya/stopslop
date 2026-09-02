@@ -404,3 +404,76 @@ class ConsensusVerdictTests(unittest.TestCase):
     def test_a_check_missing_from_a_later_control_is_still_judged(self):
         out = scan.consensus_verdicts([self._rows(a="backwards"), {}])
         self.assertEqual(out["a"], "backwards")
+
+
+class CalibrationTargetTests(unittest.TestCase):
+    """The control band, per check, and which way the gate misses it.
+
+    An earlier draft of this returned threshold NUMBERS and suggested 1
+    for bold_density, whose threshold is 8 -- which would have made the
+    gate fire on a single bold span in the name of loosening it. A
+    threshold's meaning is per-check and the Check contract does not
+    carry it, so this reports the gap and lets a person set the number.
+    """
+
+    def _corpus(self, rates, words=10000, documents=40):
+        return {"activity": {k: {"per_1k": v, "hits": 1, "files": 1}
+                              for k, v in rates.items()},
+                 "words": words, "documents": documents,
+                 "total_hits": len(rates)}
+
+    def _controls(self, *rate_maps):
+        measured = self._corpus({k: 5.0 for k in rate_maps[0]})
+        return measured, [
+            {"label": f"c{i}", "control": self._corpus(rates),
+             "rows": scan.compare_activity(measured, self._corpus(rates))}
+            for i, rates in enumerate(rate_maps)]
+
+    def test_it_never_returns_a_threshold_number(self):
+        measured, controls = self._controls({"a": 0.29})
+        row = scan.suggest_thresholds(measured, controls,
+                                       {"a": {"threshold": 8}})["targets"]["a"]
+        self.assertNotIn("suggested_threshold", row)
+        self.assertIn("target_per_1k", row)
+
+    def test_gated_below_the_band_says_loosen(self):
+        measured, controls = self._controls({"a": 0.29})
+        out = scan.suggest_thresholds(measured, controls, {"a": {}},
+                                       gated_rates={"a": 0.0})
+        self.assertIn("LOOSEN", out["targets"]["a"]["direction"])
+
+    def test_gated_inside_the_band_says_so(self):
+        measured, controls = self._controls({"a": 0.29})
+        out = scan.suggest_thresholds(measured, controls, {"a": {}},
+                                       gated_rates={"a": 0.26})
+        self.assertEqual(out["targets"]["a"]["direction"], "at the band")
+
+    def test_gated_above_the_band_says_tighten(self):
+        measured, controls = self._controls({"a": 0.29})
+        out = scan.suggest_thresholds(measured, controls, {"a": {}},
+                                       gated_rates={"a": 3.0})
+        self.assertIn("tighten", out["targets"]["a"]["direction"])
+
+    def test_a_check_the_control_cannot_express_is_refused_not_calibrated(self):
+        """A control rate of zero means EITHER humans never do this OR
+        the corpus cannot express it. Stripped-markup prose can never
+        trip a markdown check, and reading that as 'humans never do
+        this' aims the strictest threshold at the checks most in need of
+        loosening."""
+        measured, controls = self._controls({"a": 0.0})
+        out = scan.suggest_thresholds(measured, controls, {"a": {}})
+        self.assertNotIn("a", out["targets"])
+        self.assertIn("a", out["skipped"])
+        self.assertIn("cannot express", out["skipped"]["a"])
+
+    def test_a_disputed_check_gets_no_target(self):
+        measured, controls = self._controls({"a": 0.1}, {"a": 90.0})
+        out = scan.suggest_thresholds(measured, controls, {"a": {}})
+        self.assertNotIn("a", out["targets"])
+
+    def test_the_most_permissive_control_sets_the_ceiling(self):
+        """A genre where humans use a device MORE is evidence the device
+        is acceptable, not evidence that genre is wrong."""
+        measured, controls = self._controls({"a": 0.5}, {"a": 1.5})
+        out = scan.suggest_thresholds(measured, controls, {"a": {}})
+        self.assertEqual(out["targets"]["a"]["control_per_1k"], 1.5)

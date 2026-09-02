@@ -235,3 +235,87 @@ def consensus_verdicts(per_control):
         else:
             consensus[check_id] = "disputed"
     return consensus
+
+
+def suggest_thresholds(measured, controls, table, headroom=1.0,
+                        gated_rates=None):
+    """Per-check thresholds aimed at a control's own rate, not at zero.
+
+    The gate's default is to drive every enforced signal to zero, and
+    measurement says that is wrong: gated output scores 0.39 structural
+    flags per 1000 words against a human band of 0.97 to 2.09. Text with
+    no bold, no horizontal rules and perfectly even paragraphs is not
+    what human writing looks like. Driving a signal below the people you
+    are trying to sound like does not make prose human, it makes it
+    differently artificial.
+
+    So the target is the control's own rate, and `headroom` says how much
+    of the band to allow -- 1.0 aims at the control's rate itself, 2.0 at
+    twice it. The suggestion is a DOCUMENT-level count derived from that
+    rate and the measured corpus's typical document length, because a
+    threshold is a count and a rate is not.
+
+    Only checks every control agrees discriminate get a target. A
+    disputed or backwards check has no defensible one: aiming it at a
+    control band would be tuning a check that may not measure anything.
+
+    It reports the GAP, never a threshold number. A threshold's meaning
+    is per-check and the Check contract does not carry it: for a density
+    check it is an internal count of occurrences before one flag is
+    raised, and for a per-sentence check it is the number of flags a
+    document may hold. Turning a rate into a threshold needs that
+    distinction, so this hands a person the direction and the size of the
+    gap and lets them set the number. An earlier draft did invent
+    thresholds and suggested 1 for bold_density -- currently 8 -- which
+    would have made the gate fire on a single bold span in the name of
+    loosening it.
+    """
+    consensus = consensus_verdicts([c["rows"] for c in controls])
+    documents = max(measured["documents"], 1)
+    words_per_doc = measured["words"] / documents if measured["words"] else 0
+    out, skipped = {}, {}
+    gated_rates = gated_rates or {}
+    for check_id, verdict in consensus.items():
+        if verdict != "discriminates" or check_id not in table:
+            continue
+        rates = [c["rows"][check_id]["control_per_1k"] for c in controls
+                  if check_id in c["rows"]]
+        if not rates:
+            continue
+        # The most permissive control is the honest ceiling: a genre where
+        # humans use a device more is evidence the device is acceptable,
+        # not evidence that genre is wrong.
+        control_rate = max(rates)
+        if control_rate <= 0:
+            # A rate of zero is ambiguous and the ambiguity is dangerous
+            # here. It means EITHER humans never do this, OR the control
+            # cannot express it -- stripped-markup encyclopedia text and
+            # plain docstrings can never trip bold_density whatever their
+            # authors would have written. Calibrating on that would
+            # suggest the strictest possible threshold for exactly the
+            # checks most in need of loosening, which is how a tool
+            # confidently tightens itself into nonsense.
+            skipped[check_id] = ("no control evidence: this check never "
+                                  "fired on any control, which may mean the "
+                                  "corpus cannot express it")
+            continue
+        target = control_rate * headroom
+        gated = gated_rates.get(check_id)
+        direction = None
+        if gated is not None:
+            if gated < target * 0.5:
+                direction = "LOOSEN -- gated output is below the control band"
+            elif gated > target * 2:
+                direction = "tighten -- gated output is above the control band"
+            else:
+                direction = "at the band"
+        out[check_id] = {
+            "control_per_1k": round(control_rate, 3),
+            "measured_per_1k": measured["activity"][check_id]["per_1k"],
+            "gated_per_1k": gated,
+            "target_per_1k": round(target, 3),
+            "words_per_document": round(words_per_doc),
+            "direction": direction,
+            "current_threshold": table.get(check_id, {}).get("threshold"),
+        }
+    return {"targets": out, "skipped": skipped}

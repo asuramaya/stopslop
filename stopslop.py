@@ -837,6 +837,67 @@ _VERDICT_ORDER = {"discriminates": 0, "no signal": 1, "backwards": 2,
                    "disputed": 3, "silent": 4}
 
 
+def _print_calibration(ruleset, summary, comparison, gated_rates=None):
+    """What the control band is, per check, and which way the gate misses it."""
+    from core import scan as core_scan
+
+    gated_rates = gated_rates or {}
+    table = ruleset.list_check_config() if hasattr(ruleset, "list_check_config") else {}
+    result = core_scan.suggest_thresholds(summary, comparison["controls"],
+                                           table, gated_rates=gated_rates)
+    targets, skipped = result["targets"], result["skipped"]
+    if not targets:
+        for check_id, why in sorted(skipped.items()):
+            print(f"  {check_id}: {why}", file=sys.stderr)
+        print("Nothing to calibrate: no check discriminates on EVERY control.",
+              file=sys.stderr)
+        print("Only a check the controls agree about has a defensible target.",
+              file=sys.stderr)
+        return 1
+    print(f"{ruleset.RULESET_ID}: the control band, per check")
+    print()
+    head = f"  {'check':<26} {'ungated/1k':>10} {'control/1k':>10}"
+    if gated_rates:
+        head += f" {'gated/1k':>9}"
+    print(head + f" {'now':>5}   direction")
+    for check_id in sorted(targets):
+        row = targets[check_id]
+        line = (f"  {check_id:<26} {row['measured_per_1k']:10.2f} "
+                 f"{row['control_per_1k']:10.2f}")
+        if gated_rates:
+            gated = row["gated_per_1k"]
+            line += f" {gated:9.2f}" if gated is not None else f" {'--':>9}"
+        current = row["current_threshold"]
+        line += f" {str(current if current is not None else '-'):>5}"
+        print(line + f"   {row['direction'] or ''}")
+    print()
+    print("This reports the GAP, not a threshold number, on purpose. A")
+    print("threshold's meaning is per-check and the contract does not carry")
+    print("it: for a density check it counts occurrences before one flag is")
+    print("raised; for a sentence check it counts flags a document may hold.")
+    print("An earlier draft did invent numbers and suggested 1 for")
+    print("bold_density, currently 8 -- which would have made the gate fire")
+    print("on a single bold span in the name of LOOSENING it. Set the")
+    print("numbers yourself:")
+    print(f"  python3 stopslop.py checks --ruleset {ruleset.RULESET_ID} "
+          f"--set-threshold CHECK=N")
+    print()
+    print("Only checks every control agrees discriminate are listed. A")
+    print("disputed check has no defensible target -- tuning it to a band")
+    print("would be calibrating something that may not measure anything.")
+    if skipped:
+        print()
+        print(f"{core_text.n(len(skipped), 'check')} left uncalibrated:")
+        for check_id, why in sorted(skipped.items()):
+            print(f"  {check_id} -- {why}")
+        print("  Use a control corpus in the same FORM as what you write.")
+        print("  Stripped-markup prose can never trip a markdown check, and")
+        print("  reading that as 'humans never do this' suggests the")
+        print("  strictest possible threshold for the checks most in need")
+        print("  of loosening.")
+    return 0
+
+
 _CONSENSUS_NOTES = {
     "backwards": ("fires MORE on every control than on the measured text. "
                    "This is the only verdict that justifies cutting a check."),
@@ -986,6 +1047,17 @@ def cmd_decay(args):
         print(json.dumps(payload, indent=2, default=str))
         return 0
 
+    if comparison and args.calibrate:
+        gated_rates = {}
+        if args.gated:
+            gated_paths = [os.path.abspath(p) for p in args.gated]
+            gated_report = core_scan.scan_tree(gated_paths, REPO_ROOT, rulesets,
+                                                ruleset_id=ruleset.RULESET_ID,
+                                                glob_pattern=args.gated_glob)
+            gated_summary = core_scan.check_activity(gated_report, ruleset)
+            gated_rates = {k: v["per_1k"]
+                            for k, v in gated_summary["activity"].items()}
+        return _print_calibration(ruleset, summary, comparison, gated_rates)
     if comparison:
         return _print_discrimination(ruleset, summary, comparison)
 
@@ -1343,6 +1415,16 @@ def main():
                                "detects a machine rather than a style")
     p_decay.add_argument("--control-glob", default="*",
                           help="narrow which filenames the control corpus includes")
+    p_decay.add_argument("--calibrate", action="store_true",
+                          help="with --against, suggest per-check thresholds aimed "
+                               "at the control's own rate instead of at zero -- "
+                               "point it at YOUR writing to calibrate to your voice")
+    p_decay.add_argument("--gated", nargs="+", metavar="PATH",
+                          help="with --calibrate, output the gate already produced, "
+                               "so the report can say which way each check misses "
+                               "the control band")
+    p_decay.add_argument("--gated-glob", default="*",
+                          help="narrow which filenames --gated includes")
     p_decay.add_argument("--json", action="store_true", help="machine-readable output")
     p_decay.set_defaults(func=cmd_decay)
 
