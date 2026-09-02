@@ -2,71 +2,88 @@
 
 [![tests](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml/badge.svg)](https://github.com/asuramaya/stopslop/actions/workflows/tests.yml)
 
-A pluggable text gate for Claude Code that reads your prose at the moment of the write, and an evaluation harness that measures whether the gate is worth running. The harness is the unusual part. Most tools in this category assert that they remove AI writing tells; this one tests the claim against controls, including the free alternative to installing it at all.
+Most anti-slop rules are wrong for your writing specifically. This is a tool for finding out which ones, and a decent starting point to begin from.
+
+It ships a text gate that reads your prose at the moment of the write, a set of checks to start from, and an evaluation harness that measures any of it against your own writing. The harness is the unusual part. Every other tool in this category asserts that it removes AI writing tells; this one tests the claim against controls, including the free alternative to installing anything.
+
+## Start here
+
+**If you write with a model and want the cheap 80%:**
+
+```
+python3 stopslop.py rules >> CLAUDE.md
+```
+
+That is a block of named defects. Measured on 30 prompts it cut total AI-writing tells from 107 to 60, for one generation and no install.
+
+**If it matters more than that**, install the gate too, and point the instruction at what the gate does *not* catch:
+
+```
+python3 stopslop.py init
+python3 stopslop.py rules --complement >> CLAUDE.md
+```
+
+107 to 13, for about 2.8 generations per document.
+
+**If you want an answer about your writing rather than mine**, write your prompts in a markdown file and run the harness on them:
+
+```
+python3 src/evalab/run.py --live --prompt-set my-prompts.md --compare ./my-skill.md
+```
+
+That is the actual product. Everything above is a default.
 
 ## What the evidence says
 
-Six committed runs, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). The most recent one measured this project against the other tools in its category, on the same 30 prompts, in the same run. As far as I can find, nobody had done that before: every project here asserts that it removes AI writing patterns and none publishes a number, because until this harness there was no rig.
+Nine committed runs, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). One of them measured this project against the other tools in its category on the same prompts, in the same run -- as far as I can find, nobody had done that before, because until this harness there was no rig.
 
-| arm | generations | total tells | per 1k | sentence stdev |
-|---|---|---|---|---|
-| **gated (this project)** | 2.93 | **34** | **4.39** | **9.26** |
-| stop-slop (16.7k stars) | 1.00 | 54 | 7.39 | 7.07 |
-| anti-slop-writing | 1.00 | 58 | 7.92 | 8.82 |
-| `stopslop rules` (free half) | 1.00 | 58 | 7.84 | 8.49 |
-| no-ai-slop (6.6k stars) | 1.00 | 68 | 9.49 | 7.81 |
-| blind rewrite | 2.93 | 87 | 12.01 | 8.01 |
-| second ungated sample | 1.00 | 111 | 14.20 | 9.11 |
-| ungated | 1.00 | 114 | 14.56 | 8.70 |
+| tier | tells | generations |
+|---|---|---|
+| nothing | 107 | 1.00 |
+| a skill file (any of them) | 50-60 | 1.00 |
+| gate only | 30 | 2.80 |
+| **gate + complement skill** | **13** | 2.77 |
 
-**The gate beats every skill file, and every comparison clears p < 0.05** -- 17-5 against stop-slop, 18-7 against anti-slop-writing, 19-5 against no-ai-slop, 24-2 against a blind rewrite at matched compute. It spends 2.93 generations per document to do it. Every skill spends one.
+**Gate-only is dominated.** It costs more than gate-plus-skill and delivers less than half as much, because an instruction front-loads the fix and the loop then needs fewer revisions. If you run the gate, run a skill beside it.
 
-**But the two together beat either alone.** Stating rules up front *inside* the gated loop reaches 15 total tells against the gate's 30, paired 17-5, p = 0.017 -- in fewer generations, because a draft that starts closer to clean needs fewer revisions.
+**And it matters where the skill points.** A block naming the checks the gate *already enforces* barely helps (26 against 30, p = 0.17). A block naming the checks it does **not** enforce reaches 13, beating the gate alone 17-2, **p = 0.0007** -- and takes held-out flags from 25 to 11, which is the first time in six rounds that number moved. A gate enforces; an instruction generalises. Pointing both at the same targets wastes the instruction.
 
-**And it matters enormously where the instruction points.** A block generated from the checks the gate *already enforces* barely stacks (26 against 30, p = 0.17, no held-out improvement). A block generated from the checks the gate does **not** enforce reaches **13** -- beating the gate alone 17-2, **p = 0.0007**:
+Four findings that are not in this project's favour, and matter more than the win:
 
-| arm | generations | held-out flags | total tells |
-|---|---|---|---|
-| complement + gate | 2.77 | **11** | **13** |
-| stop-slop + gate | 2.43 | 14 | 19 |
-| enforced-set block + gate | 2.43 | 21 | 26 |
-| gate alone | 2.80 | 25 | 30 |
-| complement **alone** | 1.00 | 11 | **77** |
+- **The wording is not the active ingredient.** stop-slop has 16.7k stars and thousands of readers' revisions. A block assembled mechanically from a check table matched it: 13-11 with 6 ties, **p = 0.84**. Meanwhile a blind rewrite -- told to try again, given no specifics, at three times the compute -- moved structural tells from 75 to 75. What works is naming defects, not describing quality.
+- **Most checks do nothing.** 19 of slopwatch's 31 fired zero times across 59902 words. Six carried 96% of every flag. Tell sets catalogued against 2023-24 output largely do not describe current models, and no skill file in this category carries a date.
+- **Whether a check is a "tell" depends on your genre.** `colon_reveal` reads 1.0x against code documentation and 25.8x against encyclopedia prose. Same check, opposite conclusion. `stopslop.py decay --against` is the command for finding out which way it falls for *your* corpus, and it wants two control genres, not one.
+- **The gate does not work on `ste100` at all.** 433 flags against ungated's 411, p = 1.0 -- indistinguishable from doing nothing, at three generations per document. The ruleset that fires most in production is the one the loop makes no better. [Findings](evalab-runs/2026-09-02-ste100/FINDINGS.md).
 
-The complement instruction is the *worst* intervention alone and the *best* in combination. It names only the checks that fire rarely, so on its own it misses everything that matters -- and beside a gate it is the only thing covering what the loop ignores.
-
-**That fixes this project's oldest weakness.** Six rounds found held-out checks never improve under a gate: 25 flags, unmoved. With the complement instruction, 11 -- paired 14-2, p = 0.004. Nothing about the loop changed. The gap was never intrinsic to gating; every instruction anyone had tested was pointed at the same place the gate was.
-
-```
-python3 stopslop.py rules --complement >> CLAUDE.md   # if you also run the gate
-```
-
-Three things about that table are not in this project's favour, and they matter more than the win:
-
-- **A generated instruction ties the hand-written one.** stop-slop scored 54, the block `stopslop.py rules` prints straight from the check table scored 58, paired 13-11-6, **p = 0.84**. The most-starred artifact in this category, read and revised by thousands of people, is matched by a mechanical assembly of check metadata. Careful wording is not the active ingredient.
-- **Every skill file generalises better than the gate.** On the 14 checks nobody enforced the gate is last: 26 flags against anti-slop-writing's 10 (p = 0.0026), no-ai-slop's 11 (p = 0.0044), stop-slop's 12 (p = 0.013). Fifth consecutive round showing the gate improves what it points at and nothing else.
-- **Half the checks are not tells.** Against 32565 words of human technical prose, `colon_reveal` -- the second highest-firing check here, and one the harness enforces -- fires at 2.84 per 1000 words on generated text and 2.76 on human text. No signal at all. Five more checks fire *more* on human prose than on generated. `stopslop.py decay --against` names them, and that command exists because the answer was uncomfortable.
-
-So the honest recommendation, from this project's own numbers: **if you will spend the generations, the gate is the best instrument measured here. If you will not, take a skill file -- any of them, they are within four tells of each other -- and skip the install.**
-
-```
-python3 stopslop.py rules --ruleset slopwatch >> CLAUDE.md
-```
-
-It also ships as a skill at [`.claude/skills/slopwatch/`](.claude/skills/slopwatch/), generated from the same check table and carrying its own numbers -- including the one that favours the competition.
-
-One measured caution about the alternative. stop-slop cuts sentence-length variance from 8.70 to 7.07, flattening on 25 of 30 prompts (p = 0.0003) -- the lowest of any arm in the run. No check anywhere rewards that number, which is why it is worth watching, and nothing in that tool would tell its users. Flattening is a proxy for monotony rather than proof of bad prose; the saved texts are the evidence.
-
-Four more things qualify all of it:
-
-- **It only works when the checks are pointed at formatting.** With just the 11 wording checks enforced, the gate barely beat a rewrite: 25 total tells against 38, directional at best. The lexical layer is nearly exhausted.
-- **The gate does not work on `ste100` at all.** The ruleset that fires most in production had never been evaluated -- the harness was silently producing an empty enforced set for it. Measured: the gate scores 433 flags against ungated's 411, paired 3-2, **p = 1.0**, indistinguishable from doing nothing at three generations per document. Stating the rules instead beats it on all six prompts, 6-0, p = 0.031, for one generation. The loop clears its six enforced checks and drives `vocabulary` -- 92% of all flags, warn-only, unwatched -- *up* from 380 to 419 while doing it. Six prompts and one genre, so read [the findings](evalab-runs/2026-09-02-ste100/FINDINGS.md) before quoting it.
-- **A finding this project published and then retracted.** Four checks looked "backwards" -- firing more on human prose than on generated -- against a control that was mostly CPython docstrings, which carry no markdown. Re-measured against human *markdown* documentation and encyclopedia prose, not one is condemned. The preset that dropped them is withdrawn. That is the third time a fairer corpus overturned a conclusion drawn from a narrower one, and the pattern is worth more than any of the three findings: **a verdict from one corpus shape is a hypothesis.**
-- **Six checks do the work, not thirty-one.** Across 59902 words of ungated generation, **19 of slopwatch's 31 checks fired zero times** and six carried 96% of every flag. `stopslop.py decay` prints that; nothing else in this category can ask the question, because a check that never fires produces no output.
-- **Tell sets decay.** The rule of three, copula avoidance and the participial significance clause were catalogued against 2023-24 output. This model does not produce them at a measurable rate. What survives is the markdown habit, which is what [the stylometry work](https://arxiv.org/pdf/2603.27006) predicted would be the last fingerprint.
-- **The gate overshoots on two checks, not in general.** Measured per check against human markdown documentation: `bold_density` lands at 0.26 against a human 0.29 -- correctly calibrated. `paragraph_uniformity` and `thematic_break` are driven to 0.00 against human rates of 0.29 and 0.10. Driving a signal below the people you are trying to sound like does not make prose human, it makes it differently artificial. `stopslop.py decay --calibrate` prints that table; the earlier aggregate claim of a flat 0.97-to-2.09 band was two genres and less precise than it sounded.
+And one retraction, kept because it is the most useful thing here. This project published that four checks fire more on human prose than generated prose, "across every control corpus measured". They do not -- that verdict came from a control that was mostly CPython docstrings, which carry no markdown. Against human *markdown* documentation, not one is condemned. **That is the third time a fairer corpus overturned a conclusion drawn from a narrower one.** A verdict from one corpus shape is a hypothesis.
 
 None of this measures whether the writing is *good*. It measures whether it still reads as generated. Those are different questions and only the second is answered here.
+
+### The caveat that bounds every number above
+
+They come from the `padding` prompt set -- prose deliberately chosen to trip flags. On the `technical` set, real content, almost nothing tripped and the question could not be asked. These gaps are measured where the problem is worst, and for dense technical writing the whole ladder compresses, possibly to nothing. Which is the argument for measuring your own prompts rather than trusting this table.
+
+## Tuning it to your writing
+
+The loop the tool is built around, in four commands:
+
+```
+# 1. import rules other people already wrote and argued over
+python3 stopslop.py import --vale path/to/Vale/Style --ruleset slopwatch
+
+# 2. find out which of them discriminate for YOUR genre, not mine
+python3 stopslop.py decay docs/ --against my-old-writing/ --against another-genre/
+
+# 3. turn what survived into an instruction
+python3 stopslop.py rules --complement >> CLAUDE.md
+
+# 4. measure it against your own writing tasks
+python3 src/evalab/run.py --live --prompt-set my-prompts.md --compare ./my-skill.md
+```
+
+Step 1 works: [vale-ai-tells](https://github.com/krishnasunkam/vale-ai-tells) imports 17 of 17 rules, and the [Microsoft Writing Style Guide](https://github.com/vale-cli/Microsoft) 42 of its 44 actual rules. There is a whole ecosystem of these at [vale.sh/explorer](https://vale.sh/explorer) -- Microsoft, Google, Elastic, write-good, proselint, alex.
+
+Step 2 is the one nothing else in this category can do, and step 4 is what makes the answer yours instead of mine.
 
 ## What it actually does
 
@@ -122,18 +139,19 @@ Once you wire up the gate, it runs on its own. You do not run it by hand. `stops
 
 ## Dashboard (optional)
 
-`python3 stopslop.py dashboard` opens a local page at `http://localhost:8501` -- a small, bespoke FastAPI + htmx app (`src/webui/`), no build step, no external JS beyond a vendored copy of htmx itself. It shows live gate activity and per-ruleset stats, across four pages:
+`python3 stopslop.py dashboard` opens a local page at `http://localhost:8501` -- a small FastAPI + htmx app (`src/webui/`), no build step, no external JS beyond a vendored copy of htmx.
 
-- `Watch` -- the live activity feed, with a callout for recent denials.
-- `Checks` -- picks a ruleset and tunes every one of its checks in place: a check's on/off switch, its unit (sentence/document/line), its threshold, and its action are one editable row. It can add a whole new custom check (a real matcher function, not just a word list), optionally bound to a Vocabulary list. The "Edit" link doubles as the only place a saved custom check's matcher body is visible again -- prefilled, editable, or removable outright. A "Try it" playground lints text through the exact same gate a real write would. Each row also shows how often that check has actually fired, out of how many judged writes, and the page names any check that has never fired at all -- the number that reveals a decayed check set. It stays quiet below 25 judged writes, because a check firing on one document in ten sits out a four-write sample most of the time.
-- `Vocabulary` -- searches every word in every list at once, tagged by ruleset and source, and browses or curates any single list. A built-in or pack word can't be deleted outright, only suppressed, and stays restorable. It can also declare a whole new custom list on any ruleset, edit that list's own spec afterwards (label, polarity, what it accepts -- the id stays fixed, since every word already registered is filed under it), or remove one it declared. Its own Packs section adds or removes a whole custom vocabulary pack.
-- `Routing` -- the editable first-match-wins rules table, with real move-up/move-down reordering (order decides everything here), a path probe, and per-rule vocabulary-pack and check-exemption bindings. Its own Rulesets section scaffolds a whole new ruleset from just an id and a name -- empty until Checks and Vocabulary fill it in -- renames a scaffolded one in place (only the display name; the id is what every routing rule and config entry is filed under), or removes one, refused while any rule still routes to it.
+[![The Checks page](docs/screenshots/checks.jpg)](docs/dashboard.md)
 
-Edits apply immediately and re-render straight from disk. Anything destructive confirms first, and the last change is undoable. The dashboard reads and writes the exact files the hook, the CLI, and an agent already use: `.claude/stopslop-history.log` and `stopslop.config.json`. One shared source of truth, not a second config store. A change here reaches the next gate call right away, with no session restart.
+Four pages: **Watch** (what the gate has actually done), **Checks** (which rules exist and how often each one fires), **Vocabulary** (the word lists behind the checks, and the packs that fill them), **Routing** (which ruleset judges which file, first match wins).
 
-It also starts on its own the first time an MCP session loads (see `src/dashboard_launch.py`), headless, in the background -- no need to run the command by hand unless a Claude Code session was never started. Concurrent sessions loading MCP at once still produce exactly one dashboard process, not one per session: a health probe against the app's own `/health` endpoint and a file lock (`.claude/stopslop-dashboard.lock`) together guarantee only the first one to get there actually spawns it.
+**[docs/dashboard.md](docs/dashboard.md) explains each page** -- what to look for, what the columns mean, and for every page the CLI command that answers the same question without a browser. It is written for a person looking at the screen and for a model reading the file; an agent should generally use the commands, since every page reads the same two files the CLI does.
 
-Uses the venv `stopslop.py init` already sets up (see Quickstart) -- nothing further to install.
+Edits apply immediately and re-render from disk. Anything destructive confirms first, and the last change is undoable. It reads and writes exactly what the hook, the CLI and an agent already use -- `.claude/stopslop-history.log` and `stopslop.config.json`. One source of truth, and a change reaches the next gate call with no session restart.
+
+It also starts on its own the first time an MCP session loads (`src/dashboard_launch.py`), headless, in the background. Concurrent sessions still produce exactly one process: a health probe against `/health` plus a file lock (`.claude/stopslop-dashboard.lock`) guarantee only the first one to get there spawns it.
+
+Uses the venv `stopslop.py init` already sets up -- nothing further to install.
 
 ## MCP tools (optional)
 
@@ -189,6 +207,7 @@ Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1
 ## Documentation
 
 - [How to contribute](CONTRIBUTING.md) -- how to run the tests, and the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
+- [Reading the dashboard](docs/dashboard.md) -- what each of the four pages shows, what to look for, and the CLI command that answers the same question without a browser. Written for humans and for models.
 - [How to add a ruleset](docs/adding-a-ruleset.md) -- the full plugin contract: the three required functions, the three required attributes, every optional capability, and what each one adds.
 - [Embedded prose](docs/embedded-prose.md) -- how one routing rule sends a code file's own strings and docstrings through a second, prose ruleset.
 - [ASD-STE100 rules, extracted](docs/ASD-STE100-rules-extracted.md) -- the Part 1 rule set this project built the `ste100` ruleset against. Reference material, not this project's own prose, so the gate does not read it.
