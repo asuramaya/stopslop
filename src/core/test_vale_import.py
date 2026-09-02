@@ -166,3 +166,113 @@ class PackageTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+SUBSTITUTION = """extends: substitution
+message: "Consider using '%s' instead of the jargon '%s'."
+level: suggestion
+ignorecase: true
+action:
+  name: replace
+swap:
+  bucketize: group
+  leverage: take advantage of
+"""
+
+QUOTED_REGEX_SWAP = """extends: substitution
+message: "Use '%s'."
+level: error
+swap:
+  '(?:demilitarized zone|DMZ)': perimeter network
+  'it is(?!\\.)': it's
+"""
+
+UNQUOTED_REGEX_SWAP = """extends: substitution
+message: "Use '%s'."
+level: error
+swap:
+  (?:alumna|alumnus): graduate
+  air(?:m[ae]n|wom[ae]n): pilot(s)
+"""
+
+ACTION_BLOCK = """extends: existence
+message: "Do not hyphenate '%s'."
+ignorecase: true
+level: error
+action:
+  name: convert
+  params:
+    - simple
+tokens:
+  - 'auto-\\w+'
+"""
+
+
+class SubstitutionTests(unittest.TestCase):
+    def _compile(self, spec):
+        namespace = {}
+        source = "def check(sentence, extra=()):\n" + "\n".join(
+            "    " + line for line in spec["fn_body"].splitlines())
+        exec(compile(source, "<generated>", "exec"), namespace)
+        return namespace["check"]
+
+    def test_a_swap_map_becomes_a_matcher(self):
+        check = self._compile(vale_import.convert(SUBSTITUTION, "Jargon"))
+        self.assertTrue(check("we should leverage this"))
+        self.assertEqual(check("nothing here"), [])
+
+    def test_the_replacement_reaches_the_writer(self):
+        """Vale tells a writer what to use instead. An import that kept
+        only the ban would hand back less guidance than the source."""
+        check = self._compile(vale_import.convert(SUBSTITUTION, "Jargon"))
+        note = check("we should leverage this")[0]["note"]
+        self.assertIn("take advantage of", note)
+
+    def test_a_quoted_key_containing_a_colon_is_not_split_at_it(self):
+        """`'(?:demilitarized zone|DMZ)': perimeter network` splits at
+        the WRONG colon under a naive partition, yielding the key `'(?`
+        -- which does not compile, so the rule is refused with a message
+        blaming the package rather than the parser."""
+        check = self._compile(vale_import.convert(QUOTED_REGEX_SWAP, "Bias"))
+        self.assertTrue(check("the demilitarized zone here"))
+
+    def test_a_doubled_quote_inside_a_key_is_one_quote(self):
+        spec = vale_import.convert(QUOTED_REGEX_SWAP, "Bias")
+        self.assertIn("it is(?!", spec["fn_body"])
+
+    def test_an_unquoted_regex_key_splits_at_the_last_colon_space(self):
+        """Not valid YAML, but Vale accepts it and the Microsoft package
+        ships several."""
+        check = self._compile(vale_import.convert(UNQUOTED_REGEX_SWAP, "Bias"))
+        self.assertTrue(check("she is an alumna of the school"))
+        self.assertEqual(check("nothing here"), [])
+
+    def test_a_swap_key_that_does_not_compile_is_refused(self):
+        broken = "extends: substitution\nmessage: 'x'\nswap:\n  '([unclosed': y\n"
+        with self.assertRaises(vale_import.UnsupportedRule):
+            vale_import.convert(broken, "Broken")
+
+    def test_a_substitution_with_no_swap_map_is_refused(self):
+        with self.assertRaises(vale_import.UnsupportedRule):
+            vale_import.convert("extends: substitution\nmessage: 'x'\n", "Empty")
+
+
+class ActionBlockTests(unittest.TestCase):
+    def test_an_action_block_is_ignored_rather_than_refusing_the_rule(self):
+        """Vale's `action:` describes an automatic FIX and says nothing
+        about what the rule matches, so an importer that only reproduces
+        matching can ignore it. Refusing over it cost 19 of the Microsoft
+        package's rules."""
+        spec = vale_import.convert(ACTION_BLOCK, "Auto")
+        self.assertEqual(spec["action"], "block")
+        self.assertIn("auto-", spec["fn_body"])
+
+    def test_an_action_blocks_own_params_list_is_ignored_too(self):
+        spec = vale_import.convert(ACTION_BLOCK, "Auto")
+        self.assertNotIn("simple", spec["fn_body"])
+
+    def test_a_genuinely_unknown_block_is_still_refused(self):
+        text = ACTION_BLOCK.replace("action:", "exceptions:")
+        with self.assertRaises((vale_import.UnsupportedRule,
+                                 vale_import.ValeParseError)):
+            vale_import.convert(text, "Auto")

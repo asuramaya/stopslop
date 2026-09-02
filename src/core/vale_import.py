@@ -23,7 +23,16 @@ consistency, repetition -- is refused by name.
 import os
 import re
 
-SUPPORTED_EXTENDS = frozenset({"existence"})
+SUPPORTED_EXTENDS = frozenset({"existence", "substitution"})
+
+# Vale's `action:` block describes an automatic FIX ("replace this",
+# "convert to simple form"). It says nothing about what the rule matches,
+# so an importer that only reproduces matching can ignore it -- and
+# ignoring it is worth 19 of the Microsoft package's 61 rules, which the
+# first version refused wholesale over a field it did not need to read.
+# Nothing is silently dropped that changes a rule's meaning: this is the
+# one block whose absence cannot.
+_IGNORED_BLOCKS = frozenset({"action"})
 
 # Vale severities to this project's own two actions. Vale's "error" is a
 # CI failure, which is the closest thing it has to a blocking gate.
@@ -32,6 +41,7 @@ LEVEL_ACTIONS = {"error": "block", "warning": "warn", "suggestion": "warn"}
 _SCALARS = ("extends", "message", "level", "ignorecase", "nonword", "scope",
              "link", "description")
 _LISTS = ("tokens", "raw")
+_MAPS = ("swap",)
 
 
 class UnsupportedRule(Exception):
@@ -40,6 +50,58 @@ class UnsupportedRule(Exception):
 
 class ValeParseError(Exception):
     pass
+
+
+def _split_map_entry(line, name, key_name):
+    r"""One `key: value` line of a swap map, quotes respected.
+
+    A swap key is usually a regex and regexes contain colons:
+    `'(?:demilitarized zone|DMZ)': perimeter network` splits at the WRONG
+    colon under a naive partition, yielding the key `'(?` -- which does
+    not compile, so the rule was refused with a message blaming the
+    package rather than this parser. Silently mis-parsing would have been
+    worse: `'it is(?!\.)': it's` would have produced a key that compiles
+    and matches something else entirely.
+    """
+    if line[0] in "'\"":
+        quote = line[0]
+        index = 1
+        while index < len(line):
+            if line[index] == quote:
+                # YAML doubles a quote to escape it inside the same style.
+                if quote == "'" and line[index + 1:index + 2] == "'":
+                    index += 2
+                    continue
+                break
+            index += 1
+        else:
+            raise ValeParseError(f"{name}: unterminated key in {line!r}")
+        key = _unquote(line[:index + 1])
+        rest = line[index + 1:].lstrip()
+        if not rest.startswith(":"):
+            raise ValeParseError(f"{name}: expected ':' after key in {line!r}")
+        value = rest[1:].strip()
+    elif ": " in line:
+        # An UNQUOTED key that is a regex: `(?:alumna|alumnus): graduate`.
+        # That is not valid YAML -- the key needs quoting -- but Vale
+        # accepts it and the Microsoft package ships several, so refusing
+        # them means refusing real rules over someone else's punctuation.
+        # Splitting at the LAST ": " is a heuristic and worth naming as
+        # one. It is safe here in a specific way: a wrong split cuts
+        # through a regex and leaves unbalanced parentheses, which fails
+        # to compile and is REFUSED loudly rather than silently matching
+        # something else. The failure mode of guessing wrong is the same
+        # as not guessing at all.
+        head, _, value = line.rpartition(": ")
+        key, value = head.strip(), value.strip()
+    else:
+        key, sep, value = line.partition(":")
+        if not sep:
+            raise ValeParseError(f"{name}: cannot read {key_name} entry {line!r}")
+        key, value = key.strip(), value.strip()
+    if not value:
+        raise ValeParseError(f"{name}: {key_name} entry {line!r} has no value")
+    return key, _unquote(value)
 
 
 def _unquote(value):
@@ -66,11 +128,21 @@ def parse_rule(text, name):
         if not line.strip() or line.lstrip().startswith("#"):
             continue
         if line.lstrip().startswith("- "):
-            if current is None:
+            if current in _IGNORED_BLOCKS:
+                # An `action:` block can hold its own params list. Its
+                # items are as irrelevant as the block itself.
+                continue
+            if current is None or current not in fields:
                 raise ValeParseError(f"{name}: list item outside any key")
             fields[current].append(_unquote(line.lstrip()[2:]))
             continue
         if line[0].isspace():
+            if current in _MAPS:
+                key, value = _split_map_entry(line.strip(), name, current)
+                fields[current][key] = value
+                continue
+            if current in _IGNORED_BLOCKS:
+                continue
             raise ValeParseError(
                 f"{name}: nested mapping is outside this importer's subset "
                 f"({line.strip()!r})")
@@ -80,6 +152,13 @@ def parse_rule(text, name):
         key = key.strip()
         value = value.strip()
         if not value:
+            if key in _IGNORED_BLOCKS:
+                current = key
+                continue
+            if key in _MAPS:
+                fields[key] = {}
+                current = key
+                continue
             if key not in _LISTS:
                 raise UnsupportedRule(
                     f"{name}: block value for {key!r} is outside this "
@@ -138,6 +217,8 @@ def convert(text, name, prefix="vale"):
         raise UnsupportedRule(
             f"{name}: 'extends: {extends}' is not supported -- only "
             f"{', '.join(sorted(SUPPORTED_EXTENDS))}")
+    if extends == "substitution":
+        return _convert_substitution(fields, name, prefix)
     pattern = _pattern(fields, name)
     try:
         re.compile(pattern)
@@ -187,3 +268,47 @@ def read_package(directory, prefix="vale"):
         except (UnsupportedRule, ValeParseError) as exc:
             refused.append((name, str(exc)))
     return converted, refused
+
+
+def _convert_substitution(fields, name, prefix):
+    """A Vale `substitution` rule: a map of banned term to replacement.
+
+    This is the shape stopslop's own term lists were built for -- a
+    banned word with the word to use instead -- and it is 9 of the
+    Microsoft package's 61 rules. The generated check reports the
+    replacement in its own note, so a writer gets the same guidance Vale
+    would have given rather than only "do not use this".
+    """
+    swap = fields.get("swap")
+    if not swap:
+        raise UnsupportedRule(f"{name}: substitution rule with no swap map")
+    for banned in swap:
+        try:
+            re.compile(banned)
+        except re.error as exc:
+            raise UnsupportedRule(
+                f"{name}: swap key {banned!r} does not compile: {exc}") from exc
+    level = (fields.get("level") or "suggestion").lower()
+    if level not in LEVEL_ACTIONS:
+        raise UnsupportedRule(f"{name}: unknown level {level!r}")
+    catches, _ = _split_message(fields.get("message"))
+    ignorecase = str(fields.get("ignorecase", "")).lower() == "true"
+    flags = "re.IGNORECASE" if ignorecase else "0"
+    fn_body = (
+        f'import re\n'
+        f'swap = {dict(swap)!r}\n'
+        f'pattern = re.compile(\n'
+        f'    r"\\b(?:" + "|".join(swap) + r")\\b",\n'
+        f'    {flags})\n'
+        f'match = pattern.search(sentence)\n'
+        f'if not match:\n'
+        f'    return []\n'
+        f'found = match.group(0)\n'
+        f'better = swap.get(found) or swap.get(found.lower()) or ""\n'
+        f'note = f"use {{better!r}} instead" if better else "rephrase it"\n'
+        f'return [{{"phrase": found, "auto_fix": False, "note": note}}]\n')
+    return {"check_id": check_id_for(name, prefix), "unit": "sentence",
+            "catches": catches or f"{name} substitutions",
+            "instead": "use the preferred term",
+            "threshold": 1, "action": LEVEL_ACTIONS[level],
+            "fn_body": fn_body}
