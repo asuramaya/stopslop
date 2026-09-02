@@ -833,6 +833,69 @@ def cmd_list_rulesets(args):
     return 0
 
 
+def cmd_import(args):
+    """Import a Vale style package as custom checks on a ruleset.
+
+    Several people have already encoded AI writing tells as Vale rules,
+    and those rules are data. Retyping them by hand into this project's
+    own table would be work with no thought in it, and every retyped
+    regex is a chance to change what a rule means without noticing.
+
+    A rule this importer cannot represent faithfully is REFUSED by name,
+    never approximated. The refusals print alongside the imports, because
+    a partial import that hides its own gaps is how someone comes to
+    believe they are covered when they are not.
+    """
+    from core import vale_import
+
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    if "custom_checks" not in getattr(ruleset, "CAPABILITIES", ()):
+        print(f"'{ruleset.RULESET_ID}' ruleset has no support for custom checks.",
+              file=sys.stderr)
+        return 1
+    try:
+        converted, refused = vale_import.read_package(args.vale, prefix=args.prefix)
+    except (FileNotFoundError, vale_import.ValeParseError) as exc:
+        print(f"Not imported: {exc}", file=sys.stderr)
+        return 1
+
+    existing = set(ruleset.list_checks())
+    added, skipped, failed = [], [], []
+    for spec in converted:
+        if spec["check_id"] in existing:
+            skipped.append(spec["check_id"])
+            continue
+        if args.dry_run:
+            added.append(spec["check_id"])
+            continue
+        try:
+            ruleset.add_custom_check(
+                spec["check_id"], spec["unit"], spec["catches"], spec["instead"],
+                spec["threshold"], spec["action"], spec["fn_body"])
+        except Exception as exc:
+            failed.append((spec["check_id"], str(exc)))
+            continue
+        added.append(spec["check_id"])
+
+    verb = "Would add" if args.dry_run else "Added"
+    print(f"{verb} {core_text.n(len(added), 'check')} to '{ruleset.RULESET_ID}'"
+          f" from {args.vale}")
+    for check_id in added:
+        print(f"  + {check_id}")
+    for check_id in skipped:
+        print(f"  = {check_id} (already present, left alone)")
+    for name, why in refused:
+        print(f"  - {name} REFUSED: {why}", file=sys.stderr)
+    for check_id, why in failed:
+        print(f"  ! {check_id} FAILED: {why}", file=sys.stderr)
+    if not args.dry_run and added:
+        print("\nThese are unproven. Nothing here says they earn their place:\n"
+               "  python3 src/evalab/run.py --live --prompt-set padding "
+               f"--ruleset {ruleset.RULESET_ID}\n"
+               "and remove the ones that never fire.", file=sys.stderr)
+    return 1 if failed else 0
+
+
 def cmd_rules(args):
     """Print the enabled checks as instructions, for pasting into CLAUDE.md.
 
@@ -1083,6 +1146,19 @@ def main():
                                   help="remove a custom ruleset -- refused for a built-in one, "
                                        "or one any routing rule still routes to")
     p_list_rulesets.set_defaults(func=cmd_list_rulesets)
+
+    p_import = sub.add_parser("import",
+                               help="import another project's rules as custom checks "
+                                    "-- currently Vale style packages")
+    p_import.add_argument("--vale", required=True, metavar="DIR",
+                           help="a Vale style directory of .yml rule files")
+    p_import.add_argument("--ruleset", help="ruleset to add the checks to "
+                                             "(default: resolve like a live write)")
+    p_import.add_argument("--prefix", default="vale",
+                           help="id prefix for imported checks (default: vale)")
+    p_import.add_argument("--dry-run", action="store_true",
+                           help="report what would be imported, write nothing")
+    p_import.set_defaults(func=cmd_import)
 
     p_rules = sub.add_parser("rules",
                               help="print the enabled checks as CLAUDE.md instructions -- "
