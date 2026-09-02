@@ -7,10 +7,26 @@
    set, so one route swaps both in a single response rather than leaving
    a stale table next to a freshly-cleared form. #}
 <div id="checks-section">
+{% if gate_events < decay_min_events %}
+<p class="caption">
+  {{ gate_events }} judged write{{ '' if gate_events == 1 else 's' }} on record for this
+  ruleset. Which checks earn their keep needs at least {{ decay_min_events }} before the
+  answer means anything -- a check that fires on one document in ten sits out four writes
+  most of the time.
+</p>
+{% elif never_fired %}
+<p class="caption">
+  <strong>{{ never_fired | length }}</strong> enabled check{{ '' if never_fired | length == 1 else 's' }}
+  never fired across {{ gate_events }} judged write{{ '' if gate_events == 1 else 's' }}:
+  {% for cid in never_fired %}<code>{{ cid }}</code>{{ ', ' if not loop.last }}{% endfor %}.
+  A check set decays as models change -- one aimed at a habit that has stopped
+  happening costs a little time on every write and catches nothing.
+</p>
+{% endif %}
 <div class="scroll-panel">
 <table class="checks-table">
   <thead>
-    <tr><th>On</th><th>Check</th><th>Unit</th><th>What it catches</th><th>Threshold</th><th>Action</th><th>Last fired</th></tr>
+    <tr><th>On</th><th>Check</th><th>Unit</th><th>What it catches</th><th>Threshold</th><th>Action</th><th>Fired</th></tr>
   </thead>
   <tbody id="checks-table-body">
     {% for row in rows %}

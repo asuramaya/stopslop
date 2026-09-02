@@ -82,5 +82,70 @@ class LogEventTests(unittest.TestCase):
             self.assertIn("ts", events[0])
 
 
+class CheckHitCountTests(unittest.TestCase):
+    """Which checks earn their keep, out of how many chances they had.
+
+    The dashboard could show WHEN a check last fired and not how often,
+    which is the number that reveals a decayed check set. This project
+    measured five checks drawn from a 2023-24 catalogue of AI writing
+    tells firing zero times against current model output, and noticed
+    only by scoring corpora offline.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.NamedTemporaryFile("w", suffix=".log", delete=False)
+        self._tmp.close()
+        self.addCleanup(os.unlink, self._tmp.name)
+
+    def _write(self, events):
+        with open(self._tmp.name, "w") as f:
+            for e in events:
+                f.write(json.dumps(e) + "\n")
+
+    def test_counts_hits_and_the_writes_they_came_from(self):
+        self._write([
+            {"action": "deny", "ruleset": "r", "kinds": ["a", "b"], "ts": 1},
+            {"action": "clean", "ruleset": "r", "kinds": [], "ts": 2},
+            {"action": "auto_fix", "ruleset": "r", "kinds": ["a"], "ts": 3},
+        ])
+        hits, events = history.check_hit_counts(self._tmp.name, "r")
+        self.assertEqual(hits, {"a": 2, "b": 1})
+        self.assertEqual(events, 3)
+
+    def test_a_clean_write_counts_as_a_chance_to_fire(self):
+        """The denominator is judged writes, not flagged ones. Counting
+        only writes where something fired would make every check look
+        like it fires constantly."""
+        self._write([{"action": "clean", "ruleset": "r", "kinds": [], "ts": i}
+                      for i in range(5)])
+        hits, events = history.check_hit_counts(self._tmp.name, "r")
+        self.assertEqual((hits, events), ({}, 5))
+
+    def test_non_gate_events_are_not_chances_to_fire(self):
+        """Registering a term is not the gate judging text. Counting it
+        would dilute every rate with activity no check could respond to."""
+        self._write([
+            {"action": "deny", "ruleset": "r", "kinds": ["a"], "ts": 1},
+            {"action": "register_term", "ruleset": "r", "word": "x", "ts": 2},
+            {"action": "config_write", "ruleset": "r", "ts": 3},
+        ])
+        _hits, events = history.check_hit_counts(self._tmp.name, "r")
+        self.assertEqual(events, 1)
+
+    def test_counts_are_scoped_to_one_ruleset(self):
+        """Two rulesets can name a check the same thing, so pooling them
+        would attribute one ruleset's activity to another's check."""
+        self._write([
+            {"action": "deny", "ruleset": "r", "kinds": ["shared"], "ts": 1},
+            {"action": "deny", "ruleset": "other", "kinds": ["shared"], "ts": 2},
+        ])
+        hits, events = history.check_hit_counts(self._tmp.name, "r")
+        self.assertEqual((hits, events), ({"shared": 1}, 1))
+
+    def test_a_missing_log_reports_nothing_rather_than_raising(self):
+        hits, events = history.check_hit_counts("/nonexistent/history.log", "r")
+        self.assertEqual((hits, events), ({}, 0))
+
+
 if __name__ == "__main__":
     unittest.main()

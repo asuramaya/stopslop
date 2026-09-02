@@ -47,6 +47,10 @@ def _rows(ruleset_id):
     lists = core_config.effective_term_lists(getattr(module, "TERM_LISTS", {}),
                                               module.RULESET_ID, REPO_ROOT)
     fired = _last_fired(ruleset_id)
+    # How often each check actually fired, and out of how many judged
+    # writes. A timestamp answers "when", which does not tell you whether
+    # a check is pulling its weight -- see core.history.check_hit_counts.
+    hits, gate_events = history.check_hit_counts(HISTORY_PATH, ruleset_id)
     rows = []
     for check_id, meta in sorted(checks.items()):
         spec = config.get(check_id, {})
@@ -63,6 +67,8 @@ def _rows(ruleset_id):
             "params": spec.get("params", {}),
             "lists": [lid for lid, s in lists.items() if s.get("feeds") == check_id],
             "last_fired": _relative_time(fired[check_id]) if check_id in fired else "",
+            "hits": hits.get(check_id, 0),
+            "gate_events": gate_events,
         })
     return module, rows
 
@@ -70,9 +76,26 @@ def _rows(ruleset_id):
 def _section_context(ruleset_id):
     module, rows = _rows(ruleset_id)
     custom_capable = "custom_checks" in module.CAPABILITIES
+    gate_events = rows[0]["gate_events"] if rows else 0
+    # Below this many judged writes, "never fired" carries no information:
+    # a check that genuinely fires on one document in ten has a (0.9 ** n)
+    # chance of sitting out the whole sample, which is 65% at n=4 and 7% at
+    # n=25. Reporting decay off four events would call thirty live checks
+    # dead. The floor is the same discipline the evaluation harness applies
+    # to its own numbers -- do not report a signal smaller than the noise.
+    DECAY_MIN_EVENTS = 25
+    never = ([r["id"] for r in rows if r["enabled"] and not r["hits"]]
+             if gate_events >= DECAY_MIN_EVENTS else [])
     return module, {
         "rows": rows,
         "ruleset_id": ruleset_id,
+        "gate_events": gate_events,
+        # Enabled checks that have never fired across every judged write
+        # on record. Either they are aimed at something that stopped
+        # happening, or they are broken; both are worth seeing, and
+        # neither shows in a check's own definition.
+        "never_fired": never,
+        "decay_min_events": DECAY_MIN_EVENTS,
         "tunable": [r for r in rows if r["params"]],
         "listed": [r for r in rows if r["lists"]],
         "custom_capable": custom_capable,

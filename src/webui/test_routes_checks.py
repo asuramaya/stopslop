@@ -19,6 +19,7 @@ Run with (needs the venv):
 """
 import html
 import os
+import re
 import unittest
 
 try:
@@ -561,6 +562,37 @@ class CrossRulesetCustomCheckRouteTests(unittest.TestCase):
                     f"/checks/{ruleset_id}/{built_in}/remove", data={})
                 self.assertEqual(response.status_code, 200)
                 self.assertIn("built-in check", response.text)
+
+
+@unittest.skipUnless(_FASTAPI_AVAILABLE, "fastapi not installed -- see README's dashboard setup section")
+class CheckDecayCalloutTests(unittest.TestCase):
+    """The Checks page reports which checks have never fired, and refuses
+    to report it off a sample too small to mean anything.
+
+    A check that genuinely fires on one document in ten sits out four
+    judged writes about 65% of the time. Before the floor existed the page
+    called thirty live slopwatch checks dead off four events, which is the
+    same mistake the evaluation harness spent three rounds learning not to
+    make with its own numbers."""
+
+    def test_the_page_renders_a_hit_count_column(self):
+        response = client.get("/checks", params={"ruleset": "ste100"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("<th>Fired</th>", response.text)
+
+    def test_a_thin_sample_says_so_instead_of_claiming_decay(self):
+        """slopwatch has a handful of judged writes in this repo's real
+        history, far under the floor."""
+        response = client.get("/checks", params={"ruleset": "slopwatch"})
+        text = re.sub(r"\s+", " ", response.text)
+        self.assertIn("judged writes on record", text)
+        self.assertNotIn("enabled checks never fired", text)
+
+    def test_a_check_that_never_fired_is_marked_rather_than_left_blank(self):
+        """An empty cell reads as "no data". The point is to make dead
+        weight visible, so it gets a word."""
+        response = client.get("/checks", params={"ruleset": "ste100"})
+        self.assertIn("never-fired", response.text)
 
 
 if __name__ == "__main__":

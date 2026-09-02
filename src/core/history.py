@@ -144,3 +144,43 @@ def recent_deny_nearby(history_path, window_seconds=300):
     now = time.time()
     return any(e.get("action") == "deny" and (now - e.get("ts", 0)) < window_seconds
                for e in events[-20:])
+
+
+# Actions that represent the gate actually judging a piece of text. A
+# config write or a term registration is not a gate event and must not
+# count toward "how many chances has this check had to fire".
+GATE_ACTIONS = frozenset({"deny", "auto_fix", "clean"})
+
+
+def check_hit_counts(history_path, ruleset_id=None):
+    """How often each check has actually fired, out of how many gate events.
+
+    Returns (hits, gate_events): a dict of check_id -> count, and the
+    number of judged writes those counts are drawn from. Scoped to one
+    ruleset when `ruleset_id` is given, because a check id means nothing
+    across rulesets and two of them could share a name.
+
+    This exists to answer a question the dashboard could not: which
+    checks earn their keep. A ruleset's check set decays -- this project
+    measured five checks drawn from a 2023-24 catalogue of AI writing
+    tells firing zero times against current model output -- and the only
+    way anyone noticed was by scoring corpora offline. A check that has
+    never fired across hundreds of judged writes is either aimed at
+    something that has stopped happening, or is broken. Both are worth
+    seeing, and neither is visible from the check's own definition.
+
+    Reads the deduped history for the same reason every other consumer
+    does: a double-fired event would otherwise inflate a check's count
+    and make dead weight look busy.
+    """
+    hits = {}
+    gate_events = 0
+    for event in read_history_deduped(history_path):
+        if event.get("action") not in GATE_ACTIONS:
+            continue
+        if ruleset_id is not None and event.get("ruleset") != ruleset_id:
+            continue
+        gate_events += 1
+        for kind in event.get("kinds") or ():
+            hits[kind] = hits.get(kind, 0) + 1
+    return hits, gate_events

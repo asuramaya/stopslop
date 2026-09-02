@@ -383,3 +383,13 @@ pre {
   flex-wrap: wrap;
   gap: 0.4rem;
 }
+
+/* A check that has never fired across every judged write on record.
+   Muted rather than alarming: it is a prompt to look, not a fault. The
+   check may be aimed at a habit models have stopped producing (this
+   project measured five such checks against current output), or it may
+   be broken -- the table cannot tell which, so it does not shout. */
+.never-fired {
+  color: var(--muted);
+  font-style: italic;
+}

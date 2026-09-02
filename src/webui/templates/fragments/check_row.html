@@ -51,5 +51,10 @@
   {% else %}
   <td class="caption" colspan="2">not configurable</td>
   {% endif %}
-  <td class="caption">{{ row.last_fired }}</td>
+  <td class="caption" title="{{ row.hits }} of {{ row.gate_events }} judged writes{% if row.last_fired %}, last {{ row.last_fired }}{% endif %}">
+    {%- if not row.gate_events %}--
+    {%- elif row.hits %}{{ row.hits }}&thinsp;/&thinsp;{{ row.gate_events }}
+    {%- else %}<span class="never-fired">never</span>
+    {%- endif %}
+  </td>
 </tr>
