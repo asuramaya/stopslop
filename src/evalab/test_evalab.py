@@ -625,3 +625,60 @@ class CliRetryTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PromptDeliveryTests(unittest.TestCase):
+    """How the prompt reaches the executable.
+
+    The first leaderboard run died on every competitor at once: a skill
+    file opens with YAML front matter, and `claude -p ---\\nname: ...`
+    reads that as an unknown command-line option. Nothing about the
+    prompt's CONTENT should be able to change how it is delivered.
+    """
+
+    def test_the_prompt_goes_on_stdin_not_argv(self):
+        seen = {}
+
+        class FakeProc:
+            returncode = 0
+            stdout = "some text"
+            stderr = ""
+
+        def fake_run(argv, **kwargs):
+            seen["argv"] = argv
+            seen["input"] = kwargs.get("input")
+            return FakeProc()
+
+        import evalab.generators as gens
+        real = gens.subprocess.run
+        gens.subprocess.run = fake_run
+        try:
+            gen = ClaudeCliGenerator(attempts=1, backoff=0)
+            gen([{"role": "user", "content": "---\nname: skill\n---\n\nwrite"}])
+        finally:
+            gens.subprocess.run = real
+        self.assertEqual(seen["argv"], ["claude", "-p"])
+        self.assertIn("name: skill", seen["input"])
+        for arg in seen["argv"]:
+            self.assertFalse(arg.startswith("---"))
+
+    def test_a_prompt_opening_with_front_matter_is_delivered_intact(self):
+        seen = {}
+
+        class FakeProc:
+            returncode = 0
+            stdout = "some text"
+            stderr = ""
+
+        import evalab.generators as gens
+        real = gens.subprocess.run
+        gens.subprocess.run = lambda argv, **kw: (
+            seen.update(input=kw.get("input")) or FakeProc())
+        try:
+            gen = ClaudeCliGenerator(attempts=1, backoff=0)
+            gen([{"role": "user", "content": "---\nfront: matter\n---"},
+                  {"role": "user", "content": "the task"}])
+        finally:
+            gens.subprocess.run = real
+        self.assertTrue(seen["input"].startswith("---"))
+        self.assertTrue(seen["input"].endswith("the task"))

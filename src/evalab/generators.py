@@ -100,8 +100,14 @@ class ClaudeCliGenerator:
     def _once(self, messages):
         prompt = "\n\n".join(m["content"] for m in messages)
         try:
+            # The prompt goes on STDIN, never argv. A skill file opens
+            # with YAML front matter, so `claude -p ---\nname: ...` is
+            # read as an unknown option and the whole run dies -- which
+            # is exactly how the first leaderboard run failed, on every
+            # competitor at once. Stdin also sidesteps the argv length
+            # limit, and one vendored intervention is 35KB.
             proc = subprocess.run(
-                [self.executable, "-p", prompt],
+                [self.executable, "-p"], input=prompt,
                 capture_output=True, text=True, timeout=self.timeout)
         except OSError as exc:
             raise GeneratorError(f"could not run {self.executable!r}: {exc}") from exc
