@@ -99,6 +99,10 @@ def scan_tree(paths, project_root, registry, ruleset_id=None, glob_pattern=None,
             "blocking_flags": blocking,
             "all_semantic_flags": result["semantic_flags"],
             "mechanical_flags": result["mechanical_violations"],
+            # Whitespace-split, the same crude count every metric in
+            # evalab uses, so a rate computed here and a rate computed
+            # there are the same number and not two dialects of one.
+            "words": len(text.split()),
         })
 
     return {
@@ -107,3 +111,40 @@ def scan_tree(paths, project_root, registry, ruleset_id=None, glob_pattern=None,
         "skipped_unreadable": skipped_unreadable,
         "results": results,
     }
+
+
+def check_activity(report, ruleset):
+    """Which of a ruleset's checks the corpus in `report` actually fires.
+
+    `scan_tree` answers "what did this tree trip". This answers the
+    question no tool in this category can ask: what did it NOT trip. A
+    check catalogued against 2023-24 output may simply not describe a
+    current model any more, and a check that never fires is invisible
+    precisely because absence produces no output.
+
+    Returns {check_id: {"hits", "files", "per_1k"}} for EVERY check the
+    ruleset has, zeros included, plus the corpus totals.
+    """
+    every = sorted(ruleset.list_checks())
+    activity = {check_id: {"hits": 0, "files": 0, "per_1k": 0.0}
+                 for check_id in every}
+    words = 0
+    for result in report["results"]:
+        if result["ruleset"] != ruleset.RULESET_ID:
+            continue
+        words += result.get("words", 0)
+        seen = set()
+        for flag in result["all_semantic_flags"]:
+            kind = flag.get("kind")
+            if kind not in activity:
+                continue
+            activity[kind]["hits"] += 1
+            seen.add(kind)
+        for kind in seen:
+            activity[kind]["files"] += 1
+    for entry in activity.values():
+        entry["per_1k"] = round(entry["hits"] / words * 1000, 2) if words else 0.0
+    total_hits = sum(e["hits"] for e in activity.values())
+    return {"activity": activity, "words": words, "total_hits": total_hits,
+             "documents": sum(1 for r in report["results"]
+                               if r["ruleset"] == ruleset.RULESET_ID)}

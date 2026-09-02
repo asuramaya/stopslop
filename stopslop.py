@@ -833,6 +833,78 @@ def cmd_list_rulesets(args):
     return 0
 
 
+def cmd_decay(args):
+    """Which of a ruleset's checks earn their place against a real corpus.
+
+    Every other tool in this category only ever adds rules. Nothing in
+    any of them can answer the question that matters after a year: which
+    of these still describes how models actually write?
+
+    A tell catalogued against 2023-24 output is not automatically a tell
+    now. Measured across 59902 words of this project's own saved model
+    output, 19 of slopwatch's 31 checks fired ZERO times and six carried
+    96% of every flag. A check that never fires is invisible exactly
+    because absence produces no output -- so this prints the silence.
+
+    It reports, it never deletes. A rare check can be a decayed tell
+    worth cutting, or cheap insurance against an unambiguous defect that
+    is simply uncommon (an emoji in prose, an HTML-entity em dash, a
+    generator's own markup left in). Those look identical in a frequency
+    table and only a person can tell them apart.
+    """
+    from core import scan as core_scan
+
+    ruleset = _resolve(args.ruleset, _SYNTHETIC_STDIN_PATH)
+    if not hasattr(ruleset, "list_checks"):
+        print(f"'{ruleset.RULESET_ID}' ruleset has no listable checks.",
+              file=sys.stderr)
+        return 1
+    target_paths = [os.path.abspath(p) for p in args.paths] if args.paths else [REPO_ROOT]
+    for path in target_paths:
+        if not os.path.exists(path):
+            print(f"{path!r} does not exist.", file=sys.stderr)
+            return 1
+
+    report = core_scan.scan_tree(target_paths, REPO_ROOT, rulesets,
+                                  ruleset_id=ruleset.RULESET_ID,
+                                  glob_pattern=args.glob)
+    summary = core_scan.check_activity(report, ruleset)
+    if not summary["documents"]:
+        print("No in-scope files matched, so nothing was measured. A check "
+               "set cannot be judged against an empty corpus.", file=sys.stderr)
+        return 1
+
+    if args.json:
+        print(json.dumps(summary, indent=2, default=str))
+        return 0
+
+    activity = summary["activity"]
+    ranked = sorted(activity.items(), key=lambda kv: (-kv[1]["hits"], kv[0]))
+    total = summary["total_hits"]
+    print(f"{ruleset.RULESET_ID}: {len(activity)} checks against "
+          f"{core_text.n(summary['documents'], 'document')}, "
+          f"{summary['words']} words")
+    print()
+    print(f"  {'check':<28} {'hits':>6} {'files':>6} {'per 1k':>7}  {'share':>6}")
+    for check_id, entry in ranked:
+        share = f"{entry['hits'] / total * 100:5.1f}%" if total else "    --"
+        print(f"  {check_id:<28} {entry['hits']:6} {entry['files']:6} "
+              f"{entry['per_1k']:7.2f}  {share}")
+
+    silent = [c for c, e in ranked if not e["hits"]]
+    print()
+    if silent:
+        print(f"{core_text.n(len(silent), 'check')} never fired: "
+              f"{', '.join(silent)}")
+        print("A check that never fires costs nothing at the gate and costs a")
+        print("reader attention every time they read the list. Before cutting")
+        print("one, ask which kind it is: a tell that decayed, or cheap")
+        print("insurance against a defect that is real but uncommon.")
+    else:
+        print("Every check fired at least once on this corpus.")
+    return 0
+
+
 def cmd_import(args):
     """Import a Vale style package as custom checks on a ruleset.
 
@@ -1146,6 +1218,15 @@ def main():
                                   help="remove a custom ruleset -- refused for a built-in one, "
                                        "or one any routing rule still routes to")
     p_list_rulesets.set_defaults(func=cmd_list_rulesets)
+
+    p_decay = sub.add_parser("decay",
+                              help="which of a ruleset's checks actually fire against "
+                                   "a real corpus, and which never do")
+    p_decay.add_argument("paths", nargs="*", help="files or directories (default: the repo)")
+    p_decay.add_argument("--ruleset", help="ruleset to measure (default: resolve like a live write)")
+    p_decay.add_argument("--glob", default="*", help="narrow which filenames are included")
+    p_decay.add_argument("--json", action="store_true", help="machine-readable output")
+    p_decay.set_defaults(func=cmd_decay)
 
     p_import = sub.add_parser("import",
                                help="import another project's rules as custom checks "

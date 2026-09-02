@@ -6,12 +6,16 @@ string "BADWORD") so these tests exercise scan_tree's own walking/
 resolution/skip logic, not any real ruleset's rules.
 """
 import os
+import shutil
 import tempfile
 import types
 import unittest
 
+from core import paths as core_paths
 from core import scan
 import rulesets
+
+REPO_ROOT = core_paths.find_project_root(__file__)
 
 
 def _fake_ruleset(ruleset_id="fake"):
@@ -204,3 +208,66 @@ class ScanTreeConfigDrivenTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CheckActivityTests(unittest.TestCase):
+    """The question no other tool in this category can ask: which checks
+    did NOT fire.
+
+    A check that never fires is invisible precisely because absence
+    produces no output. Measured across 59902 words of this project's own
+    saved model output, 19 of slopwatch's 31 checks fired zero times.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+        self.dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.dir)
+
+    def _write(self, name, text):
+        path = os.path.join(self.dir, name)
+        with open(path, "w") as f:
+            f.write(text)
+        return path
+
+    def _activity(self):
+        report = scan.scan_tree([self.dir], REPO_ROOT, rulesets,
+                                 ruleset_id="slopwatch")
+        return scan.check_activity(report, self.ruleset)
+
+    def test_every_check_appears_including_the_silent_ones(self):
+        """Reporting only what fired is what hides a decayed check set."""
+        self._write("a.md", "The cache stores query results on disk.\n")
+        summary = self._activity()
+        self.assertEqual(set(summary["activity"]),
+                          set(self.ruleset.list_checks()))
+
+    def test_a_check_that_never_fires_reports_zero_not_absence(self):
+        self._write("a.md", "The cache stores query results on disk.\n")
+        for entry in self._activity()["activity"].values():
+            self.assertIn("hits", entry)
+            self.assertIn("per_1k", entry)
+
+    def test_hits_and_files_are_counted_separately(self):
+        """Three hits in one document is not the same evidence as one hit
+        in three documents, and a single number cannot tell them apart."""
+        self._write("a.md", "Needless to say, this is seamless.\n"
+                             "Needless to say, it is also robust.\n")
+        summary = self._activity()
+        fired = [e for e in summary["activity"].values() if e["hits"]]
+        self.assertTrue(fired)
+        self.assertTrue(any(e["hits"] > e["files"] for e in fired))
+
+    def test_the_rate_is_per_thousand_words_of_the_whole_corpus(self):
+        self._write("a.md", " ".join(["word"] * 1000) + "\nseamless robust.\n")
+        summary = self._activity()
+        self.assertGreater(summary["words"], 1000)
+        total = sum(e["per_1k"] for e in summary["activity"].values())
+        self.assertLess(total, 100)
+
+    def test_an_empty_corpus_reports_no_documents_rather_than_dividing(self):
+        summary = self._activity()
+        self.assertEqual(summary["documents"], 0)
+        self.assertEqual(summary["words"], 0)
+        for entry in summary["activity"].values():
+            self.assertEqual(entry["per_1k"], 0.0)
