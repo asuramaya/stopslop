@@ -684,43 +684,40 @@ class PromptDeliveryTests(unittest.TestCase):
         self.assertTrue(seen["input"].endswith("the task"))
 
 
-class CalibratedPresetTests(unittest.TestCase):
-    """Dropping the checks that fire more on humans than on models.
+class RetractedCalibratedPresetTests(unittest.TestCase):
+    """The `calibrated` preset was withdrawn, and this holds it withdrawn.
 
-    Measured against two control genres, four checks are "backwards" by
-    unanimity -- they fire MORE on human prose. Two of them are in
-    DEFAULT_ENFORCED, so the gated loop has been spending revisions
-    removing patterns humans use more often than the model does.
+    It dropped four checks for firing more on human prose than on
+    generated prose "across every control". They do not: that verdict
+    came from a human control that was mostly CPython docstrings, which
+    carry no markdown. Against human MARKDOWN documentation and pre-2022
+    encyclopedia prose the same four read no signal, disputed, disputed
+    and disputed -- not one condemned.
+
+    Shipping a preset whose membership did not survive its own
+    re-measurement would be worse than shipping none.
     """
 
     def setUp(self):
         self.ruleset = rulesets.get_ruleset("slopwatch")
 
-    def test_the_calibrated_preset_drops_every_backwards_check(self):
-        enforced, held_out = harness.split_checks(self.ruleset, "calibrated")
-        for check_id in harness.BACKWARDS_ON_EVERY_CONTROL:
-            self.assertNotIn(check_id, enforced)
+    def test_the_preset_is_gone(self):
+        self.assertNotIn("calibrated", harness.PRESETS)
 
-    def test_it_keeps_everything_structural_otherwise(self):
-        structural, _ = harness.split_checks(self.ruleset, "structural")
-        calibrated, _ = harness.split_checks(self.ruleset, "calibrated")
-        self.assertEqual(structural - calibrated,
-                          harness.BACKWARDS_ON_EVERY_CONTROL & structural)
+    def test_no_check_list_claims_they_are_condemned(self):
+        self.assertFalse(hasattr(harness, "BACKWARDS_ON_EVERY_CONTROL"))
 
-    def test_a_dropped_check_moves_to_held_out_rather_than_vanishing(self):
-        """The split must still partition the ruleset. A check that left
-        both sets would stop being measured at all, which is how a
-        removal hides its own cost."""
-        enforced, held_out = harness.split_checks(self.ruleset, "calibrated")
-        every = set(self.ruleset.list_checks())
-        self.assertEqual(enforced | held_out, every)
-        self.assertFalse(enforced & held_out)
+    def test_the_checks_it_dropped_are_still_enforced(self):
+        enforced, _ = harness.split_checks(self.ruleset, "structural")
+        for check_id in ("vague_intensifier", "marketing_adjective"):
+            self.assertIn(check_id, enforced)
 
-    def test_default_enforced_is_left_untouched(self):
-        """Six committed runs were measured under DEFAULT_ENFORCED.
-        Mutating it would quietly make them incomparable."""
-        self.assertIn("vague_intensifier", harness.DEFAULT_ENFORCED)
-        self.assertIn("marketing_adjective", harness.DEFAULT_ENFORCED)
+    def test_asking_for_it_fails_loudly_rather_than_silently_falling_back(self):
+        """A preset name that quietly resolved to something else would
+        make an old command line produce a different experiment without
+        saying so."""
+        with self.assertRaises(KeyError):
+            harness.split_checks(self.ruleset, "calibrated")
 
 
 class Ste100MeasurabilityTests(unittest.TestCase):

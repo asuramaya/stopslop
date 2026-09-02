@@ -76,24 +76,36 @@ DEFAULT_ENFORCED = frozenset({
 })
 
 
-# Checks that fire MORE on human prose than on generated prose, on EVERY
-# control corpus measured -- code documentation and pre-2022 encyclopedia
-# text both. `stopslop.py decay --against` calls that verdict "backwards",
-# and it is the only verdict that justifies acting on a check.
+# RETRACTED, and left here as the retraction rather than deleted.
 #
-# Two of them sit in DEFAULT_ENFORCED, which means the gated loop has been
-# spending revisions removing patterns humans use more often than the model
-# does. DEFAULT_ENFORCED is left alone on purpose: it is the parameter six
-# committed runs were measured under, and mutating it would quietly make
-# them incomparable. The `calibrated` preset drops them instead, so the
-# question "does removing them cost anything?" is one more run rather than
-# an assumption.
-BACKWARDS_ON_EVERY_CONTROL = frozenset({
-    "vague_intensifier",
-    "marketing_adjective",
-    "copula_avoidance",
-    "filler_verb",
-})
+# A `calibrated` preset used to live at this spot, dropping four checks
+# -- vague_intensifier, marketing_adjective, copula_avoidance,
+# filler_verb -- on the grounds that they fired MORE on human prose than
+# on generated prose across every control corpus measured.
+#
+# They do not. That verdict came from pairing a generated corpus with a
+# human control that was mostly CPython docstrings, which carry no
+# markdown at all. Re-measured against human MARKDOWN documentation and
+# pre-2022 encyclopedia prose, the same four come out `no signal`,
+# `disputed`, `disputed` and `disputed`. Not one is condemned:
+#
+#   copula_avoidance     no signal   (1.2x, 1.3x)
+#   filler_verb          disputed    (discriminates on one, backwards on the other)
+#   marketing_adjective  disputed    (silent on one, backwards on the other)
+#   vague_intensifier    disputed    (discriminates on one, no signal on the other)
+#
+# That is the THIRD time in this project's evaluation history that a
+# fairer corpus overturned a conclusion drawn from a narrower one --
+# after the flattening effect that was an averaging artifact, and after
+# colon_reveal, which read 1.0x against code documentation and 25.8x
+# against encyclopedia prose. The pattern is worth more than any of the
+# three findings: a verdict from one corpus shape is a hypothesis, and
+# the unanimity rule in core.scan.consensus_verdicts only helps when the
+# corpora actually differ in the dimension that matters.
+#
+# No preset replaces it. A check set nothing currently justifies cutting
+# is not an oversight, and shipping a preset whose membership did not
+# survive its own re-measurement would be worse than shipping none.
 
 
 # ste100 shares no check id with slopwatch, so every slopwatch preset
@@ -120,8 +132,6 @@ PRESETS = {
     "lexical": lambda: DEFAULT_ENFORCED,
     "ste100": lambda: STE100_ENFORCED,
     "structural": lambda: DEFAULT_ENFORCED | STRUCTURAL_ENFORCED,
-    "calibrated": lambda: (DEFAULT_ENFORCED | STRUCTURAL_ENFORCED)
-                            - BACKWARDS_ON_EVERY_CONTROL,
 }
 
 
