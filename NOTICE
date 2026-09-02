@@ -282,6 +282,23 @@ Deliberately NOT vendored: jalaalrd/anti-ai-slop-writing. It ships no
 license file, which reserves every right, so it cannot be included here
 whatever its star count.
 
+## Vale rule fixtures for the importer's own tests (src/core/testdata/vale-microsoft/)
+
+Five unmodified rules from the Vale-compatible Microsoft Writing Style
+Guide package, with that package's LICENSE beside them.
+
+- Copyright (c) 2018 - 2019 Joseph Kato.
+  https://github.com/vale-cli/Microsoft -- MIT.
+  `Auto.yml`, `Contractions.yml`, `GenderBias.yml`, `Jargon.yml`,
+  `Wordiness.yml`.
+
+They are TEST FIXTURES, not shipped rules: nothing in the gate, the CLI,
+the dashboard or the MCP server reads them, and no check in this
+repository is derived from them. They exist because every other test of
+the importer uses hand-written YAML that matches whatever the parser
+expects, which is how a parser passes its own tests and fails on real
+files.
+
 ## Vale rule imports
 
 `stopslop.py import --vale` converts a Vale style package into custom

@@ -276,3 +276,51 @@ class ActionBlockTests(unittest.TestCase):
         with self.assertRaises((vale_import.UnsupportedRule,
                                  vale_import.ValeParseError)):
             vale_import.convert(text, "Auto")
+
+
+class RealPackageTests(unittest.TestCase):
+    """Five real rules from the Microsoft Writing Style Guide package.
+
+    Every other test here uses hand-written YAML that matches whatever
+    the parser expects, which is how a parser passes its own tests and
+    fails on real files. These are unmodified upstream rules, MIT, with
+    the package's LICENSE beside them -- see NOTICE.
+
+    They cover the three shapes that took this importer from 23 of
+    Microsoft's rules to 42: a substitution swap map, an `action:` block
+    with its own params list, and swap keys that are regexes containing
+    colons, both quoted and unquoted.
+    """
+
+    def setUp(self):
+        self.dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "testdata", "vale-microsoft")
+        if not os.path.isdir(self.dir):
+            self.skipTest("Microsoft fixtures not present")
+
+    def test_every_vendored_rule_converts(self):
+        converted, refused = vale_import.read_package(self.dir)
+        self.assertEqual(refused, [], f"refused: {refused}")
+        self.assertEqual(len(converted), 5)
+
+    def test_each_generated_matcher_is_runnable(self):
+        converted, _ = vale_import.read_package(self.dir)
+        for spec in converted:
+            namespace = {}
+            source = "def check(sentence, extra=()):\n" + "\n".join(
+                "    " + line for line in spec["fn_body"].splitlines())
+            exec(compile(source, f"<{spec['check_id']}>", "exec"), namespace)
+            self.assertEqual(namespace["check"]("nothing to see here"), [],
+                              f"{spec['check_id']} fires on clean prose")
+
+    def test_the_jargon_rule_still_catches_its_own_examples(self):
+        converted, _ = vale_import.read_package(self.dir)
+        spec = next(s for s in converted if s["check_id"].endswith("jargon"))
+        namespace = {}
+        source = "def check(sentence, extra=()):\n" + "\n".join(
+            "    " + line for line in spec["fn_body"].splitlines())
+        exec(compile(source, "<jargon>", "exec"), namespace)
+        self.assertTrue(namespace["check"]("we should leverage this"))
+
+    def test_a_licence_travels_with_the_vendored_rules(self):
+        self.assertTrue(os.path.exists(os.path.join(self.dir, "LICENSE")))
