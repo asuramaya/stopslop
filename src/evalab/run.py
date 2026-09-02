@@ -59,10 +59,14 @@ def main(argv=None):
     parser.add_argument("--out", default=None,
                          help="directory for result.json, report.txt and texts/")
     parser.add_argument("--prompt-set", default="technical",
-                         choices=sorted(prompt_set.PROMPT_SETS),
-                         help="technical = real content, a fair base rate; "
-                              "padding = chosen to produce flags, never a "
-                              "base rate")
+                         help="a built-in set (" +
+                              ", ".join(sorted(prompt_set.PROMPT_SETS)) +
+                              ") or a PATH to your own: technical = real "
+                              "content, a fair base rate; padding = chosen to "
+                              "produce flags, never a base rate. Your own is "
+                              "the only one that measures YOUR writing -- a "
+                              "JSON list of {id, text}, or markdown with '## "
+                              "id' headings")
     parser.add_argument("--prompt", action="append", dest="prompt_ids",
                          help="run only this prompt id (repeatable)")
     parser.add_argument("--enforce", default="lexical",
@@ -95,8 +99,19 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     try:
-        chosen = prompt_set.by_ids(args.prompt_ids, prompt_set=args.prompt_set)
-    except ValueError as exc:
+        if args.prompt_set in prompt_set.PROMPT_SETS:
+            chosen = prompt_set.by_ids(args.prompt_ids,
+                                        prompt_set=args.prompt_set)
+        else:
+            loaded = prompt_set.load_set(args.prompt_set)
+            wanted = set(args.prompt_ids or [])
+            chosen = [p for p in loaded if not wanted or p["id"] in wanted]
+            missing = wanted - {p["id"] for p in loaded}
+            if missing:
+                raise ValueError(f"unknown prompt id(s): {sorted(missing)}")
+            if not chosen:
+                raise ValueError(f"{args.prompt_set}: no prompts selected")
+    except (ValueError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
@@ -107,7 +122,7 @@ def main(argv=None):
         for name in names:
             try:
                 chosen_interventions[name] = interventions.load(name)
-            except (KeyError, FileNotFoundError) as exc:
+            except (KeyError, FileNotFoundError, OSError) as exc:
                 print(f"error: {exc}", file=sys.stderr)
                 return 2
 

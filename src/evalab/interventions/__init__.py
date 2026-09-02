@@ -53,6 +53,23 @@ def available():
 def load(name):
     """One intervention's prompt prefix, ready to sit ahead of a prompt.
 
+    `name` may be a catalogued name OR a path to a file. The path form is
+    the point: a person tuning their own check set generates their own
+    skill and has to be able to measure it against the vendored ones,
+    on their own prompts. A rig that can only compare the tools its
+    author vendored is a scoreboard with one team on it.
+    """
+    if os.path.sep in name or name.endswith((".md", ".txt")):
+        if not os.path.exists(name):
+            raise FileNotFoundError(f"no intervention file at {name}")
+        with open(name) as f:
+            return f.read().rstrip() + TASK_SUFFIX
+    return _load_catalogued(name)
+
+
+def _load_catalogued(name):
+    """One intervention's prompt prefix, ready to sit ahead of a prompt.
+
     The task suffix is appended so every intervention ends the same way
     and the model is told to return only the text. Without it a skill
     file that ends mid-instruction leaves the arm answering a different
@@ -70,6 +87,9 @@ def load(name):
 
 
 def provenance(name):
+    if name not in CATALOGUE:
+        return {"name": name, "file": name, "upstream": "local file",
+                "license": "not vendored", "note": "supplied by the run"}
     fn, upstream, licence, note = CATALOGUE[name]
     return {"name": name, "file": fn, "upstream": upstream,
             "license": licence, "note": note}

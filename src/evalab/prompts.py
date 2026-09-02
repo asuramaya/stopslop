@@ -35,6 +35,8 @@ Keep this list stable. Changing a prompt invalidates every recording and
 every past result, and a moving prompt set is how an evaluation quietly
 becomes a demo.
 """
+import json
+
 
 PROMPTS = [
     {
@@ -278,3 +280,61 @@ def by_ids(ids=None, prompt_set="technical"):
     if unknown:
         raise ValueError(f"unknown prompt id(s): {sorted(unknown)}")
     return chosen
+
+
+def load_set(path):
+    """A prompt set from a file, so a run can measure YOUR writing tasks.
+
+    Every number this project publishes comes from two prompt sets I
+    wrote. That is fine as a default and useless as an answer: the
+    `technical` set barely trips a check at all, the `padding` set was
+    chosen to trip them, and neither is anybody else's work. A tunable
+    starting point that can only be measured on the author's own prompts
+    is not tunable.
+
+    Two formats, both plain. A JSON list of {"id", "text"} objects, or a
+    markdown file where each `## heading` starts a prompt and the
+    heading is its id -- the second because a prompt set is writing
+    tasks, and people keep writing tasks in markdown.
+    """
+    with open(path) as f:
+        raw = f.read()
+    if path.endswith(".json"):
+        loaded = json.loads(raw)
+        if not isinstance(loaded, list):
+            raise ValueError(f"{path}: expected a JSON list of prompts")
+        prompts = []
+        for index, entry in enumerate(loaded):
+            if not isinstance(entry, dict) or "text" not in entry:
+                raise ValueError(
+                    f"{path}: prompt {index} needs at least a 'text' field")
+            prompts.append({"id": str(entry.get("id") or f"prompt-{index}"),
+                             "text": entry["text"].strip()})
+    else:
+        prompts = []
+        current_id, buffer = None, []
+        for line in raw.splitlines():
+            if line.startswith("## "):
+                if current_id and "".join(buffer).strip():
+                    prompts.append({"id": current_id,
+                                     "text": "\n".join(buffer).strip()})
+                current_id = line[3:].strip().lower().replace(" ", "-")
+                buffer = []
+            elif current_id is not None:
+                buffer.append(line)
+        if current_id and "".join(buffer).strip():
+            prompts.append({"id": current_id, "text": "\n".join(buffer).strip()})
+    if not prompts:
+        raise ValueError(
+            f"{path}: no prompts found. JSON needs a list of objects with a "
+            "'text' field; markdown needs '## id' headings with text under "
+            "them.")
+    seen = set()
+    for prompt in prompts:
+        if prompt["id"] in seen:
+            raise ValueError(
+                f"{path}: duplicate prompt id {prompt['id']!r} -- ids name "
+                "rows in every report and a duplicate makes two prompts "
+                "indistinguishable in the results")
+        seen.add(prompt["id"])
+    return prompts

@@ -765,3 +765,100 @@ class Ste100MeasurabilityTests(unittest.TestCase):
     def test_an_explicit_empty_set_is_refused_too(self):
         with self.assertRaises(harness.EmptyEnforcedSet):
             harness.split_checks(self.ste100, {"not_a_real_check"})
+
+
+class OwnPromptSetTests(unittest.TestCase):
+    """Benchmarking against YOUR writing tasks, not the author's.
+
+    Every number this project publishes comes from two prompt sets I
+    wrote. A "tunable starting point" that can only be measured on the
+    author's own prompts is not tunable, and the `technical` set barely
+    trips a check at all while `padding` was chosen to trip them --
+    neither is anybody else's work.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.dir)
+
+    def _write(self, name, text):
+        path = os.path.join(self.dir, name)
+        with open(path, "w") as f:
+            f.write(text)
+        return path
+
+    def test_markdown_headings_become_prompt_ids(self):
+        path = self._write("p.md", "## Release note\nWrite a release note.\n\n"
+                                     "## Error message\nWrite help text.\n")
+        loaded = prompts.load_set(path)
+        self.assertEqual([p["id"] for p in loaded],
+                          ["release-note", "error-message"])
+        self.assertEqual(loaded[0]["text"], "Write a release note.")
+
+    def test_json_prompts_load(self):
+        path = self._write("p.json", '[{"id": "a", "text": "Write a thing."}]')
+        self.assertEqual(prompts.load_set(path)[0]["id"], "a")
+
+    def test_a_json_prompt_without_text_is_refused_by_position(self):
+        path = self._write("p.json", '[{"id": "a"}]')
+        with self.assertRaises(ValueError) as caught:
+            prompts.load_set(path)
+        self.assertIn("prompt 0", str(caught.exception))
+
+    def test_a_duplicate_id_is_refused(self):
+        """Ids name rows in every report. Two prompts sharing one are
+        indistinguishable in the results."""
+        path = self._write("p.md", "## a\nOne.\n\n## a\nTwo.\n")
+        with self.assertRaises(ValueError):
+            prompts.load_set(path)
+
+    def test_an_empty_file_says_what_the_formats_are(self):
+        path = self._write("p.md", "nothing here\n")
+        with self.assertRaises(ValueError) as caught:
+            prompts.load_set(path)
+        self.assertIn("headings", str(caught.exception))
+
+    def test_a_heading_with_no_body_is_not_a_prompt(self):
+        path = self._write("p.md", "## a\n\n## b\nReal text.\n")
+        self.assertEqual([p["id"] for p in prompts.load_set(path)], ["b"])
+
+    def test_the_built_in_sets_still_resolve_by_name(self):
+        self.assertTrue(prompts.by_ids(None, prompt_set="padding"))
+
+
+class LocalInterventionTests(unittest.TestCase):
+    """`--compare` against your own skill file.
+
+    A rig that can only compare the tools its author vendored is a
+    scoreboard with one team on it. Someone tuning their own check set
+    generates their own skill and has to measure it against the others.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.dir)
+
+    def test_a_path_loads_as_an_intervention(self):
+        from evalab import interventions
+        path = os.path.join(self.dir, "mine.md")
+        with open(path, "w") as f:
+            f.write("Follow my rules.")
+        text = interventions.load(path)
+        self.assertTrue(text.startswith("Follow my rules."))
+        self.assertTrue(text.endswith(interventions.TASK_SUFFIX))
+
+    def test_a_missing_path_raises_rather_than_being_read_as_a_name(self):
+        from evalab import interventions
+        with self.assertRaises(FileNotFoundError):
+            interventions.load(os.path.join(self.dir, "nope.md"))
+
+    def test_a_catalogued_name_still_resolves(self):
+        from evalab import interventions
+        self.assertTrue(interventions.load("stop-slop"))
+
+    def test_a_local_file_reports_honest_provenance(self):
+        """The report prints each arm's licence. A local file has none
+        and must not borrow a catalogued entry's."""
+        from evalab import interventions
+        meta = interventions.provenance(os.path.join(self.dir, "mine.md"))
+        self.assertEqual(meta["license"], "not vendored")
