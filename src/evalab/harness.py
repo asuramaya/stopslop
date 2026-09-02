@@ -76,9 +76,31 @@ DEFAULT_ENFORCED = frozenset({
 })
 
 
+# Checks that fire MORE on human prose than on generated prose, on EVERY
+# control corpus measured -- code documentation and pre-2022 encyclopedia
+# text both. `stopslop.py decay --against` calls that verdict "backwards",
+# and it is the only verdict that justifies acting on a check.
+#
+# Two of them sit in DEFAULT_ENFORCED, which means the gated loop has been
+# spending revisions removing patterns humans use more often than the model
+# does. DEFAULT_ENFORCED is left alone on purpose: it is the parameter six
+# committed runs were measured under, and mutating it would quietly make
+# them incomparable. The `calibrated` preset drops them instead, so the
+# question "does removing them cost anything?" is one more run rather than
+# an assumption.
+BACKWARDS_ON_EVERY_CONTROL = frozenset({
+    "vague_intensifier",
+    "marketing_adjective",
+    "copula_avoidance",
+    "filler_verb",
+})
+
+
 PRESETS = {
     "lexical": lambda: DEFAULT_ENFORCED,
     "structural": lambda: DEFAULT_ENFORCED | STRUCTURAL_ENFORCED,
+    "calibrated": lambda: (DEFAULT_ENFORCED | STRUCTURAL_ENFORCED)
+                            - BACKWARDS_ON_EVERY_CONTROL,
 }
 
 

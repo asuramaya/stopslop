@@ -682,3 +682,42 @@ class PromptDeliveryTests(unittest.TestCase):
             gens.subprocess.run = real
         self.assertTrue(seen["input"].startswith("---"))
         self.assertTrue(seen["input"].endswith("the task"))
+
+
+class CalibratedPresetTests(unittest.TestCase):
+    """Dropping the checks that fire more on humans than on models.
+
+    Measured against two control genres, four checks are "backwards" by
+    unanimity -- they fire MORE on human prose. Two of them are in
+    DEFAULT_ENFORCED, so the gated loop has been spending revisions
+    removing patterns humans use more often than the model does.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+
+    def test_the_calibrated_preset_drops_every_backwards_check(self):
+        enforced, held_out = harness.split_checks(self.ruleset, "calibrated")
+        for check_id in harness.BACKWARDS_ON_EVERY_CONTROL:
+            self.assertNotIn(check_id, enforced)
+
+    def test_it_keeps_everything_structural_otherwise(self):
+        structural, _ = harness.split_checks(self.ruleset, "structural")
+        calibrated, _ = harness.split_checks(self.ruleset, "calibrated")
+        self.assertEqual(structural - calibrated,
+                          harness.BACKWARDS_ON_EVERY_CONTROL & structural)
+
+    def test_a_dropped_check_moves_to_held_out_rather_than_vanishing(self):
+        """The split must still partition the ruleset. A check that left
+        both sets would stop being measured at all, which is how a
+        removal hides its own cost."""
+        enforced, held_out = harness.split_checks(self.ruleset, "calibrated")
+        every = set(self.ruleset.list_checks())
+        self.assertEqual(enforced | held_out, every)
+        self.assertFalse(enforced & held_out)
+
+    def test_default_enforced_is_left_untouched(self):
+        """Six committed runs were measured under DEFAULT_ENFORCED.
+        Mutating it would quietly make them incomparable."""
+        self.assertIn("vague_intensifier", harness.DEFAULT_ENFORCED)
+        self.assertIn("marketing_adjective", harness.DEFAULT_ENFORCED)
