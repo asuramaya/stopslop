@@ -859,3 +859,84 @@ def known_extensions(project_root, config_file=None):
         if glob.startswith("*.") and "/" not in glob and "*" not in glob[2:]:
             exts.add(glob[1:])  # "*.md" -> ".md"
     return exts
+
+
+def check_config_for_path(project_root, ruleset_id, file_path=None,
+                           config_file=None):
+    """Per-check overrides for `ruleset_id`, project-wide PLUS whatever the
+    routing rule matching `file_path` names in its own "check_config".
+
+    Symmetric with packs and with disable, and asked for on the same
+    grounds: "granular and uniform". A threshold is not a property of a
+    ruleset, it is a property of a ruleset applied to a KIND of file.
+    Measurement made that concrete -- the human band for a formatting
+    check is not the same in reference documentation as in a changelog,
+    so one number for both is wrong in one of them by construction.
+
+        {"glob": "docs/*.md", "ruleset": "slopwatch",
+         "check_config": {"bold_density": {"threshold": 12}}}
+
+    A rule's entry LAYERS over the project-wide one per field, rather than
+    replacing the check's whole spec. Replacement would mean naming a
+    threshold silently reset that check's action to the ruleset default,
+    which is the kind of surprise nobody finds until a write is denied for
+    a reason the config does not appear to state.
+
+    Unlike `disable`, this is not union-only: a rule may loosen a
+    threshold as well as tighten it. The asymmetry is deliberate.
+    Disabling is binary and irreversible-by-a-rule so that "why did this
+    not fire?" stays answerable in two places; a threshold is a dial and
+    its answer is the same two places whichever way it was turned.
+    """
+    merged = {check_id: dict(spec) for check_id, spec
+               in check_config(project_root, ruleset_id, config_file).items()}
+    rule = matching_rule(file_path, project_root, config_file) if file_path else None
+    per_rule = (rule or {}).get("check_config") or {}
+    if not isinstance(per_rule, dict):
+        return merged
+    for check_id, override in per_rule.items():
+        if not isinstance(override, dict):
+            continue
+        merged.setdefault(check_id, {}).update(override)
+    return merged
+
+
+def save_rule_check_config(project_root, glob, check_id, spec, config_file=None):
+    """Set (or with an empty `spec`, clear) one check's per-rule overrides
+    on the routing rule with exactly this glob.
+
+    Addressed by the rule's own glob rather than by path, the same as
+    `save_rule_packs`. A path can match only one rule, but naming the rule
+    is what makes "which rule did I just change?" answerable without
+    re-running the resolver.
+    """
+    path = config_file or config_path(project_root)
+    if not os.path.exists(path):
+        raise ValueError("no stopslop.config.json to edit")
+    with open(path) as f:
+        data = json.load(f)
+    # The routing rules live under "rulesets", not "rules" -- load_rules
+    # reads data["rulesets"]. Writing to "rules" produced a top-level key
+    # nothing reads: the command reported success, the file held the
+    # override, and the gate never saw it. That is the dead-key failure
+    # this module's own KNOWN_TOP_LEVEL_KEYS exists to catch, reproduced
+    # by a writer that guessed the name instead of reading the reader.
+    rules = data.get("rulesets") or []
+    for rule in rules:
+        if rule.get("glob") != glob:
+            continue
+        existing = dict(rule.get("check_config") or {})
+        if spec:
+            existing[check_id] = spec
+        else:
+            existing.pop(check_id, None)
+        if existing:
+            rule["check_config"] = existing
+        else:
+            rule.pop("check_config", None)
+        data["rulesets"] = rules
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+        return rule
+    raise ValueError(f"no routing rule with glob {glob!r}")

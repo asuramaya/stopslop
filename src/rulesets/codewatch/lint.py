@@ -535,13 +535,13 @@ def lint_and_gate(text, context=None, file_path=None):
     }
 
 
-def blocking_semantic_flags(semantic_flags):
+def blocking_semantic_flags(semantic_flags, file_path=None):
     """swallowed_exception denies on its own by default (a real
     correctness risk, not a style preference); everything else defaults
     to warn, project-tunable per check via check_config. See
     core.checks.blocking_semantic_flags for the shared mechanism."""
     project_root = _paths.find_project_root(__file__)
-    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "codewatch", semantic_flags)
+    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "codewatch", semantic_flags, file_path)
 
 
 def apply_mechanical_fixes(text, file_path=None):

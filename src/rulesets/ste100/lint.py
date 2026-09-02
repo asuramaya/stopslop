@@ -1241,7 +1241,7 @@ def lint_and_gate(text, context="procedure", file_path=None):
     }
 
 
-def blocking_semantic_flags(semantic_flags):
+def blocking_semantic_flags(semantic_flags, file_path=None):
     """With every ste100 check defaulting to {threshold: 1, action:
     "block"} except vocabulary (warn), this reproduces the original
     behaviour exactly: every flag blocked, vocabulary reported and let
@@ -1249,7 +1249,7 @@ def blocking_semantic_flags(semantic_flags):
     mechanism (identical per-check contract slopwatch and codewatch
     carry)."""
     project_root = _paths.find_project_root(__file__)
-    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "ste100", semantic_flags)
+    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "ste100", semantic_flags, file_path)
 
 
 def fix_sentence(sentence, project_terms=None, suppressed=None):

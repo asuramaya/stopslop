@@ -23,7 +23,7 @@ RULESET_NAME = "Your Name"   # shown in CLI output and deny messages
 CAPABILITIES = frozenset()   # see Capabilities below; empty is valid
 
 def lint_and_gate(text, *, context=None, file_path=None): ...
-def blocking_semantic_flags(semantic_flags): ...
+def blocking_semantic_flags(semantic_flags, file_path=None): ...
 def apply_mechanical_fixes(text, file_path=None): ...
 ```
 
@@ -59,7 +59,7 @@ model to decide, never a blind rewrite. This split is not specific to
 ASD-STE100. `slopwatch` proves it: `stock_adverb` is a real mechanical
 check with no vocabulary tiers or dictionary behind it at all.
 
-`blocking_semantic_flags(semantic_flags)` decides which of those flags
+`blocking_semantic_flags(semantic_flags, file_path=None)` decides which of those flags
 actually deny a write. This is YOUR ruleset's own function, not a shared
 mechanism. All three shipped rulesets implement it the same way: each
 check's own `{threshold, action}` decides, per check -- see the
@@ -229,6 +229,16 @@ use the deduped count. `action` is `"block"` or `"warn"`. A `"block"`
 check denies the write on its own, once triggered. A `"warn"` check only
 shows. It never denies a write by itself.
 
+`file_path` is optional and was added AFTER the first custom rulesets
+were written. It lets a routing rule carry its own per-check thresholds,
+so `docs/*.md` and a changelog can hold different numbers for the same
+check -- which measurement says they should, since the human band for a
+formatting check is not the same in both. A ruleset that omits the
+parameter keeps working: `core.checks.call_blocking_semantic_flags`
+inspects the signature and calls the two-name form, silently, because a
+project author who scaffolded a ruleset before this existed did nothing
+wrong.
+
 `blocking_semantic_flags` groups the raw flags by check id. It compares
 each group's weight against that check's own threshold, and returns only
 the groups of a triggered `"block"` check. There is no ruleset-wide
@@ -236,9 +246,10 @@ aggregate to sum across different checks. A document can carry any
 number of triggered `"warn"` checks and still pass:
 
 ```python
-def blocking_semantic_flags(semantic_flags):
+def blocking_semantic_flags(semantic_flags, file_path=None):
     project_root = _paths.find_project_root(__file__)
-    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "your_id", semantic_flags)
+    return _checks.blocking_semantic_flags(CHECKS_TABLE, project_root, "your_id",
+                                           semantic_flags, file_path)
 ```
 
 A check with extra numbers of its own declares a `params` dict on its

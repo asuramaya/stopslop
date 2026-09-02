@@ -972,6 +972,114 @@ def _print_discrimination(ruleset, summary, comparison):
     return 0
 
 
+def _parse_pairs(items, cast=str):
+    out = {}
+    for item in items or []:
+        if "=" not in item:
+            raise ValueError(f"expected CHECK=VALUE, got {item!r}")
+        key, _, value = item.partition("=")
+        out[key.strip()] = cast(value.strip())
+    return out
+
+
+def cmd_rule_checks(args):
+    """Per-routing-rule check thresholds.
+
+    A threshold is not a property of a ruleset, it is a property of a
+    ruleset applied to a KIND of file. Measurement made that concrete:
+    the human band for a formatting check is not the same in reference
+    documentation as in a changelog, so one number for both is wrong in
+    one of them by construction.
+
+    Symmetric with the per-rule `packs` and `disable` bindings that
+    already exist, and addressed by the rule's own glob for the same
+    reason -- naming the rule is what makes "which rule did I change?"
+    answerable without re-running the resolver.
+    """
+    rules = core_config.load_rules(REPO_ROOT)
+    if not args.glob:
+        any_override = False
+        for rule in rules:
+            per_rule = rule.get("check_config") or {}
+            if not per_rule:
+                continue
+            any_override = True
+            print(f"{rule['glob']}  [{rule.get('ruleset') or 'out of scope'}]")
+            for check_id, spec in sorted(per_rule.items()):
+                bits = ", ".join(f"{k}={v}" for k, v in sorted(spec.items()))
+                print(f"  {check_id}: {bits}")
+        if not any_override:
+            print("No routing rule has its own check overrides.")
+            print("Project-wide thresholds govern every path: "
+                   "`stopslop.py checks --ruleset ID`.")
+        return 0
+
+    rule = next((r for r in rules if r.get("glob") == args.glob), None)
+    if rule is None:
+        print(f"No routing rule with glob {args.glob!r}. "
+               f"Rules: {', '.join(r['glob'] for r in rules)}", file=sys.stderr)
+        return 1
+    ruleset_id = rule.get("ruleset")
+    if not ruleset_id:
+        print(f"{args.glob!r} routes to nothing, so it has no checks to tune.",
+              file=sys.stderr)
+        return 1
+    ruleset = rulesets.get_ruleset(ruleset_id)
+    known = set(ruleset.list_checks()) if hasattr(ruleset, "list_checks") else set()
+
+    try:
+        thresholds = _parse_pairs(args.set_threshold, int)
+        actions = _parse_pairs(args.set_action)
+    except ValueError as exc:
+        print(f"Not saved: {exc}", file=sys.stderr)
+        return 1
+    for check_id in set(thresholds) | set(actions) | set(args.clear or []):
+        if known and check_id not in known:
+            print(f"Not saved: {ruleset_id!r} has no check {check_id!r}.",
+                  file=sys.stderr)
+            return 1
+    for check_id, action in actions.items():
+        if action not in ("block", "warn"):
+            print(f"Not saved: action must be block or warn, got {action!r}.",
+                  file=sys.stderr)
+            return 1
+    for check_id, value in thresholds.items():
+        if value < 1:
+            print(f"Not saved: threshold must be 1 or more, got {value}.",
+                  file=sys.stderr)
+            return 1
+
+    existing = dict(rule.get("check_config") or {})
+    changed = []
+    for check_id in sorted(set(thresholds) | set(actions)):
+        spec = dict(existing.get(check_id) or {})
+        if check_id in thresholds:
+            spec["threshold"] = thresholds[check_id]
+        if check_id in actions:
+            spec["action"] = actions[check_id]
+        core_config.save_rule_check_config(REPO_ROOT, args.glob, check_id, spec)
+        existing[check_id] = spec
+        changed.append(f"{check_id}: " + ", ".join(
+            f"{k}={v}" for k, v in sorted(spec.items())))
+    for check_id in sorted(args.clear or []):
+        core_config.save_rule_check_config(REPO_ROOT, args.glob, check_id, {})
+        changed.append(f"{check_id}: cleared, back to project-wide")
+
+    if not changed:
+        per_rule = rule.get("check_config") or {}
+        print(f"{args.glob}  [{ruleset_id}]")
+        if not per_rule:
+            print("  no per-rule overrides; project-wide thresholds govern")
+        for check_id, spec in sorted(per_rule.items()):
+            print(f"  {check_id}: " + ", ".join(
+                f"{k}={v}" for k, v in sorted(spec.items())))
+        return 0
+    print(f"{args.glob}  [{ruleset_id}]")
+    for line in changed:
+        print(f"  {line}")
+    return 0
+
+
 def cmd_decay(args):
     """Which of a ruleset's checks earn their place against a real corpus.
 
@@ -1401,6 +1509,19 @@ def main():
                                   help="remove a custom ruleset -- refused for a built-in one, "
                                        "or one any routing rule still routes to")
     p_list_rulesets.set_defaults(func=cmd_list_rulesets)
+
+    p_rule_checks = sub.add_parser("rule-checks",
+                                    help="per-ROUTING-RULE check thresholds and actions -- "
+                                         "the same knob `checks` sets project-wide, scoped "
+                                         "to one glob")
+    p_rule_checks.add_argument("--glob", help="the routing rule to change (omit to list every rule's own overrides)")
+    p_rule_checks.add_argument("--set-threshold", action="append", metavar="CHECK=N",
+                                help="threshold for a check, on this rule's paths only")
+    p_rule_checks.add_argument("--set-action", action="append", metavar="CHECK=block|warn",
+                                help="action for a check, on this rule's paths only")
+    p_rule_checks.add_argument("--clear", action="append", metavar="CHECK",
+                                help="drop a check's per-rule override, back to project-wide")
+    p_rule_checks.set_defaults(func=cmd_rule_checks)
 
     p_decay = sub.add_parser("decay",
                               help="which of a ruleset's checks actually fire against "

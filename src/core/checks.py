@@ -33,6 +33,7 @@ iteration domains (`lines`, `sentences`, `text`) and any per-check
 extra argument the ruleset already computed.
 """
 from dataclasses import dataclass, field
+import inspect
 from enum import Enum
 
 from core import config as _core_config
@@ -109,7 +110,7 @@ def default_check_config(table):
     return out
 
 
-def check_config(table, project_root, ruleset_id):
+def check_config(table, project_root, ruleset_id, file_path=None):
     """`default_check_config(table)` with any valid override from
     stopslop.config.json's "check_config" key layered on top, per check.
     An override naming an unknown check, an invalid action, or a
@@ -119,7 +120,8 @@ def check_config(table, project_root, ruleset_id):
     never-cache-it posture every other config read in this project takes."""
     merged = default_check_config(table)
     try:
-        overrides = _core_config.check_config(project_root, ruleset_id)
+        overrides = _core_config.check_config_for_path(
+            project_root, ruleset_id, file_path)
     except Exception:
         return merged
     for check_id, override in overrides.items():
@@ -229,14 +231,22 @@ def set_check_config(table, project_root, ruleset_id, check_id, threshold=None, 
     _core_config.save_check_config(project_root, ruleset_id, check_id, spec)
 
 
-def blocking_semantic_flags(table, project_root, ruleset_id, semantic_flags):
+def blocking_semantic_flags(table, project_root, ruleset_id, semantic_flags,
+                             file_path=None):
     """Group flags by check, weigh each check's own OCCURRENCES (not its
     deduped display length -- see core.flags.flag_weight) against its own
     threshold, and return the flags of every check that is both
     triggered and set to block. Was three near-identical copies (ste100's
     exclusion-list framing, slopwatch's/codewatch's per-check-threshold
-    framing) that turned out to already be the same mechanism."""
-    config = check_config(table, project_root, ruleset_id)
+    framing) that turned out to already be the same mechanism.
+
+    `file_path`, when given, layers the matching routing rule's own
+    "check_config" over the project-wide one -- so a threshold can differ
+    between a reference document and a changelog, which measurement says
+    it should, since the human band for a formatting check is not the
+    same in both. Omitting it keeps the project-wide answer, which is
+    what every caller without a path in hand wants."""
+    config = check_config(table, project_root, ruleset_id, file_path)
     grouped = {}
     for f in semantic_flags:
         grouped.setdefault(f["kind"], []).append(f)
@@ -372,3 +382,28 @@ def run_checks(table, *, blocks=None, lines=None, sentences=None, text=None, ext
                     _file(check, v, None)
 
     return mechanical, semantic
+
+
+def call_blocking_semantic_flags(ruleset, semantic_flags, file_path=None):
+    """Call a ruleset's `blocking_semantic_flags`, with or without a path.
+
+    `file_path` is a LATER addition to the ruleset contract, added so a
+    routing rule can carry its own per-check thresholds. Custom rulesets
+    are a shipped feature and live under `.claude/stopslop/`, outside
+    this repository -- one written against the older two-name signature
+    must keep working, and it must keep working SILENTLY, because a
+    project author who scaffolded a ruleset months ago did nothing wrong.
+
+    The signature is inspected rather than caught: wrapping the call in
+    `except TypeError` would swallow a TypeError raised INSIDE a check
+    and report it as an old signature, which is the kind of misdiagnosis
+    that costs an afternoon.
+    """
+    fn = ruleset.blocking_semantic_flags
+    try:
+        takes_path = len(inspect.signature(fn).parameters) >= 2
+    except (TypeError, ValueError):
+        takes_path = False
+    if takes_path:
+        return fn(semantic_flags, file_path)
+    return fn(semantic_flags)

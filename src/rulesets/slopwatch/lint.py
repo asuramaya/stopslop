@@ -1212,7 +1212,7 @@ def lint_and_gate(text, context=None, file_path=None):
     }
 
 
-def blocking_semantic_flags(semantic_flags):
+def blocking_semantic_flags(semantic_flags, file_path=None):
     """A different POLICY from ste100's exclusion-list approach -- see the
     module docstring. Each check's own occurrence-weight is compared
     against its OWN threshold (project-overridable via "check_config" in
@@ -1223,7 +1223,7 @@ def blocking_semantic_flags(semantic_flags):
     density number nobody could tune per check. See
     core.checks.blocking_semantic_flags for the shared mechanism."""
     project_root = _paths.find_project_root(__file__)
-    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "slopwatch", semantic_flags)
+    return _checks.blocking_semantic_flags(effective_checks_table(), project_root, "slopwatch", semantic_flags, file_path)
 
 
 def fix_sentence(sentence, enabled=None, extra_stock_adverbs=None):

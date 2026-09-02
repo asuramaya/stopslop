@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bash_write_detect
 import generate_coaching_memory
 import rulesets
+from core import checks as _checks
 from core import config as core_config
 from core import extract as core_extract
 from core import flags as flags_mod
@@ -243,9 +244,11 @@ def main():
     # every caller (this hook, stopslop.py's `lint` command, the MCP
     # server) calls the resolved ruleset's own blocking_semantic_flags
     # rather than each keeping its own copy of this filter.
-    flags = list(ruleset.blocking_semantic_flags(semantic))
+    flags = list(_checks.call_blocking_semantic_flags(
+        ruleset, semantic, file_path))
     if embedded is not None:
-        for f in embedded.blocking_semantic_flags(embedded_pool):
+        for f in _checks.call_blocking_semantic_flags(
+                embedded, embedded_pool, file_path):
             f = dict(f)
             f["embedded"] = True
             flags.append(f)
@@ -264,10 +267,12 @@ def main():
                            before_text, extension, embedded, file_path=file_path)
                        if embedded is not None else [])
         before_weight = flags_mod.flag_weight(
-            ruleset.blocking_semantic_flags(before_semantic))
+            _checks.call_blocking_semantic_flags(
+                ruleset, before_semantic, file_path))
         if embedded is not None:
             before_weight += flags_mod.flag_weight(
-                embedded.blocking_semantic_flags(before_pool))
+                _checks.call_blocking_semantic_flags(
+                    embedded, before_pool, file_path))
         after_weight = flags_mod.flag_weight(flags)
         if after_weight <= before_weight:
             flags = []      # deniable, but no worse than it already was

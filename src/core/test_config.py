@@ -1639,3 +1639,97 @@ class DynamicDiscoveryTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PerRuleCheckConfigTests(unittest.TestCase):
+    """Thresholds scoped to a routing rule, not just a ruleset.
+
+    A threshold is not a property of a ruleset, it is a property of a
+    ruleset applied to a KIND of file. Measurement made that concrete:
+    the human band for a formatting check is not the same in reference
+    documentation as in a changelog, so one number for both is wrong in
+    one of them by construction.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.path = os.path.join(self.dir, "stopslop.config.json")
+
+    def _write(self, rules, check_config=None):
+        data = {"rulesets": rules}
+        if check_config:
+            data["check_config"] = check_config
+        with open(self.path, "w") as f:
+            json.dump(data, f)
+
+    def _for(self, rel):
+        return config.check_config_for_path(
+            self.dir, "slopwatch", os.path.join(self.dir, rel),
+            config_file=self.path)
+
+    def test_a_rules_own_override_reaches_its_paths(self):
+        self._write([{"glob": "*.md", "ruleset": "slopwatch",
+                       "check_config": {"bold_density": {"threshold": 20}}}])
+        self.assertEqual(self._for("a.md")["bold_density"]["threshold"], 20)
+
+    def test_a_path_the_rule_does_not_match_is_unaffected(self):
+        self._write([{"glob": "docs/*.md", "ruleset": "slopwatch",
+                       "check_config": {"bold_density": {"threshold": 20}}},
+                      {"glob": "*.md", "ruleset": "slopwatch"}])
+        self.assertEqual(self._for("docs/a.md")["bold_density"]["threshold"], 20)
+        self.assertEqual(self._for("a.md"), {})
+
+    def test_it_layers_over_the_project_wide_entry_per_field(self):
+        """Replacing the whole spec would mean naming a threshold
+        silently reset that check's ACTION to the ruleset default --
+        the kind of surprise nobody finds until a write is denied for a
+        reason the config does not appear to state."""
+        self._write([{"glob": "*.md", "ruleset": "slopwatch",
+                       "check_config": {"bold_density": {"threshold": 20}}}],
+                     check_config={"slopwatch": {"bold_density":
+                                                   {"threshold": 8,
+                                                    "action": "block"}}})
+        spec = self._for("a.md")["bold_density"]
+        self.assertEqual(spec["threshold"], 20)
+        self.assertEqual(spec["action"], "block")
+
+    def test_no_file_path_gives_the_project_wide_answer(self):
+        self._write([{"glob": "*.md", "ruleset": "slopwatch",
+                       "check_config": {"bold_density": {"threshold": 20}}}],
+                     check_config={"slopwatch": {"bold_density": {"threshold": 8}}})
+        got = config.check_config_for_path(self.dir, "slopwatch",
+                                            config_file=self.path)
+        self.assertEqual(got["bold_density"]["threshold"], 8)
+
+    def test_a_malformed_per_rule_entry_is_ignored_not_fatal(self):
+        self._write([{"glob": "*.md", "ruleset": "slopwatch",
+                       "check_config": "not a dict"}])
+        self.assertEqual(self._for("a.md"), {})
+
+    def test_the_writer_edits_the_key_the_reader_reads(self):
+        """The routing rules live under "rulesets". An earlier writer
+        guessed "rules", so the command reported success, the file held
+        the override, and the gate never saw it."""
+        self._write([{"glob": "*.md", "ruleset": "slopwatch"}])
+        config.save_rule_check_config(self.dir, "*.md", "bold_density",
+                                       {"threshold": 12}, config_file=self.path)
+        with open(self.path) as f:
+            data = json.load(f)
+        self.assertNotIn("rules", data)
+        self.assertEqual(self._for("a.md")["bold_density"]["threshold"], 12)
+
+    def test_an_empty_spec_clears_the_override(self):
+        self._write([{"glob": "*.md", "ruleset": "slopwatch",
+                       "check_config": {"bold_density": {"threshold": 12}}}])
+        config.save_rule_check_config(self.dir, "*.md", "bold_density", {},
+                                       config_file=self.path)
+        self.assertEqual(self._for("a.md"), {})
+        with open(self.path) as f:
+            self.assertNotIn("check_config", json.load(f)["rulesets"][0])
+
+    def test_writing_to_an_unknown_glob_raises(self):
+        self._write([{"glob": "*.md", "ruleset": "slopwatch"}])
+        with self.assertRaises(ValueError):
+            config.save_rule_check_config(self.dir, "*.rst", "bold_density",
+                                           {"threshold": 12},
+                                           config_file=self.path)

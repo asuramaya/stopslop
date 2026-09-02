@@ -15,6 +15,8 @@ verdict never drifts from what a real edit would actually do.
 import fnmatch
 import os
 
+from core import checks as _checks
+
 from core import config as core_config
 
 SKIP_DIRS = {
@@ -91,7 +93,8 @@ def scan_tree(paths, project_root, registry, ruleset_id=None, glob_pattern=None,
             continue
 
         result = ruleset.lint_and_gate(text, context=None, file_path=path)
-        blocking = ruleset.blocking_semantic_flags(result["semantic_flags"])
+        blocking = _checks.call_blocking_semantic_flags(
+            ruleset, result["semantic_flags"], path)
         results.append({
             "path": path,
             "ruleset": ruleset.RULESET_ID,

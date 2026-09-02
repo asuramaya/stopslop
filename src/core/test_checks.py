@@ -14,6 +14,7 @@ or, together with everything else:
 import json
 import os
 import tempfile
+import types
 import unittest
 
 from core import checks
@@ -357,3 +358,55 @@ class RunChecksTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BlockingSignatureCompatibilityTests(unittest.TestCase):
+    """`file_path` is a LATER addition to the ruleset contract.
+
+    Custom rulesets are a shipped feature and live outside this
+    repository under `.claude/stopslop/`. One written against the older
+    two-name signature must keep working, and it must keep working
+    SILENTLY -- a project author who scaffolded a ruleset months ago did
+    nothing wrong.
+    """
+
+    def _ruleset(self, fn):
+        return types.SimpleNamespace(blocking_semantic_flags=fn)
+
+    def test_an_old_two_name_signature_still_works(self):
+        seen = []
+        ruleset = self._ruleset(lambda flags: seen.append(flags) or ["old"])
+        got = checks.call_blocking_semantic_flags(ruleset, ["f"], "a.md")
+        self.assertEqual(got, ["old"])
+        self.assertEqual(seen, [["f"]])
+
+    def test_a_new_signature_receives_the_path(self):
+        seen = {}
+
+        def fn(flags, file_path=None):
+            seen["path"] = file_path
+            return ["new"]
+
+        got = checks.call_blocking_semantic_flags(self._ruleset(fn), ["f"], "a.md")
+        self.assertEqual(got, ["new"])
+        self.assertEqual(seen["path"], "a.md")
+
+    def test_a_type_error_inside_a_check_is_not_read_as_an_old_signature(self):
+        """Wrapping the call in `except TypeError` would swallow a real
+        TypeError from inside a check and report it as an old signature,
+        which is the kind of misdiagnosis that costs an afternoon."""
+
+        def fn(flags, file_path=None):
+            raise TypeError("a real bug inside the check")
+
+        with self.assertRaises(TypeError):
+            checks.call_blocking_semantic_flags(self._ruleset(fn), ["f"], "a.md")
+
+    def test_an_uninspectable_callable_falls_back_to_the_old_form(self):
+        class Callable:
+            def __call__(self, flags):
+                return ["called"]
+
+        got = checks.call_blocking_semantic_flags(
+            self._ruleset(Callable().__call__), ["f"], "a.md")
+        self.assertEqual(got, ["called"])

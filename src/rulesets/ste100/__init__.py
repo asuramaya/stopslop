@@ -51,8 +51,8 @@ def lint_and_gate(text, *, context=None, file_path=None):
     return lint.lint_and_gate(text, context=ctx, file_path=file_path)
 
 
-def blocking_semantic_flags(semantic_flags):
-    return lint.blocking_semantic_flags(semantic_flags)
+def blocking_semantic_flags(semantic_flags, file_path=None):
+    return lint.blocking_semantic_flags(semantic_flags, file_path)
 
 
 def apply_mechanical_fixes(text, file_path=None):
