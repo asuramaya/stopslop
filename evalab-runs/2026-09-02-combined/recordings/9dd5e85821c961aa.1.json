@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "**About Marlow** *(placeholder name \u2014 swap in yours)*\n\nMarlow began in the back office of a four-physician family practice in Dayton, where the schedule lived in a paper book, on two whiteboards, and in the head of a front-desk coordinator named Diane, who knew which patients ran late and padded their slots without telling anyone.\n\nThen Diane retired. The practice lost eleven percent of its bookable hours in a month.\n\nThat's the problem we work on. Clinic scheduling looks like a calendar problem and isn't. It's a problem of exceptions: the patient who needs a translator, the room that can't be turned over in ten minutes, the physician who blocks Thursday afternoons for charting and will not be persuaded otherwise. Most software handles the calendar and pushes the exceptions back onto whoever is standing at the desk.\n\nWe build for the desk. Our software learns each provider's real slot durations from their own history instead of the template someone typed in during onboarding, holds overflow appointments against a waitlist that texts patients in priority order, and shows the front desk one screen instead of four.\n\nWe started in 2019. Today we're used by 340 independent clinics across eleven states, mostly practices with two to fifteen providers \u2014 the ones large enterprise systems quote at six figures and then implement in nine months.\n\nWe're a company of 28 people in Dayton and Pittsburgh. Half of us have worked in a clinic. We answer our own support line, and the founders still take shifts on it."
+}

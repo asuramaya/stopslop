@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "Assuming this is generic careers-page copy (no company details were given) \u2014 here it is, ready to swap in real numbers:\n\n---\n\n**How we build**\n\nWe ship small and often. Most changes go out the day they're written, and the average pull request here touches under 200 lines. If yours is bigger, someone will ask why before they ask anything else.\n\nNobody owns a file. Everybody owns the pager. Engineers carry a one-week on-call rotation for the systems they wrote, which turns 3 a.m. into a design constraint instead of somebody else's problem.\n\nCode review is honest and fast. We would rather hear \"this won't survive contact with the job queue\" on Tuesday than read it in a postmortem in March. Disagreements get written down and then decided, usually by whoever sits closest to the code rather than whoever has the longest title.\n\nWe write. Design docs before the big work, postmortems after the outages, and both are readable by people outside the team. When an incident happens we go after the missing guardrail, not the person who tripped over it.\n\nAbout a fifth of every quarter goes to work no customer asked for: the flaky test suite, the migration everyone has been stepping around, the tool that saves the support team an hour a day. Engineers pick that work themselves.\n\nThere is no hero culture here, and no one is measured on hours. We hire people who explain things clearly, change their minds when the data says so, and care whether the thing actually works for the person on the other end.\n\n---\n\nWord count: ~250. Tell me the company, stack, team size, or real on-call and review practices and I'll tighten it around those specifics."
+}

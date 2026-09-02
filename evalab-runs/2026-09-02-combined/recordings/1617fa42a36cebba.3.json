@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**We should stop asking who broke it**\n\nLast quarter's outage review ran forty minutes, and about thirty of them went to establishing that the bad config came from Priya's branch. That fact changed nothing. We already knew the config was wrong; that's why the site was down. What we never got to was the useful question: how did a config that wrong reach production without anyone or anything stopping it?\n\nThat's the argument for blameless postmortems in one paragraph. It isn't that people don't make mistakes, and it isn't a request that we be nicer to each other. It's that naming the person is a dead end. Priya will not make that particular mistake again. The next person will, because whatever let it through is still sitting there.\n\nThe real cost of blame is silence. Engineers who expect to be named tell you less. They round off the timeline, they skip the part where they were guessing, they don't mention the workaround they'd been quietly using for months. The workaround is usually the finding.\n\nSo, three things I'd like us to try on the next incident. Write the timeline before anyone writes analysis. Use role names in the doc instead of people's names. Give every action item an owner and a date, so the meeting produces something other than a document. Then leave the doc open to the whole company.\n\nIf someone is genuinely negligent, that's a management conversation and it happens elsewhere. The postmortem exists to show us what our systems do under pressure, and it can only do that if people talk."
+}

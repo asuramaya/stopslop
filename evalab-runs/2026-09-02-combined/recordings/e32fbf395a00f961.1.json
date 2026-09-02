@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** [name]\n**Re:** One quarter of engineering capacity for debt reduction\n\nI'm asking for one quarter in which the team's primary work is paying down technical debt, rather than shipping features. Concretely: roughly 70% of engineering time for twelve weeks, with the remaining 30% held for customer-blocking bugs and commitments we've already made.\n\nThe case is arithmetic, not aesthetic. Over the last two quarters, our median time from merge to production has gone from two days to nine. Roughly a third of every sprint now goes to work we didn't plan: flaky test triage, incidents traced back to the same three services, and rework caused by two systems that disagree about what a customer record is. That tax compounds. Every feature we add to those services makes the next one slower to build.\n\nWhat we'd do with the quarter: consolidate the duplicate customer data model, retire the legacy job runner, and get the test suite back under ten minutes and green. Those three account for most of the unplanned work we've logged.\n\nWhat it costs: we push the [roadmap item] and [roadmap item] deliveries by a quarter. I won't pretend that's cheap, and I'd rather say it plainly than bury it.\n\nWhat we'd owe you: a written before-and-after on four numbers \u2014 unplanned work as a share of sprint capacity, merge-to-production time, test suite duration, and incidents per month. If those don't move meaningfully by the end of the quarter, the experiment failed and we say so.\n\nI'd like to talk through the tradeoffs before the planning meeting. Happy to bring the incident data."
+}

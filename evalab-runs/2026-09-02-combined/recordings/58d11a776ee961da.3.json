@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination \u2014 the Deploy Platform team**\n\nTwo years ago, shipping to production meant a Thursday night, a shared spreadsheet, and someone on call who knew which of the four steps you could safely skip. Rollbacks took about forty minutes, assuming the person who wrote the service was awake.\n\nThis team rebuilt that. Not in one heroic quarter \u2014 they did it in small pieces, mostly by asking other teams what actually hurt and fixing that first. Config moved into version control. The manual approval steps nobody read got cut. Canary analysis went in, then automatic rollback on top of it.\n\nThe numbers are good. Deploys went from weekly to roughly thirty a day, median time to production dropped from three days to under an hour, and change failure rate fell by more than half.\n\nBut the part worth an award is quieter. New engineers ship in their first week now. Nobody schedules a release around their kid's bedtime. The on-call rotation stopped being the thing people traded away.\n\nThey also kept the old pipeline alive for the teams that couldn't migrate yet, which won a lot of goodwill and took most of a year. That work was thankless. I'd like it to be less so.\n\n*(\u2248210 words. Swap in the real team name and your own numbers \u2014 the ones above are placeholders shaped to look plausible.)*"
+}

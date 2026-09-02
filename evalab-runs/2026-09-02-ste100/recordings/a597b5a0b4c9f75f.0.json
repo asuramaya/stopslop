@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the 'Configuration' section of a README for a command-line tool called qcache that caches SQL query results on local disk. It has three settings: a cache directory, a maximum size in megabytes, and a time to live in seconds. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Configuration\n\nqcache reads `~/.config/qcache/config.toml`. Every setting also has an environment variable and a flag, and they win in that order: a flag beats the environment, the environment beats the file.\n\n```toml\ncache_dir = \"~/.cache/qcache\"\nmax_size_mb = 512\nttl_seconds = 3600\n```\n\n`cache_dir` is where result sets land. Point it at a fast local disk. On a network mount, pulling a cached result can take longer than rerunning the query, and then you are spending disk on something that makes you slower.\n\n`max_size_mb` caps total disk use. Once the cache goes past it, qcache drops entries starting with whichever was read longest ago, until the total is back under the cap. The trim runs on write, so a single large result can leave you over the cap for a moment before cleanup catches up.\n\n`ttl_seconds` sets how long an entry stays fresh. After that, the next matching query hits the database and overwrites the stale file. Set it to 0 and nothing ever expires, which suits a frozen snapshot where size is the only thing that should ever evict anything.\n\nThe environment variables are `QCACHE_DIR`, `QCACHE_MAX_SIZE_MB`, and `QCACHE_TTL`, and the flags map one to one: `--cache-dir`, `--max-size-mb`, `--ttl`."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Configuration\n\nThe config file lives at `~/.config/qcache/config.toml`. You can set any of the three values there, in an environment variable, or on the command line, and the later one wins each time. Flags beat the environment, and the environment beats the file.\n\n```toml\ncache_dir = \"~/.cache/qcache\"\nmax_size_mb = 512\nttl_seconds = 3600\n```\n\n`cache_dir` holds the stored result sets, so give it a fast local disk. Reading a cached result off a network mount can take longer than the query itself would have, and at that point you are burning disk space to go slower.\n\n`max_size_mb` is the ceiling on total disk use. When the cache crosses it, qcache evicts entries least recently read until the total fits again. Eviction runs during a write, so one oversized result can sit above the ceiling for a moment before the sweep catches up.\n\n`ttl_seconds` decides when an entry goes stale. Past that age, the next matching query goes to the database and overwrites the old file. A value of 0 turns expiry off entirely, which suits a frozen snapshot where size alone should ever evict anything.\n\nThe environment variables are `QCACHE_DIR`, `QCACHE_MAX_SIZE_MB`, and `QCACHE_TTL`, and the flags line up one for one: `--cache-dir`, `--max-size-mb`, `--ttl`."
+}

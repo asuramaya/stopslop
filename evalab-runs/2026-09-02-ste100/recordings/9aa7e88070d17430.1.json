@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the 'Configuration' section of a README for a command-line tool called qcache that caches SQL query results on local disk. It has three settings: a cache directory, a maximum size in megabytes, and a time to live in seconds. Around 200 words."
+  }
+ ],
+ "output": "## Configuration\n\nqcache reads settings from `~/.config/qcache/config.toml`, and every one of them can be overridden by a flag or an environment variable. Flags win over the environment, which wins over the file.\n\n```toml\ncache_dir = \"~/.cache/qcache\"\nmax_size_mb = 512\nttl_seconds = 3600\n```\n\n`cache_dir` is where result sets land on disk. The directory is created on first run if it doesn't exist. Put it on the same filesystem you have space on, not a network mount \u2014 qcache does a lot of small writes and NFS makes them slow. Override with `--cache-dir` or `QCACHE_DIR`.\n\n`max_size_mb` caps the total size of stored results. When a new result would push the cache past the cap, qcache evicts least-recently-read entries until it fits. A single result larger than the cap is never stored. Override with `--max-size` or `QCACHE_MAX_SIZE_MB`.\n\n`ttl_seconds` is how long a cached result stays valid. After it expires, the next request for that query goes to the database and the stale entry is replaced. Set it to `0` to disable expiry entirely and rely on size eviction alone. Override with `--ttl` or `QCACHE_TTL_SECONDS`.\n\nRun `qcache config` to print the settings actually in effect and where each one came from."
+}

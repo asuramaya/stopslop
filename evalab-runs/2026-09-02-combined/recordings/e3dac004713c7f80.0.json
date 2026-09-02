@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**What a year of remote work actually taught us**\n\nWe went remote in March, expecting a productivity dip. It never came. What came instead was a slow, quiet erosion of everything that wasn't in a ticket.\n\nThe work got done. Deploys held steady \u2014 40 to 50 a week, same as the office year. Bug counts didn't move. If you only looked at the dashboard, nothing happened.\n\nBut onboarding fell apart. Our last three hires took roughly four months to ship anything nontrivial, against six weeks before. Nobody had planned for that, because nobody had ever noticed how much of onboarding was ambient: hearing a senior engineer swear at a flaky test, catching the half-sentence explanation of why the billing service is the way it is. None of that survives a calendar invite.\n\nSo we stopped trying to recreate the office and started writing things down. Decision records for anything architectural. A weekly written update per team, three paragraphs, no meeting. It felt bureaucratic for about two months. Then a new hire fixed a payments bug in her second week by reading a decision record from 2023, and the argument ended.\n\nThe other thing we got wrong: we assumed people missed each other. Mostly they missed *context*. Once the writing habit took, the demand for social calls dropped to almost nothing.\n\nWe're not going back. But we no longer pretend remote is free. It costs you the accidental teaching, and you pay that back in documentation or you don't pay it at all."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (The other thing we got wrong:):\n- bold_density:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**What a year of remote work actually taught us**\n\nWe went remote in March, expecting a productivity dip. It never came. What came instead was a slow, quiet erosion of everything that wasn't in a ticket.\n\nThe work got done. Deploys held steady \u2014 40 to 50 a week, same as the office year. Bug counts didn't move. If you only looked at the dashboard, nothing happened.\n\nBut onboarding fell apart. Our last three hires took roughly four months to ship anything nontrivial, against six weeks before. Nobody had planned for that, because nobody had ever noticed how much of onboarding was ambient: hearing a senior engineer swear at a flaky test, catching the half-sentence explanation of why the billing service is the way it is. None of that survives a calendar invite.\n\nSo we stopped trying to recreate the office and started writing things down. Decision records for anything architectural. A weekly written update per team, three paragraphs, no meeting. It felt bureaucratic for about two months. Then a new hire fixed a payments bug in her second week by reading a decision record from 2023, and the argument ended.\n\nWe also got the social part wrong. We assumed people missed each other, when mostly they missed context. Once the writing habit took, the demand for social calls dropped to almost nothing.\n\nWe're not going back. But we no longer pretend remote is free. It costs you the accidental teaching, and you pay that back in documentation or you don't pay it at all."
+}

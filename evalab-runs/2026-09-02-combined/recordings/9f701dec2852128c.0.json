@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "This is where our plans live in public.\n\nWe used to keep the roadmap in a spreadsheet three people could see. It made for tidy planning and bad decisions. We'd spend a quarter building something nobody asked for while a heavily upvoted bug report sat untouched. So we moved the whole thing here.\n\nWhat follows is split into three parts. The first is what engineers are actively working on, and most of it ships soon. The second is committed but unscheduled \u2014 the work is scoped, the design is settled, and it starts when someone frees up. The third is honest speculation. Some of it will never happen.\n\nA few caveats worth stating up front. Dates are estimates, and we've missed plenty of them. Items move backward about as often as they move forward. Nothing on this page is a contract, and you shouldn't build a migration plan around a card sitting in the speculative pile.\n\nEvery item links to the issue that spawned it, so you can read the argument that got it here and add your own. If something you depend on is missing, the fastest path is a comment on a related issue, or a note to roadmap@. We read all of them. We answer most."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (4 paragraphs, spread 0.09):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "This is where our plans live in public.\n\nWe used to keep the roadmap in a spreadsheet three people could see. Tidy planning, bad decisions. We'd spend a quarter building something nobody asked for while a heavily upvoted bug report sat untouched. So we moved the whole thing here. It comes in three parts. The first is what engineers are actively working on, and most of it ships soon. The second is committed but unscheduled, where the work is scoped and the design is settled, and it starts when someone frees up. The third is honest speculation, and some of it will never happen.\n\nA few caveats. Dates are estimates, and we've missed plenty of them. Items move backward about as often as they move forward. Nothing on this page is a contract.\n\nEvery item links to the issue that spawned it, so you can read the argument that got it here and add your own. Don't build a migration plan around a card sitting in the speculative pile. And if something you depend on is missing, the fastest path is a comment on a related issue, or a note to roadmap@.\n\nWe read all of them. We answer most."
+}

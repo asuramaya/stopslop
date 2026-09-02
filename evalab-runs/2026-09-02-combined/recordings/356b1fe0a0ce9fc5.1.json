@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "# Charter: Platform Engineering\n\n## Why we exist\n\nProduct teams here lose too many hours to work that isn't their product \u2014 wiring up CI, chasing a flaky deploy, guessing at the right way to provision a database. We take that work off them. Our users are the engineers in this building, and our product is the paved road they build on.\n\n## What we own\n\n- The pipeline from commit to production.\n- Runtime infrastructure: compute, networking, secrets, and the interfaces teams use to reach them.\n- Developer tooling: local environments, service scaffolding, templates.\n- Observability defaults, so a new service arrives with logs, metrics, and alerts already attached.\n\n## How we work\n\nWe treat the platform as a product, with users we can name and go talk to. Nothing ships because it looked good in a planning doc. It ships because a team asked, or because we watched three teams solve the same problem badly.\n\nThe paved road is a road, not a fence. Teams can leave it, and we'll help them when they do. But leaving should be a choice someone makes on purpose, and the road should be good enough that most people won't want to.\n\nWe are not a ticket queue. If the same request arrives twice, we automate it or we document it.\n\n## What success looks like\n\nTime from an empty repo to a service running in production, counted in hours. Change failure rate. And the number of teams who pick the road when nothing is forcing them to.\n\n---\n\nWritten generically \u2014 swap in your company name, and adjust the ownership list if things like security tooling or data infrastructure sit with another team."
+}

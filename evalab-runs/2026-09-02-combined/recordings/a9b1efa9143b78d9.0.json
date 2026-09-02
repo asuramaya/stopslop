@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Roadmap\n\nThis page is public on purpose. Keep a roadmap in a private tracker and customers learn what you built the week it lands, long after the arguments that mattered are over. We'd rather take the objection while changing course is still cheap.\n\nHow to read it. The top of the list is underway and fairly settled. Below that sit things we mean to do and haven't scoped yet, and some of those will vanish over the next couple of quarters without ceremony. That isn't planning gone wrong. That's planning described accurately.\n\nWe date things loosely, by quarter, and we don't commit to a quarter until someone is actually working on the item. When a date moves we move it in place and explain the move in the changelog instead of rewriting the old entry.\n\nThree kinds of work never appear here. Security fixes go out quietly. Work built for one customer belongs to that customer. And an idea somebody floated in Slack last Tuesday isn't a plan, so it doesn't get a card.\n\nMissing something you want? Open a discussion. We read them all, and about a third of what's below arrived that way."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "We publish this deliberately. When a roadmap lives in a private tracker, customers find out what you built the week it ships, and by then every argument worth having is over. We'd rather hear the objection while turning the wheel is still cheap.\n\nReading it. Items near the top are in progress and mostly decided. Under those sit things we intend to do but haven't scoped, and a fair number of those will disappear over the next two quarters without any announcement. That isn't a failure of planning. It's an honest picture of one.\n\nDates are loose, by quarter, and we don't attach a quarter to anything until a person is actually on it. If a date slips, we change it where it sits and explain the slip in the changelog rather than quietly editing the old entry.\n\nThree sorts of work stay off the page. Security fixes ship without noise. Anything built for one customer belongs to that customer. And a thought someone posted in Slack on Tuesday is not a plan, so it gets no card.\n\nDon't see what you need? Start a discussion. We read every one, and roughly a third of what's below came in through that door."
+}

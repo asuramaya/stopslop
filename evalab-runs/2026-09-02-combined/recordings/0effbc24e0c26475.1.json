@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  }
+ ],
+ "output": "# axil\n\nA charting library for the web that draws what you asked for and nothing else.\n\nMost chart libraries hand you a configuration object with three hundred keys and a default theme you end up fighting. Axil goes the other way. You describe the marks (a line, a set of bars, a band of uncertainty) and the scales they sit on, and the library works out layout, axes and legends from that description. Change the description, get a different chart.\n\nThe output is plain SVG, built without a virtual DOM or a canvas fallback, so charts print at any size and paste into a design tool without going fuzzy. Nothing else is pulled in at runtime; a typical bundle is about 14 kB gzipped.\n\nAxil covers the shapes people actually ship: lines, areas, bars, scatter, histograms, small multiples. It skips 3D, geographic maps and network graphs, which other libraries already handle well.\n\n```js\nimport { chart, line, x, y } from 'axil'\n\nchart(sales)\n  .scale(x('month'), y('revenue'))\n  .add(line())\n  .render('#sales')\n```\n\nMIT licensed. The API is versioned, and the changelog says what broke and how to fix it.\n\n---\n\nTwo things to swap: the name `axil` is a placeholder, and the 14 kB figure is invented \u2014 put your real bundle size there or drop the sentence, since a wrong number in the first paragraph is the kind of thing readers check."
+}

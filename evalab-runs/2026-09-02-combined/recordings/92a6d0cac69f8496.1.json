@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Meridian Pay**\nRemote (US) or Chicago \u00b7 $185k\u2013$225k + equity\n\nWe move money for about 4,000 small businesses: payroll, invoicing, and a card program we launched last year. Roughly $2B in annual volume. Forty people, eleven of us in engineering.\n\n**The job**\n\nOur ledger runs on Postgres and it's starting to creak. Reconciliation that took ninety seconds in 2023 now takes twelve minutes, and whoever is on call feels it every month-end. We want someone to own that problem end to end \u2014 schema, partitioning, the batch pipeline, whatever it turns out to need. After that comes the ACH return-handling rewrite, which nobody here has wanted to touch.\n\nStack: Go, Postgres, Temporal, some Python on the data side, AWS. We deploy about fifteen times a week.\n\n**You'd fit if**\n\n- You've worked on payments, ledgers, or something else where being off by a cent is a real incident.\n- Seven-ish years writing backend services. We care more about what you've debugged than what you've shipped.\n- You write things down. Design docs here are short and people actually read them.\n\n**How hiring works**\n\nNo whiteboard algorithm rounds. A conversation about your past work, a paid four-hour exercise against our real codebase, and a call with the two engineers you'd sit next to.\n\nHealth, dental, 401k with a 4% match, twenty days off that people take.\n\nIf that ledger paragraph made you want to ask three questions, email jobs@meridianpay.com.\n\n---\n\n~255 words. Company name, numbers, and salary band are placeholders \u2014 swap in your real ones, since the specifics are what keep it from reading like every other posting."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Platform engineering team charter\n\nWe exist so the people writing product code can ship it without becoming part-time infrastructure specialists.\n\nConcretely, we own the paved road: build and deploy pipelines, the clusters underneath them, secrets handling, observability defaults, and the template a new service starts from. Product teams keep ownership of their services in production. We don't run their on-call rotation and we don't gate their releases. Any team that wants off the paved road can leave it, but then they carry the operational weight themselves.\n\nOur first measure is the time from an empty repository to a service in production, taking real traffic, with logs and metrics someone can actually read. Today that's about three weeks. We want it under two days by the end of the year. The second measure is how often the road breaks \u2014 pipeline and platform failures that are our fault rather than the caller's.\n\nWe treat internal users the way a vendor treats paying ones. That means office hours, an intake queue people can see into, and a written answer when the answer is no. It also means we ask before we deprecate anything, and we do the migration ourselves instead of sending a deadline email.\n\nThree commitments bind us. We ship the smallest thing that removes the pain in front of us, not the platform we imagine needing in 2029. We write the documentation while we build, because nobody comes back for it later. And we stay on call for what we ship, so the cost of a bad abstraction lands on us first."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Platform engineering team charter\n\nWe're here so that people writing product code can ship it without turning into part-time infrastructure specialists.\n\nWhat we own, specifically: build and deploy pipelines, the clusters under them, secrets handling, observability defaults, and the template a new service starts from. Product teams keep ownership of their services in production. Their on-call rotation isn't ours, and we don't gate their releases. Any team that wants off the paved road can leave it \u2014 they'll just be carrying the operational weight themselves after that.\n\nOur first measure is how long it takes to go from an empty repository to a service in production, taking real traffic, with logs and metrics someone can actually read. Right now that's roughly three weeks. We want it under two days by year's end. The second measure is how often the road breaks: pipeline and platform failures that trace back to us rather than to the caller.\n\nInternal users get treated the way a vendor treats paying ones. Office hours. An intake queue people can see into. A written answer when the answer is no. It also means asking before we deprecate anything, and doing the migration ourselves rather than sending a deadline email.\n\nThree commitments bind us. We ship the smallest thing that removes the pain in front of us, not the platform we imagine needing in 2029. We write the documentation while we build, since nobody comes back for it later. And we stay on call for what we ship, so the cost of a bad abstraction lands on us first."
+}

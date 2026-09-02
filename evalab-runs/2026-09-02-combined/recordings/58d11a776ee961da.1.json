@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "**Nomination: [Team Name] \u2014 Engineering Excellence Award**\n\nI'm nominating [Team Name] for the work they did on our deployment pipeline over the past [two quarters].\n\nBefore they started, shipping to production was a half-day event. Someone had to babysit a release checklist, coordinate three teams in a chat thread, and stay late in case a rollback was needed. People scheduled deploys around their calendars. A few avoided them entirely.\n\nThat's gone now. The team rebuilt the pipeline around automated gates and one-command rollback, then did the unglamorous part: they migrated every existing service instead of leaving the old path around as an escape hatch. Deploy time dropped from [X hours to Y minutes], and we now ship [N] times a week without anyone watching a dashboard.\n\nWhat stands out to me isn't the numbers. It's that they treated other engineers as the users of this system. They ran office hours during the migration, wrote documentation that people actually read, and fixed the rough edges reported back to them rather than defending the design.\n\nThe result is infrastructure nobody thinks about anymore, which is the highest compliment infrastructure can get. I'd like to see that recognized.\n\nFill in the bracketed values with your team's real names and figures \u2014 the specifics carry the nomination."
+}

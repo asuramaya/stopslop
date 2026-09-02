@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Placeholder name \u2014 swap it for the real one.\n\n---\n\n# Sparrow\n\nSparrow draws charts in the browser from a plain data array and about six lines of config. 14 kB gzipped, no runtime dependencies.\n\nMost charting libraries make you pick a side. The small ones give you a line chart and a bar chart, then run out of road the first time a designer asks for a second y-axis. The big ones handle that fine, but you pay 300 kB and inherit a plugin system, a theme system, and an API that has been backward compatible since 2014. Sparrow aims at the middle \u2014 enough primitives to build the chart you were actually asked for, few enough concepts to keep in your head.\n\nThe core is three things: a scale, a mark, an axis. Every built-in chart type is composed from those, in ordinary readable code. The line chart is about 40 lines. When the built-in you want doesn't exist, you write it the same way we did.\n\nRendering is SVG by default, with a canvas backend for anything past a few thousand points. React, Vue and Svelte wrappers live in this repo and are thin on purpose.\n\nSparrow is alpha. The API will change before 1.0."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Sparrow\n\nSparrow draws charts in the browser from a plain data array and about six lines of config. 14 kB gzipped, no runtime dependencies.\n\nMost charting libraries make you choose. The small ones hand you a line chart and a bar chart, then run out of road the first time a designer asks for a second y-axis. The big ones cope with that, but they cost 300 kB and come with a plugin system, a theme system, and an API that has stayed backward compatible since 2014. Sparrow sits between the two, with enough primitives to build the chart you were actually asked for and few enough concepts to hold in your head.\n\nThe core is a scale, a mark, and an axis. Every built-in chart type is composed from those three, in ordinary readable code. The line chart runs about 40 lines. When the built-in you want doesn't exist, you write it the way we did.\n\nRendering is SVG by default, with a canvas backend for anything past a few thousand points. React, Vue and Svelte wrappers live in this repo and are thin on purpose.\n\nSparrow is alpha. The API will change before 1.0."
+}

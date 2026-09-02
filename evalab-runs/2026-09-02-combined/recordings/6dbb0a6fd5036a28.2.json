@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "Here's the intro:\n\n---\n\nThis is where our plans live in public.\n\nWe used to keep the roadmap in a spreadsheet three people could see. It made for tidy planning and bad decisions. We'd spend a quarter building something nobody asked for while a bug report with forty upvotes sat untouched. So we moved the whole thing here.\n\nWhat follows is split into three parts. **Now** is what engineers are actively working on, and most of it ships within six weeks. **Next** is committed but unscheduled \u2014 the work is scoped, the design is settled, and it starts when someone frees up. **Exploring** is honest speculation. Some of it will never happen.\n\nA few caveats worth stating up front. Dates are estimates, and we've missed plenty of them. Items move backward about as often as they move forward. Nothing on this page is a contract, and you shouldn't build a migration plan around a card sitting in Exploring.\n\nEvery item links to the issue that spawned it, so you can read the argument that got it here and add your own. If something you depend on is missing, the fastest path is a comment on a related issue, or a note to roadmap@. We read all of them. We answer most.\n\n---\n\n~210 words. Two things I'd flag for you to adjust: the bolded section names assume the roadmap actually uses those three columns, and the \"six weeks\" and \"forty upvotes\" are placeholders that should be replaced with real numbers \u2014 a specific figure you can't back up is worse than a vague one."
+}

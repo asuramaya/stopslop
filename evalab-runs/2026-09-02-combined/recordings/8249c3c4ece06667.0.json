@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**To:** Engineering leadership\n**From:** [name]\n**Re:** Dedicating Q[X] to debt paydown\n\nI'm asking for one quarter of engineering time \u2014 the full team, no parallel feature track \u2014 to pay down the debt in [system].\n\nHere's the case. Over the last two quarters our median time from merge to production went from [X] to [Y] days. Roughly [N]% of that is not review latency; it's the build, the flaky suite, and the three services that can't be deployed independently. Every feature we ship now pays a tax we didn't used to pay, and the tax is compounding. Two of the last four incidents traced back to the same coupling in [component].\n\nWhat we'd do with the quarter: split [component] along its actual seams, get the test suite under [X] minutes and green, and retire [legacy thing] so we stop maintaining two paths for the same behavior. I'd track this with the same metrics I just cited, reported biweekly, so you can see whether it's working while it's happening rather than after.\n\nWhat it costs: [N] features slip a quarter. I've listed them and my proposed order in the attached doc. Nothing on the list is a customer commitment.\n\nThe alternative isn't zero cost. It's paying the same amount in smaller, uglier increments, spread across teams, with no metric attached to it. We're already paying it. I'd rather pay it deliberately, once, and get something back.\n\nHappy to walk through the details whenever it's useful.\n\nFill in the bracketed figures with your real numbers \u2014 the argument only lands if the deploy-time and incident data are specific."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** [name]\n**Re:** Giving Q[X] to debt paydown\n\nI'm asking for a quarter of engineering time \u2014 everyone, no feature work running alongside \u2014 to clear the debt in [system].\n\nThe case. Our median time from merge to production has gone from [X] to [Y] days over the last two quarters. About [N]% of that isn't review latency. It's the build, the flaky suite, and the three services we can't deploy on their own. Every feature we ship pays a tax that didn't exist a year ago, and the tax grows. Two of our last four incidents came back to the same coupling in [component].\n\nThe plan for the quarter: split [component] along the seams it already has, get the test suite green and under [X] minutes, and retire [legacy thing] so we're not maintaining two paths to the same behavior. I'd report the metrics above every two weeks, so you can judge whether it's working while there's still time to change course.\n\nThe cost: [N] features slip by a quarter. The list and my proposed ordering are in the attached doc. None of them is a customer commitment.\n\nDoing nothing isn't free. It means paying the same bill in small ugly pieces, spread across teams, with no number attached to any of it. We pay it either way. I'd rather pay once, on purpose, and have something to show for it.\n\nI'm glad to go through any of this in more detail.\n\nSwap in your real figures \u2014 the deploy-time and incident numbers are what makes the argument land."
+}

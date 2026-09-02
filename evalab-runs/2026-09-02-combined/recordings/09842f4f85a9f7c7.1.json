@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Nobody sets out to build a mess.\n\nThe auth service everyone flinches at started as a two-week spike in 2021, and it worked. It shipped. Then someone bolted session handling onto it, someone else added the SSO path, and now there's a 900-line file that three people understand and none of them want to touch on a Friday.\n\nThat's the honest version of technical debt, and it's why we're giving it a whole issue. The metaphor gets misused. Debt implies you signed for the loan and knew the rate. Most of what slows us down wasn't a choice at all \u2014 it was a sensible decision that quietly stopped being sensible when the requirements moved out from under it.\n\nThis month: Priya walks through the migration off the legacy job queue, including the two weeks she'd take back. Marcus argues against the debt register we've kept since 2023; he thinks it's a graveyard, not a plan. We have numbers on where build time actually goes. And a short piece on when to leave the mess alone, because sometimes that is the right call.\n\nRead the Marcus one first. It will annoy some of you.\n\n---\n\n~205 words. The names, dates, and article list are placeholders \u2014 swap in your actual contributors and lineup. It passes this repo's own `slopwatch` gate clean."
+}

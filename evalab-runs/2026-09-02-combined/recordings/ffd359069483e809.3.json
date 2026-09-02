@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "Copy below. Names, companies, and numbers are placeholders \u2014 swap in real quotes with permission before publishing, since invented testimonials presented as real are an FTC problem.\n\n---\n\n## What teams say\n\n> \"We were paying three vendors to answer one question at 2 a.m.: what broke? Now it's one query bar. Our on-call rotation stopped dreading Fridays.\"\n> **Priya Raman** \u2014 SRE Lead, Northwind Freight\n\n> \"Ingest was the part I expected to hurt. We pointed 400 services at it over a weekend, kept our existing Fluent Bit config, and rewrote nothing.\"\n> **Dan Okafor** \u2014 Platform Engineering, Kestrel Health\n\n> \"I care about the bill. Cold storage at $0.02/GB means we keep 18 months of audit logs. Our last vendor priced us into 30 days and a lot of nervous compliance meetings.\"\n> **Marta Lindqvist** \u2014 VP Infrastructure, Bellwether Payments\n\n> \"Search comes back in under two seconds across a terabyte. That sounds like a spec sheet detail until you watch a support rep stop escalating tickets and just go look for themselves.\"\n> **Tom Reyes** \u2014 Director of Support, Vega Robotics\n\n> \"Two outages last quarter. Both times we found the bad deploy from the log timeline before the alert page finished loading.\"\n> **Anika Bose** \u2014 Staff Engineer, Corvid Labs\n\n---\n\n~205 words including attributions. If you want it shorter for a homepage strip, cut to the Raman, Lindqvist, and Reyes quotes \u2014 those cover the three buying objections (tool sprawl, cost, speed)."
+}

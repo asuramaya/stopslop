@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short design note arguing for storing user sessions in a signed cookie instead of a server-side session table, for a service with about 50000 daily users. Include the main drawback of the choice you argue for. Around 250 words."
+  }
+ ],
+ "output": "# Design note: session state in a signed cookie\n\n**Recommendation:** put session state in a cookie signed with HMAC-SHA256 and drop the sessions table.\n\nAt 50k daily users the table itself is small, but it sits on the critical path of every authenticated request. Each page view costs a lookup, so the store has to be sized for peak concurrency, monitored, backed up, and kept highly available. If it goes down, nobody stays logged in. If we run app servers in more than one region, we either replicate it or pin users to a region. That is a lot of operational surface for answering \"which user is this.\"\n\nA signed cookie moves that state to the client. The server holds one secret key; verification is a hash over a few hundred bytes, well under a millisecond, with no network hop. App servers become stateless: we scale by adding them, deploy without draining connections, and lose nothing when one dies mid-request. No expiry-sweep cron, no cache tier in front of the table.\n\nKeep the payload small \u2014 user ID, issued-at, expiry, and a key ID so we can rotate. Anything bigger stays in the database and is fetched by ID.\n\n**The drawback: we cannot revoke a session on demand.** A stolen cookie, or one from a user who clicked \"log out,\" stays valid until it expires, because there is no server record to delete. Password reset and \"sign out everywhere\" then need a per-user token version checked on each request, which puts a read back on the hot path.\n\nShort lifetimes (~30 minutes) plus refresh is the usual compromise."
+}

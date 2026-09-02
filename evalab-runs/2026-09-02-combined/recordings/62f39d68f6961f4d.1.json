@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  }
+ ],
+ "output": "Here's the post. I used a placeholder name (Fetchkit) since you didn't name the library \u2014 swap it and the version numbers for the real ones.\n\n---\n\n# Fetchkit 2.0 is out\n\nFetchkit 2.0 is on npm as of today. It's a breaking release, and on a mid-sized codebase the upgrade takes about an afternoon.\n\nThe main change: requests now return a plain `Response` instead of our own wrapper type. That wrapper existed because we shipped in 2019, when `fetch` wasn't everywhere yet. Removing it deleted around 1,800 lines and let the library run on Workers, Deno, and Bun with no shim.\n\nRetry policy moved from the client to the request. You can still set a client-wide default, but a single slow endpoint no longer forces you to build a second client just to give it a longer backoff.\n\nTypes are now generated from your OpenAPI document instead of hand-written. Run `fetchkit types ./openapi.yaml` and response bodies come back typed at the call site.\n\nThe bundle went from 41 kB to 12 kB minified and gzipped, mostly from dropping the wrapper and the old polyfill path.\n\n## What breaks\n\n- `res.data` is gone. Call `await res.json()`.\n- `createClient(url, opts)` takes one options object now: `createClient({ baseUrl, ...opts })`.\n- Node 16 is no longer supported. The floor is Node 18.\n\nMost of this is mechanical, so there's a codemod: `npx @fetchkit/codemod@2 ./src`. It handles the first two items and leaves a comment where it isn't sure.\n\nThe 1.x line gets security fixes through June 2027. Issues and questions go to the tracker as usual."
+}

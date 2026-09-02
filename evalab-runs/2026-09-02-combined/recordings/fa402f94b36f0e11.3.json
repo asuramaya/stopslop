@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. Bracketed slots are the details only your team can fill \u2014 swap them in and the piece stands on its own.\n\n---\n\n**Three days at [Conference], and the most useful thing we heard wasn't in a session**\n\nFive of us went. We came back with a pile of stickers, a mild cold, and one uncomfortable realization.\n\nWe'd built the whole trip around the keynote track. Mistake. The keynotes were polished and well-rehearsed and, it turned out, mostly the same material the speakers had already published on their blogs back in [month]. What we actually learned happened in the gaps \u2014 at lunch, in the hallway, in the ten minutes before a talk started when an engineer from [Company] mentioned that their [migration/rollout] took fourteen months, not the six they'd announced on stage.\n\nThat number reframed our own roadmap more than any slide did.\n\nA few other things stuck. [Name] sat in on the [topic] workshop and came out convinced we've been solving [problem] at the wrong layer; we're prototyping her version this sprint. Two separate teams told us they'd abandoned [tool/approach] for the same reason we've been quietly worried about, which was oddly reassuring. And nobody \u2014 not one person we asked \u2014 had a clean answer for [open question]. Everyone's improvising. So are we.\n\nNext year we're changing how we do this. Fewer people in seats, more people in conversations. We'll pick five companies ahead of time, ask for coffee, and bring specific questions instead of hoping the right session shows up on the schedule.\n\nSlides are in [link] if you want them. The good stuff isn't in there.\n\n---\n\n~255 words. Want it warmer, shorter, or aimed at an external audience rather than internal?"
+}

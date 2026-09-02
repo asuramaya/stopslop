@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Why we're hiring a developer relations team**\n\nLast quarter we sat down and read every support ticket a customer filed in their first week on the API. Most of them weren't bugs. They were people guessing: at the auth flow, at what a 409 meant for their situation, at whether pagination worked the way the examples suggested. Our docs covered maybe half of it. The rest lived in one engineer's head.\n\nThat's a distribution problem. It isn't a product problem.\n\nWe can keep patching it with better docs, and we will. But docs run one direction, and they only answer the questions we already thought to ask. The expensive questions are the ones we never hear. They surface as a trial that goes quiet six weeks later, and nobody here ever finds out why.\n\nSo we're paying people to be in the room where that happens. To write the integration guide nobody requested. To sit in a customer's repo on a Thursday afternoon and watch them fight our SDK. To carry that back to the team that owns the endpoint, with a name attached and a reproduction.\n\nFollower counts aren't the point. The numbers we watch: time from signup to first successful call, which sits at four days for a median team right now, and how many support tickets close with a doc that already existed.\n\nIf that's the job you want, the posting is below. Bring examples of something you shipped for other developers."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Why we're hiring for developer relations**\n\nSomeone here went through every support ticket a customer opened during their first week with the API. Almost none were bugs. They were people guessing: how auth actually works, what a 409 means when it's your request that got one, whether pagination behaves the way the sample code implies. Our docs answered about half of it. The other half is stored in one engineer's memory.\n\nThat's a distribution failure, not a product failure.\n\nBetter docs help, and we're writing them. But a doc talks in one direction, and it only answers the questions we thought to anticipate. The costly ones never reach us. They show up as a trial that stops making calls around week six, and nobody here ever learns the reason.\n\nSo we're hiring people whose job is to be present when that happens. Write the integration guide nobody asked for. Spend a Thursday afternoon inside a customer's repo, watching them wrestle with our SDK. Bring it back to the team that owns the endpoint, with a name attached and steps to reproduce.\n\nWe aren't counting followers. Here's what we will watch: the time between signup and first successful call, which currently sits at four days for a median team, and the share of tickets we close by pointing at documentation that already existed.\n\nIf that sounds like your kind of work, the listing is below. Show us something you built for other developers."
+}

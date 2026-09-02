@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a runbook for rotating the TLS certificate on a load balancer: how to tell it is close to expiry, how to request and install the replacement, how to verify it took effect, and how to roll back. Around 250 words."
+  }
+ ],
+ "output": "# TLS certificate rotation on the load balancer\n\n## 1. Detect near expiry\n\nRun this command against each virtual server:\n\n```\necho | openssl s_client -connect $VIP:443 2>/dev/null | openssl x509 -noout -enddate\n```\n\nThe threshold is 30 days. If the end date is less than 30 days away, start this procedure. The certificate monitor also opens a ticket at 30 days and pages at 7 days.\n\n## 2. Request the replacement\n\n1. Generate a key and a CSR on the jump host: `openssl req -new -newkey rsa:2048 -nodes -keyout $CN.key -out $CN.csr`.\n2. Submit the CSR to the internal CA through the PKI portal.\n3. Check that the issued certificate carries every SAN from the old certificate.\n\n## 3. Install\n\n1. Copy the key and the full chain to `/etc/ssl/private/` on both nodes.\n2. Set the file mode of the key to 0600.\n3. Point the TLS profile in the load balancer config at the new file names.\n4. Reload the standby node: `systemctl reload haproxy`.\n5. Fail traffic over to the standby node. Then reload the other node.\n\n## 4. Check the result\n\n1. Repeat the command from step 1. The end date must show the new expiry.\n2. Compare the fingerprint against the issued certificate: `openssl x509 -noout -fingerprint -in $CN.crt`.\n3. Open the service URL in a browser. The browser must show no warning.\n4. Watch the TLS handshake error rate for 15 minutes.\n\n## 5. Rollback\n\nKeep the old key and certificate on disk until 24 hours after the change.\n\n1. Point the TLS profile back at the old file names.\n2. Reload the standby node. Then fail traffic back.\n3. Reload the other node.\n4. Open an incident ticket. Record the exact error text from the reload."
+}

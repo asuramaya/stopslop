@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the post. I used a placeholder app name \u2014 swap `Marginal` for your own.\n\n---\n\n# Dark mode, finally\n\nDark mode ships today in Marginal 3.2. Settings \u2192 Appearance, or set it to follow your system.\n\nThis took longer than it should have. Our first build was a straight inversion of the light palette, and it was awful \u2014 pure white text on pure black, which makes a long paragraph shimmer after about two minutes of reading. So we pulled in both ends. Body text now sits at #E4E4E7 on a #18181B background, roughly a 13:1 contrast ratio instead of 21:1.\n\nEverything layered on top had to be re-tuned. The yellow highlighter went warmer and dropped in saturation, because the original burned a hole through the page. Code blocks got their own syntax theme rather than the light one with the background swapped. Link blue was unreadable at 40% opacity in the sidebar, so links there are now underlined instead of tinted.\n\nTwo things people kept asking for, both in:\n\n- **Scheduled switching.** Sunset to sunrise by default, or pick your own hours.\n- **Per-note override.** Keep a single note light while the rest of the app stays dark. Useful if you paste in screenshots.\n\nImages and PDFs are untouched. We tried dimming them automatically and it made everyone's scanned receipts look moldy.\n\nIf something reads wrong \u2014 a color that vibrates, a border that disappears \u2014 tell us at support@marginal.app and include a screenshot. We fixed eleven of these during beta and we expect more.\n\nUpdate from the App Store, or it'll arrive on its own within a day."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Dark mode, finally\n\nDark mode is live in Marginal 3.2. Settings \u2192 Appearance, or let it follow your system.\n\nIt took us a while. The first build just inverted the light palette, and reading it was miserable \u2014 white text on black, which starts to shimmer after two minutes on a long paragraph. So we pulled both ends toward the middle. Body text is now #E4E4E7 on #18181B, about 13:1 contrast instead of 21:1.\n\nThen everything sitting on top of that needed retuning. The yellow highlighter went warmer and lost saturation; the old one burned a hole through the page. Code blocks got a real dark syntax theme instead of the light one with a swapped background. Sidebar links were illegible in blue at 40% opacity, so they're underlined now rather than tinted.\n\nTwo requests we heard constantly, both shipped:\n\n- **Scheduled switching.** Sunset to sunrise by default, or set your own hours.\n- **Per-note override.** Hold one note in light mode while the app stays dark. Handy when you've pasted in screenshots.\n\nImages and PDFs stay as they are. We tried auto-dimming them once. Everyone's scanned receipts looked moldy.\n\nIf anything reads wrong \u2014 a color that vibrates, a border that vanishes \u2014 write to support@marginal.app with a screenshot. Eleven of those got fixed during beta, and we assume there are more.\n\nGrab the update from the App Store, or wait a day and it'll come to you."
+}

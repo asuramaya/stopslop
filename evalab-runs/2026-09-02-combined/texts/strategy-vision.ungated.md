@@ -1,0 +1,15 @@
+## Vision
+
+By the end of 2028, a team here should be able to take an idea to production in a week without talking to us. That is the whole ambition, and the rest of this document is in service of it.
+
+Right now the median new service takes five to seven weeks to reach production, and most of that time goes to work no customer ever sees: reconciling auth, guessing which deploy pipeline is current, copying a Terraform module that was stale when it was written. Six teams have each solved this once, privately, in ways that diverge a little more every quarter. We pay for that divergence during incidents, when the runbook for one service tells you nothing about the next one.
+
+The platform we want is not a product teams adopt. It is the path of least resistance. A generated service skeleton that arrives with logging, tracing, secrets, and a rollback that actually works. One deployment story instead of six. Enough opinion that the default is correct, and enough room that a team with a real reason can step outside it.
+
+Two years is the right horizon because the first year buys us almost nothing visible. We spend it consolidating what already exists and paying down CI, which is now the largest single source of engineering frustration in our internal surveys. The returns land in year two, and they compound: every team that stops maintaining a bespoke pipeline gets that time back permanently.
+
+We will know it worked when nobody argues about it anymore, and when a new hire's first deploy happens on their second day.
+
+---
+
+253 words. The specifics (2028, five to seven weeks, six teams, CI as the top complaint) are placeholders — swap in your real numbers, since the section only carries weight if those are true. I ran it through the repo's own `slopwatch` ruleset and it passes clean.

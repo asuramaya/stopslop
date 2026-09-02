@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "A tool fails with 'error: lock held by another process'. Write the documentation entry a user finds when they search that string: what it means, the two situations that cause it, and what to do in each. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## error: lock held by another process\n\nThe tool takes an exclusive lock before it writes, so that two copies of it can't interleave writes and leave the state half-updated. This message means it asked for that lock and something else already had it.\n\nTwo things cause it.\n\n**Another run really is in progress.** A second terminal, an editor plugin, a git hook, a CI job on the same checkout. This is the common case and it is the lock doing its job. Wait for the other run to finish and try again \u2014 most runs are short. If you want to know who has it, `lsof <lockfile>` on macOS and Linux, or `fuser -v <lockfile>`, names the process.\n\n**The lock went stale.** A previous run was killed with SIGKILL, lost power, or died inside a container that was torn out from under it, and the lock file outlived it. `lsof` shows nothing holding the file. Only then, delete the lock file by hand and re-run.\n\nCheck before you delete. Removing a live lock doesn't stop the process that owns it; it just lets a second one start alongside it, which is the exact corruption the lock exists to prevent."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## error: lock held by another process\n\nBefore it writes anything, the tool takes an exclusive lock. That keeps two copies from interleaving their writes and leaving you with state that's half one run and half the other. This message means the lock was already taken when it asked for it.\n\nThere are two reasons for that.\n\nUsually another run genuinely is going. A second terminal, an editor plugin, a git hook, a CI job pointed at the same checkout. Nothing is broken here \u2014 the lock is doing the job it exists for. Most runs finish quickly, so wait and try again. To see who's holding it, `lsof <lockfile>` on Linux or macOS will name the process, and so will `fuser -v <lockfile>`.\n\nThe other reason is a stale lock. An earlier run took a SIGKILL, or lost power, or sat inside a container that got yanked out from under it, and the lock file outlived the process. You'll know because `lsof` reports nobody. That is the one case where you remove the lock file by hand and run again.\n\nLook before you delete. Removing a live lock doesn't stop whoever owns it. It just lets a second run start alongside the first, which is the corruption the lock was there to prevent."
+}

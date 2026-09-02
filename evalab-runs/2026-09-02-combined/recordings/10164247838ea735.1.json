@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "## Design philosophy\n\nWe picked a side on a few things, and the API is easier to use once you know which side.\n\nNouns over verbs. Endpoints name things you can hold: an invoice, a run, a webhook subscription. If you go looking for `/doThing`, we almost certainly modeled it as a resource you create instead.\n\nNothing hidden in the response. Every field is documented and stable. We don't return undocumented keys \"just in case,\" and we don't quietly change what a field means. New behavior gets a new field or a new version.\n\nErrors are written for you, not for our logs. A 4xx tells you which field was rejected and what would have been accepted. If you can't fix an error from the response body alone, treat that as a documentation bug and tell us.\n\nBoring beats clever. JSON over the wire, cursor pagination everywhere, ISO 8601 timestamps in UTC, idempotency keys on anything that moves money. None of it will surprise you, which is the whole idea.\n\nDeprecation is slow on purpose. A version stays live for at least 18 months after we announce its replacement, and we email every account that still calls it before we turn anything off."
+}

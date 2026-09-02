@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "A tool fails with 'error: lock held by another process'. Write the documentation entry a user finds when they search that string: what it means, the two situations that cause it, and what to do in each. Around 200 words."
+  }
+ ],
+ "output": "## `error: lock held by another process`\n\nThe tool takes an exclusive lock on its state directory before it writes, so that two runs cannot interleave and corrupt each other. This message means the lock file already exists and something else claims ownership of it.\n\nTwo things cause it.\n\n**A second run is genuinely active.** You started the tool twice, or a scheduler, editor plugin, or CI job started it while your shell run was still going.\n\n**The lock is stale.** A previous run died without releasing it \u2014 killed with `SIGKILL`, a container stopped, the machine lost power. The file outlives the process that made it.\n\nTell the two apart by the PID recorded in the lock file:\n\n```\ncat .tool/lock        # prints the owning PID\nps -p <pid>           # is it still alive?\n```\n\nIf `ps` shows a live process and it is this tool, wait for it to finish. Nothing is broken; a second run would have clobbered the first. If you started it by accident, stop the extra one rather than the one doing work.\n\nIf `ps` prints nothing, or shows an unrelated process that reused the PID, the lock is stale. Delete the file and run again:\n\n```\nrm .tool/lock\n```\n\nCheck the PID first. Deleting a live lock lets two runs write at once, which is the corruption the lock exists to prevent."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Hallway\n\nYour team already has a chat tool. The real question is whether it costs you more attention than it saves.\n\nHallway is chat built around what engineering teams actually do in it: hand work off and lose track of it.\n\nEvery thread has an owner and a state. Open ones land in a morning digest, so nobody scrolls back three days to learn whether the migration shipped.\n\nSearch ranks results by whether a thread was resolved, not by recency. Filter to decisions only.\n\nNo `@channel` at 2am. Urgent pages route through your rotation \u2014 PagerDuty, Opsgenie, or ours \u2014 and everything else waits until working hours.\n\nIncident mode is one command. It opens a channel wired to the alert, pins a timeline as you go, and hands you a postmortem draft in Markdown when you close it.\n\nSome things are missing on purpose. There are no video calls past eight people, and no app directory with two thousand entries nobody opens. There are 41 integrations. If yours isn't among them, the webhook API is documented and there's no partner approval queue.\n\nPricing is $6 per user per month, flat. SAML and SCIM sit in the base plan \u2014 we don't sell your security posture back to you as an upgrade. Retention is unlimited, and export is a button, not a support ticket.\n\nMigrating a 200-person Slack workspace takes about an hour. History, files, channel structure, and user mapping all come across.\n\nThirty days free. No card."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (7 paragraphs, spread 0.33):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "# Hallway\n\nYour team already has a chat tool. The real question is whether it costs you more attention than it saves.\n\nHallway is chat built around what engineering teams actually do in it: hand work off and lose track of it. Every thread has an owner and a state. Open ones land in a morning digest, so nobody scrolls back three days to learn whether the migration shipped. Search ranks results by whether a thread was resolved, not by recency. Filter to decisions only.\n\nNo `@channel` at 2am.\n\nUrgent pages route through your rotation (PagerDuty, Opsgenie, or ours), and everything else waits until working hours. Incident mode is one command. It opens a channel wired to the alert, pins a timeline as you go, and hands you a postmortem draft in Markdown when you close it.\n\nSome things are missing on purpose. There are no video calls past eight people, and no app directory with two thousand entries nobody opens. There are 41 integrations. If yours isn't among them, the webhook API is documented and there's no partner approval queue.\n\nPricing is $6 per user per month, flat. SAML and SCIM sit in the base plan; we don't sell your security posture back to you as an upgrade. Retention is unlimited, and export is a button, not a support ticket. Moving a 200-person Slack workspace over takes about an hour, and history, files, channel structure, and user mapping all come across.\n\nThirty days free. No card."
+}

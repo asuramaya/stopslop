@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Stop asking whose branch it was**\n\nThe outage review last quarter took forty minutes. Thirty of them went to pinning the bad config on Priya's branch. Knowing that got us nowhere. We already knew the config was broken, which is why the site went down. What those forty minutes never reached was the question worth asking: what let a config that broken travel all the way to production untouched?\n\nThat paragraph is the whole case for blameless postmortems. Nobody is claiming people don't make mistakes, and this isn't a plea for gentler meetings. Naming the person just ends the investigation early. Priya has learned that particular lesson permanently. Someone else will trip over the same gap next quarter, because the gap hasn't moved.\n\nBlame's real price is what people stop telling you. Engineers who expect to be named give you a thinner account. The timeline gets rounded off. The part where they were guessing disappears. The workaround they'd been quietly relying on for six months never comes up, and the workaround is usually where the finding is.\n\nThree things I'd like us to try on the next incident. Write the timeline before anyone writes a word of analysis. Refer to roles in the doc rather than people. Put a name and a date on every action item, so the meeting produces something besides a document. Then open the doc to the whole company.\n\nGenuine negligence is a management conversation and it belongs somewhere else. A postmortem has one job: showing us how our systems behave under pressure. It can't do that job if people are careful about what they say."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**We spent thirty minutes on the wrong question**\n\nLast quarter's outage review ran forty minutes. Thirty of them went to establishing that the bad config came off Priya's branch. That fact bought us nothing. We already knew the config was broken; that's why the site fell over. What we never got to was how something that broken reached production with nothing stopping it on the way.\n\nThat's the argument for blameless postmortems, start to finish. Nobody is pretending mistakes don't happen, and this isn't a request for gentler meetings. Landing on a person closes the investigation early, that's all. Priya will never make that particular mistake again. Someone else will hit the same gap in three months, because nothing about the gap has changed.\n\nThe cost of blame shows up in what people leave out. An engineer who expects to be named tells you less. Timelines get smoothed over. The stretch where they were guessing goes missing. The workaround they've been leaning on since March never comes up, and the workaround is usually where the finding is.\n\nThree things to try on the next incident. Build the timeline first, before anyone analyzes anything. Write \"the on-call engineer\" in the doc instead of a name. Attach an owner and a date to every action item, so the meeting produces more than a document. Then open the doc to the whole company.\n\nReal negligence is a management matter and belongs with management. A postmortem has one job: showing us how our systems behave under load. It can't do that job when people are watching their words."
+}

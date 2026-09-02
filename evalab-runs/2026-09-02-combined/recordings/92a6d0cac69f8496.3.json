@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago, or remote in the US \u00b7 $185\u2013215k + equity\n\nWe move about $4B a year for 1,100 mid-market businesses: payroll files, vendor payouts, the unglamorous plumbing that has to clear on time or someone doesn't make rent. Sixty engineers. On-call pages maybe twice a month.\n\nYou'd join the four-person Ledger team. Our double-entry core is Go on Postgres, and it's showing its age \u2014 we designed it for 40,000 transactions a day and we're doing 900,000. Your first six months: split it into a write path that stays strictly serializable and a read path that doesn't have to. That's a design problem, not a ticket queue.\n\nWhat we're looking for:\n\n- Seven-ish years on backend services people depended on, some of it on money, health records, or anything else where a bug has a phone call attached\n- Opinions about idempotency and retries, and a plan for when a bank API returns 200 and then reverses the transfer three days later\n- Postgres past the ORM. You've read an EXPLAIN plan at 2am.\n- You write the runbook without being asked\n\nGo helps but isn't required. We've hired from Java, Elixir, and one very good Rails person; the language was never the hard part.\n\nProcess: 45 minutes with the hiring manager, then either a paid four-hour take-home or a walkthrough of a system you've already designed, then half a day with the team. Three weeks end to end, and we say no quickly when it's a no."
+}

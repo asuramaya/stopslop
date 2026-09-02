@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  }
+ ],
+ "output": "**Dark mode, finally**\n\nWe shipped dark mode today, in version 3.2, on iOS, Android, web, and desktop.\n\nIt took us longer than it should have, and the holdup wasn't the palette. It was everything you paste into a note. Screenshots with white backgrounds, code blocks from three different editors, tables pulled out of a spreadsheet, a PDF page someone dropped in at 2 a.m. Flip the shell to dark and half of that turns into a lightbulb. So we rebuilt how notes render embedded content: images get a thin border instead of a glowing rectangle, code blocks carry their own theme, and pasted HTML has its hardcoded background colors stripped before it reaches the page.\n\nBody text sits at #E4E4E7 on #18181B. Grey on near-black, not white on black \u2014 at 21:1 contrast the letters bleed at the edges, and anyone reading for an hour straight will feel it even if they can't name it.\n\nThree ways to switch: pick it in Settings \u2192 Appearance, follow your system theme, or schedule it to flip at sunset. New installs follow the system by default.\n\nTwo things are unfinished. Exported PDFs still print light, which was our call \u2014 tell us if it's the wrong one. And iPad ink still lays down black strokes on the dark canvas; the light-ink pass lands in 3.3.\n\nIf a note of yours looks broken in the dark, send us a screenshot. The weird ones are the ones we want.\n\nSwap in your app name and support address \u2014 I left those out rather than invent them."
+}

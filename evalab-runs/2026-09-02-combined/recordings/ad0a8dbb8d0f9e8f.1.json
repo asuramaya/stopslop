@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "**Splitting the Monolith Without Splitting the Team**\n\nTwo years ago we started pulling apart a nine-year-old Rails monolith that eleven teams committed to daily. We are about two-thirds done. This talk is what we learned, including the parts that went badly.\n\nI'll start with the decision itself: the monolith wasn't slow, and it wasn't unmaintainable. What it couldn't do was let two teams ship on different schedules. That, and not scale, is the reason most of the migrations I've seen actually succeed or fail.\n\nThen the mechanics. How we picked the first service (billing, which was wrong) and what we'd pick now. How we ran the strangler pattern against a database nobody had a schema diagram for. Why we wrote a shared client library, why we regretted it, and what replaced it. The three months we lost to distributed tracing that nobody read.\n\nI'll show the numbers we tracked: deploy frequency, mean time to recovery, and the on-call page count that got worse for a year before it got better. If your organization is smaller than about forty engineers, I'll make the case that you should stay put, and explain what to do instead.\n\nFor engineers and engineering managers considering the move, or already stuck partway."
+}

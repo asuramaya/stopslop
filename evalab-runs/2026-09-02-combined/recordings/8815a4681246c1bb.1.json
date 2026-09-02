@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. It's written to be dropped in as-is, with three spots you'll want to swap for your real numbers (marked after the copy).\n\n---\n\n**How we build things**\n\nWe ship small and often. Most changes reach production the same day they're written \u2014 partly because we like the feedback, mostly because a branch that's been open three weeks is the one that breaks things.\n\nEveryone carries a pager for their own code. That sounds harsh until you see what it does to design reviews. Nobody quietly signs off on a 3 a.m. failure mode they'll be woken up by themselves.\n\nReviews are a conversation. You'll get questions about why you chose the approach, not a list of nits about brace style, because the formatter already handled the braces and we'd rather spend the attention somewhere it pays.\n\nWe write things down: a short design doc before anything that touches more than one service, a postmortem after every outage. The postmortems have no blame column. They're read.\n\nNew engineers merge something in their first week. Real code, on a real service, with a reviewer sitting next to them \u2014 the point is to break the fear early.\n\nWhat we don't have: story points, mandatory standups, or a promo packet that rewards launching things over keeping them alive. Two of those we tried and dropped.\n\nIf you like arguing about tradeoffs in public, changing your mind when someone's right, and owning the thing you built after it's live, you'll fit.\n\n---\n\nSwap before publishing: the deploy frequency claim, the \"first week\" onboarding promise, and the three rituals you say you don't have \u2014 those should be true, or the page reads as marketing to anyone who interviews."
+}

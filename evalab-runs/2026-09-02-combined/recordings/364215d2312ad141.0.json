@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**To:** Engineering leadership\n**From:** [name]\n**Re:** Giving Q[X] to debt paydown\n\nI'm asking for a quarter of engineering time \u2014 everyone, no feature work running alongside \u2014 to clear the debt in [system].\n\nThe case. Our median time from merge to production has gone from [X] to [Y] days over the last two quarters. About [N]% of that isn't review latency. It's the build, the flaky suite, and the three services we can't deploy on their own. Every feature we ship pays a tax that didn't exist a year ago, and the tax grows. Two of our last four incidents came back to the same coupling in [component].\n\nThe plan for the quarter: split [component] along the seams it already has, get the test suite green and under [X] minutes, and retire [legacy thing] so we're not maintaining two paths to the same behavior. I'd report the metrics above every two weeks, so you can judge whether it's working while there's still time to change course.\n\nThe cost: [N] features slip by a quarter. The list and my proposed ordering are in the attached doc. None of them is a customer commitment.\n\nDoing nothing isn't free. It means paying the same bill in small ugly pieces, spread across teams, with no number attached to any of it. We pay it either way. I'd rather pay once, on purpose, and have something to show for it.\n\nI'm glad to go through any of this in more detail.\n\nSwap in your real figures \u2014 the deploy-time and incident numbers are what makes the argument land."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** [name]\n**Re:** Spending Q[X] on debt\n\nI want a full quarter of engineering time \u2014 the whole team, nothing shipping in parallel \u2014 to dig out from under the debt in [system].\n\nWhy now. Median time from merge to production has stretched from [X] to [Y] days across the last two quarters. Roughly [N]% of that has nothing to do with waiting on reviewers. It's the build, the suite that fails at random, and the three services that refuse to deploy separately. Everything we ship now pays a tax that didn't exist twelve months ago, and it keeps climbing. Two of our last four incidents traced back to the same coupling in [component].\n\nWhat we'd do: break [component] apart along the seams it already has, get the suite passing reliably in under [X] minutes, and kill [legacy thing] so we stop maintaining two routes to one behavior. I'd publish the same metrics every two weeks \u2014 that way you can tell whether it's working while there's still runway to redirect us.\n\nWhat it costs: [N] features push out a quarter. The attached doc lists them with my suggested order. Nothing on it is promised to a customer.\n\nStanding still isn't free either. It just means paying the bill in small ugly increments, scattered across teams, with no line item anywhere. The money leaves either way. I'd rather spend it once, deliberately, and get something out of it.\n\nHappy to walk through any piece of this.\n\nUse your actual numbers \u2014 the deploy times and incident counts are what carries this."
+}

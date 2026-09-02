@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  }
+ ],
+ "output": "Placeholder specifics are in brackets \u2014 swap them for your real numbers, or cut the claim.\n\n---\n\n## Senior Backend Engineer\n\n[Company] moves money for about [40,000] small businesses. Payroll, invoicing, the card program \u2014 all of it runs on a Go and Postgres stack that six engineers keep honest.\n\nWe need a seventh.\n\n**The work.** You'll own services in the ledger path: the double-entry core, the reconciliation jobs that argue with [Stripe] and [the Fed's ACH windows] every night, and the retry logic that decides what happens when a bank drops a file at 2 a.m. Last quarter we cut settlement latency from 90 seconds to 6 by rewriting the batch poster as a streaming consumer. That's the flavor of problem here. Correctness first \u2014 a rounding error is somebody's rent.\n\n**You.** Six-plus years writing backend services that handled real money or real regulatory pressure. You've debugged a distributed system at 3 a.m. and written the postmortem afterward. Strong opinions about idempotency. Comfortable saying \"I don't know yet\" in a design review.\n\nGo is what we write, but we'll happily hire a Python or Java person who wants to switch. We've done it twice.\n\n**The rest.** [$185\u2013225k] plus equity. Remote in [US timezones], or the [Chicago] office two days a week if you'd rather. On-call is one week in seven, and it's quiet \u2014 we page for ledger drift and nothing else.\n\nFour steps: a call with the hiring manager, a take-home you get paid for, a systems conversation, and a half-day with the team.\n\nSend a r\u00e9sum\u00e9 to [careers@company.com]. No cover letter."
+}

@@ -19,10 +19,13 @@ pointed at.
 | `2026-09-01-instructed/` | Does the gate beat simply telling the model the rules, for free? | The instruction does about half the gate's work in one generation. The gate closes the other half for roughly 3x the compute. |
 
 | `2026-09-02-leaderboard/` | Does the gate beat the tools people actually install? | It beats all three, every comparison under p = 0.05. It is also last on held-out checks, and its generated instruction ties the 16.7k-star hand-written one at p = 0.84. |
+| `2026-09-02-combined/` | Does an instruction STACK with the gate, or compete with it? | It stacks, and costs less than the gate alone: 15 tells against 30, in 2.37 generations against 2.97. But only an instruction that names things the gate does not already enforce. |
+| `2026-09-02-ste100/` | Does the gate work on the ruleset that actually fires in production? | No. 433 flags against ungated's 411, p = 1.0. An instruction beats it 6-0 for a third of the cost. |
 
-The last one is the one to read if you read only one. It measures this
-project against the tools people actually install, which is the
-comparison every earlier round routed around.
+The last two are the ones to read if you read only two. One says the
+gate and an instruction should be used together rather than chosen
+between. The other says the gate does not work on this project's
+second ruleset.
 
 ## Replaying a run
 

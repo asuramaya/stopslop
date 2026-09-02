@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Placeholder name is `Plotwright` \u2014 swap in your own.\n\n---\n\n# Plotwright\n\nPlotwright draws charts from plain arrays and returns SVG. There is no canvas, no virtual DOM, no chart instance you have to keep alive and tear down on unmount. You call a function, you get markup, you put the markup wherever markup goes.\n\nMost charting libraries assume they own the page. They mount into a div, attach resize observers, and hand you a config tree three levels deep before you can change an axis label. Plotwright assumes the opposite. It produces a string. Style it with CSS, serve it from a worker, paste it into an email \u2014 after the function returns, none of it is ours.\n\nThe tradeoff is worth stating up front. You do not get animated transitions, and you do not get built-in pan and zoom. If you need those, D3 or ECharts is the better answer. What you get instead is 14 kB, zero dependencies, and byte-identical output on a server and in a browser, which is what we needed for reports that had to look the same as a PDF, as a web page, and in somebody's inbox.\n\nNine chart types so far: line, area, bar, stacked bar, scatter, histogram, box, heatmap, sparkline."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Nine chart types so far:):\n- thematic_break:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "# Plotwright\n\nPlotwright draws charts from plain arrays and returns SVG. There is no canvas, no virtual DOM, no chart instance you have to keep alive and tear down on unmount. You call a function, you get markup, you put the markup wherever markup goes.\n\nMost charting libraries assume they own the page. They mount into a div, attach resize observers, and hand you a config tree three levels deep before you can change an axis label. Plotwright assumes the opposite. It produces a string. Style it with CSS, serve it from a worker, paste it into an email \u2014 after the function returns, none of it is ours.\n\nThe tradeoff is worth stating up front. You do not get animated transitions, and you do not get built-in pan and zoom. If you need those, D3 or ECharts is the better answer. What you get instead is 14 kB, zero dependencies, and byte-identical output on a server and in a browser, which is what we needed for reports that had to look the same as a PDF, as a web page, and in somebody's inbox.\n\nSo far it covers line, area, bar, stacked bar, scatter, histogram, box, heatmap, and sparkline charts."
+}

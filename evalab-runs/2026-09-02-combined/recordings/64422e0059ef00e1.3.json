@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "**The 3 a.m. question**\n\nCheckout is broken. You know that much because a customer tweeted about it, and your CEO read the tweet before you did.\n\nSo you open four terminals, tail the logs on four services, and every one of them insists it's fine. Payments: 200s across the board. Cart: healthy. The gateway is bored. Somewhere between those green checkmarks a real person is failing to buy a real pair of shoes, and you cannot see where.\n\nThis gap \u2014 between *something is wrong* and *here is which part, and why* \u2014 is the most expensive real estate in software. Teams pay rent on it in 3 a.m. pages, in the twenty minutes of guessing before anyone touches a fix, in the postmortem line that reads \"root cause: unclear, mitigated by restart.\"\n\nMonitoring told you the building is on fire. Observability tells you it started in the third-floor kitchen, at 02:41, when a config push doubled the connection pool and the database started queuing.\n\nThe difference isn't dashboards. It's whether you can ask a question nobody thought to ask in advance. *Show me the p99 for Canadian users on the new checkout flow, but only the ones who hit the retry path.* If your telemetry can answer that without a deploy, you're observable. If it can't, you have graphs.\n\nMost teams have graphs. They have a lot of graphs, actually, and a Slack channel full of alerts that everyone muted in March.\n\nThe rest of this post is about closing that gap: what to instrument, what to throw away, and why sampling is a feature."
+}

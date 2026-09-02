@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  }
+ ],
+ "output": "Company name is a placeholder \u2014 swap in yours.\n\n---\n\n# About Fieldstone\n\nA missed appointment costs a clinic somewhere north of $150 in empty chair time. Most practices we talk to run no-show rates between 12 and 18 percent and treat it the way you treat weather: unfortunate, not fixable.\n\nWe disagree.\n\nFieldstone started in 2019, after eighteen months of one of our founders sitting behind the front desk at four family practices outside Columbus. The staff there weren't disorganized. They were doing careful, skilled work on top of a booking grid designed for airline seats, held together with sticky notes, a fax machine, and one scheduler who happened to know which orthopedist would take a Friday add-on and which one absolutely would not.\n\nSo we built the scheduler around that person instead of replacing her. Fieldstone learns your providers' real patterns, not the ones written in the template: who runs long on new patients, which rooms bottleneck at 10 a.m., how far out your Medicaid population books before they stop showing up. It fills cancellations from a waitlist in about four minutes, without anyone picking up a phone.\n\nWe serve independent practices and small groups, two to forty providers. Not hospital systems. That's a deliberate limit. The scheduling problems of a 900-bed academic center are a different job, and pretending otherwise is how software gets bloated and expensive.\n\nTwenty-six people work here, about half of them former clinic staff. When you call support, you get someone who has personally rescheduled a full day after a provider called in sick."
+}

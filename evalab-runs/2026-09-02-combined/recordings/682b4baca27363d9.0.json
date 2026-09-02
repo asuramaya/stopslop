@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Security is not the security team's job\n\nWe have four people in security and around three hundred engineers. That ratio explains most of what's wrong with the current process. The review queue is long, so reviews get rushed, so they turn into a stamp. Meanwhile the incidents that actually cost us last year (a key checked into a config file, a bucket opened for a demo and never closed) never went near a review.\n\nSo we're moving work around. Some of it lands on you.\n\nStarting next sprint, threat modeling belongs in the design doc. If you write the design, you write a section on what an attacker does with it. Your first few will be rough. Security reads every one and tells you what you missed, and that loop is how the thinking gets learned. You can't get it from a training video.\n\nWe're also opening the vulnerability backlog to everyone. You'll see the ugly ones. Fixes get filed like any other bug, with an owner and a date, and they compete for sprint capacity in the open instead of landing as a surprise mandate in week three.\n\nThe part that matters most is the last one.\n\nIf you think you broke something, or clicked something, say so. No blame, no write-up, no conversation with your manager about it. We have never once fixed a problem faster because someone waited a day to report it. Security stops being a gate you pass and starts being a thing you do. That is slower at first. It's also the only version that scales."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (4 paragraphs, spread 0.17):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "# Security is not the security team's job\n\nWe have four people in security and around three hundred engineers. That ratio explains most of what's wrong with the current process. The review queue is long, so reviews get rushed, so they turn into a stamp. Meanwhile the incidents that actually cost us last year (a key checked into a config file, a bucket opened for a demo and never closed) never went near a review. So we're moving work around, and some of it lands on you.\n\nStarting next sprint, threat modeling belongs in the design doc. If you write the design, you write a section on what an attacker does with it.\n\nYour first few will be rough. Security reads every one and tells you what you missed, and that loop is how the thinking gets learned. You can't get it from a training video.\n\nWe're also opening the vulnerability backlog to everyone. You'll see the ugly ones. Fixes get filed like any other bug, with an owner and a date, and they compete for sprint capacity in the open instead of landing as a surprise mandate in week three. The part that matters most is the last one.\n\nIf you think you broke something, or clicked something, say so. No blame, no write-up, no conversation with your manager about it.\n\nWe have never once fixed a problem faster because someone waited a day to report it. Security stops being a gate you pass and starts being a thing you do. That is slower at first. It's also the only version that scales."
+}

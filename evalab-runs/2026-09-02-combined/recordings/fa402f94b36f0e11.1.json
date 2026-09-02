@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "You didn't name the conference or the team, so I picked a plausible one \u2014 a four-person platform team at an infra conference. Swap the specifics for yours.\n\n---\n\n**Four of us went to KubeCon. Here's what stuck.**\n\nWe came back with 60 pages of notes and about three ideas worth acting on. That ratio sounds bad. It isn't \u2014 three is more than we got out of the last two years of vendor webinars combined.\n\nThe first: everyone is quietly walking back their service mesh. Not publicly. But in hallway conversations, at least six people described the same arc we went through \u2014 adopt the mesh, spend a quarter on sidecar debugging, keep maybe 20% of it. Ambient mode came up constantly. We're going to pilot it on the billing cluster in October.\n\nSecond, our on-call rotation is worse than we thought. A talk on incident response from a team a third our size had a median time-to-ack of four minutes. Ours is 19. Nobody in that room was impressed by heroics.\n\nThird \u2014 and this is the one that annoyed us \u2014 half the talks about \"AI ops\" were the same dashboards we already have, with a chat box bolted on. Vic asked a speaker what the model did when it was wrong. No answer.\n\nThe food was bad. The hallway track was worth the whole ticket.\n\nPriya is writing up the ambient mesh notes this week. If you want the full dump, the shared doc is in #platform-eng. Ask her about the Postgres talk; she's been quoting it for six days straight."
+}

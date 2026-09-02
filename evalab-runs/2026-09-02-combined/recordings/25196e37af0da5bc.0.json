@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's a draft. I've left the specifics in brackets since I don't know which service or platform you mean \u2014 swap those in and the rest should hold.\n\n---\n\n**Subject: [Service] moves to [New Platform] in [Quarter]**\n\nHi [Name],\n\nWe're moving [Service] to [New Platform] during [Quarter]. Your account, your history, and your saved settings come with it. You don't need to do anything to prepare.\n\nThe short version of why: [Old Platform] has taken us as far as it can. It struggles under the load you've been putting on it, and adding [capability customers keep asking for] on top of it would mean building around its limits rather than fixing them. [New Platform] gives us room to do the second thing.\n\nHere's the schedule as it stands:\n\n[Date] \u2014 we'll email you a personal migration window, at least two weeks ahead of your move.\n[Date] \u2014 migrations begin, in batches.\n[Date] \u2014 [Old Platform] goes read-only. Nothing is deleted; you'll still be able to export.\n\nExpect about [30 minutes] of downtime inside your window. We'll run migrations outside business hours in your timezone wherever we can.\n\nA few things will change. [Specific change 1], and [specific change 2]. [Integration or feature] works differently after the move \u2014 the details are in [link]. If you rely on [API or export], read that page before your window comes up.\n\nIf the timing is bad for you, reply and tell us. We can shift your window, and we'd rather move you late than move you badly.\n\nQuestions go to [email] or [support channel]. We'll keep [status page] current through the whole thing.\n\n[Name]\n[Title]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Subject: [Service] is moving to [New Platform] in [Quarter]\n\nHi [Name],\n\n[Service] moves to [New Platform] sometime in [Quarter]. Your account comes along, and so does your history and your saved settings. There's nothing for you to do ahead of time.\n\nWe've outgrown [Old Platform]. It buckles under the volume you're sending it, and building [capability customers keep asking for] on top of it would mean working around its limits instead of removing them. [New Platform] lets us remove them.\n\nHere's how it goes:\n\n[Date] \u2014 you get an email with your own migration window, no later than two weeks before we move you.\n[Date] \u2014 migrations start, a batch at a time.\n[Date] \u2014 [Old Platform] switches to read-only. We delete nothing, and export stays available.\n\nPlan on roughly [30 minutes] offline during your window. Where we can, we'll run your migration outside your local business hours.\n\nSome things do change. [Specific change 1]. [Specific change 2]. [Integration or feature] behaves differently afterward, and [link] covers the details. Read that page before your window comes up if [API or export] matters to your setup.\n\nBad timing? Reply and say so. We can move your window. We would much rather migrate you late than migrate you badly.\n\nSend questions to [email] or [support channel]. [Status page] stays current from the first batch to the last.\n\n[Name]\n[Title]"
+}

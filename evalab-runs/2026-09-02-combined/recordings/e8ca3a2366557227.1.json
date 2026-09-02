@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post about making security everyone's responsibility at a software company. Around 250 words."
+  }
+ ],
+ "output": "**Security isn't a team you hand things to**\n\nWe have four people on security and about three hundred people shipping code. That math doesn't work, and it's never going to work. If the only time anyone thinks about security is when a review ticket gets assigned, we'll keep finding problems late, when fixing them is expensive and everybody's annoyed.\n\nMost of what we've caught this year wasn't exotic. A token printed into a log line. A dependency bumped to a version nobody looked at. An internal endpoint that quietly stopped checking auth after a refactor. None of those needed a specialist to spot. They needed the person writing the code to pause for ten seconds and ask who else can reach this.\n\nSo here's what we're asking. When you open a PR, say in the description what an attacker would get if this went wrong. One sentence is fine. If the answer is \"nothing,\" great, that's the answer. When you add a dependency, look at who maintains it and when it last shipped. And if something feels off, say so in #security-questions. We'd much rather answer forty questions that turn out to be fine than miss the one that wasn't.\n\nWhat we're not asking: for you to become a security engineer, or to read the threat model doc cover to cover. The team still owns the hard stuff, the tooling, and the incident response.\n\nAna's running a 45-minute session on Thursday walking through three real findings from our own codebase. Come if you want to see what this looks like in practice."
+}

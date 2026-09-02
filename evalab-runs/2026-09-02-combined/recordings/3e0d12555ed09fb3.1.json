@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Subject: Your queries got slower. Here's how to find out why.**\n\nA query that ran in 40 milliseconds last spring now takes four seconds. Nobody changed the code. The dashboard says the database is busy, which you already knew.\n\nOn Thursday, October 15 at 1:00 PM ET, [Speaker Name] is running a 60-minute session on tracking that kind of problem to its source. [Speaker] has spent eleven years tuning Postgres and MySQL for teams that couldn't afford to just add hardware.\n\nWhat we'll cover:\n\n- Reading an execution plan when you don't already know what's wrong\n- Why an index that fixed one query made three writes slower\n- Finding lock contention that only shows up under real traffic\n- When the answer is genuinely more RAM, and how to tell\n\nWe'll work through two production incidents end to end, including the wrong turns. Bring a slow query if you have one; the last 15 minutes are open for questions, and we'll look at whatever people bring.\n\nThis is aimed at backend engineers and anyone who owns a database without being a DBA. You don't need prior tuning experience. You do need to have written SQL.\n\nRecording goes out to everyone who registers, whether or not you attend.\n\n[Register]"
+}

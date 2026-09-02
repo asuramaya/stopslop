@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome\n\nYou're in.\n\nYour laptop should already be on your desk, or in the mail if you're remote. The setup script is at `github.com/internal/bootstrap` \u2014 it takes about forty minutes and it will ask for your GitHub username twice, which is a bug nobody has fixed since 2021.\n\nHere's what your first week looks like. Monday and Tuesday, you read. Nobody expects a commit. Wednesday, you pick something off the `good-first-issue` board and ship it, however small \u2014 most people fix a typo in the docs or add a missing test. Thursday your onboarding buddy walks you through the deploy pipeline, and Friday you sit in on an incident review, even if the incident has nothing to do with your team.\n\nA few things that aren't written down anywhere else:\n\nAsking a question in `#eng-help` after twenty minutes of being stuck is the norm here, not a failure. We'd rather answer the same question four times than have someone spend a day on something a teammate could have unblocked in one message.\n\nCode review is slow on purpose. Two approvals, and reviewers are expected to actually read the diff. Your first PR will get more comments than you expect. That's attention, not judgment.\n\nYou will break production eventually. Everyone does. The postmortem template asks what the system let you do wrong \u2014 it doesn't have a field for your name.\n\nYour buddy is expecting a message from you today. Send it whenever you're ready.\n\nGlad you're here."
+}

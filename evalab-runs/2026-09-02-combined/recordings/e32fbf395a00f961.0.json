@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**Subject: One quarter of engineering time to pay down debt in [system]**\n\n**The ask.** For Q[X], I want to flip our split from roughly 90/10 feature-to-maintenance work to 70/30, dedicated to three specific problems. This is not open-ended cleanup. It has a scope, a definition of done, and an end date.\n\n**Why now.** [N] of our last [M] incidents traced back to the same three places: [shared mutable config in the payments service], [the untyped ingest path], and [the release pipeline]. We keep routing around them. Any feature touching [system] now runs two to three times its estimate, and most of that overrun goes to re-reading code nobody owns.\n\n**What we'd do.**\n1. [Extract config into a typed, validated module] \u2014 done when [service boots fail loudly on bad config instead of at 3am].\n2. [Add contract tests to the ingest path] \u2014 done when [a schema change breaks CI, not production].\n3. [Cut release time from 40 minutes to under 10] \u2014 done when [we can ship twice a day without a war room].\n\n**What it costs.** [Feature A] slips one quarter. [Feature B] ships without [the reporting view]. I'd rather name those trade-offs now than discover them in October.\n\n**How we'd know it worked.** Incident count in [system], median cycle time for changes touching it, and estimate accuracy. I'll report all three at the end of the quarter, including if the numbers don't move.\n\n**If we don't.** The interest keeps compounding. We're already paying it \u2014 in slipped dates and on-call attrition \u2014 we just aren't calling it that on any roadmap.\n\nHappy to walk through the details with anyone who wants them."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  }
+ ],
+ "output": "Here's the post. I used **Margin** as the app name \u2014 swap it for yours.\n\n---\n\n## Dark mode is here\n\nWe shipped it. Dark mode is live in Margin 3.4 on iOS, Android, and the desktop apps.\n\nThis one took longer than it should have, and I want to be honest about why. Inverting the colors was a weekend. Making 40,000 existing notes still *readable* after the inversion was four months. Highlights that looked fine on white turned into glowing bars. Code blocks vanished into the background. Every note anyone had ever pasted from a browser carried invisible inline styles that fought us.\n\nSo we rebuilt the theming layer instead of painting over it. Text now sits at a 12.6:1 contrast ratio against the background \u2014 well past the WCAG AA floor of 4.5:1 \u2014 and we pinned the surface to #16171A rather than pure black, because pure black against white text causes halation on OLED screens and makes long reading sessions tiring.\n\nThree ways to turn it on: Settings \u2192 Appearance, the moon icon in the sidebar, or leave it on Auto and it follows your system at sunset.\n\nA few things we know are still rough. Imported PDFs render on their original white pages. Some older shared themes haven't been updated by their authors. Both are on the list for 3.5, due in November.\n\nIf a note looks wrong in dark mode, send it to us at support@margin.app \u2014 attach the note if you can. We built the contrast checker into our test suite, but real notes break things test files never do."
+}

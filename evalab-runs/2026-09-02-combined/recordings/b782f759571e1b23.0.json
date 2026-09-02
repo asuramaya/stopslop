@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**How we build**\n\nWe ship in small pieces. Most code written on a Monday is in production by Monday evening, and pull requests here usually come in under 200 lines. Show up with a thousand-line branch and the first question won't be about line 40, it'll be about why the thing got that big.\n\nNobody owns a file. Plenty of people own the pager. If you build a system you take a week in its rotation, so 3 a.m. becomes a constraint you design for rather than a problem you hand off.\n\nReview is quick and blunt. It's cheaper to hear on Tuesday that your change dies the first time the job queue backs up than to read about it in a postmortem next March. Disagreements get written down and then somebody calls it, usually whoever sits closest to the code, not whoever has the longest title.\n\nWe write a lot. Design docs before the big work, postmortems after the breakage, both written so that someone on another team can follow them. When an incident happens we go looking for the guardrail that was missing, and we leave alone the engineer who walked past it.\n\nAbout a day a week goes to work no one asked for: the flaky test, the migration everybody tiptoes around, the small script that hands support back an hour. Engineers pick that work themselves.\n\nNo heroics. Nobody counts hours. We hire people who can explain themselves, who let evidence change their minds, and who care whether the thing actually works for the person on the other end of it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**How we build**\n\nSmall pieces, shipped often. Code written on a Monday morning is usually live by Monday night, and our pull requests mostly land under 200 lines. Bring a thousand-line branch and nobody will ask about line 40. They'll ask how it got that big.\n\nFiles have no owners. The pager has many. Build a system and you take a week in its rotation, which turns 3 a.m. into something you design around instead of something you hand off.\n\nReviews are fast and unsentimental. Better to hear on Tuesday that your change falls over the first time the job queue backs up than to find it in a postmortem next March. When people disagree they write it down, and then somebody decides \u2014 usually whoever sits nearest the code, not whoever holds the grandest title.\n\nWe write a lot. Design docs going in, postmortems coming out, both aimed at a reader from some other team. After an incident we go hunting for the guardrail that wasn't there. The engineer who walked past it we leave alone.\n\nRoughly a day a week goes to work nobody asked for: the flaky test, the migration everyone edges around, the twenty-line script that hands support back an hour. Engineers pick that work themselves.\n\nNo heroics, and nobody is counting hours. We hire people who can explain their reasoning, who change their minds when the evidence says to, and who genuinely care whether the thing works for whoever is on the other end of it."
+}

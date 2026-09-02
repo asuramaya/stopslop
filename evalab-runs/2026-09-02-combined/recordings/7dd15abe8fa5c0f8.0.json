@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago, or remote in the US \u00b7 $185\u2013215k + equity\n\nWe move about $4B a year for 1,100 mid-market businesses: payroll files, vendor payouts, the unglamorous plumbing that has to clear on time or someone doesn't make rent. Sixty engineers. On-call pages maybe twice a month.\n\nYou'd join the four-person Ledger team. Our double-entry core is Go on Postgres, and it's showing its age \u2014 we designed it for 40,000 transactions a day and we're doing 900,000. Your first six months: split it into a write path that stays strictly serializable and a read path that doesn't have to. That's a design problem, not a ticket queue.\n\nWhat we're looking for:\n\n- Seven-ish years on backend services people depended on, some of it on money, health records, or anything else where a bug has a phone call attached\n- Opinions about idempotency and retries, and a plan for when a bank API returns 200 and then reverses the transfer three days later\n- Postgres past the ORM. You've read an EXPLAIN plan at 2am.\n- You write the runbook without being asked\n\nGo helps but isn't required. We've hired from Java, Elixir, and one very good Rails person; the language was never the hard part.\n\nProcess: 45 minutes with the hiring manager, then either a paid four-hour take-home or a walkthrough of a system you've already designed, then half a day with the team. Three weeks end to end, and we say no quickly when it's a no."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Senior Backend Engineer \u2014 Payments Platform**\nChicago, or remote in the US \u00b7 $185\u2013215k + equity\n\nWe push roughly $4B a year on behalf of 1,100 mid-market businesses: payroll files, vendor payouts, the boring plumbing that has to clear on schedule or somebody misses rent. Sixty engineers. You'll get paged about twice a month.\n\nThe role is on the Ledger team, four people. Our double-entry core runs Go against Postgres, and it's tired \u2014 we built it for 40,000 transactions a day and it's carrying 900,000. First six months, you'd split it: a write path that stays strictly serializable, a read path that doesn't need to be. That's a design problem, not a backlog.\n\nWhat we want:\n\n- Seven-ish years building backend services other people relied on, some of it near money, medical records, or anything where a bug ends in a phone call\n- Real opinions on idempotency and retries, plus an answer for the bank API that returns 200 and then unwinds the transfer three days later\n- Postgres below the ORM line. You've stared at an EXPLAIN plan at 2am.\n- You write the runbook nobody asked you for\n\nGo is a plus, not a gate. We've hired out of Java, Elixir, and one excellent Rails person; language was never what made it hard.\n\nHow it goes: 45 minutes with the hiring manager, then your pick of a paid four-hour take-home or a walkthrough of a system you already built, then half a day with the team. Three weeks start to finish, and when it's a no we tell you fast."
+}

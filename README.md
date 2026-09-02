@@ -21,6 +21,10 @@ Six committed runs, all replayable from [`evalab-runs/`](evalab-runs/), every p-
 
 **The gate beats every skill file, and every comparison clears p < 0.05** -- 17-5 against stop-slop, 18-7 against anti-slop-writing, 19-5 against no-ai-slop, 24-2 against a blind rewrite at matched compute. It spends 2.93 generations per document to do it. Every skill spends one.
 
+**But the two together beat either alone, and cost less than the gate by itself.** Stating a skill file's rules up front *inside* the gated loop reaches 15 total tells against the gate's 30 -- paired 17-5, p = 0.017 -- in 2.37 generations rather than 2.97, because a draft that starts closer to clean needs fewer revisions. Better and cheaper is not a trade-off. **If you run the gate, state the rules too.**
+
+One caveat with teeth: this project's *own* generated block barely stacks (23 against the gate's 30, p = 0.17, and no held-out improvement at all), because it is generated from the enforced check table and so tells the model exactly what the gate is about to enforce anyway. stop-slop names other things. An instruction that duplicates your gate adds nothing; one that covers what your gate misses adds exactly that -- which is also why four rounds found the gate never improves held-out checks. Nothing was ever telling it to.
+
 Three things about that table are not in this project's favour, and they matter more than the win:
 
 - **A generated instruction ties the hand-written one.** stop-slop scored 54, the block `stopslop.py rules` prints straight from the check table scored 58, paired 13-11-6, **p = 0.84**. The most-starred artifact in this category, read and revised by thousands of people, is matched by a mechanical assembly of check metadata. Careful wording is not the active ingredient.
@@ -40,6 +44,7 @@ One measured caution about the alternative. stop-slop cuts sentence-length varia
 Four more things qualify all of it:
 
 - **It only works when the checks are pointed at formatting.** With just the 11 wording checks enforced, the gate barely beat a rewrite: 25 total tells against 38, directional at best. The lexical layer is nearly exhausted.
+- **The gate does not work on `ste100` at all.** The ruleset that fires most in production had never been evaluated -- the harness was silently producing an empty enforced set for it. Measured: the gate scores 433 flags against ungated's 411, paired 3-2, **p = 1.0**, indistinguishable from doing nothing at three generations per document. Stating the rules instead beats it on all six prompts, 6-0, p = 0.031, for one generation. The loop clears its six enforced checks and drives `vocabulary` -- 92% of all flags, warn-only, unwatched -- *up* from 380 to 419 while doing it. Six prompts and one genre, so read [the findings](evalab-runs/2026-09-02-ste100/FINDINGS.md) before quoting it.
 - **Four checks fire more on humans than on models.** `copula_avoidance`, `filler_verb`, `marketing_adjective` and `vague_intensifier` are "backwards" on *every* control genre measured -- and two of them were in the harness's own enforced set, so the loop was spending revisions removing patterns humans use more often. The `calibrated` preset drops them; `DEFAULT_ENFORCED` is left alone so the six committed runs stay comparable.
 - **Six checks do the work, not thirty-one.** Across 59902 words of ungated generation, **19 of slopwatch's 31 checks fired zero times** and six carried 96% of every flag. `stopslop.py decay` prints that; nothing else in this category can ask the question, because a check that never fires produces no output.
 - **Tell sets decay.** The rule of three, copula avoidance and the participial significance clause were catalogued against 2023-24 output. This model does not produce them at a measurable rate. What survives is the markdown habit, which is what [the stylometry work](https://arxiv.org/pdf/2603.27006) predicted would be the last fingerprint.
@@ -150,7 +155,7 @@ python3 src/evalab/stats.py evalab-runs/2026-09-01-instructed/result.json gated 
 
 `stats.py` pairs any two arms of a saved `result.json` by prompt: an exact two-sided sign test with ties dropped, and a seeded percentile bootstrap on the mean paired difference. Every p-value in this README is reproducible with it, and a test holds the published structural claim against its own saved run so a future change to the harness fails the suite rather than silently rewriting history.
 
-Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The six committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
+Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The eight committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
 
 ## What it does not do
 
@@ -170,7 +175,7 @@ Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1
 - [How to add a ruleset](docs/adding-a-ruleset.md) -- the full plugin contract: the three required functions, the three required attributes, every optional capability, and what each one adds.
 - [Embedded prose](docs/embedded-prose.md) -- how one routing rule sends a code file's own strings and docstrings through a second, prose ruleset.
 - [ASD-STE100 rules, extracted](docs/ASD-STE100-rules-extracted.md) -- the Part 1 rule set this project built the `ste100` ruleset against. Reference material, not this project's own prose, so the gate does not read it.
-- [The evaluation runs](evalab-runs/) -- all six, in the order they were run, with what each one asked and what it found. The conclusions change between them.
+- [The evaluation runs](evalab-runs/) -- all eight, in the order they were run, with what each one asked and what it found. The conclusions change between them.
 - [A gate bypass during dictionary extraction](docs/incidents/2026-08-01-ste100-dictionary-extraction-gate-bypass.md) -- an incident report on a real bypass of this project's own gate, and the fix.
 
 ## License

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Subject: [Service] is moving to [New Platform] in [Quarter]\n\nHi [Name],\n\n[Service] moves to [New Platform] sometime in [Quarter]. Your account comes along, and so does your history and your saved settings. There's nothing for you to do ahead of time.\n\nWe've outgrown [Old Platform]. It buckles under the volume you're sending it, and building [capability customers keep asking for] on top of it would mean working around its limits instead of removing them. [New Platform] lets us remove them.\n\nHere's how it goes:\n\n[Date] \u2014 you get an email with your own migration window, no later than two weeks before we move you.\n[Date] \u2014 migrations start, a batch at a time.\n[Date] \u2014 [Old Platform] switches to read-only. We delete nothing, and export stays available.\n\nPlan on roughly [30 minutes] offline during your window. Where we can, we'll run your migration outside your local business hours.\n\nSome things do change. [Specific change 1]. [Specific change 2]. [Integration or feature] behaves differently afterward, and [link] covers the details. Read that page before your window comes up if [API or export] matters to your setup.\n\nBad timing? Reply and say so. We can move your window. We would much rather migrate you late than migrate you badly.\n\nSend questions to [email] or [support channel]. [Status page] stays current from the first batch to the last.\n\n[Name]\n[Title]"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Subject: [Service] moves to [New Platform] this [Quarter]\n\nHi [Name],\n\nSometime in [Quarter], [Service] moves over to [New Platform]. Your account travels with it, along with your history and every setting you've saved. You don't need to prepare anything.\n\n[Old Platform] no longer fits us. The volume you send strains it, and [capability customers keep asking for] would have to be bolted on around its limits instead of built once those limits are gone. [New Platform] gets rid of them.\n\nThe schedule:\n\n[Date]. We email you your own migration window, at least two weeks before your turn.\n[Date]. Migrations begin, one batch at a time.\n[Date]. [Old Platform] goes read-only. Nothing gets deleted, and you can still export.\n\nExpect about [30 minutes] of downtime during your window. Where the schedule allows, we'll run yours outside your local business hours.\n\nA few things do change. [Specific change 1]. [Specific change 2]. [Integration or feature] works differently once you're on the new platform, and [link] spells out how. If [API or export] matters to your setup, read that page before your window arrives.\n\nIf the timing doesn't work for you, reply and tell us. We'll move your window. Migrating you late beats migrating you badly.\n\nQuestions go to [email] or [support channel]. [Status page] stays current from the first batch through the last.\n\n[Name]\n[Title]"
+}

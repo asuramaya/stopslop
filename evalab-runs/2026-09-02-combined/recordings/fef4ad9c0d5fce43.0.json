@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**To:** Engineering leadership\n**From:** [name]\n**Re:** Spending Q[X] on debt\n\nI want a full quarter of engineering time \u2014 the whole team, nothing shipping in parallel \u2014 to dig out from under the debt in [system].\n\nWhy now. Median time from merge to production has stretched from [X] to [Y] days across the last two quarters. Roughly [N]% of that has nothing to do with waiting on reviewers. It's the build, the suite that fails at random, and the three services that refuse to deploy separately. Everything we ship now pays a tax that didn't exist twelve months ago, and it keeps climbing. Two of our last four incidents traced back to the same coupling in [component].\n\nWhat we'd do: break [component] apart along the seams it already has, get the suite passing reliably in under [X] minutes, and kill [legacy thing] so we stop maintaining two routes to one behavior. I'd publish the same metrics every two weeks \u2014 that way you can tell whether it's working while there's still runway to redirect us.\n\nWhat it costs: [N] features push out a quarter. The attached doc lists them with my suggested order. Nothing on it is promised to a customer.\n\nStanding still isn't free either. It just means paying the bill in small ugly increments, scattered across teams, with no line item anywhere. The money leaves either way. I'd rather spend it once, deliberately, and get something out of it.\n\nHappy to walk through any piece of this.\n\nUse your actual numbers \u2014 the deploy times and incident counts are what carries this."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**To:** Engineering leadership\n**From:** [name]\n**Re:** Giving Q[X] to debt\n\nI'm asking for one quarter of the team's time, all of it, with no feature work running alongside, to clear the debt that's built up in [system].\n\nThe case. Merge-to-production time has gone from [X] days to [Y] over two quarters. About [N]% of that delay has nothing to do with reviewers being slow. It's the build, a test suite that fails for no reason we can reproduce, and three services that can't be deployed independently. Every change we make now carries a tax that didn't exist a year ago, and the tax is growing. Two of our last four incidents came back to the same coupling in [component].\n\nThe work: split [component] along the seams that are already there, get the suite green and under [X] minutes consistently, and delete [legacy thing] so there's one path through that behavior instead of two. I'll publish the same set of numbers every two weeks, so you can judge progress early enough to pull the plug if it isn't landing.\n\nThe price: [N] features slip a quarter. They're listed in the attached doc in the order I'd sequence them. None has been committed to a customer.\n\nDoing nothing has a price too. We just pay it in small pieces, spread across teams, never appearing as a line item anywhere. Either way the money goes. I'd rather spend it on purpose, once, and have something to show for it.\n\nI'm glad to go through any of this in detail."
+}

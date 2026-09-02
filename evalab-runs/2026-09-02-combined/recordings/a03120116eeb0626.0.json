@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**We should stop asking who broke it**\n\nLast quarter's outage review ran forty minutes, and about thirty of them went to establishing that the bad config came from Priya's branch. That fact changed nothing. We already knew the config was wrong; that's why the site was down. What we never got to was the useful question: how did a config that wrong reach production without anyone or anything stopping it?\n\nThat's the argument for blameless postmortems in one paragraph. It isn't that people don't make mistakes, and it isn't a request that we be nicer to each other. It's that naming the person is a dead end. Priya will not make that particular mistake again. The next person will, because whatever let it through is still sitting there.\n\nThe real cost of blame is silence. Engineers who expect to be named tell you less. They round off the timeline, they skip the part where they were guessing, they don't mention the workaround they'd been quietly using for months. The workaround is usually the finding.\n\nSo, three things I'd like us to try on the next incident. Write the timeline before anyone writes analysis. Use role names in the doc instead of people's names. Give every action item an owner and a date, so the meeting produces something other than a document. Then leave the doc open to the whole company.\n\nIf someone is genuinely negligent, that's a management conversation and it happens elsewhere. The postmortem exists to show us what our systems do under pressure, and it can only do that if people talk."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Stop asking whose branch it was**\n\nThe outage review last quarter took forty minutes. Thirty of them went to pinning the bad config on Priya's branch. Knowing that got us nowhere. We already knew the config was broken, which is why the site went down. What those forty minutes never reached was the question worth asking: what let a config that broken travel all the way to production untouched?\n\nThat paragraph is the whole case for blameless postmortems. Nobody is claiming people don't make mistakes, and this isn't a plea for gentler meetings. Naming the person just ends the investigation early. Priya has learned that particular lesson permanently. Someone else will trip over the same gap next quarter, because the gap hasn't moved.\n\nBlame's real price is what people stop telling you. Engineers who expect to be named give you a thinner account. The timeline gets rounded off. The part where they were guessing disappears. The workaround they'd been quietly relying on for six months never comes up, and the workaround is usually where the finding is.\n\nThree things I'd like us to try on the next incident. Write the timeline before anyone writes a word of analysis. Refer to roles in the doc rather than people. Put a name and a date on every action item, so the meeting produces something besides a document. Then open the doc to the whole company.\n\nGenuine negligence is a management conversation and it belongs somewhere else. A postmortem has one job: showing us how our systems behave under pressure. It can't do that job if people are careful about what they say."
+}

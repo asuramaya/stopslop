@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "# Pricing\n\nEvery plan reviews every pull request. What changes between them is how many people are on it, and how much of the setup we run for you.\n\n**Solo \u2014 free**\nOne private repo, unlimited public ones. You get the whole review: correctness bugs, dead branches, the function that quietly grew its fifth argument. Comments land on the PR about 90 seconds after you push. No card.\n\n**Team \u2014 $18 per developer / month**\nUnlimited repos. Reviews follow your rules instead of ours \u2014 write them in plain English in a `review.md` at the repo root and the model applies them the way a senior reviewer would. You also get severity thresholds that can block a merge, a dashboard for the files that keep coming back, and a Slack thread for anything marked high.\n\nBilling counts active committers. Someone who didn't push that month isn't charged, and we prorate down without being asked.\n\n**Self-hosted \u2014 from $2,400 / year**\nFor teams whose code can't leave the network. It runs in your VPC or on-prem against your own inference endpoint, so no source ever reaches us. SAML and audit logs are included, plus a support channel with four-hour response during business hours.\n\n---\n\nStart on Solo. Most teams upgrade the week their second reviewer starts arguing with the first one about naming \u2014 that argument is what the rules file settles.\n\nVolume, education, or maintainer discounts: email pricing@example.com and say roughly how many seats.\n\n*(\u2248250 words. Swap in the real product name, price points, and support email \u2014 I used plausible placeholders.)*"
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the 'Configuration' section of a README for a command-line tool called qcache that caches SQL query results on local disk. It has three settings: a cache directory, a maximum size in megabytes, and a time to live in seconds. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Configuration\n\nqcache reads settings from three places. Lowest priority is the config file at `~/.config/qcache/config.toml`, then environment variables, then command-line flags. A flag always wins.\n\n| Option | File key | Environment variable | Flag | Default |\n| --- | --- | --- | --- | --- |\n| Cache directory | `dir` | `QCACHE_DIR` | `--dir` | `~/.cache/qcache` |\n| Maximum size | `max_size_mb` | `QCACHE_MAX_SIZE_MB` | `--max-size-mb` | `512` |\n| Time to live | `ttl_seconds` | `QCACHE_TTL` | `--ttl` | `3600` |\n\nA minimal config file:\n\n```toml\ndir = \"/var/lib/qcache\"\nmax_size_mb = 2048\nttl_seconds = 86400\n```\n\nThe cache directory holds one file per query. Point it at a local disk, not a network mount. qcache assumes cheap reads and takes a lock on the directory, so two machines that share one path will contend for that lock.\n\nMaximum size is a ceiling on the whole directory rather than on any single entry. qcache checks the total after each write. If a write pushes the total over the limit, qcache evicts least-recently-read entries until the directory fits again.\n\nThe time-to-live clock starts when qcache writes an entry, not when it last reads that entry. A busy query expires on the same schedule as an idle one. qcache deletes an expired entry at the next lookup that touches it."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- length:\n- length:\n- trailing_condition:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## Configuration\n\nqcache reads settings from three places. Lowest priority is the config file at `~/.config/qcache/config.toml`, then environment variables, then command-line flags. A flag always wins.\n\n| Option | File key | Environment variable | Flag | Default |\n| --- | --- | --- | --- | --- |\n| Cache directory | `dir` | `QCACHE_DIR` | `--dir` | `~/.cache/qcache` |\n| Maximum size | `max_size_mb` | `QCACHE_MAX_SIZE_MB` | `--max-size-mb` | `512` |\n| Time to live | `ttl_seconds` | `QCACHE_TTL` | `--ttl` | `3600` |\n\nA minimal config file:\n\n```toml\ndir = \"/var/lib/qcache\"\nmax_size_mb = 2048\nttl_seconds = 86400\n```\n\nThe cache directory holds one file per query. Point it at a local disk, not a network mount. qcache assumes cheap reads, and it takes a lock on the whole directory, so two machines pointed at one shared path will spend their time contending for that lock instead of reading.\n\nMaximum size is a ceiling on the directory total, not on any single entry. qcache checks the total after each write. When a write pushes it past the limit, eviction runs: least-recently-read entries go first, and enough of them go to bring the directory back under the ceiling.\n\nThe time-to-live clock starts at the write. Reads do not restart it, so a busy query and an idle one expire on the same schedule. The next lookup to touch an expired entry deletes it."
+}

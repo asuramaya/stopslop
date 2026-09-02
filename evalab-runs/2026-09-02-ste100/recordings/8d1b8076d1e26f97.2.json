@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a runbook for rotating the TLS certificate on a load balancer: how to tell it is close to expiry, how to request and install the replacement, how to verify it took effect, and how to roll back. Around 250 words."
+  }
+ ],
+ "output": "**Rotate the TLS certificate on a load balancer**\n\n**1. Detect a near expiry**\n\nRun `echo | openssl s_client -connect lb.example.com:443 2>/dev/null | openssl x509 -noout -enddate`.\n\nThe threshold is 30 days. If the end date is less than 30 days away, start this procedure. The daily alert job reports the same date at 08:00 UTC.\n\n**2. Request the replacement**\n\nGenerate a new private key: `openssl genrsa -out lb-2026.key 2048`.\n\nGenerate the request: `openssl req -new -key lb-2026.key -out lb-2026.csr`.\n\nSend only the `.csr` file to the certificate authority. Keep the private key on the bastion host.\n\nWhen the certificate arrives, verify that it lists every hostname of the old certificate.\n\n**3. Install**\n\nUpload the certificate chain and the key to the load balancer secret store under a new name.\n\nAttach the new secret to the HTTPS listener. Do not delete the old secret.\n\nReload the load balancer configuration. A reload keeps live connections. A restart drops them.\n\n**4. Verify**\n\nRepeat the command from step 1. The new end date must appear.\n\nRead the serial number with `openssl x509 -noout -serial`. Compare it against the serial of the issued file.\n\nSend 20 requests through each node behind the virtual IP address. Every node must return the new serial.\n\nWatch the TLS handshake error rate for 15 minutes.\n\n**5. Roll back**\n\nIf the error rate rises, or if one node returns the old serial, attach the previous secret to the listener. Reload again.\n\nVerify that the previous serial returns on every node.\n\nDelete the old secret after 7 days of clean operation."
+}

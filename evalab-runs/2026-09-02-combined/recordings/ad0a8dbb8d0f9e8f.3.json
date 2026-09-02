@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "## We Split the Monolith Into 40 Services. We Should Have Stopped at Six.\n\nEveryone tells the same migration story: the monolith was slow, we split it, deploys got faster, applause. Ours went differently.\n\nWe spent eighteen months carving a nine-year-old Rails app into forty services. Deploy time dropped from 45 minutes to under four. Then our median incident took three times longer to diagnose, because the bug was never in one place anymore \u2014 it lived in the gap between two teams' assumptions about a queue.\n\nThis talk is the honest version. I'll walk through the four extractions that paid for themselves (billing, search indexing, PDF rendering, webhook fan-out) and the eleven that didn't, and what separated them. It wasn't the code. It was whether one team already owned the thing end to end.\n\nYou'll leave with a test you can run on your own system before you write a single migration doc: how to tell a real seam from a wish. We'll cover the unglamorous prerequisites \u2014 request tracing, a contract-testing habit, one deployment pipeline instead of forty \u2014 plus the two-week experiment that would have saved us a year, and the three places our monolith is still the right answer.\n\nBring your architecture diagram. We'll find the seams.\n\n---\n~205 words. The numbers (18 months, 40 services, 45 min \u2192 4 min, 4 of 15 extractions) are placeholders \u2014 swap in your real ones, since an abstract that names specifics is what gets accepted, and the whole talk hangs on them being true."
+}

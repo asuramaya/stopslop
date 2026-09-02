@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Placeholders in brackets \u2014 swap in your real speaker, date, and stack (I assumed Postgres; say the word and I'll re-cut it for MySQL or SQL Server).\n\n---\n\n**Subject: Your slowest query is probably not your problem**\n\nMost teams open the slow query log, find the 12-second monster, index it, and celebrate. Then p99 latency doesn't move.\n\nThe queries that hurt you are usually the ones running 4,000 times a minute at 40 milliseconds each.\n\nOn **[DATE] at [TIME]**, [SPEAKER] \u2014 six years keeping a 200-node Postgres fleet upright at [COMPANY] \u2014 shows how to find them. Ninety minutes, live, with a database you're welcome to break yourself.\n\nWhat we get into:\n\n- Reading an EXPLAIN ANALYZE plan when the plan is lying to you\n- Why the index exists and the planner still refuses to use it\n- Connection pool sizing: the arithmetic, so you stop guessing 100\n- Lock contention, and how to spot it before it turns into an incident\n- When to quit tuning and just buy the RAM\n\nBring a plan from your own system. The last twenty minutes are yours \u2014 paste anything in the chat and we'll start with the ugliest one.\n\nNo slides on why performance matters. You wouldn't be reading this if it didn't.\n\n**[Save my seat]** \u2014 free, and the recording goes out to everyone who registers.\n\n*(~200 words)*"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Subject: Your slowest query is probably not your problem**\n\nThe usual routine: open the slow query log, find the 12-second monster, add an index, declare victory. Then p99 sits exactly where it was.\n\nWhat actually hurts is the query that runs 4,000 times a minute at 40 milliseconds.\n\nOn **[DATE] at [TIME]**, [SPEAKER] will show you how to find those. They've spent six years keeping a 200-node Postgres fleet on its feet at [COMPANY]. Ninety minutes, live, on a database you're welcome to break yourself.\n\nThe agenda:\n\n- Reading EXPLAIN ANALYZE when the plan is lying to you\n- The index exists and the planner still won't touch it\n- Connection pool sizing: the actual arithmetic, so you stop defaulting to 100\n- Spotting lock contention before it turns into an incident\n- Knowing when to stop tuning and buy the RAM\n\nBring a plan from your own system. We're saving the last twenty minutes for whatever you paste in the chat, worst one first.\n\nThere's no opening segment on why performance matters. You'd have closed this already.\n\n**[Save my seat]** \u2014 free, and the recording goes to everyone who registers."
+}

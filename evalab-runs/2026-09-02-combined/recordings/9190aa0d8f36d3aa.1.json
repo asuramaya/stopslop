@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  }
+ ],
+ "output": "**Why we're funding devrel**\n\nWe're hiring three people into developer relations this quarter. Devrel is usually the first line cut in a tight year, so here's the argument we made internally.\n\nIn March we read every support ticket filed in a user's first week. Just over half were questions the docs never answered \u2014 not bugs, not outages, just people stuck on the shape of the thing. Each one cost us a support engineer's afternoon and, more often than we'd like to admit, the account. You can't patch that with a status page.\n\nThe other half of the argument is slower and harder to put on a slide. The people who choose our API are rarely the people who sign the contract. They try it on a Saturday, hit a wall or don't, and six months later someone in procurement calls us. By then the decision is already made. Everything that happens on that Saturday \u2014 the quickstart, the error message, whether an actual engineer answers the GitHub issue \u2014 is the sale.\n\nSo devrel here isn't a marketing function and won't report into marketing. It reports to engineering, owns the docs, and has a standing mandate to file bugs against our own product when the tutorial gets embarrassing.\n\nWhat we'll measure: time from signup to first successful API call, and how many first-week tickets we stop getting. If those two numbers don't move by January, we were wrong and we'll say so.\n\nQuestions welcome. We'll post the job descriptions Thursday.\n\n---\n\nNumbers and dates are placeholders \u2014 swap in your real ones, since the whole piece leans on them being specific."
+}

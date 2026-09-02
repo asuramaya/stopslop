@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "**Let's stop asking who broke it**\n\nEvery incident review I've sat in ends the same way. Someone explains what they did, everyone nods, and the room quietly files away a name. Nothing in the write-up says \"Priya's fault,\" but the next time a deploy goes sideways at 2am, we all remember who it was last time.\n\nThat memory costs us. When engineers know a review will end with a name attached, they get careful about what they volunteer. Timelines get vaguer. The detail that would actually explain the failure, the part where someone was following a runbook that had been wrong for eight months, doesn't come up, because admitting you followed it feels like admitting you caused it.\n\nA blameless postmortem is a narrow commitment: we assume everyone acted reasonably given what they knew at the time, and we spend the meeting reconstructing what they knew. Not absolution. If the deploy tool let one person take down checkout with no confirmation step, that's the finding. The person is the sensor that detected it.\n\nI'd propose we try this on the next three incidents, whatever they turn out to be. Concretely: the write-up uses roles instead of names, the facilitator is someone outside the affected team, and every action item lands on a system, a process, or a document, never on a person's judgment.\n\nThen we compare. Are the timelines longer? Do people mention things they'd previously have left out? If it makes no difference in three tries, we drop it and I'll say so in this channel."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## We Broke the Monolith Into 40 Services. Six Would Have Been Plenty.\n\nMigration talks all end the same way: the monolith groaned, we split it, deploys got fast, applause. Ours didn't.\n\nEighteen months of carving up a nine-year-old Rails app produced forty services. Deploys went from 45 minutes to under four. Our median incident then took three times longer to diagnose, because the bug no longer lived anywhere in particular. It lived in the space between two teams' assumptions about a queue.\n\nThis is the version I'd tell you over a beer. I'll go through the four extractions that earned their keep (billing, search indexing, PDF rendering, webhook fan-out) and the eleven that didn't, and what actually separated them. Not the code. Whether one team already owned the thing end to end.\n\nYou'll leave with a test to run on your own system before anyone writes a migration doc: how to tell a real seam from a wish. We'll cover the boring prerequisites: request tracing, a contract-testing habit, one deployment pipeline instead of forty. Plus the two-week experiment that would have spared us a year, and the three jobs our monolith still does better than anything we replaced it with.\n\nBring your architecture diagram. We'll go looking.\n\n---\n~205 words. Treat every number (18 months, 40 services, 45 min \u2192 4 min, 4 of 15) as a blank to fill with yours. Specifics are what get an abstract accepted, and the talk only works if they're true."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Forty Services Later, We Needed Six\n\nEvery migration talk lands the same way. The monolith buckled, we split it, deploys got quick, applause. Ours went sideways.\n\nWe spent eighteen months cutting up a nine-year-old Rails app and ended with forty services. Deploy time dropped from 45 minutes to under four. Then our median incident started taking three times longer to diagnose, because the bug no longer lived in any one place. It lived in the gap between two teams' assumptions about a queue.\n\nThis is the beer version. I'll walk through the four extractions that paid for themselves (billing, search indexing, PDF rendering, webhook fan-out), the eleven that didn't, and what actually told them apart. It wasn't the code. It was whether one team already owned the whole thing.\n\nYou'll leave with a test you can run on your own system before anybody opens a migration doc, one that separates a real seam from a wish. We'll cover the unglamorous prerequisites too: request tracing, a contract-testing habit, one pipeline instead of forty. Then the two-week experiment that would have saved us a year, and the three jobs our monolith still does better than whatever replaced it.\n\nBring your architecture diagram. We'll go hunting.\n\n---\n~205 words. Every figure here (18 months, 40 services, 45 min \u2192 4 min, 4 of 15) is a slot for your own. Specifics are what get an abstract accepted, and the talk falls apart if they aren't true."
+}

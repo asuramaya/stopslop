@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Nobody sits down on a Tuesday and decides to make the codebase worse.\n\nThat's the awkward thing about technical debt: almost every piece of it was a reasonable call at the time. Ship before the demo. Copy the config instead of refactoring the loader. Leave the TODO, because the sprint ends Friday and the thing works. Each decision is defensible on its own. It's the compound interest that gets you \u2014 the fourth engineer who has to read the copied config, the outage nobody could diagnose because the logging was \"temporary\" in 2023.\n\nThis month we're not doing the usual sermon about paying it down. We're asking a harder question: which debt is worth keeping?\n\nBecause some of it is. A hacky script that runs twice a year and has never failed is not a crisis, it's a script. The real cost isn't messiness, it's the tax on change \u2014 how much slower does this code make the next person who touches it?\n\nInside: a walkthrough of the auth service rewrite (and why we stopped halfway), a rough method for scoring debt by blast radius rather than ugliness, and one team's argument for deliberately writing code they know they'll throw away.\n\nRead on. Bring receipts."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (We're asking a harder question:):\n- colon_reveal (Inside:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Nobody sits down on a Tuesday and decides to make the codebase worse.\n\nThat's the awkward thing about technical debt: almost every piece of it was a reasonable call at the time. Ship before the demo. Copy the config instead of refactoring the loader. Leave the TODO, because the sprint ends Friday and the thing works. Each decision is defensible on its own. It's the compound interest that gets you \u2014 the fourth engineer who has to read the copied config, the outage nobody could diagnose because the logging was \"temporary\" in 2023.\n\nThis month we're not doing the usual sermon about paying it down. We want to ask the harder question of which debt is actually worth keeping.\n\nBecause some of it is. A hacky script that runs twice a year and has never failed is not a crisis, it's a script. The real cost isn't messiness, it's the tax on change \u2014 how much slower does this code make the next person who touches it?\n\nInside you'll find a walkthrough of the auth service rewrite (and why we stopped halfway), a rough method for scoring debt by blast radius rather than ugliness, and one team's argument for deliberately writing code they know they'll throw away.\n\nRead on. Bring receipts."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "# 2026 in review\n\nWe started January with a deploy pipeline that took 41 minutes and ended December at 9. That's the number I'd point at if someone outside the team asked what we did this year, though it isn't the part I'm proudest of.\n\nThe billing service rewrite took two quarters instead of the one we scoped. We were wrong about how much behaviour lived in the old code's error paths, and we found most of it in production. Four incidents, two of them customer-visible. All four are written up, and the postmortems are worth an hour if you joined recently.\n\nA few things went quietly right. The on-call rotation grew from five people to nine, so nobody carries a pager two weeks a month any more. Flaky tests dropped from roughly 60 a week to under 10, mostly because Priya spent three weeks on unglamorous work nobody asked her to do. API v3 went to 14 design partners.\n\nWe killed two projects. The search reranker never beat the baseline after six months of trying, and the internal metrics dashboard lost to a vendor tool that costs less than a month of our time. Each one gave back about a person-quarter.\n\nThe thing I want to fix next year is review latency. Median time to first comment on a PR is six hours, and it surfaces in every retro we run. Nobody has proposed a fix I believe in yet, so that's an open invitation.\n\nThanks for a hard, good year.\n\n---\n\nThe specifics (names, numbers, project details) are stand-ins \u2014 swap them for your team's real ones, since the post only works if the numbers are true."
+}

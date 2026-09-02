@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. I invented the specifics (support-ticket finding, the numbers, the team names) so it reads like a real post rather than a template \u2014 swap them for your own or tell me the company and I'll re-cut it.\n\n---\n\n**Why we're hiring a developer relations team**\n\nLast quarter we read every support ticket filed in a customer's first week on the API. Most weren't bugs. They were people guessing \u2014 at the auth flow, at what a 409 actually meant for them, at whether pagination behaved the way the examples implied. Our docs answered maybe half. The other half lived in one engineer's head.\n\nThat's a distribution problem, not a product problem.\n\nWe could keep patching it with better docs, and we will. But docs are a one-way channel, and they only cover the questions we already knew to ask. The questions we don't know about are the expensive ones. They show up as a trial that quietly goes cold six weeks later, and nobody on our side ever learns why.\n\nSo we're funding people whose whole job is to be in the room where that happens. Writing the integration guide nobody asked for. Sitting in a customer's repo on a Thursday afternoon watching them fight our SDK. Bringing that back to the team that owns the endpoint, with a name attached and a reproduction.\n\nWe're not measuring this in follower counts. The numbers we care about: time from signup to first successful call, currently four days for a median team, and how many support tickets get closed by a doc that already existed.\n\nIf that sounds like the job you want, the posting is below. Bring examples of something you shipped for other developers."
+}

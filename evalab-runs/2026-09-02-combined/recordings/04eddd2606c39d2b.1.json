@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "# What a year without an office actually taught us\n\nWe let the lease go last March. Fourteen engineers, two designers, and an office manager who is now our head of ops. Twelve months later, here is what held up.\n\nMeetings did not shrink on their own. They multiplied. By June the shared calendar had 31 recurring events for a team of seventeen, nearly all of them created in the first two months as insurance against not bumping into each other. We deleted 22 in one afternoon. Three people asked for one of them back.\n\nWriting things down turned out to be the whole job. Every decision that lived only in a call got relitigated within a month, usually by whoever had been on mute. So we started requiring a one-page memo before any meeting longer than 30 minutes. Painful at first. Now the memo often makes the meeting unnecessary.\n\nOnboarding is where remote hurt us. Our first two remote hires took roughly eleven weeks to ship anything they owned; in the office it had been four. We fixed it the boring way, by assigning each new person a named buddy and a small, real project in week one, and the number came down to six.\n\nThe mistake we kept making was trying to rebuild the office in software. Virtual coffee, an always-on video room, a Slack channel for watercooler talk. All three died quietly.\n\nWhat worked was accepting that the office is gone and writing more.\n\n---\n\n247 words. Saved at `/tmp/post.md`. The numbers are invented as plausible detail \u2014 swap in your own before publishing."
+}

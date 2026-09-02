@@ -1,0 +1,25 @@
+## Pricing
+
+**Solo — free**
+
+One seat, unlimited public repos, and 200 reviewed pull requests a month. You get the same review engine everyone else gets; what you don't get is history. Findings live for 30 days and then roll off. Plenty of people never leave this tier, and that's fine.
+
+**Team — $19 per developer, per month**
+
+Private repos, unlimited reviews, and the parts that only matter once more than one person is touching the code: shared rule sets, a per-repo config that lives in your tree, and review history you can actually search six months later. Also blocking checks, so a PR can fail on a rule your team agreed to instead of on a comment someone might ignore.
+
+Billed monthly. Add and remove seats whenever; we prorate.
+
+**Enterprise — talk to us**
+
+Everything in Team, plus self-hosted runners if your code can't leave your network, SSO and SCIM, audit logs, and a custom check API for the rules that are specific to your codebase. Pricing depends on seat count and whether you're self-hosting. Expect a real conversation rather than a demo funnel.
+
+### The usual questions
+
+*What counts as a review?* One pass over one pull request. Pushing three more commits to that PR doesn't count again.
+
+*Do you train on our code?* No. Not on any tier.
+
+*Can we try Team first?* Fourteen days, no card. If you don't convert, the account drops to Solo instead of locking.
+
+*Students and open source?* Team tier, free, forever. Email us with a link to the repo.

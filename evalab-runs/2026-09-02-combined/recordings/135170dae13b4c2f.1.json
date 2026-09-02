@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "## Vision\n\nIn two years, standing up a new service here should be boring.\n\nToday it isn't. A new team spends its first six weeks on work that has nothing to do with the product they were hired to build: wiring CI, guessing at the right Terraform module, learning our auth conventions by reading someone else's repo. That cost never appears on a roadmap, and we pay it again with every hire.\n\nThe bet is that this work is worth doing once, centrally, and well. By the end of 2028 we want one paved path \u2014 scaffold, deploy, observe, roll back \u2014 that covers the ordinary case so completely that stepping off it becomes a deliberate choice with a written reason behind it, rather than an accident of not knowing better. Off-path stays legal. It just stops being the default.\n\nWhat we're aiming at, concretely: a new service in production the same day it's created; deploys any engineer can trigger without asking permission; and enough instrumentation on by default that the first question after an incident is \"what changed,\" not \"where are the logs.\"\n\nNone of this is glamorous. Platform work has no launch and no press, and when it succeeds it looks like nothing happening. But every hour a product engineer spends on infrastructure is an hour not spent on what customers see, and right now we spend a great many of them.\n\nWe aren't building a platform because platforms are good. We're building one because we counted the hours.\n\n---\n\nThe three targets in paragraph four are the part worth replacing with your real numbers \u2014 same-day production, self-serve deploys, and default instrumentation are the placeholders I'd swap for whatever your last two postmortems actually cost you."
+}

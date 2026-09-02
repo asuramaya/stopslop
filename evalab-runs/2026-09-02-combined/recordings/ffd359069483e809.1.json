@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "**What people tell us**\n\n> \"Before this, tracing one request across four services meant SSH-ing into each box and hoping the log hadn't rotated yet. Now I paste a trace ID and get the whole path in about two seconds. My on-call weeks got a lot quieter.\"\n> \u2014 Priya Raghavan, Staff SRE, Northgate Payments\n\n> \"We were paying full ingest price on debug output nobody ever read. The retention rules let us keep 30 days of what matters and drop the rest after two. Our bill dropped by about 40% and we haven't lost a single investigation to it.\"\n> \u2014 Tom Beckett, Infrastructure Lead, Layercake\n\n> \"I don't write code. I run support. I still open the search a dozen times a day to check whether a customer's failed upload was our problem or their firewall. That answer used to cost me a Jira ticket and a day of waiting.\"\n> \u2014 Dana Osei, Head of Support, Ferrywell\n\n> \"The migration took an afternoon. The agent read our existing syslog config, and we had dashboards pointed at the new backend by Thursday. I had budgeted a month for it.\"\n> \u2014 Marcus Lindqvist, Platform Engineer, Cobalt Health\n\n---\n\n~205 words. The names, companies, and the 40% figure are placeholders \u2014 swap in real quotes and get sign-off before publishing, since attributed claims like the cost number need to come from the customer."
+}

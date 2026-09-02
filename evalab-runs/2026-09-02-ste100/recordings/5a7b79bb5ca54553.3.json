@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "A tool fails with 'error: lock held by another process'. Write the documentation entry a user finds when they search that string: what it means, the two situations that cause it, and what to do in each. Around 200 words."
+  }
+ ],
+ "output": "## error: lock held by another process\n\nThe tool takes an exclusive lock before it writes, so that two copies of it can't interleave writes and leave the state half-updated. This message means it asked for that lock and something else already had it.\n\nTwo things cause it.\n\n**Another run really is in progress.** A second terminal, an editor plugin, a git hook, a CI job on the same checkout. This is the common case and it is the lock doing its job. Wait for the other run to finish and try again \u2014 most runs are short. If you want to know who has it, `lsof <lockfile>` on macOS and Linux, or `fuser -v <lockfile>`, names the process.\n\n**The lock went stale.** A previous run was killed with SIGKILL, lost power, or died inside a container that was torn out from under it, and the lock file outlived it. `lsof` shows nothing holding the file. Only then, delete the lock file by hand and re-run.\n\nCheck before you delete. Removing a live lock doesn't stop the process that owns it; it just lets a second one start alongside it, which is the exact corruption the lock exists to prevent."
+}

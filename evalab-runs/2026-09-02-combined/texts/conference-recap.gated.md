@@ -1,0 +1,13 @@
+**Notes from ScaleConf**
+
+Four of us flew out Tuesday. We came back Friday with a shared doc that is mostly arguments.
+
+The first surprise was how little anyone wanted to talk about models. Two years ago every hallway conversation was about which one. This year it was evaluation — people comparing how they know whether a change actually helped. One team from a logistics company described running every prompt change past a panel of three reviewers for six weeks before shipping. Slow, boring, and their incident rate is a third of ours.
+
+The talk we keep quoting wasn't on the main stage. A staff engineer at a mid-size bank spent 20 minutes on rollback tooling and said the thing nobody says out loud: most of their outages came from config, not code, and their config had no review at all. Priya went pale. We have the same gap.
+
+We disagreed about the vendor floor. Marcus thinks the observability tooling has finally caught up and we should pilot one. Dana thinks we'd spend a quarter integrating something we could write in a week. That's unresolved, and probably should stay unresolved until the config work is done.
+
+So config changes get a reviewer starting next sprint. We're also writing down what "this helped" means for the three features we touch most. And we're sending two people next year instead of four, then rotating.
+
+Slides and our raw notes are in the team drive. Ask Priya for the bank talk — it's worth the 20 minutes.

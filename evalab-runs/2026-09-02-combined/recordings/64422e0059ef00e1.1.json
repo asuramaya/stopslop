@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "## Nobody Knows Why It's Slow\n\nThe alert fires at 2:14 a.m. Checkout p99, over four seconds. You open the dashboard your team built last quarter and it tells you exactly what the alert already told you: checkout is slow. So begins the ritual \u2014 SSH into a box, tail some logs, squint, restart whichever service looks guiltiest, watch the graph come down, go back to bed, and write \"transient\" in the incident doc.\n\nThat's not debugging. That's superstition with a runbook.\n\nMonitoring answers questions you thought to ask in advance. You picked the metrics, you set the thresholds, and the system dutifully reports on the failure modes you already imagined. But the outages that actually hurt are the ones nobody imagined: a retry storm from one misconfigured mobile client, a connection pool drained by a query that only crawls once a single tenant's table crosses two million rows, a deploy that behaves everywhere except the region still on an older kernel.\n\nObservability is the ability to ask a question you didn't plan for, after the fact, without shipping new code to answer it. That's the whole idea. High-cardinality events instead of pre-aggregated counters. One trace that follows a request across eleven services, instead of eleven dashboards you correlate by hand and by memory.\n\nThe payoff isn't a nicer dashboard. It's the gap between a team that knows what happened Tuesday night and a team that's still arguing about it on Friday.\n\n*(~245 words)*"
+}

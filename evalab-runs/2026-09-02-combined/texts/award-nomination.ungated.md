@@ -1,0 +1,15 @@
+Nomination: **[Team name]** — [Award name]
+
+Two years ago, shipping to production meant a Thursday night, a shared checklist, and someone staying late to babysit the rollout. A deploy took about four hours. Rollbacks took longer, because nobody had written down what "before" looked like.
+
+[Team] rebuilt it. They started with the part nobody wanted: the manual pre-flight checks. Each one got a test. Then the release branching, then migration ordering, then the canary. By [month], deploys ran from a single command, and any engineer on any team could run it without asking permission or asking for help.
+
+The numbers: median deploy time went from [X] to [Y]. Failed deploys dropped from [X] a month to [Y]. A rollback now takes [N] minutes and doesn't require the person who wrote the change.
+
+What deserves the award isn't the tooling. It's that [Team] did this while carrying their normal roadmap, and never once asked another team to stop shipping while they worked. They took on the boring, high-blast-radius plumbing that everyone benefits from and nobody volunteers for.
+
+I recommend them without reservation.
+
+—
+
+~205 words. Bracketed spots are the ones I couldn't know: team name, dates, and the before/after metrics. The metrics matter most — nomination committees discount claims without them, so fill those in even roughly. If the real story differs (say, the win was reliability rather than speed), tell me and I'll re-angle it.

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "A tool fails with 'error: lock held by another process'. Write the documentation entry a user finds when they search that string: what it means, the two situations that cause it, and what to do in each. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## `error: lock held by another process`\n\nThe tool takes an exclusive lock before it writes, so that two runs cannot corrupt the same state. This message means the lock file already exists and the tool refused to touch anything.\n\nThere are two reasons you see it.\n\n**Another run is genuinely in progress.** Someone else on the box, a cron job, or a second terminal of your own is mid-write. Wait for it to finish and try again. Check with `ps` or your process manager before you assume otherwise \u2014 the lock file records the PID that took it, so `cat` it and see whether that process is still alive.\n\n**The lock is stale.** A previous run was killed with `SIGKILL`, lost its container, or died with the machine, and never got to clean up. The PID in the lock file will be gone, or reused by something unrelated. Delete the lock file by hand and re-run.\n\nDo not delete the lock as a reflex. If you remove it while the owning process is still running, both writers proceed and the state they share ends up interleaved \u2014 which is the failure the lock exists to prevent, and it is much harder to diagnose than this error. Confirm the PID is dead first."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- length:\n- passive (was killed):\n- length:\n- ing_form (owning):\n- ing_form (running):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## `error: lock held by another process`\n\nThe tool takes an exclusive lock before it writes, so that two runs cannot corrupt the same state. This message means the lock file already exists and the tool refused to touch anything.\n\nThere are two reasons you see it.\n\n**Another run is genuinely in progress.** Someone else on the box, a cron job, or a second terminal of your own is mid-write. Wait for it to finish and try again. Check with `ps` or your process manager first \u2014 the lock file records the PID that took it, so `cat` it and see whether that process is still alive.\n\n**The lock is stale.** Something sent a previous run `SIGKILL`, or the run lost its container or died with the machine, and it never cleaned up. The PID in the lock file will be gone, or reused by something unrelated. Delete the lock file by hand and re-run.\n\nDo not delete the lock as a reflex. If you remove it while the process that holds it still runs, both writers proceed and the state they share ends up interleaved \u2014 the exact failure the lock exists to prevent, and much harder to diagnose than this error. Confirm the PID is dead first."
+}

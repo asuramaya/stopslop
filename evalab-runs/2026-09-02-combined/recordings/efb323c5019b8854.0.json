@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Roadmap\n\nWe keep this page public because the alternative is worse. When the roadmap lives in a private tracker, you find out what we're building the week it ships, and by then the design decisions are settled. We'd rather hear the objection early, while it's still cheap for everyone.\n\nHere's what to expect. Items near the top are in progress and reasonably certain. Items further down are things we intend to do but haven't scoped, and a few of them will quietly disappear over the next two quarters. That's not a failure of planning. It's what planning looks like when you're honest about it.\n\nDates are deliberately coarse. We use quarters, and we don't promise a quarter until the work is underway. If something slips, we move it and say why in the changelog rather than editing history.\n\nThree things are off this page. Security fixes ship without announcement. Customer-specific work stays with the customer. And anything still at the \"someone had an idea in Slack\" stage isn't a plan yet, so it isn't here.\n\nIf you want something that isn't listed, open a discussion. We read all of them, and roughly a third of what's on this page started that way."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Roadmap\n\nThis page is public on purpose. Keep a roadmap in a private tracker and customers learn what you built the week it lands, long after the arguments that mattered are over. We'd rather take the objection while changing course is still cheap.\n\nHow to read it. The top of the list is underway and fairly settled. Below that sit things we mean to do and haven't scoped yet, and some of those will vanish over the next couple of quarters without ceremony. That isn't planning gone wrong. That's planning described accurately.\n\nWe date things loosely, by quarter, and we don't commit to a quarter until someone is actually working on the item. When a date moves we move it in place and explain the move in the changelog instead of rewriting the old entry.\n\nThree kinds of work never appear here. Security fixes go out quietly. Work built for one customer belongs to that customer. And an idea somebody floated in Slack last Tuesday isn't a plan, so it doesn't get a card.\n\nMissing something you want? Open a discussion. We read them all, and about a third of what's below arrived that way."
+}

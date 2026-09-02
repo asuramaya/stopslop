@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "# Welcome\n\nYou're here. Somebody has already claimed the seat next to you and has opinions about the coffee.\n\nToday is deliberately light. Your laptop should be on your desk; if it isn't, ping #it-help and someone will walk one over. Sometime this morning your onboarding buddy will find you \u2014 that's a real person with a name, assigned before you signed, whose job for the next two weeks is to answer the questions you'd feel silly asking in a channel.\n\nHere's what we care about. Ship something small in your first week. Not a feature \u2014 a typo fix, a flaky test, a stale line in a README. The point is to walk the whole path from branch to production once while the stakes are nothing, so that the day you touch billing code you already know where the deploy button lives.\n\nAsk early. We measure onboarding by how fast people feel safe interrupting someone, and the record is a day and a half. Beat it.\n\nA few practical things. Standup is 9:45, fifteen minutes, cameras optional. The wiki is roughly 70% accurate and we'd love your help with the other 30% \u2014 you're the only person who will ever read it with fresh eyes, and that expires in about a month. Write down every confusing thing this week. Friday, turn the list into a pull request.\n\nNobody expects output from you for a while. Read code, break your local environment, get it working again. That's the job today.\n\nGlad you're here."
+}

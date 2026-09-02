@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination \u2014 the Deploy Platform team**\n\nTwo years ago, shipping to production meant a Thursday night, a shared spreadsheet, and someone on call who knew which of the four steps you could safely skip. Rollbacks took about forty minutes, assuming the person who wrote the service was awake.\n\nThis team rebuilt that. Not in one heroic quarter \u2014 they did it in small pieces, mostly by asking other teams what actually hurt and fixing that first. Config moved into version control. The manual approval steps nobody read got cut. Canary analysis went in, then automatic rollback on top of it.\n\nThe numbers are good. Deploys went from weekly to roughly thirty a day, median time to production dropped from three days to under an hour, and change failure rate fell by more than half.\n\nBut the part worth an award is quieter. New engineers ship in their first week now. Nobody schedules a release around their kid's bedtime. The on-call rotation stopped being the thing people traded away.\n\nThey also kept the old pipeline alive for the teams that couldn't migrate yet, which won a lot of goodwill and took most of a year. That work was thankless. I'd like it to be less so.\n\n*(\u2248210 words. Swap in the real team name and your own numbers \u2014 the ones above are placeholders shaped to look plausible.)*"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination \u2014 the Deploy Platform team**\n\nBefore this team got hold of it, a production release was a Thursday night ritual. There was a spreadsheet everyone edited at once, and there was whoever happened to be on call, who was expected to know which of the four steps could be skipped without breaking anything. A rollback ran about forty minutes, and only if the person who wrote the service picked up the phone.\n\nThey took it apart and put it back together over two years. No heroics, no big-bang quarter. They went team by team, asked what hurt, and fixed that. Config went into version control. The approval gates nobody actually read were deleted. Canary analysis landed, and automatic rollback landed on top of it.\n\nThe metrics hold up. Weekly releases became something like thirty a day, median time to production went from three days to under an hour, and change failure rate is less than half what it was.\n\nWhat I want recognised is smaller than that. New hires ship in week one. No one plans a release around bedtime anymore. On-call stopped being the shift people begged out of.\n\nThey also kept the legacy pipeline running for teams that couldn't move yet. It ate most of a year and nobody thanked them for it.\n\n*(\u2248210 words. Drop in the real team name and your own figures; the ones here are stand-ins.)*"
+}

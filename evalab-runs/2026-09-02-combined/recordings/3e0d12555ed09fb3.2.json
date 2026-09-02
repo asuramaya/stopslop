@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the invitation copy for a webinar about database performance tuning. Around 200 words."
+  }
+ ],
+ "output": "**Your slowest query is not the one you think it is**\n\n*A live webinar on database performance tuning \u00b7 [Date] \u00b7 [Time] \u00b7 60 minutes*\n\nMost teams tune the query that shows up in the incident report. Meanwhile the real cost is a 4 ms lookup that runs 90,000 times a request cycle, buried under an ORM that swore it was batching.\n\nWe're spending an hour on the boring parts that actually move p99 latency. Working through real EXPLAIN output, with a live database, and enough time to argue about it.\n\nWhat we'll cover:\n\n- Reading an execution plan without guessing \u2014 where the planner's row estimate goes wrong and how to tell\n- Index design past the single-column reflex: composite ordering, covering indexes, and the ones you can drop today\n- Connection pooling math, and why raising `max_connections` usually makes things worse\n- Diagnosing lock contention while it's happening, not from yesterday's logs\n\nBring a plan you don't understand. We'll take audience submissions in the last twenty minutes and work through as many as we can.\n\nYour host: [Name], [Title], who has spent [N] years on the wrong end of a 3 a.m. page.\n\nFree. Recorded, and the recording goes to everyone who registers.\n\n**[Register \u2192]**\n\nBracketed fields are placeholders \u2014 send me the date, speaker, and platform and I'll fill them in."
+}

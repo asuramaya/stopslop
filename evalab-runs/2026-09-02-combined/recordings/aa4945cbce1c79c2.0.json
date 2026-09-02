@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Pricing**\n\nEvery plan reviews the whole diff, not a sample of it. What changes between tiers is how many people are on it and where the code sits.\n\n**Solo \u2014 $0**\nPublic repos, one reviewer seat, the full rule set. No trial clock and no card. If you're a maintainer triaging drive-by pull requests at midnight, this is your plan, and it stays free.\n\n**Team \u2014 $19 per active author / month**\nPrivate repos, unlimited seats, billed only for people who actually pushed that month. Comments land inline within about 90 seconds of a push. Rule configs live in the repo as a checked-in file, so the argument about trailing commas gets settled once instead of every sprint. Slack and Linear hooks ship with it.\n\nYou also get 30 days of history on every comment we posted and whether anyone acted on it. That last number is the honest one. If the acceptance rate is 4%, we'd rather you knew and turned checks off than kept paying for noise.\n\n**Self-hosted \u2014 from $12,000 / year**\nRuns inside your VPC. Code never crosses your network boundary, which is usually the entire conversation with a security team. Point it at your own model endpoint or use ours. SAML, audit logs, and a shared support channel with an engineer sitting in it instead of a form.\n\nAnnual billing takes 20% off Team. Downgrading is a button, not an email thread, and we prorate the difference back the same day."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Pricing**\n\nEvery tier reads the whole diff, start to finish. What changes between them is headcount and where your code lives.\n\n**Solo \u2014 $0**\nPublic repos, one seat, all the rules. No countdown, no card. If you're a maintainer sorting drive-by pull requests at 1am, this one is yours, and it keeps being free.\n\n**Team \u2014 $19 per active author / month**\nPrivate repos, seats without a cap, billed only for the people who actually pushed something that month. Comments show up inline about 90 seconds after a push. Your rule config is a file in the repo, so the trailing-comma fight happens once instead of every sprint. Slack and Linear hooks are included.\n\nThirty days of history comes with it: every comment we left, and whether anybody did anything about it. That second column is the uncomfortable one. If 4% of our comments get acted on, we'd rather you saw that and switched checks off than kept paying us to generate noise.\n\n**Self-hosted \u2014 from $12,000 / year**\nRuns inside your VPC. Your code never leaves your network, which tends to be the entire security review in one sentence. Point it at your own model endpoint, or use ours. SAML, audit logs, and a shared channel with an engineer in it rather than a ticket form.\n\nPay annually and Team drops 20%. Downgrading is a button, not a thread with sales, and the prorated difference goes back the same day."
+}

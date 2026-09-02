@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short design note arguing for storing user sessions in a signed cookie instead of a server-side session table, for a service with about 50000 daily users. Include the main drawback of the choice you argue for. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Sessions in a signed cookie\n\nI want us to put session state in a signed cookie and drop the sessions table before we write it.\n\nThe case is mostly about what the table would actually earn us. At 50k daily users we are looking at maybe a few hundred requests a second at peak, and every one of them would do a lookup keyed by an opaque ID just to learn a user ID and a role. That lookup is cheap in isolation and expensive as a dependency. It puts Postgres or Redis in the path of every authenticated request, which means auth availability is now storage availability, and it means a second web node needs a shared store before it can serve traffic. A signed cookie needs a secret and nothing else. Any box that has the key can verify a request on its own.\n\nKeep the payload thin: user ID, role, issue time, expiry. Sign with HMAC-SHA256, set HttpOnly, Secure, SameSite=Lax. Rotate the key with a key ID in the cookie so old ones verify during the overlap.\n\nThe real cost is revocation. Once a cookie is out, it is valid until it expires, and we cannot reach out and kill it. A user who logs out on a stolen laptop, or an admin demoting an account, gets no immediate effect.\n\nThe usual answer is short lifetimes, fifteen or thirty minutes, refreshed against a longer-lived token we do store. That drags a small amount of server state back in, but only on refresh rather than on every request, and the blast radius of a stale session is bounded by the TTL."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Sessions in a signed cookie\n\nI'd like session state to live in a signed cookie, and I'd like us to drop the sessions table before we ever build it.\n\nAsk what the table buys. At 50k daily users, peak traffic is a few hundred requests a second, and each one would hit the store with an opaque ID just to find out a user ID and a role. In isolation that read costs nothing. As a dependency it costs plenty. It drops Postgres or Redis into the path of every authenticated request, so auth is only as available as storage, and a second web node cannot serve traffic until it has a shared store to talk to. A signed cookie asks for a secret and nothing more. Any box holding the key verifies on its own.\n\nKeep the payload small. User ID, role, issued-at, expiry. HMAC-SHA256 for the signature, HttpOnly, Secure, SameSite=Lax on the cookie. Put a key ID in it so rotation leaves old cookies verifiable through the overlap window.\n\nRevocation is what this costs us. A cookie in the wild stays good until it expires, and we have no way to reach out and kill it. Log out on a stolen laptop, demote an account in the admin panel, nothing happens right away.\n\nThe standard fix is a short life, fifteen or thirty minutes, refreshed against a longer token we do keep server-side. Some server state comes back, but only at refresh time instead of on every request, and a stale session can only do damage for one TTL."
+}
