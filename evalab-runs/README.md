@@ -24,6 +24,7 @@ pointed at.
 | `2026-09-02-complement/` | Where should the instruction POINT -- at what the gate enforces, or at what it ignores? | At what it ignores, and it is not close: 13 total tells against the gate's 30 (p = 0.0007), and held-out flags 25 to 11 -- the first time in six rounds that number moved. |
 | `2026-09-02-codewatch/` | Does the gate work on the code ruleset? | No result: the loop revised 0 of 10 prompts. codewatch catches EDITING debris and one-shot generation produces none -- the experiment was wrong, not the ruleset. |
 | `2026-09-02-sonnet/` | Do these findings hold on different weights? | The headline replicates (20 against 40, p = 0.0009) and so does the held-out fix. One claim from the first run does not, and is retracted there. |
+| `2026-09-02-turns*/` | What happens across a document's whole life, on three models? | The combined arm holds flat and low at every turn (8 tells against ungated's 50, p = 0.000015). Documents do NOT drift -- the hypothesis this run was built on is dead. An INSTRUCTION fades instead: it works in one turn and not by the fourth. |
 
 The last one is the one to read if you read only one. It found that a
 gate and an instruction are good at opposite things, and that pointing

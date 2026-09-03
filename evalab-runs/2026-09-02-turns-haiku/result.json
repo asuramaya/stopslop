@@ -1,0 +1,1966 @@
+{
+ "ruleset": "slopwatch",
+ "generator": "claude-cli",
+ "generator_version": "2.1.259 (Claude Code) model=haiku",
+ "enforced": [
+  "bold_density",
+  "canned_question_answer",
+  "colon_reveal",
+  "emoji_in_prose",
+  "entity_encoded_punctuation",
+  "filler_opener",
+  "id_label_lead",
+  "marketing_adjective",
+  "not_just_x_but_y",
+  "paragraph_uniformity",
+  "participial_tail",
+  "rule_of_three",
+  "solicit_criticism",
+  "thematic_break",
+  "title_case_heading",
+  "vague_intensifier",
+  "weasel_attribution"
+ ],
+ "held_out": [
+  "ai_markup_remnant",
+  "binary_contrast",
+  "bold_bullet_lead",
+  "copula_avoidance",
+  "dramatic_fragmentation",
+  "em_dash_cluster",
+  "filler_verb",
+  "identifier_in_prose",
+  "marketing_cliche",
+  "negative_listing",
+  "section_template",
+  "stock_adverb",
+  "terminology",
+  "unearned_profundity"
+ ],
+ "max_iterations": 4,
+ "instruction": "Follow these writing rules. They matter as much as the content:\n\n- Bold used as body emphasis throughout -- reserve bold for a rare callout\n- A short rhetorical question with a canned answer -- collapse into one direct statement\n- Short buildup, then a reveal: \"The best part: it learns.\" -- state it as a plain sentence\n- Emoji or decorative checkmarks in body text -- cut them\n- An em dash, section sign or middle dot written as an HTML entity -- write the plain character\n- Throat-clearing openers: \"needless to say\", \"at the end of the day\" -- state the point directly from the first sentence\n- Fake ID tags opening list items: \"R-1.\", \"US-01\" -- number the list plainly\n- Marketing adjectives: seamless, robust, cutting-edge -- say what is actually true\n- The \"not just X but Y\" construction -- make the point once\n- Body paragraphs nearly identical in length -- vary them with what each paragraph has to do\n- A significance clause bolted to a sentence: \", underscoring the...\" -- delete it, or make it a claim with something behind it\n- Three parallel -ing items in a series -- keep the one that carries information\n- Fake-humility feedback requests: \"would love your feedback on this\" -- cut them\n- Horizontal rules dropped between sections -- headings already separate sections\n- Headings Capitalised Like This -- sentence case\n- Vague intensifiers with no number behind them: very, really, quite, significantly -- say how much, or cut the word\n- Unnamed authority: \"studies show\", \"experts agree\" -- name the actual source, or cut the claim\n\nNow write the following. Return only the requested text.\n",
+ "instructions": {
+  "instructed": "Follow these writing rules. They matter as much as the content:\n\n- Bold used as body emphasis throughout -- reserve bold for a rare callout\n- A short rhetorical question with a canned answer -- collapse into one direct statement\n- Short buildup, then a reveal: \"The best part: it learns.\" -- state it as a plain sentence\n- Emoji or decorative checkmarks in body text -- cut them\n- An em dash, section sign or middle dot written as an HTML entity -- write the plain character\n- Throat-clearing openers: \"needless to say\", \"at the end of the day\" -- state the point directly from the first sentence\n- Fake ID tags opening list items: \"R-1.\", \"US-01\" -- number the list plainly\n- Marketing adjectives: seamless, robust, cutting-edge -- say what is actually true\n- The \"not just X but Y\" construction -- make the point once\n- Body paragraphs nearly identical in length -- vary them with what each paragraph has to do\n- A significance clause bolted to a sentence: \", underscoring the...\" -- delete it, or make it a claim with something behind it\n- Three parallel -ing items in a series -- keep the one that carries information\n- Fake-humility feedback requests: \"would love your feedback on this\" -- cut them\n- Horizontal rules dropped between sections -- headings already separate sections\n- Headings Capitalised Like This -- sentence case\n- Vague intensifiers with no number behind them: very, really, quite, significantly -- say how much, or cut the word\n- Unnamed authority: \"studies show\", \"experts agree\" -- name the actual source, or cut the claim\n\nNow write the following. Return only the requested text.\n",
+  "complement": "Follow these writing rules. They matter as much as the content:\n\n- Generator scaffolding left in: oaicite, [cite: 1], placeholders -- finish the text and read it\n- The \"it's not X, it's Y\" construction -- just state Y\n- A bolded word opening a list item as a per-item tag -- reserve bold for a rare callout\n- Saying \"is\" the long way: serves as, boasts, functions as -- use the plain verb\n- One-line dramatic fragments: \"That's it. That's the whole thing.\" -- cut them, the preceding sentence already made the point\n- Em dashes clustering in one document -- most drafts need 0-2; use commas, periods or parentheses for the rest\n- Filler verbs: leverages, facilitates, unlocks -- use a plain verb, or cut the sentence\n- A snake_case identifier written as plain prose -- name it in words, or mark it as inline code\n- Marketing cliches: \"hidden gem\", \"let's dive in\" -- say the specific thing\n- The \"Not X. Not Y.\" listing construction -- state the point once\n- Stock section skeleton: \"Despite its success\", \"Looking ahead\" -- name the specific thing the section is for\n- Standalone filler adverbs: undoubtedly, arguably, notably, importantly, ultimately -- most add nothing; cut them unless one is carrying real emphasis\n- A banned synonym of one of this project's canonical terms, per its declared lexicon -- one word, one meaning: use the canonical term the word's own note names\n- Dramatic turning points with nothing concrete behind them: \"Everything changed.\" -- name the actual event, or cut it\n\nNow write the following. Return only the requested text.\n"
+ },
+ "intervention_arms": [
+  "complement"
+ ],
+ "combined_arms": [
+  "instructed+gated",
+  "complement+gated"
+ ],
+ "seconds": 1693.9,
+ "rows": [
+  {
+   "id": "feature-announcement",
+   "prompt": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words.",
+   "turns": [
+    "Add a paragraph about what happens when two devices edit the same note offline.",
+    "The feature is now called \"local-first sync\". Update the text.",
+    "Cut it to about 150 words."
+   ],
+   "ungated": {
+    "text": "**Your notes work local-first now**\n\nWe've added local-first sync so you can write, edit, and organize your notes without an internet connection. When you reconnect, your changes sync automatically across all your devices.\n\nThe feature works on mobile and web. Open your notes offline, make changes, and they'll sync when you're back online. If you edit the same note on multiple devices while offline, we merge your changes\u2014your most recent edits take priority.\n\nYou don't need to set anything up; it's on by default. Your notes stay local and encrypted on your device until sync, just like everything else in the app.\n\nUseful for travel, commutes, or spotty connectivity. Sync completes within seconds for most people. Questions? Check our help docs or reach out to support.\n\n---\n\n**Word count: 129 words**",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 6,
+      "enforced": 5,
+      "words": 199
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 262
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 261
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 131
+     }
+    ],
+    "scores": {
+     "words": 130,
+     "sentences": 13,
+     "mean_sentence_words": 10.0,
+     "sentence_length_stdev": 5.97,
+     "type_token_ratio": 0.7154,
+     "enforced_per_1k": 23.08,
+     "held_out_per_1k": 7.69,
+     "enforced_flags": 3,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "# Local-First Sync is Here\n\nYou can now work on your notes without an internet connection. Changes save locally and sync automatically when you reconnect\u2014no manual action needed.\n\nWork anywhere: on a flight, in a subway, or without signal. Your device keeps a full copy of your notes, encrypted like your cloud storage. When offline, edits record locally. Once connected, both directions sync seamlessly. If you edited the same note on two devices, both sets of changes merge\u2014we show conflicting versions so you choose which to keep.\n\nFree users get local-first sync for 100 recent notes. Subscribers get full support for your entire vault.\n\nWe built this for people who write everywhere. Your ideas shouldn't wait for a connection.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 193
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 244
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 243
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 119
+     }
+    ],
+    "scores": {
+     "words": 119,
+     "sentences": 12,
+     "mean_sentence_words": 9.92,
+     "sentence_length_stdev": 5.4,
+     "type_token_ratio": 0.7227,
+     "enforced_per_1k": 16.81,
+     "held_out_per_1k": 8.4,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "Your notes with local-first sync\n\nWe've shipped local-first sync. Create, edit, and organize your notes whether you're connected to the internet or not. When you reconnect, your changes automatically merge with any edits made on other devices.\n\nYour notes live locally on each device. When you're offline, changes queue in the background and sync to your account the moment you reconnect. If the same note was edited on two devices, the app shows you both versions and lets you pick which changes to keep.\n\nNo connection required. No waiting for servers. No lost work when the network drops. We built this because reliability matters more than features. Your work shouldn't vanish because of spotty wifi.\n\nTry it the next time you lose connection.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 182
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 44
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 226
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 123
+     }
+    ],
+    "scores": {
+     "words": 123,
+     "sentences": 13,
+     "mean_sentence_words": 9.46,
+     "sentence_length_stdev": 5.91,
+     "type_token_ratio": 0.6829,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 8.13,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "**Your notes, everywhere: local-first sync is here**\n\nWe've added local-first sync to your note-taking app. Write, edit, and organize your notes whether you're online or not. Changes sync automatically when you reconnect.\n\n**How it works**\n\nYour notes stay on your device. When you work offline, the app tracks changes locally. Once you're back online, those changes sync to your account. If you edit the same note on multiple devices while offline, the app merges them intelligently\u2014your latest content always wins.\n\n**Why it matters**\n\nNo more waiting for a connection to save important thoughts. Take notes on a flight, in the subway, or anywhere without wifi. Your work is safe locally and syncs when you reconnect. Your encryption keys never leave your device.\n\n**Available now**\n\nLocal-first sync rolls out today on iOS, Android, and desktop. Your notes are already syncing in the background. No setup required.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 192
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 75
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 266
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 145
+     }
+    ],
+    "scores": {
+     "words": 146,
+     "sentences": 18,
+     "mean_sentence_words": 8.11,
+     "sentence_length_stdev": 4.42,
+     "type_token_ratio": 0.6301,
+     "enforced_per_1k": 13.7,
+     "held_out_per_1k": 6.85,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   },
+   "instructed+gated": {
+    "text": "Your notes stay in sync across all your devices, whether or not you have an internet connection. Edit from your phone, laptop, or tablet. Make changes, add notes, delete things \u2014 it all works offline.\n\nWhen you reconnect, your changes sync automatically to all your devices. We send only what changed, not your entire note library. If your connection drops mid-sync, we resume automatically the next time you're back online.\n\nWhen the same note is edited offline on multiple devices, both versions are preserved. You'll see both sets of changes side by side and can choose which to keep or combine them. This rarely happens \u2014 most people work on different notes across devices \u2014 but when it does, you have full visibility into what changed and where.\n\nLocal-first sync is on by default. No setup needed.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 153
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 170
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 170
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 137
+     }
+    ],
+    "scores": {
+     "words": 134,
+     "sentences": 11,
+     "mean_sentence_words": 12.18,
+     "sentence_length_stdev": 6.03,
+     "type_token_ratio": 0.6791,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 7.46,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "Your notes, always available\n\nWe've released local-first sync. Write, edit, and organize your notes without an internet connection. When you're back online, your changes sync automatically across all your devices.\n\nStart a note on your phone during your commute, finish it on your laptop at a coffee shop without internet, then find it updated on your tablet at home. Everything syncs automatically\u2014no manual uploads or sync buttons.\n\nLocal-first sync keeps a copy of all your notes on your device. Changes queue up locally, then sync to our servers and your other devices when you reconnect. If you edit the same note on two devices while offline, the app shows you both versions and lets you choose which to keep.\n\nThe local copy makes the app faster\u2014responses are instant because you're working with locally stored data.\n\nLocal-first sync is available now for all users. No setup required.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 181
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 61
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 186
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 146
+     }
+    ],
+    "scores": {
+     "words": 148,
+     "sentences": 12,
+     "mean_sentence_words": 12.33,
+     "sentence_length_stdev": 8.04,
+     "type_token_ratio": 0.6351,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 6.76,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "Your Notes Are Always Accessible\u2014Everywhere With Local-First Sync\n\nYour notes are now available everywhere, even without internet. We've rebuilt the app so it works just as well offline as online. When offline, you create, edit, and organize notes as usual. Everything stores locally, and once you reconnect, it syncs across all devices\u2014no manual uploads, no merge conflicts, no waiting.\n\nWe kept this simple. You don't need to think about it.\n\nIf you edit a note on your phone offline, then edit the same note on your computer while still offline, both devices will sync when they reconnect. The app shows you both versions side by side so you can choose which to keep. Conflicts are rare, but when they happen, you stay in control.\n\nThis works on phones, tablets, and computers. Your full library is available offline on each device, or just the folders you choose.\n\nLocal-first sync is available now in version 4.2.",
+    "iterations": 7,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 206
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 291
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 299
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 154
+     }
+    ],
+    "scores": {
+     "words": 155,
+     "sentences": 13,
+     "mean_sentence_words": 11.92,
+     "sentence_length_stdev": 6.3,
+     "type_token_ratio": 0.6129,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 6.45,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "**Sync happens automatically**\n\nYou can now work on your notes without internet. Edit offline on any device. When you reconnect, everything syncs to the cloud.\n\nWe heard the same complaint repeatedly: you'd start writing on the train and lose connection. You'd work in a meeting with spotty wifi and wonder if anything actually saved. You'd hold off writing until you found a place with reliable internet. That's not how a note app should work.\n\nWe changed this. Your device saves every change locally first. When you're online, we send those changes to the cloud quietly in the background. Work on the same note across your phone, laptop, and tablet. We merge your edits\u2014you never lose anything. Merge conflicts are rare, and when they happen, we show them clearly so you can decide what to keep.\n\nNo setup required. It works the same way on web, mobile, and desktop. Your existing notes are ready for offline use right now.\n\nWe tested this for months with early users. The feedback was consistent: people want their app to work everywhere, not just when the network is perfect. This release makes that true.\n\nOpen your app offline and write. Your notes sync automatically when you reconnect.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 214
+     },
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 200
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 195
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 192
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 202
+     }
+    ],
+    "scores": {
+     "words": 203,
+     "sentences": 22,
+     "mean_sentence_words": 9.23,
+     "sentence_length_stdev": 4.59,
+     "type_token_ratio": 0.6207,
+     "enforced_per_1k": 14.78,
+     "held_out_per_1k": 4.93,
+     "enforced_flags": 3,
+     "held_out_flags": 1
+    }
+   }
+  },
+  {
+   "id": "incident-writeup",
+   "prompt": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words.",
+   "turns": [
+    "Add a timeline with the four key moments.",
+    "Add a section on what will stop it recurring.",
+    "Tighten the opening so it leads with impact rather than cause."
+   ],
+   "ungated": {
+    "text": "# Incident Report: Payment API Outage\n\n**Incident:** Payment API Service Unavailability\n**Duration:** 2 hours\n**Date:** September 3, 2026\n**Severity:** Critical\n\n## Summary\nPayment processing was completely unavailable for 2 hours, blocking approximately 47,000 transactions and affecting merchants and customers during peak transaction hours. The root cause was an expired TLS certificate on the load balancer.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| **14:23** | Monitoring alerts triggered on API endpoints returning certificate validation errors. |\n| **14:31** | On-call engineer confirmed TLS certificate expiration (issued Sept 3, 2024; expired Sept 3, 2026). |\n| **14:45** | Certificate renewal initiated; propagation began across load balancers. |\n| **16:23** | All endpoints restored to normal operation; traffic normalized. |\n\n## Root Cause\nThe TLS certificate expired due to lapsed renewal automation. The certificate renewal process failed silently in the CI/CD pipeline, and manual renewal oversight was not in place.\n\n## Impact\n- Approximately 47,000 transactions failed or were rejected.\n- 12 merchants reported service disruptions to support.\n- Estimated customer-facing revenue impact: $38,000.\n\n## Prevention\nTo prevent recurrence, we will implement defense-in-depth controls:\n\n1. **Automated alerts:** Trigger notifications 30 days before any certificate expiration across all domains.\n2. **CI/CD pipeline hardening:** Add explicit logging and failure escalation for certificate renewal jobs; fail deployments if renewal verification is incomplete.\n3. **Manual verification:** Add certificate expiration checks to the on-call runbook as a weekly verification task.\n4. **Inventory audit:** Complete audit of certificate management processes across all payment-critical services and implement centralized tracking.\n\nThese changes will ensure certificate lifecycle issues surface early and remain visible until resolved.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 215
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 214
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 265
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 266
+     }
+    ],
+    "scores": {
+     "words": 222,
+     "sentences": 21,
+     "mean_sentence_words": 10.57,
+     "sentence_length_stdev": 9.19,
+     "type_token_ratio": 0.6667,
+     "enforced_per_1k": 13.51,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 3,
+     "held_out_flags": 0
+    }
+   },
+   "control": {
+    "text": "# Incident Report: Payment API Outage\n\n**Date:** September 3, 2026  \n**Duration:** 2 hours  \n**Impact:** Payment processing unavailable\n\n## Summary\nAll payment processing was unavailable from 14:30 UTC to 16:30 UTC, affecting approximately 847 transactions. An expired TLS certificate on the primary gateway server prevented client connections and caused the outage.\n\n## Root Cause\nThe TLS certificate for api.payments.internal expired at 00:00 UTC on September 3. The certificate renewal process failed silently because the renewal automation lacked write access to the certificate directory following a recent infrastructure migration. Without an updated certificate, all TLS handshakes failed.\n\n## Timeline\n\n| Time | Event |\n|------|-------|\n| 14:30 UTC | Outage begins; monitoring alerts triggered on certificate validation errors |\n| 14:45 UTC | Root cause identified as expired TLS certificate |\n| 15:10 UTC | Certificate manually renewed and deployed |\n| 16:30 UTC | Full recovery confirmed; all systems operational |\n\n## Impact\nCustomers could not process payments during the two-hour window. No data loss occurred.\n\n## Resolution\nThe expired certificate was renewed manually and redeployed. The renewal automation was updated to verify directory permissions after infrastructure changes.\n\n## Prevention\nWe are implementing three changes to prevent recurrence. First, automated alerts will fire 30 days before any certificate expires, ensuring advance notice. Second, certificate validation will run as part of the post-migration infrastructure checklist to catch permission issues immediately. Third, renewal automation will emit a detailed log on success or failure, making silent failures visible to monitoring systems.\n\n## Action Items\n1. Implement certificate expiration alerts 30 days in advance\n2. Add certificate validation to the post-migration validation suite\n3. Document and test certificate renewal procedures",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 9,
+      "enforced": 2,
+      "words": 216
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 213
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 273
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 275
+     }
+    ],
+    "scores": {
+     "words": 236,
+     "sentences": 26,
+     "mean_sentence_words": 9.08,
+     "sentence_length_stdev": 7.69,
+     "type_token_ratio": 0.6059,
+     "enforced_per_1k": 12.71,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 3,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "Payment API outage \u2014 2026-09-03, 14:22\u201316:18 UTC\n\nThe payment API was unreachable for two hours, failing 8,400 transactions across 340 merchant accounts. A TLS certificate expired at 14:15 UTC after the renewal cronjob completed without writing the new certificate to disk. All client requests returned connection errors; no transactions were processed during the window.\n\nRoot cause: The certificate renewal process failed silently on 2026-09-02 at 23:00 UTC. The renewal cronjob ran without error but did not write the new certificate to disk. No monitoring rule existed for certificate age or renewal success, so no alert was triggered.\n\nTimeline:\n\n- 2026-09-02 23:00: Certificate renewal cronjob runs but fails to write the new certificate to disk. No alert is triggered.\n- 2026-09-03 14:15: Certificate expires; API becomes unreachable.\n- 2026-09-03 14:47: Oncall identifies the expired certificate as root cause.\n- 2026-09-03 16:18: Manual certificate renewal is deployed and full service restoration is confirmed.\n\nPrevention\n\nThe outage stemmed from three gaps: the renewal cronjob lacked error reporting, certificate age had no monitoring, and renewal was never tested post-deployment. Three changes will address these.\n\nFirst, monitoring will alert when certificates expire within 30 days. A second alert will fire if the renewal cronjob completes without writing a valid certificate to disk. These rules will catch problems days or hours before expiry.\n\nSecond, the renewal cronjob will log success and failure outcomes to CloudWatch. The oncall dashboard will surface renewal failures in real time, not after they cause an outage.\n\nThird, a monthly staging test will exercise the full renewal and deployment path. This will catch cronjob failures and deployment issues before they reach production.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 188
+     },
+     {
+      "total": 4,
+      "enforced": 4,
+      "words": 54
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 119
+     },
+     {
+      "total": 8,
+      "enforced": 7,
+      "words": 270
+     }
+    ],
+    "scores": {
+     "words": 249,
+     "sentences": 23,
+     "mean_sentence_words": 10.83,
+     "sentence_length_stdev": 5.59,
+     "type_token_ratio": 0.5261,
+     "enforced_per_1k": 28.11,
+     "held_out_per_1k": 4.02,
+     "enforced_flags": 7,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "**Incident Report: Payment API Outage**\n\nAll payment API requests failed for two hours on 2026-09-03 from 14:22 UTC to 16:18 UTC, affecting approximately 8,400 transactions across 47 merchants. Four merchants experienced cascading failures in their reconciliation systems. The TLS certificate for api.payment.service had expired at 14:18 UTC. Monitoring did not alert on the expiration, and the certificate renewal process relied on manual oversight.\n\n**Detection:** Support reported elevated payment processing failures at 14:25 UTC. The team identified the expired certificate at 14:32 UTC.\n\n**Resolution:** The certificate was renewed and deployed at 16:15 UTC. Service was validated and returned to normal operation at 16:18 UTC.\n\n**Findings:**\n- Certificate renewal required manual intervention rather than automation.\n- No monitoring or alerting existed for certificate expiration dates.\n- No pre-expiration notification was configured.\n\n**Prevention:**\n\nAutomated certificate renewal prevents expiration-driven outages. Certificates will renew automatically 30 days before expiration, eliminating the manual oversight failure that caused this incident. Monitoring alerts on certificates within 30 days of expiration, catching any renewal failures. Certificate expiration checks added to deployment validation ensure certificates are valid before any release reaches production. All current certificates have been reviewed and renewed where needed, removing immediate risk.\n\n**Timeline:**\n\n- **14:18 UTC** \u2014 TLS certificate expired.\n- **14:25 UTC** \u2014 Support team reported elevated payment processing failures.\n- **14:32 UTC** \u2014 Root cause identified: expired certificate.\n- **16:15 UTC** \u2014 Certificate renewed and deployed; service restored at 16:18 UTC.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 212
+     },
+     {
+      "total": 6,
+      "enforced": 1,
+      "words": 41
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 82
+     },
+     {
+      "total": 6,
+      "enforced": 1,
+      "words": 236
+     }
+    ],
+    "scores": {
+     "words": 210,
+     "sentences": 24,
+     "mean_sentence_words": 8.75,
+     "sentence_length_stdev": 4.78,
+     "type_token_ratio": 0.5667,
+     "enforced_per_1k": 4.76,
+     "held_out_per_1k": 23.81,
+     "enforced_flags": 1,
+     "held_out_flags": 5
+    }
+   },
+   "instructed+gated": {
+    "text": "Payment API outage \u2014 September 3, 2026\n\nOn September 3, 2026, from 14:22 to 16:18 UTC, the payment API went down, blocking 8,400 transactions across 340 merchant accounts and costing us $395K in lost revenue. An expired TLS certificate on the primary load balancer caused all payment processing requests to fail.\n\nThe certificate expired at 14:00 UTC. Our certificate renewal process relies on a cron job that runs weekly, but it failed silently on August 27 when the certificate authority was unreachable. No alert was triggered. The certificate expiration date was not tracked in our monitoring system, so no preventive alert would have fired. We only learned of the problem when customers started experiencing errors.\n\nTimeline\n\n14:00 UTC - Certificate expired on the primary load balancer.\n\n14:22 UTC - Payment API became unavailable as TLS handshakes failed.\n\n14:32 UTC - Connection-failure alerts fired, on-call engineer began investigating.\n\n16:18 UTC - Replacement certificate deployed and all queued transactions processed.\n\nPrevention\n\nWe will add certificate expiration tracking to our monitoring system with alerts 30 days before expiry. This gives us a month to renew before the certificate becomes invalid. The certificate renewal cron job will be reconfigured to emit explicit alerts on any failure instead of silently logging errors. Additionally, we are moving to automatic certificate renewal through ACME to remove the dependency on a manual weekly process.",
+    "iterations": 7,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 192
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 202
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 237
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 226
+     }
+    ],
+    "scores": {
+     "words": 206,
+     "sentences": 18,
+     "mean_sentence_words": 11.44,
+     "sentence_length_stdev": 7.2,
+     "type_token_ratio": 0.6019,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 4.85,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "Payment processing halted on September 3 when 8,400 transactions failed between 14:32 and 16:32 UTC. Customers encountered payment errors, though no funds moved. The TLS certificate on the payment API's primary endpoint had expired on August 28. Without alerting on certificate expiration, the failure went undetected until customer traffic hit SSL validation errors at 14:32 UTC.",
+    "iterations": 11,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 153
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 52
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 112
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 56
+     }
+    ],
+    "scores": {
+     "words": 50,
+     "sentences": 4,
+     "mean_sentence_words": 12.5,
+     "sentence_length_stdev": 4.2,
+     "type_token_ratio": 0.8,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "Incident Report \u2014 Payment API Outage\n\nDate: September 2, 2026  \nDuration: 2 hours (14:30\u201316:30 UTC)  \nService: Payment Processing API  \nStatus: Resolved\n\nSummary\n\n8,400 payment transactions failed over 2 hours, totaling $340K in failed payment attempts. The Payment API became unavailable due to an expired TLS certificate on the primary load balancer.\n\nRoot Cause\n\nThe TLS certificate for `payments.api.internal` expired at 14:15 UTC. The certificate renewal process had failed silently three weeks prior due to an invalid email address in the certificate authority account. No alert notified the ops team of the expiration.\n\nTimeline\n\n| Time (UTC) | Event |\n|---|---|\n| 14:30 | Issue detected \u2014 customers report payment failures |\n| 15:10 | Root cause identified \u2014 TLS certificate expired |\n| 15:45 | New certificate provisioned and deployed to load balancer |\n| 16:30 | Service restored \u2014 payment queue cleared and normal operations resumed |\n\nImpact\n\n- 8,400 transactions failed, totaling $340K in payment attempts\n- Customers experienced checkout failures\n- Average transaction recovery time was 12 minutes after service restored\n\nResolution\n\nWe reissued the TLS certificate, deployed it to the load balancer, and flushed the failed transaction queue.\n\nPrevention\n\n- Enable certificate expiration alerts 60 and 30 days before expiration via automated scanning of all load balancers and APIs.\n- Verify all certificate authority account contact information and test renewal workflows quarterly.\n- Implement automated certificate renewal via ACME to eliminate manual intervention and silent failures.\n\nThese measures ensure certificate status is visible, renewal does not depend on outdated contacts, and expiration cannot occur undetected.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 222
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 222
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 260
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 259
+     }
+    ],
+    "scores": {
+     "words": 220,
+     "sentences": 22,
+     "mean_sentence_words": 9.86,
+     "sentence_length_stdev": 8.12,
+     "type_token_ratio": 0.5818,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 9.09,
+     "enforced_flags": 0,
+     "held_out_flags": 2
+    }
+   },
+   "blind": {
+    "text": "**Incident Report: Payment API Outage**\n\n**Duration:** 2 hours (14:32\u201316:32 UTC, September 2, 2026)\n\n**Impact:** All payment API requests failed due to certificate validation errors. The outage blocked 8,400 transactions across merchants in 12 regions.\n\n**Root Cause**\n\nThe TLS certificate for `api.payments.example.com` expired at 12:00 UTC on September 2. A DNS propagation delay prevented the CAA record validation needed for Let's Encrypt, blocking the renewal process. Our monitoring threshold of 7 days before expiration meant the team received no alert until 14:32, when clients began reporting failures.\n\n**Timeline**\n\n- 12:00 UTC: Certificate expires\n- 14:32 UTC: Clients report connection failures; on-call engineer paged\n- 14:42 UTC: Root cause identified\n- 14:47 UTC: DNS CAA records updated\n- 14:49 UTC: Certificate renewal begins\n- 15:18 UTC: New certificate deployed and tested across all regions\n- 16:32 UTC: Full recovery\n\n**Resolution**\n\nWe issued a new certificate, deployed it to every API endpoint, and tested connectivity across all regions.\n\n**Follow-up Actions**\n\n1. Change certificate expiration alerts to 30 days before renewal instead of 7 days\n2. Add DNS CAA validation checks to the renewal automation workflow\n3. Audit monitoring systems for gaps in certificate validity detection",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 9,
+      "enforced": 8,
+      "words": 199
+     },
+     {
+      "total": 7,
+      "enforced": 7,
+      "words": 193
+     },
+     {
+      "total": 8,
+      "enforced": 8,
+      "words": 186
+     },
+     {
+      "total": 8,
+      "enforced": 8,
+      "words": 178
+     },
+     {
+      "total": 8,
+      "enforced": 8,
+      "words": 192
+     }
+    ],
+    "scores": {
+     "words": 166,
+     "sentences": 22,
+     "mean_sentence_words": 7.36,
+     "sentence_length_stdev": 5.28,
+     "type_token_ratio": 0.6205,
+     "enforced_per_1k": 48.19,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 8,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "api-guide",
+   "prompt": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words.",
+   "turns": [
+    "Add a paragraph on authentication.",
+    "Rewrite it for someone who has never used a REST API before.",
+    "Add a short warning about rate limits."
+   ],
+   "ungated": {
+    "text": "**Introduction**\n\nThe Calendar Bookings API is a tool that lets your software talk to a scheduling system. Instead of manually entering appointments, your app can automatically create, update, and view bookings through simple requests.\n\nThink of an API as a waiter in a restaurant. You give it an order (a request), it passes it to the kitchen (the system), and it brings back your food (a response). The Calendar API works the same way\u2014you send a request asking to create a booking or check availability, and it sends back a response with the result.\n\nThis guide walks you through everything step by step. We'll show you what requests look like, what responses you'll get back, and how to handle errors. If you're completely new to APIs, that's fine\u2014we explain the concepts as we go and provide copy-paste examples you can try immediately.\n\n**Authentication**\n\nBefore your app can talk to the Calendar API, it needs to prove who it is. We use API keys for this\u2014think of it like a password that your app uses to log in. You'll find your key in the dashboard under Account Settings. Never share it or put it in code you upload to GitHub.\n\nTo use the key, include it in a `Bearer {api_key}` header with every request. If a request doesn't have a valid key, the API refuses it and sends back an error. If you think someone got your key, go regenerate it right away\u2014the old one stops working immediately.\n\n**Rate Limits**\n\nTo keep the service stable for everyone, we limit how many requests you can make in a given time window. Most accounts can make up to 100 requests per minute. If you exceed this limit, the API returns a 429 error message that tells you to slow down. Simply wait a minute and try again. If your app regularly needs more requests, contact support about upgrading to a higher tier.\n\nThroughout this guide, every example shows exactly what to send and what you'll get back. You can follow along and try them yourself.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 219
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 245
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 270
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 342
+     }
+    ],
+    "scores": {
+     "words": 345,
+     "sentences": 25,
+     "mean_sentence_words": 13.68,
+     "sentence_length_stdev": 6.88,
+     "type_token_ratio": 0.5101,
+     "enforced_per_1k": 5.8,
+     "held_out_per_1k": 2.9,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "## Introduction\n\nThis guide shows you how to use the Calendar Booking API to add appointment scheduling to your application. Think of this API as a service that remembers who booked what, when they booked it, and what times are still available. You talk to it by sending requests over the internet, and it sends back answers.\n\n**What is a REST API?**\n\nAn API (application interface) lets your code talk to someone else's service. REST is just a standard way of talking. Instead of complex instructions, you use simple web requests\u2014the same kind your browser makes when you visit a website. The Calendar Booking API responds with data in a format called JSON, which is easy for computers to read.\n\n**Authentication**\n\nTo use the API, you need an API key\u2014think of it like a password that proves your application is allowed to access the service. You'll include this key with every request you send. Get your key from your account dashboard. Keep it secret, don't share it, and never put it in code you publish online. Store it as an environment variable instead.\n\n**Rate Limits**\n\nThe API limits how many requests you can make per minute to prevent abuse and keep the service reliable for everyone. Standard keys allow 100 requests per minute. If you exceed this limit, the API returns an error and you must wait before trying again. For high-volume applications, contact support to increase your limit.\n\n**What you'll learn:**\n\n- How to send requests to the API\n- How to create, view, and cancel bookings\n- How to set your available time slots\n- How to understand responses and error messages\n\nStart with the Authentication section to set up your key, then move to Bookings to learn the basic workflow.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 230
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 245
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 237
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 293
+     }
+    ],
+    "scores": {
+     "words": 289,
+     "sentences": 26,
+     "mean_sentence_words": 11.12,
+     "sentence_length_stdev": 7.11,
+     "type_token_ratio": 0.5294,
+     "enforced_per_1k": 6.92,
+     "held_out_per_1k": 3.46,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "All requests to the calendar booking API require authentication. Your API key is a secret code that proves you're allowed to use the service. Get your key from your account dashboard. When you make a request, include this key in the Authorization header using the format \"Bearer [your-key]\". This tells the API who you are and validates your request. Keep your key private and never share it or put it in public repositories. If someone gets your key, they can access your entire account, so treat it with the same care as a password. Revoke old keys from your dashboard if you suspect they've been compromised.\n\nThe API enforces rate limits to prevent abuse and ensure fair access for all users. You can make up to 1,000 requests per hour per API key. If you exceed this limit, the API will reject requests with a 429 status code and return a Retry-After header telling you how long to wait. Plan your application to batch requests and cache responses when possible. If your use case requires higher limits, contact support to discuss your needs.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 209
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 72
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 106
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 183
+     }
+    ],
+    "scores": {
+     "words": 181,
+     "sentences": 13,
+     "mean_sentence_words": 13.92,
+     "sentence_length_stdev": 4.89,
+     "type_token_ratio": 0.6022,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "Your API key allows 1,000 requests per hour. If you exceed this limit, the API responds with a 429 error (too many requests) and rejects further requests until the hour resets. To send more than 1,000 requests per hour, contact support to upgrade your tier.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 181
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 89
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 151
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 45
+     }
+    ],
+    "scores": {
+     "words": 42,
+     "sentences": 3,
+     "mean_sentence_words": 14.0,
+     "sentence_length_stdev": 7.55,
+     "type_token_ratio": 0.7619,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "This API lets you manage calendar bookings for your application. Think of it as a mailbox where your app sends requests (like \"book Tuesday at 2 PM\") and receives back a confirmation with all the details.\n\nREST API means your app sends messages using the web. JSON is the format we use\u2014a simple text style that both your app and our service can read. Calendar data stays timezone-aware, so a 2 PM booking always means 2 PM in your location, wherever our servers sit. Your app checks what times are free on a given day, picks one for a customer, and books it. Later, your app can change or cancel that booking. If two customers try to grab the same slot at the exact same instant, our system stops the conflict\u2014one booking goes through and the other gets an error message explaining why.\n\nEvery response includes the full booking details, error codes, and messages to explain what went wrong.\n\nAuthentication\n\nAuthenticate all requests using a bearer token in the Authorization header. Include your API key as `Authorization: Bearer YOUR_API_KEY`. You can generate or rotate API keys from your account settings. Each key remains valid until you revoke it or create a new one. Requests without a valid token receive a 401 Unauthorized response.\n\nRate limits\n\nOur service enforces rate limits to ensure fair access for all users. Standard accounts allow 1,000 requests per minute. If you exceed this limit, the API returns a 429 Too Many Requests response. The response includes a Retry-After header telling you how long to wait before trying again. Check your account settings to see your current rate limit and request a higher tier if your application needs it.",
+    "iterations": 9,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 204
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 229
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 214
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 283
+     }
+    ],
+    "scores": {
+     "words": 281,
+     "sentences": 21,
+     "mean_sentence_words": 13.14,
+     "sentence_length_stdev": 7.42,
+     "type_token_ratio": 0.5872,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.56,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "All requests require an API key, which works like a password that identifies you to the API. Generate a key from your account dashboard under API settings. Each request sends this key in the Authorization header at the top of your message, formatted as `Bearer your-api-key-here`. Think of the Authorization header as a container where you tell the API who you are. Treat your key like a password\u2014don't share it or paste it into public sites. If someone gets your key, generate a new one right away and delete the old one. When you send a request without a key or with an incorrect key, the API responds with a 401 Unauthorized error, meaning it rejected your credentials.\n\nThe API enforces rate limits to prevent abuse. Each API key can make up to 1,000 requests per hour. When you hit this limit, the API returns a 429 Too Many Requests response. Wait a few minutes before sending more requests, or contact support if you need a higher limit for your application.",
+    "iterations": 5,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 182
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 62
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 118
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 171
+     }
+    ],
+    "scores": {
+     "words": 169,
+     "sentences": 11,
+     "mean_sentence_words": 15.18,
+     "sentence_length_stdev": 4.87,
+     "type_token_ratio": 0.6036,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.92,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "The Calendar Bookings API lets you manage time-based reservations programmatically. Think of it as a way to automate scheduling\u2014instead of manually managing bookings, you can let software handle it for you.\n\nAn API is like a communication channel between your application and our booking system. You send a request (like \"create a booking for tomorrow at 2pm\"), and the system sends back a response (like \"booking confirmed\"). REST just means we follow a standard format for these conversations\u2014no special knowledge required to understand how it works.\n\nYou can create bookings with custom time slots, check which times are available to avoid double-bookings, change existing reservations, and cancel bookings. The system can automatically notify people when their booking changes, and it organizes results into pages so you're not overwhelmed by too much data at once.\n\nEvery request needs an API key\u2014a password-like token that proves you're allowed to access your bookings. Add it to your request, and the system trusts that it's you. Get your key from your account dashboard. Keep it as a secret that you don't share, don't put in websites, and don't expose in your code. If you're building a website, store the key safely on your server and have your server make the requests instead of doing it directly from someone's browser.\n\nThe API enforces rate limits to keep the service stable for everyone. Your plan includes a maximum number of requests per minute\u2014if you exceed this, the API will temporarily reject requests with a \"too many requests\" error. Design your application to space out requests or batch operations when possible. If you consistently hit rate limits, you can upgrade your plan for higher allowances.\n\nThis guide explains everything step-by-step, with examples in common programming languages and a safe testing environment to practice before going live.",
+    "iterations": 8,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 175
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 279
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 236
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 299
+     }
+    ],
+    "scores": {
+     "words": 303,
+     "sentences": 17,
+     "mean_sentence_words": 17.82,
+     "sentence_length_stdev": 6.11,
+     "type_token_ratio": 0.604,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.3,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "**Calendar Bookings API Guide**\n\nThis API powers the booking side of scheduling applications. Connect it to your backend to display available times, accept reservations, send confirmations, and manage changes across multiple calendars or resources.\n\nWhat's included: endpoints for events (create, read, update, delete), availability queries (find open slots in a date range), conflict prevention (block double-bookings automatically), and time-zone conversions. All examples show Python, JavaScript, and cURL implementations.\n\nThe documentation follows the booking journey, not an alphabetical endpoint list. If you're new to this API, begin with \"Getting Started\"\u2014it covers authentication and a simple end-to-end example. For specific tasks, jump directly to the relevant section.\n\nTo authenticate: create an API key in your dashboard, then pass it as a Bearer token in request headers. You'll need this before making any calls.\n\nYou have a test environment. Experiment there without touching live data.\n\nPractical details are scattered throughout: rate limits (most apps never hit them), pagination (necessary for large datasets), time-zone rules (daylight saving breaks many systems), and the peculiarities of recurring events across regions.\n\nStart with \"Getting Started\" if this is your first time, or go straight to the endpoint reference if you've worked with REST APIs before. Most integrations take a day or two.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 213
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 191
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 199
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 201
+     },
+     {
+      "total": 7,
+      "enforced": 5,
+      "words": 205
+     }
+    ],
+    "scores": {
+     "words": 206,
+     "sentences": 15,
+     "mean_sentence_words": 13.73,
+     "sentence_length_stdev": 8.84,
+     "type_token_ratio": 0.7573,
+     "enforced_per_1k": 24.27,
+     "held_out_per_1k": 9.71,
+     "enforced_flags": 5,
+     "held_out_flags": 2
+    }
+   }
+  },
+  {
+   "id": "team-update",
+   "prompt": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words.",
+   "turns": [
+    "The deadline slipped again. Update it and explain why.",
+    "Add a line thanking the two people who covered on-call.",
+    "Make it shorter and less formal."
+   ],
+   "ungated": {
+    "text": "**August Update**\n\nPostgreSQL 15 shipped three weeks early, zero downtime. Priya's rehearsal caught a connection pooling bug we would've hit in prod.\n\nSarah (senior backend from Figma) and Marcus (bootcamp grad, frontend) start Monday.\n\nThe auth refactor slipped three weeks. Second time this happened on legacy security code\u2014turns out OAuth tokens were living in tables from a 2019 refactor with zero docs. We're running a retro next week to change how we estimate unfamiliar code. New rule: systems audit before we estimate.\n\nPausing features through mid-September to stabilize auth and get Sarah and Marcus ramped. The platform's solid, so we have room to do this right. Big thanks to Jordan and Keiko for on-call coverage.\n\nHiring one more senior engineer to rebalance velocity. Applications close Friday.\n\nQuestions? Slack me.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 6,
+      "enforced": 4,
+      "words": 138
+     },
+     {
+      "total": 4,
+      "enforced": 2,
+      "words": 193
+     },
+     {
+      "total": 3,
+      "enforced": 1,
+      "words": 168
+     },
+     {
+      "total": 4,
+      "enforced": 2,
+      "words": 129
+     }
+    ],
+    "scores": {
+     "words": 128,
+     "sentences": 15,
+     "mean_sentence_words": 8.53,
+     "sentence_length_stdev": 5.58,
+     "type_token_ratio": 0.7969,
+     "enforced_per_1k": 15.62,
+     "held_out_per_1k": 15.62,
+     "enforced_flags": 2,
+     "held_out_flags": 2
+    }
+   },
+   "control": {
+    "text": "**August Engineering Update**\n\n**People**  \nBrought on two solid engineers this month. They're getting up to speed; should be shipping by mid-September.\n\n**Kafka Migration**  \nDone. We rewrote event ingestion and replay logic, cutover went smooth. One service still dual-writing for safety\u2014we'll clean that up next sprint.\n\n**Auth Redesign (Again)**  \nSlipped a second time. First we missed session replay, fixed that, then integration testing surfaced token expiration logic we hadn't accounted for. Rather than patch it half-baked, we're redesigning that interaction. New target: end of September. The team made the right call to delay. On me to catch scope drift earlier next time.\n\n**Thanks**  \nSarah and Marcus held down on-call while we dealt with migration chaos. Kept us steady.\n\n**Next**  \nFinish auth. Tune Kafka partitions. Get the new hires ramped on payment audit work.\n\n---\n\n**Word count: 145**\n\nShorter, conversational, and the mistakes land without drama.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 201
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 222
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 236
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 144
+     }
+    ],
+    "scores": {
+     "words": 143,
+     "sentences": 19,
+     "mean_sentence_words": 7.53,
+     "sentence_length_stdev": 4.21,
+     "type_token_ratio": 0.8252,
+     "enforced_per_1k": 20.98,
+     "held_out_per_1k": 6.99,
+     "enforced_flags": 3,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "Feature release bumped to early October\u2014we found concurrency bugs during testing that need fixing. Working through them now, should have a firm date by end of week.\n\nThanks to Anna and Marcus for covering on-call during the migration.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 161
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 40
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 51
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 38
+     }
+    ],
+    "scores": {
+     "words": 39,
+     "sentences": 3,
+     "mean_sentence_words": 13.0,
+     "sentence_length_stdev": 2.0,
+     "type_token_ratio": 0.9487,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 25.64,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "**August Engineering Update**\n\nWe shipped the database migration. Moved 2.8M records across three services with zero downtime. Read performance jumped 15%, and we ditched two legacy query paths that were slowing search.\n\nTwo new engineers joined: Sarah Chen (senior backend, leading the API refactor) and Marcus Rodriguez (infrastructure, taking over deployments and container orchestration).\n\nThe user export feature slipped two weeks. We hit schema inconsistencies in old data that needed backfilling first. We're shipping JSON export this week, pushing CSV to October.\n\nStats: 47 issues closed, 156 PRs merged, 76% test coverage on new code. Three production incidents, all from missing validation at service boundaries. We've deployed input validators across all endpoints now.\n\nNext: onboard Sarah and Marcus, land user export, start the caching layer.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 176
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 35
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 25
+     },
+     {
+      "total": 6,
+      "enforced": 5,
+      "words": 125
+     }
+    ],
+    "scores": {
+     "words": 121,
+     "sentences": 12,
+     "mean_sentence_words": 10.08,
+     "sentence_length_stdev": 4.8,
+     "type_token_ratio": 0.8347,
+     "enforced_per_1k": 41.32,
+     "held_out_per_1k": 8.26,
+     "enforced_flags": 5,
+     "held_out_flags": 1
+    }
+   },
+   "instructed+gated": {
+    "text": "PostgreSQL 15 migration\n\nThe migration to PostgreSQL 15 is done. Zero incidents, no rollbacks. Query latency dropped 22% on our most-used endpoints, cache hit rates up 8%, and load testing shows we handle peak traffic fine.\n\nNew engineers\n\nSarah and Miguel joined this month. Sarah's got five years of backend experience from payments and is already shipping code on the API team. Miguel came over from analytics and is ramping up on platform. Both are getting their environments set up this week.\n\nRecommendation service update\n\nThe recommendation service launch is now October instead of August. We found data consistency issues in the ingestion pipeline during testing that needed a bigger redesign than we planned. We're fixing it before it hits production. The job queue refactor is 40% done and heads to code review next week, and incident response automation is wrapping up. Both ship in September.\n\nBig thanks to the folks who covered on-call while the rest of us were heads-down on the migration.",
+    "iterations": 7,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 178
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 158
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 171
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 164
+     }
+    ],
+    "scores": {
+     "words": 159,
+     "sentences": 16,
+     "mean_sentence_words": 9.94,
+     "sentence_length_stdev": 6.84,
+     "type_token_ratio": 0.7233,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "Database Schema Refactor \u2014 Delayed to October\nLoad testing found index issues we missed in staging. Pausing to rebuild the migration strategy before we move forward.\n\nThanks to Marcus and Sarah for covering on-call this month.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 171
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 43
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 55
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 36
+     }
+    ],
+    "scores": {
+     "words": 35,
+     "sentences": 3,
+     "mean_sentence_words": 11.67,
+     "sentence_length_stdev": 2.89,
+     "type_token_ratio": 0.9143,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 28.57,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "August Engineering Update\n\nDatabase migration shipped early\u2014Infrastructure ran the parallel reads cleanly and we're fully off the legacy schema.\n\nSarah and Marcus are starting this week. Sarah's joining Backend from [Company]'s payments team, Marcus is our new Frontend hire with five years of React experience. Give their PRs real attention the first few weeks.\n\nThe API latency work slipped again, now mid-November. Turns out the reporting schema was the bottleneck, not the queries. We should've fixed that first before optimizing. We're tackling it properly now and pulling someone from Platform next sprint to keep it moving. Won't hit our Q3 target but won't block shipping.\n\nThanks to James and Priya for covering on-call during the migration.\n\nSyncs start back Monday. Let us know early if something's blocking you.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 157
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 164
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 176
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 128
+     }
+    ],
+    "scores": {
+     "words": 130,
+     "sentences": 13,
+     "mean_sentence_words": 10.0,
+     "sentence_length_stdev": 5.0,
+     "type_token_ratio": 0.8308,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 15.38,
+     "enforced_flags": 0,
+     "held_out_flags": 2
+    }
+   },
+   "blind": {
+    "text": "**September Engineering Update**\n\nThis month we completed the PostgreSQL 16 migration after six weeks of steady work. Async replication kept production live throughout the database cutover. During validation, our infrastructure team discovered a subtle index regression\u2014the kind of performance problem that stays dormant until traffic actually increases. Identifying it early prevented a production incident and saved the team from reactive firefighting.\n\nRaj and Marcus join the backend team next week. Raj built distributed systems at Stripe; Marcus brings payment infrastructure expertise from his previous role and is already mapping improvements to our transaction pipeline.\n\nThe customer dashboard redesign shifts to late October. Our charting library cannot handle our current data scale without significant refactoring, which extends into API-level changes we didn't anticipate. The extra time lets us evaluate different technical approaches rather than commit to a solution that won't hold up long-term.\n\nTeam output stayed consistent despite the migration demands. Incidents dropped this month, and the on-call rotation ran smoothly. We enter Q4 with infrastructure that supports growth.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 218
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 187
+     },
+     {
+      "total": 5,
+      "enforced": 3,
+      "words": 182
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 197
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 168
+     }
+    ],
+    "scores": {
+     "words": 168,
+     "sentences": 13,
+     "mean_sentence_words": 12.92,
+     "sentence_length_stdev": 6.56,
+     "type_token_ratio": 0.7917,
+     "enforced_per_1k": 5.95,
+     "held_out_per_1k": 5.95,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   }
+  },
+  {
+   "id": "product-comparison",
+   "prompt": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words.",
+   "turns": [
+    "Add a paragraph on what happens when a job fails in each.",
+    "Add a recommendation for a small team.",
+    "Cut the hedging and commit to the recommendation."
+   ],
+   "ungated": {
+    "text": "**For Small Teams:** Start with batches. Cron jobs are free, require no infrastructure, and need minimal operational overhead. Move to queues when batches become a bottleneck\u2014users complain about delays or you're duplicating batch logic across services. Use managed services (AWS SQS, Google Cloud Tasks), not self-hosted Redis or RabbitMQ. Do not maintain queue infrastructure yourself.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 168
+     },
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 255
+     },
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 328
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 55
+     }
+    ],
+    "scores": {
+     "words": 56,
+     "sentences": 5,
+     "mean_sentence_words": 11.2,
+     "sentence_length_stdev": 5.45,
+     "type_token_ratio": 0.9107,
+     "enforced_per_1k": 17.86,
+     "held_out_per_1k": 17.86,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "# Queue with Workers vs. Scheduled Batch Runs\n\n**Queue with Workers**: Jobs enter a queue as they arrive; workers pull and process them immediately. This model handles variable workload well \u2014 if demand spikes, jobs wait in the queue until workers claim them. Processing happens as soon as a worker is free, giving low latency for individual jobs. Workers can be scaled up or down based on queue depth. Examples: Celery, Bull, AWS SQS with Lambda.\n\n**Scheduled Batch Runs**: Jobs accumulate until a predetermined time, then a batch process handles them all at once. A cron job or scheduler triggers execution on a fixed cadence (every hour, daily at 2am, etc.). All accumulated work completes in one coordinated run. This model is simpler to reason about and monitor \u2014 you see exactly when work happens.\n\n**Key Tradeoffs**:\n\nQueue-based systems excel at responsiveness. A user action that needs background processing gets handled minutes or seconds later, not hours. But they require more operational complexity: monitoring queue depth, handling failed jobs, scaling workers independently.\n\nBatch runs suit workloads where latency doesn't matter much and you benefit from batching efficiency. Processing 10,000 records at once often costs less than processing each independently. They're easier to debug (problems are reproducible at fixed times) and require less infrastructure. The downside: users may wait hours for results, and you must size batches for worst-case load.\n\n**Failure handling**: Queue workers typically retry failed jobs automatically with exponential backoff, moving them to a dead-letter queue after repeated failures. Individual failures don't affect other jobs. Batch runs are more brittle \u2014 a failure mid-way through affects the entire batch. You need transaction-like semantics (commit nothing if any job fails) or careful state tracking to retry cleanly. Partial failures are harder to diagnose since you can't tell which specific records failed without detailed logging.\n\n**For small teams**: Batch runs are the right default. Write a script, cron runs it, you check logs once a day. No infrastructure expertise needed. Use queues only for payment processing, notifications, and user-visible actions where latency matters. Queues add debugging friction when your team context-switches; batches are predictable and testable.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 248
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 323
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 367
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 355
+     }
+    ],
+    "scores": {
+     "words": 350,
+     "sentences": 29,
+     "mean_sentence_words": 12.07,
+     "sentence_length_stdev": 5.2,
+     "type_token_ratio": 0.6371,
+     "enforced_per_1k": 8.57,
+     "held_out_per_1k": 2.86,
+     "enforced_flags": 3,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "For a small team with limited operations staff, start with scheduled batches. They require less infrastructure: a cron job or time-based trigger executing a script, plus minimal monitoring. Batching eliminates the complexity of managing worker processes and dead-letter handling. Once latency requirements tighten\u2014typically after users notice multi-hour delays\u2014add a queue system for urgent work. Keep cleanup and reporting in batches. This hybrid approach scales without premature infrastructure investment.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 208
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 114
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 85
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 68
+     }
+    ],
+    "scores": {
+     "words": 70,
+     "sentences": 6,
+     "mean_sentence_words": 11.67,
+     "sentence_length_stdev": 4.32,
+     "type_token_ratio": 0.8857,
+     "enforced_per_1k": 14.29,
+     "held_out_per_1k": 14.29,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "**For a small team, use batch runs.** They require no infrastructure beyond a cron scheduler and fit naturally into existing deploys. No separate service to maintain, no monitoring dashboards for queue depth, no worker processes to restart. A batch job runs, completes or fails, and you fix the code. This leaves your team focused on product, not operations.\n\nAdd a queue system once batch runs become too slow. If your nightly sync takes six hours and you need results hourly, or if user actions require immediate processing (password resets, notifications), introduce a queue. You'll have concrete requirements by then and can choose the right tool.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 197
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 137
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 124
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 105
+     }
+    ],
+    "scores": {
+     "words": 105,
+     "sentences": 7,
+     "mean_sentence_words": 15.0,
+     "sentence_length_stdev": 6.0,
+     "type_token_ratio": 0.7619,
+     "enforced_per_1k": 9.52,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 1,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "For a small team, use scheduled batches. They require minimal infrastructure\u2014a cron job and a script\u2014and run on any server. You avoid the operational complexity of a message broker, worker processes, and monitoring. Switch to a queue system when latency becomes unacceptable. Batches handle the majority of background work. Add queue infrastructure only when batch scheduling delays demonstrably impact users. Start simple and avoid premature complexity.",
+    "iterations": 5,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 181
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 114
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 90
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 66
+     }
+    ],
+    "scores": {
+     "words": 68,
+     "sentences": 7,
+     "mean_sentence_words": 9.71,
+     "sentence_length_stdev": 3.4,
+     "type_token_ratio": 0.7794,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 14.71,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "Start with scheduled batches. They're simpler to build and operate\u2014one process, one job, no queue service to manage. Add a queue when you need response times faster than your batch window. Small teams run background work through scheduled batches.",
+    "iterations": 8,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 204
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 146
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 312
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 39
+     }
+    ],
+    "scores": {
+     "words": 40,
+     "sentences": 4,
+     "mean_sentence_words": 10.0,
+     "sentence_length_stdev": 4.97,
+     "type_token_ratio": 0.875,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 25.0,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "For a small team, start with scheduled batches. They demand less operational overhead and handle most non-urgent work cleanly. Write your batch jobs to be idempotent\u2014safe to replay if something breaks\u2014and use straightforward logging to track what ran. When you need real-time processing (payment confirmations, user notifications), add a queue. Use a managed service like AWS SQS or Google Cloud Tasks rather than running your own Redis or RabbitMQ. This avoids the operational burden of keeping infrastructure alive and handling queue failures yourself. Combine batches for bulk work (daily reports, data cleanup) with queues for user-facing work (password resets, order confirmations). Your team stays focused on product work instead of queue operations. Scale this approach as your team grows\u2014it still works at 10 people. Only when you hit serious throughput or latency demands should you invest in dedicated queue infrastructure and operational expertise.",
+    "iterations": 9,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 193
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 107
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 127
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 143
+     }
+    ],
+    "scores": {
+     "words": 145,
+     "sentences": 10,
+     "mean_sentence_words": 14.5,
+     "sentence_length_stdev": 4.4,
+     "type_token_ratio": 0.7655,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 6.9,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "# Queue with Workers vs. Scheduled Batch Runs\n\nQueue systems maintain workers that pull jobs from a queue and process them immediately. When work arrives, an idle worker claims it. Multiple workers run jobs in parallel\u2014100 tasks execute together. Results complete as quickly as resources allow, making this approach fit time-sensitive work. Tradeoff: workers consume resources while idle, and operations require health monitoring, retry mechanisms, failure handling, and dynamic scaling.\n\nScheduled batch runs execute at set intervals\u2014hourly, daily, or weekly. The system collects jobs throughout each window, then processes them in one pass. This cuts idle overhead and reduces deployment to a single cron job. Operations stay simple and cheap. Tradeoff: latency. A job that arrives at 11:59am waits until the next cycle. Urgent work cannot jump the queue, and the system cannot respond to load spikes between scheduled runs.\n\nChoose queue workers for unpredictable job arrival, time-sensitive processing, or when priority control matters. Choose scheduled batches for stable workloads, acceptable latency, and when you value operational simplicity over responsiveness.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 191
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 179
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 172
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 178
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 170
+     }
+    ],
+    "scores": {
+     "words": 170,
+     "sentences": 16,
+     "mean_sentence_words": 10.62,
+     "sentence_length_stdev": 5.02,
+     "type_token_ratio": 0.6824,
+     "enforced_per_1k": 5.88,
+     "held_out_per_1k": 5.88,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   }
+  },
+  {
+   "id": "onboarding-doc",
+   "prompt": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words.",
+   "turns": [
+    "Add a section on who to ask for what.",
+    "The team moved from Slack to Discord. Update every reference.",
+    "Add a short note about the on-call rotation."
+   ],
+   "ungated": {
+    "text": "Onboarding document ready. It includes:\n- Core sections (what we do, day one, critical paths)\n- **Who to Ask**: Maps questions to Discord channels and team roles\n- **On-Call Rotation**: Notes the weekly Tuesday rotation, 15-minute response SLA, and shadowing setup\n\nThe document is ~550 words total\u2014the first section is around 200 as requested, with structured guidance on who to contact for different questions. All Slack references updated to Discord.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 6,
+      "enforced": 5,
+      "words": 221
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 60
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 42
+     },
+     {
+      "total": 4,
+      "enforced": 1,
+      "words": 70
+     }
+    ],
+    "scores": {
+     "words": 66,
+     "sentences": 7,
+     "mean_sentence_words": 9.43,
+     "sentence_length_stdev": 6.85,
+     "type_token_ratio": 0.8182,
+     "enforced_per_1k": 15.15,
+     "held_out_per_1k": 45.45,
+     "enforced_flags": 1,
+     "held_out_flags": 3
+    }
+   },
+   "control": {
+    "text": "# Welcome to the Payments Team\n\nWe're glad you're here. This guide covers what you need to know in your first week to become productive.\n\n## What We Do\n\nOur team owns the payment processing pipeline\u2014from transaction initiation through settlement. We handle API integrations with card networks, fraud detection, reconciliation, and reporting. We process millions of dollars daily, so reliability and correctness matter more than speed.\n\n## Critical Systems\n\n**PSP (Payment Service Provider)**: Our main service that routes transactions. You'll spend time here. Uses PostgreSQL for transactions and Redis for rate limiting.\n\n**Fraud Engine**: Flags suspicious activity. Communicates with PSP via message queue. Don't modify scoring rules without running through our validation process first.\n\n**Reconciliation Service**: Compares what we expect versus what payment networks report. Mismatches surface here.\n\n## Key Practices\n\n- Read the last 3 months of incident reports. They explain why many of our current constraints exist.\n- All payment changes need approval from our tech lead. No exceptions.\n- We deploy on Tuesdays and Thursdays only. Hotfixes are Friday-only in emergencies.\n- We test with real card numbers in staging (tokenized). Never commit actual PII.\n\n## Who to Ask\n\n**Alex (Tech Lead)**: Architecture decisions, payment rule changes, deployment approvals.  \n**Morgan (On-call)**: Staging environment issues, database access, secrets rotation.  \n**Jordan (Fraud specialist)**: How the fraud engine works, flagging logic, false positive tuning.  \n**Discord #payments-eng**: General questions, debugging help, design reviews.\n\n## On-Call Rotation\n\nYou'll join the rotation after your first two weeks. We rotate weekly: three engineers on-call at a time, with pages going to Slack and SMS. Most weeks are quiet, but you'll own production incidents during your shift. Runbooks are in the wiki. You're never alone\u2014ping the tech lead if you're unsure about anything.\n\n## Your First Tasks\n\n1. Set up your local environment (see setup guide)\n2. Read our architecture doc (internal wiki)\n3. Shadow an existing engineer on a payment flow\n4. Write a small feature by end of week with review\n\nQuestions? Ask the team on Discord anytime.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 233
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 277
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 279
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 335
+     }
+    ],
+    "scores": {
+     "words": 321,
+     "sentences": 40,
+     "mean_sentence_words": 8.03,
+     "sentence_length_stdev": 6.52,
+     "type_token_ratio": 0.6791,
+     "enforced_per_1k": 9.35,
+     "held_out_per_1k": 3.12,
+     "enforced_flags": 3,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "## On-call rotation\n\nYou'll join the on-call rotation after your first month. The rotation runs weekly\u2014each engineer covers production issues for one week at a time. During your week, you're the first responder for alerts and escalations. Check the #incidents channel in Discord immediately when something pages.\n\nMost weeks are quiet. When issues do come up, pair with whoever's available\u2014you're never alone debugging production. The team uses a runbook for common issues; keep it bookmarked.\n\nYour on-call week is considered work time, not bonus time. If an incident runs late, take time off the next day. We track on-call load to keep rotation fair.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 194
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 123
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 318
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 104
+     }
+    ],
+    "scores": {
+     "words": 105,
+     "sentences": 11,
+     "mean_sentence_words": 9.55,
+     "sentence_length_stdev": 3.83,
+     "type_token_ratio": 0.7238,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 9.52,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "## Who to ask\n\nYour onboarding buddy and the tech lead handle architecture questions. The wiki has our architecture doc.\n\nMessage the on-call engineer for deployments and incidents. Discord posts the rotation during off-hours.\n\nDatabase access and schema questions go to ops via a ticket (template pinned in #payments-ops).\n\nAny senior engineer can explain payment processing logic and edge cases. The code is self-documenting, but find whoever's least busy.\n\nWhen you need to know testing approach, pair with whoever wrote the test you're reading. Our standards are high for transaction-touching code \u2014 ask before you commit.\n\nDiscord #payments for everything else. Expect an answer within an hour during business hours.\n\n## On-call rotation\n\nThe rotation runs one week at a time. Every engineer rotates in every four weeks. Discord shows who's on-call now and for the next month. During your first month, you won't be on-call \u2014 the team handles it while you ramp up. Read the incident post-mortems to understand what on-call looks like. When your turn comes, pair with whoever just finished their rotation the first day.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 208
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 110
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 110
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 179
+     }
+    ],
+    "scores": {
+     "words": 175,
+     "sentences": 19,
+     "mean_sentence_words": 9.21,
+     "sentence_length_stdev": 3.95,
+     "type_token_ratio": 0.6971,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.71,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "instructed+gated": {
+    "text": "You'll join the on-call rotation in week three, after you've shipped your first few changes. The rotation is weekly, Monday through Sunday. On-call means you're the first person called if a payment system fails\u2014it's urgent work. You'll carry a pager and have access to production logs and dashboards. The rotation schedule is in the wiki calendar. During your on-call week, avoid scheduling vacation or major refactors. When you rotate off, the next person takes over at 9 AM Monday. The team pays on-call premium for weeks where you're on duty. You'll learn how to diagnose failures fast\u2014this is where you figure out what actually breaks.",
+    "iterations": 8,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 193
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 151
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 151
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 105
+     }
+    ],
+    "scores": {
+     "words": 106,
+     "sentences": 9,
+     "mean_sentence_words": 11.78,
+     "sentence_length_stdev": 3.15,
+     "type_token_ratio": 0.7453,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 18.87,
+     "enforced_flags": 0,
+     "held_out_flags": 2
+    }
+   },
+   "complement+gated": {
+    "text": "Welcome to the payments team. You'll be working on the systems that process and reconcile transactions\u2014the money moving through our platform.\n\nYour first week priorities:\n\nRead `docs/payments-architecture.md`. It covers transaction flow, database schemas, and how services connect. Set up your local environment using the README in the `payments-service` repo. Run integration tests to verify everything works. Attend standup each morning at 9am to meet the team and learn what's in progress.\n\nCheck our Grafana dashboards at `monitoring/payments-dashboards`. They show transaction volume, latency, and error rates. We watch these closely because payment failures directly harm customers.\n\nYour first task will be small\u2014a bug fix or minor feature. Your mentor will pair with you on it to show our testing practices and code review process.\n\nPrecision, safety, and clarity matter most in this work. We have extensive tests because mistakes cost money. Code reviews are thorough. Comments explain tricky logic. This is slower than some engineering, but it's the right pace for this domain. The team Discord channel is `#payments-eng`. Use it for questions. Your first real contribution matters. We're glad you're here.\n\nWho to ask for what:\n\nAsk your mentor for code review questions and onboarding blockers. Ask the tech lead for architecture decisions and schema changes. Ask the on-call engineer for production incidents and urgent bugs. Ask the database team for query optimization and schema reviews. Ask the security team before handling sensitive payment data in new ways. The #payments-eng Discord channel works for general questions the whole team can answer.\n\nOn-call rotation:\n\nThe team rotates on-call duty weekly. You won't take on-call for your first month\u2014use that time to understand our systems and incident response. When you join the rotation, you'll carry a pager for a week and handle alerts. Expect 1\u20132 incidents per rotation on average. Your first on-call week, you shadow an experienced engineer.",
+    "iterations": 5,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 181
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 69
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 251
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 307
+     }
+    ],
+    "scores": {
+     "words": 312,
+     "sentences": 35,
+     "mean_sentence_words": 8.71,
+     "sentence_length_stdev": 4.5,
+     "type_token_ratio": 0.6218,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.21,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "Welcome to Payments Engineering\n\nYou're joining the team that processes transactions, manages merchant accounts, and handles the financial plumbing that keeps our platform running. We move billions in volume each month across payments, payouts, and reconciliation flows. Your first week focuses on local setup, understanding our core transaction pipeline, and getting full code access to staging environments. Trace your first transaction end-to-end by Friday to understand the full flow.\n\nOur stack is Go (payment processing, ledger), Python (reconciliation, batch jobs), and PostgreSQL, with gRPC between services and Kafka for events. GitHub Actions runs CI/CD through staging before production. We handle real money\u2014tests must pass. Daily reconciliation catches bugs we can't find otherwise. Monitoring alerts us to delays within seconds. Report anything that seems fragile immediately.\n\nStart with something small\u2014a config fix or test improvement\u2014to learn our code review process.\n\nYour onboarding buddy is in Discord and will introduce you tomorrow, walking you through the entire monorepo structure. The team reads #payments-eng constantly and answers questions there.\n\nWho to Ask\n\nFor architecture and system design, start with your onboarding buddy or Maria (Tech Lead)\u2014she holds the high-level flow diagrams. On schema and database questions, reach Jason in #payments-eng; he owns the ledger schema and knows every migration. Your manager handles staging and production access, which requires explicit sign-off. For merchant or reconciliation logic, ask whoever owns that pod\u2014the pinned list in #payments-eng shows current owners. When debugging a live issue, contact the oncall engineer in #oncall and escalate to your manager if it's critical.\n\nOn-Call Rotation\n\nWe run a weekly on-call rotation. You'll shadow the current oncall for your first month, then join the rotation starting month two. Oncall duties are light most days\u2014monitoring dashboards and Pagerduty alerts\u2014but you own production incidents during your week. Critical issues (transaction failures, ledger inconsistencies) get escalated to your manager and the tech lead. The on-call runbook is in the wiki; read it before your first shift.",
+    "iterations": 9,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 162
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 253
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 253
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 322
+     }
+    ],
+    "scores": {
+     "words": 330,
+     "sentences": 26,
+     "mean_sentence_words": 12.69,
+     "sentence_length_stdev": 6.04,
+     "type_token_ratio": 0.6333,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.03,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "## Welcome to Payments\n\nYou work on money now. Downtime affects customer revenue. Every bug moves real transactions. We prioritize reliability because the cost of failure is concrete.\n\n**First week:**\n\nClone `payments-service`, `ledger-core`, `transaction-processor`. Set up your dev environment from the README. Ask your manager for staging database credentials. Run `make test` and confirm everything passes. All onboarding docs are in `/docs/backend/onboarding`.\n\n**Standards here:**\n\nAll pull requests need two approvals before merge. Code review happens within four hours. Write tests for new logic and error paths. Trust the ledger, not the cache. When they disagree, the ledger is right.\n\n**Day two:**\n\nSit with someone during incident response. See how we diagnose production problems and who owns which escalations.\n\n**Do this before day five:**\n\n- Read the fraud patterns guide (30 minutes)\n- Trace one transaction through the entire system (one hour)\n- Pair with a teammate on your first real change\n\n**Need help?**\n\nSlack #payments-eng with anything blocking you. We answer questions repeatedly. Better to ask twice than let someone stuck.\n\nWe're here to help you succeed. Let's keep the system running.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 222
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 183
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 157
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 172
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 182
+     }
+    ],
+    "scores": {
+     "words": 179,
+     "sentences": 30,
+     "mean_sentence_words": 5.7,
+     "sentence_length_stdev": 2.53,
+     "type_token_ratio": 0.7877,
+     "enforced_per_1k": 5.59,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 1,
+     "held_out_flags": 0
+    }
+   }
+  }
+ ],
+ "prompt_set": "evalab-prompts/edited.md",
+ "enforce": "structural"
+}

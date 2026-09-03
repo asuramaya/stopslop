@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  }
+ ],
+ "output": "# Queue with Workers vs. Scheduled Batch Runs\n\nA queue-based system has workers continuously pulling jobs from a queue and processing them immediately. When work arrives, the next available worker picks it up. This approach adapts well to variable load\u2014if 100 jobs arrive at once, multiple workers process them in parallel. Work completes as soon as resources allow, making it ideal for time-sensitive operations. The tradeoff: workers consume resources even when idle, and the system requires more infrastructure (managing health checks, retries, dead-letter queues, worker scaling).\n\nScheduled batch runs execute on a fixed schedule\u2014hourly, daily, or weekly. All jobs collected during that window process together in one pass. This minimizes overhead; you run only when needed. Batch processing suits predictable workloads and simplifies deployment, often reducing to a single cron job. The tradeoff: latency. A job arriving at 11:59am waits until the next scheduled run. Urgent work can't jump the queue, and you lose responsiveness to demand spikes.\n\n**Choose queue workers** for time-sensitive jobs, unpredictable arrival patterns, or when you need fine-grained priority control. **Choose scheduled batches** for predictable workloads, when latency is acceptable, and infrastructure simplicity matters more than responsiveness."
+}

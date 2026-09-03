@@ -1,0 +1,1 @@
+Payment processing halted on September 3 when 8,400 transactions failed between 14:32 and 16:32 UTC. Customers encountered payment errors, though no funds moved. The TLS certificate on the payment API's primary endpoint had expired on August 28. Without alerting on certificate expiration, the failure went undetected until customer traffic hit SSL validation errors at 14:32 UTC.

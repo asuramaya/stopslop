@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  }
+ ],
+ "output": "# Queue with Workers vs. Scheduled Batch Runs\n\n**Queue with Workers**: Jobs enter a queue as they arrive; workers pull and process them immediately. This model handles variable workload well \u2014 if demand spikes, jobs wait in the queue until workers claim them. Processing happens as soon as a worker is free, giving low latency for individual jobs. Workers can be scaled up or down based on queue depth. Examples: Celery, Bull, AWS SQS with Lambda.\n\n**Scheduled Batch Runs**: Jobs accumulate until a predetermined time, then a batch process handles them all at once. A cron job or scheduler triggers execution on a fixed cadence (every hour, daily at 2am, etc.). All accumulated work completes in one coordinated run. This model is simpler to reason about and monitor \u2014 you see exactly when work happens.\n\n**Key Tradeoffs**:\n\nQueue-based systems excel at responsiveness. A user action that needs background processing gets handled minutes or seconds later, not hours. But they require more operational complexity: monitoring queue depth, handling failed jobs, scaling workers independently.\n\nBatch runs suit workloads where latency doesn't matter much and you benefit from batching efficiency. Processing 10,000 records at once often costs less than processing each independently. They're easier to debug (problems are reproducible at fixed times) and require less infrastructure. The downside: users may wait hours for results, and you must size batches for worst-case load.\n\nChoose queues for customer-facing work with tight SLAs. Choose batches for analytics, cleanup, or reporting that can tolerate delay."
+}

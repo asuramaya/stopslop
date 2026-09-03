@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "# Welcome to the Payments Team\n\nWe're glad you're here. This guide covers what you need to know in your first week to become productive.\n\n## What We Do\n\nOur team owns the payment processing pipeline\u2014from transaction initiation through settlement. We handle API integrations with card networks, fraud detection, reconciliation, and reporting. We process millions of dollars daily, so reliability and correctness matter more than speed.\n\n## Critical Systems\n\n**PSP (Payment Service Provider)**: Our main service that routes transactions. You'll spend time here. Uses PostgreSQL for transactions and Redis for rate limiting.\n\n**Fraud Engine**: Flags suspicious activity. Communicates with PSP via message queue. Don't modify scoring rules without running through our validation process first.\n\n**Reconciliation Service**: Compares what we expect versus what payment networks report. Mismatches surface here.\n\n## Key Practices\n\n- Read the last 3 months of incident reports. They explain why many of our current constraints exist.\n- All payment changes need approval from our tech lead. No exceptions.\n- We deploy on Tuesdays and Thursdays only. Hotfixes are Friday-only in emergencies.\n- We test with real card numbers in staging (tokenized). Never commit actual PII.\n\n## Your First Tasks\n\n1. Set up your local environment (see setup guide)\n2. Read our architecture doc (internal wiki)\n3. Shadow an existing engineer on a payment flow\n4. Write a small feature by end of week with review\n\nQuestions? Slack the team anytime."
+}

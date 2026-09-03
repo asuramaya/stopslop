@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "I'll write an onboarding document with practical, direct guidance\u2014the kind that actually helps someone start work.\n\n---\n\n## Welcome to the Payments Team\n\nYou're joining us as a backend engineer on a team that processes money for our customers. This means downtime costs real money, and bugs affect real transactions. We move carefully and measure twice.\n\n**Your first week:**\n\nSet up your dev environment using the README in the payments-api repo. Clone the services: `payments-service`, `ledger-core`, and `transaction-processor`. Get database access from your manager\u2014ask for staging first, production after. Run the test suites locally (`make test`) and confirm everything passes. All onboarding blockers live in the wiki at `/docs/backend/onboarding`.\n\n**What matters here:**\n\nCode review is not optional. Every PR gets two approvals before merge; we prioritize reviews within 4 hours. Tests must cover new paths and edge cases. The ledger is the source of truth\u2014if it disagrees with cache, the ledger wins.\n\n**Day two:**\n\nShadow someone running an incident. You'll see how we triage issues and who escalates where.\n\n**Questions?** Ask in Slack (#payments-eng). There are no dumb questions. We'd rather answer twice than have you stuck.\n\n**Commit to:**\n\n- Reading the fraud patterns doc (30 minutes)\n- Running a transaction end-to-end (1 hour)\n- Pairing with a teammate on your first real task\n\nWe're glad you're here. Let's build something reliable."
+}

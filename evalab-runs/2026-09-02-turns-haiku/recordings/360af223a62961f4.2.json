@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "Here's the first page:\n\n---\n\n## Welcome to the payments team\n\nYou're joining the team that processes transactions, manages merchant accounts, and handles the financial plumbing that keeps our platform running. We move billions in volume each month across payments, payouts, and reconciliation flows.\n\nYour first week focuses on local setup, understanding our core transaction pipeline, and getting code access to our staging environment. You'll read through our architecture docs and run your first transaction trace end-to-end by Friday.\n\nOur primary systems are built in Go (payment processing, ledger), Python (reconciliation, batch jobs), and PostgreSQL for state. We use gRPC between services and Kafka for asynchronous events. Our CI/CD runs on GitHub Actions, and deploys go through staging first.\n\nKey things you need to know: we handle real money, which means our tests must pass before anything ships. We run daily reconciliation jobs that catch bugs we can't find any other way. Our monitoring catches payment delays within seconds. If something feels fragile in our code, it probably is \u2014 report it.\n\nYour onboarding buddy is listed in Slack. They'll introduce you to the team tomorrow morning and walk you through the monorepo structure. Your first PR should be small \u2014 maybe a config fix or test improvement \u2014 just to get familiar with our review process.\n\nQuestions? Ask in #payments-eng. We read it constantly."
+}

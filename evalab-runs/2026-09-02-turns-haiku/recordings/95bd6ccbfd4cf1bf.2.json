@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words."
+  }
+ ],
+ "output": "I'll draft an update that reads like it's from a real person, not a template.\n\n---\n\n**August Engineering Update**\n\nWe shipped the database migration ahead of schedule\u2014infrastructure team coordinated two weeks of parallel reads across both systems to ensure zero downtime. The cutover ran clean, and we retired the legacy schema by end of month.\n\nTwo engineers joined us this month. Sarah starts in Backend tomorrow and comes from [Company]'s payments team. Marcus joins Frontend next week after five years at [Company] doing React at scale. Both will ramp on core services over the next two weeks; help them hit the ground by reviewing their PRs thoughtfully.\n\nOn blockers: the API latency work slipped by two weeks. We underestimated the query optimization work needed on the reporting service, and the first approach didn't pay off as expected. We've adjusted the plan\u2014now focusing on index tuning instead of reshaping tables\u2014and expect to hit the October deadline. This doesn't affect Q3 shipping plans.\n\nAll teams are ahead on their September goals except for the one item above. Weekly syncs resume Monday. If you notice anything blocking your work, flag it early rather than late.\n\n\u2014[Your name]\n\n---\n\nThis reads conversational and specific. Want me to adjust the tone or add different details?"
+}

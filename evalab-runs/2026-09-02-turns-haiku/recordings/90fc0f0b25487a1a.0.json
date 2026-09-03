@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "I'll write an onboarding document with practical, direct guidance\u2014the kind that actually helps someone start work.\n\n---\n\n## Welcome to the Payments Team\n\nYou're joining us as a backend engineer on a team that processes money for our customers. This means downtime costs real money, and bugs affect real transactions. We move carefully and measure twice.\n\n**Your first week:**\n\nSet up your dev environment using the README in the payments-api repo. Clone the services: `payments-service`, `ledger-core`, and `transaction-processor`. Get database access from your manager\u2014ask for staging first, production after. Run the test suites locally (`make test`) and confirm everything passes. All onboarding blockers live in the wiki at `/docs/backend/onboarding`.\n\n**What matters here:**\n\nCode review is not optional. Every PR gets two approvals before merge; we prioritize reviews within 4 hours. Tests must cover new paths and edge cases. The ledger is the source of truth\u2014if it disagrees with cache, the ledger wins.\n\n**Day two:**\n\nShadow someone running an incident. You'll see how we triage issues and who escalates where.\n\n**Questions?** Ask in Slack (#payments-eng). There are no dumb questions. We'd rather answer twice than have you stuck.\n\n**Commit to:**\n\n- Reading the fraud patterns doc (30 minutes)\n- Running a transaction end-to-end (1 hour)\n- Pairing with a teammate on your first real task\n\nWe're glad you're here. Let's build something reliable."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "## Welcome to Payments\n\nYou've joined a team that processes real transactions for real customers. We handle money, so reliability matters\u2014outages have immediate business impact and affect our users directly.\n\n**Day one through three:**\n\nClone the core repos: `payments-service`, `ledger-core`, and `transaction-processor`. Follow the README setup steps. Request database access from your manager\u2014start with staging. Run `make test` locally and verify the test suite passes. Onboarding guides live in `/docs/backend/onboarding`.\n\n**How we work:**\n\nEvery PR requires two approvals before merging. We review within four hours of posting. Write tests for new code paths and error cases. The ledger holds the authoritative transaction record\u2014if cache diverges, the ledger is correct.\n\n**Your second day:**\n\nPair on an incident response. You'll see triage workflows and the escalation chain.\n\n**In the first week, complete:**\n\n- Read the fraud patterns documentation (30 minutes)\n- Execute a transaction from start to finish (one hour)\n- Pair with a teammate on your first ticket\n\n**Stuck?** Slack #payments-eng. Questions are normal\u2014we prefer answering the same thing twice over leaving someone blocked.\n\nWe're glad to have you here. Let's ship reliable systems."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "## Welcome to Payments\n\nYou're joining a team that moves customer money. Outages cost real money. Bugs block real transactions. We operate with precision.\n\n**First three days:**\n\nClone these core repositories: `payments-service`, `ledger-core`, `transaction-processor`. Follow the README setup steps. Request staging database access from your manager. Run `make test` locally and verify all tests pass. Onboarding documentation lives in `/docs/backend/onboarding`.\n\n**How we work:**\n\nEvery pull request requires two approvals before merging. We review within four hours. Write tests for new code paths and error cases. The ledger is truth. Cache can diverge; trust the ledger.\n\n**Day two:**\n\nObserve an incident response. Learn how we triage and escalate production problems.\n\n**Complete in your first week:**\n\n- Read fraud patterns documentation (30 minutes)\n- Execute a transaction end to end (one hour)\n- Pair with a teammate on your first ticket\n\n**Questions?**\n\nPost in #payments-eng. We answer the same question twice before leaving someone blocked.\n\nLet's build reliable systems."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Welcome to Payments\n\nYou're now part of a team that handles customer transactions. Every outage affects revenue. Every bug affects a real payment. We operate with precision because downtime matters.\n\n**Your first week:**\n\nClone `payments-service`, `ledger-core`, and `transaction-processor`. Work through the README setup. Get staging database access from your manager. Run `make test` to verify the test suite passes locally. All onboarding materials are in `/docs/backend/onboarding`.\n\n**How we operate:**\n\nTwo approvals required on every PR. We review within four hours. Cover new code paths and error cases with tests. The ledger is authoritative. Cache is secondary. When they differ, the ledger wins.\n\n**Day two:**\n\nFollow someone through an incident. Watch how we triage, communicate, and escalate in production.\n\n**First-week tasks:**\n\n- Study the fraud patterns document (30 minutes)\n- Walk a transaction through the full pipeline (one hour)\n- Pair with a teammate on your first issue\n\n**Blocked?**\n\nPost in #payments-eng. Ask early and ask often. We're here to unblock you.\n\nWe're glad you're on the team. Let's keep things working."
+}

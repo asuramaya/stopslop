@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Queue with Workers vs. Scheduled Batch Runs\n\nA queue-based system has workers continuously pulling jobs from a queue and processing them immediately. When work arrives, the next available worker picks it up. This approach adapts well to variable load\u2014if 100 jobs arrive at once, multiple workers process them in parallel. Work completes as soon as resources allow, making it ideal for time-sensitive operations. The tradeoff: workers consume resources even when idle, and the system requires more infrastructure (managing health checks, retries, dead-letter queues, worker scaling).\n\nScheduled batch runs execute on a fixed schedule\u2014hourly, daily, or weekly. All jobs collected during that window process together in one pass. This minimizes overhead; you run only when needed. Batch processing suits predictable workloads and simplifies deployment, often reducing to a single cron job. The tradeoff: latency. A job arriving at 11:59am waits until the next scheduled run. Urgent work can't jump the queue, and you lose responsiveness to demand spikes.\n\n**Choose queue workers** for time-sensitive jobs, unpredictable arrival patterns, or when you need fine-grained priority control. **Choose scheduled batches** for predictable workloads, when latency is acceptable, and infrastructure simplicity matters more than responsiveness."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Queue with Workers vs. Scheduled Batch Runs\n\nQueue systems deploy workers that continuously pull jobs from a queue and process them immediately. When work arrives, an available worker claims it. This model scales with variable load\u2014send 100 jobs at once and multiple workers process them in parallel. Work completes as fast as resources permit, making it responsive to urgent tasks. Tradeoff: idle workers consume resources, and you must maintain health checks, retries, dead-letter queues, and worker scaling logic.\n\nScheduled batch runs fire on a fixed interval\u2014hourly, daily, or weekly. The system collects all jobs from that window and processes them together in one pass. This cuts overhead; you run only when needed. Batch operations fit predictable workloads and reduce deployment to a single cron job. Tradeoff: latency. A job arriving at 11:59am waits until the next run. Urgent work cannot jump ahead, and you forfeit responsiveness to load spikes.\n\n**Use queue workers** for time-sensitive jobs, unpredictable arrival patterns, or fine-grained priority control. **Use scheduled batches** for predictable workloads where acceptable latency justifies infrastructure simplicity and lower operational cost."
+}

@@ -1,0 +1,3 @@
+**For a small team, use batch runs.** They require no infrastructure beyond a cron scheduler and fit naturally into existing deploys. No separate service to maintain, no monitoring dashboards for queue depth, no worker processes to restart. A batch job runs, completes or fails, and you fix the code. This leaves your team focused on product, not operations.
+
+Add a queue system once batch runs become too slow. If your nightly sync takes six hours and you need results hourly, or if user actions require immediate processing (password resets, notifications), introduce a queue. You'll have concrete requirements by then and can choose the right tool.

@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "A queue-based system processes jobs as they arrive. You push jobs to a queue (Redis, RabbitMQ, AWS SQS), and worker processes pull and execute them. This approach handles variable load naturally\u2014add workers when backed up, remove them when idle. It works well for workloads needing near-real-time processing. Notifications, payments, and user actions all benefit from immediate execution. Queue systems carry overhead. You must manage worker processes, handle retries and failures, track queue depth, and prevent job loss. Operational complexity grows with scale.\n\nScheduled batch runs execute jobs on a fixed schedule\u2014hourly, daily, or weekly. A single process kicks off at a set time and processes accumulated work. This works for predictable workloads like daily reports, nightly cleanup, or weekly reconciliation. Batch runs are simpler to build and operate. You skip worker pool management, queue infrastructure, and intensive monitoring. You trade responsiveness for simplicity. If urgent work arrives at 11:59 PM before the midnight batch, it waits.\n\nChoose queues when jobs arrive unpredictably, latency matters, or load varies. Choose batches when work accumulates predictably, latency is flexible, or processing volume fits manageable windows. Many systems use both\u2014queues for real-time needs, batches for bulk operations."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on what happens when a job fails in each."
+  },
+  {
+   "role": "assistant",
+   "content": "When jobs fail, the two approaches diverge. Queue systems retry automatically: failed jobs requeue, often with exponential backoff to avoid overwhelming a broken service. Permanently failed jobs route to a dead-letter queue for manual inspection. This is automatic but requires explicit error handling in your code. Batch runs have cruder failure modes. If a batch fails partway through, you choose: replay the entire batch (reprocessing successful work), resume from a checkpoint (if implemented), or stop and investigate. Partial failures are hard to track without careful logging. Recovery tends to be manual. Queue systems isolate failures gracefully; batches risk losing progress when they break."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Queue systems retry automatically:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "When jobs fail, the two approaches diverge. Queue systems automatically retry failed jobs by requeuing them, often with exponential backoff to avoid overwhelming a broken service. Permanently failed jobs route to a dead-letter queue for manual inspection. This is automatic but requires explicit error handling in your code. Batch runs have cruder failure modes. If a batch fails partway through, you must choose between replaying the entire batch (reprocessing successful work), resuming from a checkpoint (if implemented), or stopping to investigate. Partial failures are hard to track without careful logging. Recovery tends to be manual. Queue systems isolate failures gracefully; batches risk losing progress when they break."
+}

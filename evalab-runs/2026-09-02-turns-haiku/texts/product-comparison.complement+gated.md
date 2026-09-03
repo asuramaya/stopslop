@@ -1,0 +1,1 @@
+Start with scheduled batches. They're simpler to build and operate—one process, one job, no queue service to manage. Add a queue when you need response times faster than your batch window. Small teams run background work through scheduled batches.

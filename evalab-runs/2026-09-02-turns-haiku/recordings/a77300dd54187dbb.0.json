@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "You're joining the team that processes transactions, manages merchant accounts, and handles the financial plumbing that keeps our platform running. We move billions in volume each month across payments, payouts, and reconciliation flows. Your first week focuses on local setup, understanding our core transaction pipeline, and getting full code access to staging environments. Trace your first transaction end-to-end by Friday to understand the full flow.\n\nOur stack is Go (payment processing, ledger), Python (reconciliation, batch jobs), and PostgreSQL, with gRPC between services and Kafka for events. GitHub Actions runs CI/CD through staging before production. We handle real money\u2014tests must pass. Daily reconciliation catches bugs we can't find otherwise. Monitoring alerts us to delays within seconds. Report anything that seems fragile immediately.\n\nStart with something small\u2014a config fix or test improvement\u2014to learn our code review process.\n\nYour onboarding buddy is in Slack and will introduce you tomorrow, walking you through the entire monorepo structure. The team reads #payments-eng constantly and answers questions there."
+  },
+  {
+   "role": "user",
+   "content": "Add a section on who to ask for what."
+  }
+ ],
+ "output": "I'll add a practical \"Who to Ask\" section to your onboarding document that matches the direct, concrete tone you've established.\n\n---\n\n**Welcome to Payments Engineering**\n\nYou're joining the team that processes transactions, manages merchant accounts, and handles the financial plumbing that keeps our platform running. We move billions in volume each month across payments, payouts, and reconciliation flows. Your first week focuses on local setup, understanding our core transaction pipeline, and getting full code access to staging environments. Trace your first transaction end-to-end by Friday to understand the full flow.\n\nOur stack is Go (payment processing, ledger), Python (reconciliation, batch jobs), and PostgreSQL, with gRPC between services and Kafka for events. GitHub Actions runs CI/CD through staging before production. We handle real money\u2014tests must pass. Daily reconciliation catches bugs we can't find otherwise. Monitoring alerts us to delays within seconds. Report anything that seems fragile immediately.\n\nStart with something small\u2014a config fix or test improvement\u2014to learn our code review process.\n\nYour onboarding buddy is in Slack and will introduce you tomorrow, walking you through the entire monorepo structure. The team reads #payments-eng constantly and answers questions there.\n\n**Who to Ask**\n\n- **Architecture or system design**: Ask your onboarding buddy or Maria (Tech Lead). She holds the high-level flow diagrams.\n- **Schema or database questions**: Reach Jason in #payments-eng. He owns the ledger schema and knows every migration.\n- **Staging/production access or deployment**: Ask your manager. Access requires explicit sign-off.\n- **Merchant or reconciliation logic**: Ask whoever is on that pod\u2014the channel pinned list shows current owners.\n- **Debugging a live issue**: Oncall engineer in #oncall. Escalate to your manager if it's critical."
+}

@@ -1,0 +1,1 @@
+Your API key allows 1,000 requests per hour. If you exceed this limit, the API responds with a 429 error (too many requests) and rejects further requests until the hour resets. To send more than 1,000 requests per hour, contact support to upgrade your tier.
