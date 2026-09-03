@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.1 -- 2026-09-03
+
+Documentation only. Checking the docs against the tool rather than
+assuming, and finding drift in both directions.
+
+- The README documented `stopslop.py options`, removed weeks ago. A
+  reader following it got an argparse error from the tool that told them
+  to run it.
+- It never mentioned `rule-checks`. A test now holds both directions:
+  every registered command appears in the README, and the README names
+  none that does not exist.
+- The harness section was missing `--model` and `--combine`.
+- The harness docstrings still described a five-arm single-turn
+  experiment, with no mention of what the multi-turn arm found.
+
 ## 0.2.0 -- 2026-09-03
 
 The release where the tool started measuring itself, and kept losing.
