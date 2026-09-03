@@ -20,6 +20,7 @@ Run with:
 """
 import io
 import json
+import glob
 import os
 import re
 import subprocess
@@ -1002,3 +1003,40 @@ class NoStrayModulesTests(unittest.TestCase):
             text = f.read()
         self.assertIn("/*.py", text)
         self.assertIn("!/stopslop.py", text)
+
+
+class ReadmeRunCountTests(unittest.TestCase):
+    """The README's run count has drifted three times.
+
+    It is the first number a reader checks against the directory listing,
+    and every time a run is added or an invalid one is deleted it goes
+    stale silently. Prose cannot be trusted to track a directory.
+    """
+
+    WORDS = {9: "nine", 10: "ten", 11: "eleven", 12: "twelve",
+             13: "thirteen", 14: "fourteen", 15: "fifteen",
+             16: "sixteen", 17: "seventeen", 18: "eighteen"}
+
+    def _actual(self):
+        runs = os.path.join(stopslop.REPO_ROOT, "evalab-runs")
+        return len(glob.glob(os.path.join(runs, "*", "result.json"))) + \
+            len(glob.glob(os.path.join(runs, "*", "*", "result.json")))
+
+    def test_the_readme_names_the_number_of_runs_on_disk(self):
+        count = self._actual()
+        word = self.WORDS.get(count)
+        self.assertIsNotNone(word, f"extend WORDS for {count} runs")
+        with open(os.path.join(stopslop.REPO_ROOT, "README.md")) as f:
+            text = f.read().lower()
+        self.assertIn(f"{word} committed runs", text,
+                       f"{count} runs on disk; the README says otherwise")
+
+    def test_it_names_no_other_count(self):
+        """A stale second mention is how the first one stayed wrong."""
+        count = self._actual()
+        with open(os.path.join(stopslop.REPO_ROOT, "README.md")) as f:
+            text = f.read().lower()
+        for other, word in self.WORDS.items():
+            if other != count:
+                self.assertNotIn(f"{word} committed runs", text,
+                                  f"README also claims {word} runs")

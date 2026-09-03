@@ -35,7 +35,7 @@ That is the actual product. Everything above is a default.
 
 ## What the evidence says
 
-Nine committed runs, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). One of them measured this project against the other tools in its category on the same prompts, in the same run -- as far as I can find, nobody had done that before, because until this harness there was no rig.
+Fourteen committed runs on three models, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). One of them measured this project against the other tools in its category on the same prompts, in the same run -- as far as I can find, nobody had done that before, because until this harness there was no rig.
 
 | tier | tells | generations |
 |---|---|---|
@@ -196,7 +196,7 @@ python3 src/evalab/stats.py evalab-runs/2026-09-01-instructed/result.json gated 
 
 `stats.py` pairs any two arms of a saved `result.json` by prompt: an exact two-sided sign test with ties dropped, and a seeded percentile bootstrap on the mean paired difference. Every p-value in this README is reproducible with it, and a test holds the published structural claim against its own saved run so a future change to the harness fails the suite rather than silently rewriting history.
 
-Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The nine committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
+Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The fourteen committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
 
 ## What it does not do
 
@@ -218,7 +218,7 @@ Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1
 - [How to add a ruleset](docs/adding-a-ruleset.md) -- the full plugin contract: the three required functions, the three required attributes, every optional capability, and what each one adds.
 - [Embedded prose](docs/embedded-prose.md) -- how one routing rule sends a code file's own strings and docstrings through a second, prose ruleset.
 - [ASD-STE100 rules, extracted](docs/ASD-STE100-rules-extracted.md) -- the Part 1 rule set this project built the `ste100` ruleset against. Reference material, not this project's own prose, so the gate does not read it.
-- [The evaluation runs](evalab-runs/) -- all nine, in the order they were run, with what each one asked and what it found. The conclusions change between them.
+- [The evaluation runs](evalab-runs/) -- all fourteen, in the order they were run, with what each one asked and what it found. The conclusions change between them.
 - [A gate bypass during dictionary extraction](docs/incidents/2026-08-01-ste100-dictionary-extraction-gate-bypass.md) -- an incident report on a real bypass of this project's own gate, and the fix.
 
 ## License
