@@ -5,7 +5,10 @@ The gated arm reproduces what a real session does against the live hook:
 write, get denied with a list of flags, rewrite, try again. It stops when
 the text passes the ENFORCED checks or the iteration budget runs out.
 
-Five arms, and three rules keep the result honest.
+Five arms by default, and three rules keep the result honest.
+`--compare` adds one per competing tool, `--combine` runs an instruction
+inside the gated loop, and a prompt carrying follow-up turns makes every
+arm multi-turn.
 
 The fifth arm is INSTRUCTED: the enforced checks' rules stated in the
 prompt itself, one generation, no gate. It is the free alternative --

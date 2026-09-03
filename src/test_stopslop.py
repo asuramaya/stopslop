@@ -1040,3 +1040,46 @@ class ReadmeRunCountTests(unittest.TestCase):
             if other != count:
                 self.assertNotIn(f"{word} committed runs", text,
                                   f"README also claims {word} runs")
+
+
+class DocumentedCommandsTests(unittest.TestCase):
+    """The README's command list drifts in both directions.
+
+    It documented `options` for weeks after that command was removed --
+    a reader following it gets an argparse error -- and omitted
+    `rule-checks` from the day it was added. Neither is visible without
+    comparing the two by hand.
+    """
+
+    def _registered(self):
+        proc = subprocess.run(
+            [sys.executable, os.path.join(stopslop.REPO_ROOT, "stopslop.py"),
+             "--help"], capture_output=True, text=True,
+            cwd=stopslop.REPO_ROOT)
+        match = re.search(r"\{([a-z,\-]+)\}", proc.stdout)
+        self.assertIsNotNone(match, "could not read the subcommand list")
+        return sorted(match.group(1).split(","))
+
+    def _readme(self):
+        with open(os.path.join(stopslop.REPO_ROOT, "README.md")) as f:
+            return f.read()
+
+    def test_every_command_is_documented(self):
+        readme = self._readme()
+        for command in self._registered():
+            self.assertIn(f"stopslop.py {command}", readme,
+                           f"{command} is registered but the README never "
+                           "mentions it")
+
+    def test_the_readme_documents_no_command_that_does_not_exist(self):
+        """Worse than an omission: a reader who follows it gets an
+        error from the tool that told them to."""
+        registered = set(self._registered())
+        documented = set(re.findall(r"stopslop\.py ([a-z][a-z-]+)",
+                                     self._readme()))
+        # `--version` and prose like "stopslop.py init" inside sentences
+        # both land here; only real-looking subcommands matter.
+        stale = {c for c in documented - registered if "-" in c or c.isalpha()}
+        stale -= {"py"}
+        self.assertEqual(stale, set(),
+                          "README documents commands that do not exist")

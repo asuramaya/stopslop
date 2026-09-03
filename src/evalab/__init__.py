@@ -5,7 +5,7 @@ Named `evalab` rather than `eval` so no import here ever shadows the
 builtin.
 
 The experiment, in one paragraph. Take a fixed set of writing prompts.
-Run each one through five arms. UNGATED generates once. CONTROL is a
+Run each one through five arms, plus one per competing tool named with `--compare` and one per combined arm named with `--combine`. UNGATED generates once. CONTROL is a
 second ungated generation, so its delta is the run's own sampling noise
 and a gate delta smaller than that is not a finding. GATED generates,
 lints against a subset of the ruleset's checks, feeds any blocking flags
@@ -34,6 +34,16 @@ no install. The gate closes the other half for roughly three times the
 compute. Both effects are real; the honest pitch is the trade, not the
 72% figure that came from comparing against a rewrite nobody was going to
 use instead.
+
+A third question arrived with the multi-turn arm, which applies a
+sequence of follow-up edits to a document and scores it after each one.
+Real documents are written over many turns and this harness spent its
+first fourteen runs measuring first drafts. It found that documents do
+NOT get sloppier as they are edited -- two of three models improve --
+but that an INSTRUCTION fades: a rule stated once competes with
+everything said since, and by the fourth turn it no longer clears
+significance, while a gate is unaffected because it reads the text at
+the moment of every write.
 
 Every number those rounds produced is replayable from `evalab-runs/` and
 recomputable with `stats.py`, which is the point: a published p-value
