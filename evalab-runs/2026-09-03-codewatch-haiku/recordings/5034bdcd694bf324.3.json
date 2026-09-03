@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nimport pathlib\nfrom typing import Union\n\ndef find_files_by_glob(root_dir: Union[str, pathlib.Path], pattern: str) -> list[str]:\n    \"\"\"\n    Walk a directory tree and return all files matching a glob pattern.\n    \n    Args:\n        root_dir: Root directory to start walking from\n        pattern: Glob pattern to match (e.g., '**/*.txt', '*.py', '**/test_*.py')\n    \n    Returns:\n        List of file paths (as strings) matching the pattern\n    \n    Raises:\n        ValueError: If root_dir doesn't exist or isn't a directory\n    \"\"\"\n    root_path = pathlib.Path(root_dir)\n    \n    if not root_path.exists():\n        raise ValueError(f\"Directory does not exist: {root_dir}\")\n    \n    if not root_path.is_dir():\n        raise ValueError(f\"Path is not a directory: {root_dir}\")\n    \n    matches = []\n    for file_path in root_path.glob(pattern):\n        if file_path.is_file():\n            matches.append(str(file_path))\n    \n    return sorted(matches)\n\n\nif __name__ == \"__main__\":\n    # Find all Python files\n    py_files = find_files_by_glob(\".\", \"**/*.py\")\n    print(f\"Found {len(py_files)} Python files\")\n    for f in py_files[:5]:\n        print(f\"  {f}\")\n    \n    # Find all JSON files in src/ and subdirectories\n    json_files = find_files_by_glob(\".\", \"**/src/**/*.json\")\n    print(f\"Found {len(json_files)} JSON files in src/\")\n```"
+}

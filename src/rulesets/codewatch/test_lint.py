@@ -460,3 +460,44 @@ class DispatcherMigrationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ConstantConditionIdiomTests(unittest.TestCase):
+    """`while True:` is not a defect.
+
+    It is the standard Python idiom for a worker loop, a retry loop, a
+    poll loop. Measured across ~3000 words of generated Python per arm,
+    EVERY constant_condition flag this ruleset produced was a
+    `while True:` in a queue worker or a token-bucket refill -- the
+    check's entire live output was false positives.
+
+    A check that never fires wastes a reader's attention. A check that
+    fires wrongly wastes their afternoon and teaches them to ignore the
+    tool.
+    """
+
+    def test_while_true_is_not_flagged(self):
+        for line in ("while True:", "    while True:", "\t\twhile True:"):
+            self.assertEqual(lint.check_constant_condition(line), [], line)
+
+    def test_while_false_is_still_dead_code(self):
+        self.assertTrue(lint.check_constant_condition("    while False:"))
+
+    def test_if_true_and_if_false_are_still_flagged(self):
+        self.assertTrue(lint.check_constant_condition("    if True:"))
+        self.assertTrue(lint.check_constant_condition("if False:"))
+
+    def test_the_flag_names_the_constant_it_found(self):
+        flag = lint.check_constant_condition("if False:")[0]
+        self.assertEqual(flag["word"], "False")
+        self.assertIn("False", flag["note"])
+
+    def test_a_real_worker_loop_produces_no_flags(self):
+        worker = ("def run(queue):\n"
+                   "    while True:\n"
+                   "        item = queue.get()\n"
+                   "        if item is None:\n"
+                   "            break\n")
+        flags = [f for line in worker.split("\n")
+                  for f in lint.check_constant_condition(line)]
+        self.assertEqual(flags, [])

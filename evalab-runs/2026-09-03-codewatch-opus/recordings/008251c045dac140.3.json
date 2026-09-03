@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    \"\"\"A fixed-capacity cache that evicts the least recently used entry.\n\n    Both `get` and `put` count as uses, so touching a key moves it to the\n    most-recent end of the underlying OrderedDict.\n    \"\"\"\n\n    __slots__ = (\"capacity\", \"_data\")\n\n    def __init__(self, capacity):\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n        self.capacity = capacity\n        self._data = OrderedDict()\n\n    def get(self, key, default=None):\n        \"\"\"Return the value for `key`, marking it as recently used.\"\"\"\n        if key not in self._data:\n            return default\n        self._data.move_to_end(key)\n        return self._data[key]\n\n    def put(self, key, value):\n        \"\"\"Insert or update `key`, evicting the oldest entry if full.\"\"\"\n        if key in self._data:\n            self._data.move_to_end(key)\n        self._data[key] = value\n        if len(self._data) > self.capacity:\n            self._data.popitem(last=False)\n\n    def __contains__(self, key):\n        # Membership is a peek, not a use: it does not reorder anything.\n        return key in self._data\n\n    def __len__(self):\n        return len(self._data)\n\n    def __repr__(self):\n        items = \", \".join(f\"{k!r}: {v!r}\" for k, v in self._data.items())\n        return f\"LRUCache(capacity={self.capacity}, {{{items}}})\"\n```"
+}

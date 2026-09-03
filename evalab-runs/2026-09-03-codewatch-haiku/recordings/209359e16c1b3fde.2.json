@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nimport threading\nimport queue\nfrom typing import Callable, Any\n\n\nclass QueueWorker:\n    \"\"\"Worker that processes items from a queue in a background thread.\"\"\"\n    \n    def __init__(self, callback: Callable[[Any], None], q: queue.Queue = None):\n        self.callback = callback\n        self.queue = q or queue.Queue()\n        self.thread = None\n        self.running = False\n    \n    def start(self):\n        \"\"\"Start the worker thread.\"\"\"\n        if self.running:\n            return\n        self.running = True\n        self.thread = threading.Thread(target=self._run, daemon=False)\n        self.thread.start()\n    \n    def stop(self):\n        \"\"\"Stop the worker thread and wait for it to finish.\"\"\"\n        self.running = False\n        if self.thread:\n            self.thread.join()\n    \n    def _run(self):\n        \"\"\"Main worker loop that processes items from the queue.\"\"\"\n        while self.running:\n            try:\n                item = self.queue.get(timeout=1)\n                self.callback(item)\n                self.queue.task_done()\n            except queue.Empty:\n                continue\n\n\n# Example usage\nif __name__ == \"__main__\":\n    def process_item(item):\n        print(f\"Processing: {item}\")\n    \n    worker = QueueWorker(process_item)\n    worker.start()\n    \n    for i in range(5):\n        worker.queue.put(i)\n    \n    worker.queue.join()\n    worker.stop()\n```"
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nimport json\nfrom pathlib import Path\nfrom typing import Any, Dict, Optional\n\n\nclass ConfigLoader:\n    def __init__(self, config_path: str, defaults: Optional[Dict[str, Any]] = None):\n        \"\"\"Initialize the config loader with a path and optional defaults.\"\"\"\n        self.config_path = Path(config_path)\n        self.defaults = defaults or {}\n        self.config = self.load()\n    \n    def load(self) -> Dict[str, Any]:\n        \"\"\"Load config from file, falling back to defaults if file doesn't exist.\"\"\"\n        if self.config_path.exists():\n            try:\n                with open(self.config_path, 'r') as f:\n                    return json.load(f)\n            except (json.JSONDecodeError, IOError):\n                return self.defaults.copy()\n        return self.defaults.copy()\n    \n    def get(self, key: str, default: Any = None) -> Any:\n        \"\"\"Get a config value by key with optional fallback.\"\"\"\n        return self.config.get(key, default)\n    \n    def reload(self) -> None:\n        \"\"\"Reload config from disk.\"\"\"\n        self.config = self.load()\n    \n    def __getitem__(self, key: str) -> Any:\n        \"\"\"Allow dict-style access to config values.\"\"\"\n        return self.config[key]\n\n\nif __name__ == \"__main__\":\n    defaults = {\n        \"debug\": False,\n        \"host\": \"localhost\",\n        \"port\": 8000,\n    }\n    \n    loader = ConfigLoader(\"config.json\", defaults)\n    print(f\"Debug mode: {loader.get('debug')}\")\n    print(f\"Host: {loader['host']}\")\n```"
+}

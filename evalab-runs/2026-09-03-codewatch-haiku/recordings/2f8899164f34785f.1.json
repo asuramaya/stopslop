@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a token-bucket rate limiter class in Python with a `try_acquire` method. Around 50 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nimport time\nfrom threading import Lock\n\n\nclass TokenBucket:\n    \"\"\"Token bucket rate limiter for controlling request rates.\"\"\"\n    \n    def __init__(self, capacity, refill_rate):\n        \"\"\"\n        Initialize a token bucket.\n        \n        Args:\n            capacity: Maximum number of tokens the bucket can hold\n            refill_rate: Number of tokens added per second\n        \"\"\"\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = capacity\n        self.last_refill = time.time()\n        self.lock = Lock()\n    \n    def try_acquire(self, tokens=1):\n        \"\"\"\n        Attempt to acquire tokens from the bucket.\n        \n        Args:\n            tokens: Number of tokens to acquire (default: 1)\n        \n        Returns:\n            True if tokens were successfully acquired, False otherwise\n        \"\"\"\n        with self.lock:\n            self._refill()\n            \n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n    \n    def _refill(self):\n        \"\"\"Refill tokens based on elapsed time since last refill.\"\"\"\n        now = time.time()\n        elapsed = now - self.last_refill\n        tokens_to_add = elapsed * self.refill_rate\n        self.tokens = min(self.capacity, self.tokens + tokens_to_add)\n        self.last_refill = now\n```"
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nfrom pathlib import Path\nfrom typing import List, Union\n\ndef find_files(directory: Union[str, Path], pattern: str) -> List[Path]:\n    \"\"\"\n    Walk a directory tree and return all files matching a glob pattern.\n    \n    Args:\n        directory: Root directory to search from\n        pattern: Glob pattern to match (e.g., '*.txt', '**/*.py')\n    \n    Returns:\n        List of Path objects matching the pattern, sorted\n    \"\"\"\n    root = Path(directory)\n    \n    if not root.is_dir():\n        raise ValueError(f\"{directory} is not a valid directory\")\n    \n    # If pattern doesn't contain **, prepend it for recursive search\n    if '**' not in pattern:\n        search_pattern = f\"**/{pattern}\"\n    else:\n        search_pattern = pattern\n    \n    matching_files = []\n    for file_path in root.glob(search_pattern):\n        if file_path.is_file():\n            matching_files.append(file_path)\n    \n    return sorted(matching_files)\n\n\n# Example usage:\nif __name__ == \"__main__\":\n    # Find all Python files recursively\n    py_files = find_files(\".\", \"*.py\")\n    print(f\"Found {len(py_files)} Python files\")\n    for file in py_files[:5]:\n        print(f\"  {file}\")\n    \n    # Find all files matching a specific pattern\n    json_files = find_files(\".\", \"**/*.json\")\n    print(f\"Found {len(json_files)} JSON files\")\n```"
+  },
+  {
+   "role": "user",
+   "content": "Skip hidden directories and symlinks.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nfrom pathlib import Path\nfrom typing import List, Union\n\ndef find_files(directory: Union[str, Path], pattern: str) -> List[Path]:\n    \"\"\"\n    Walk a directory tree and return all files matching a glob pattern,\n    skipping hidden directories and symlinks.\n    \n    Args:\n        directory: Root directory to search from\n        pattern: Glob pattern to match (e.g., '*.txt', '**/*.py')\n    \n    Returns:\n        List of Path objects matching the pattern, sorted\n    \"\"\"\n    root = Path(directory)\n    \n    if not root.is_dir():\n        raise ValueError(f\"{directory} is not a valid directory\")\n    \n    # If pattern doesn't contain **, prepend it for recursive search\n    if '**' not in pattern:\n        search_pattern = f\"**/{pattern}\"\n    else:\n        search_pattern = pattern\n    \n    matching_files = []\n    for file_path in root.glob(search_pattern):\n        # Skip symlinks\n        if file_path.is_symlink():\n            continue\n        \n        # Skip files in hidden directories\n        if any(part.startswith('.') for part in file_path.parts[len(root.parts):]):\n            continue\n        \n        if file_path.is_file():\n            matching_files.append(file_path)\n    \n    return sorted(matching_files)\n\n\nif __name__ == \"__main__\":\n    py_files = find_files(\".\", \"*.py\")\n    print(f\"Found {len(py_files)} Python files\")\n    for file in py_files[:5]:\n        print(f\"  {file}\")\n```"
+}

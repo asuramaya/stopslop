@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nimport time\nfrom functools import wraps\n\n\ndef retry(max_attempts=3, base_delay=1, backoff_factor=2):\n    \"\"\"\n    Decorator that retries a function on exception with exponential backoff.\n    \n    Args:\n        max_attempts: Maximum number of attempts (default: 3)\n        base_delay: Initial delay in seconds (default: 1)\n        backoff_factor: Multiplier for delay after each attempt (default: 2)\n    \n    Raises:\n        The last exception encountered after max_attempts is exceeded.\n    \"\"\"\n    def decorator(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            delay = base_delay\n            \n            for attempt in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except Exception as e:\n                    if attempt == max_attempts:\n                        raise\n                    time.sleep(delay)\n                    delay *= backoff_factor\n        \n        return wrapper\n    return decorator\n\n\n# Example usage:\n# @retry(max_attempts=5, base_delay=0.5, backoff_factor=2)\n# def flaky_operation():\n#     if random.random() < 0.7:\n#         raise ConnectionError(\"Network failed\")\n#     return \"Success\"\n```"
+}

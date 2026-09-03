@@ -1,0 +1,1915 @@
+{
+ "ruleset": "codewatch",
+ "generator": "claude-cli",
+ "generator_version": "2.1.259 (Claude Code) model=haiku",
+ "enforced": [
+  "generic_naming",
+  "narrative_comment",
+  "print_debug",
+  "todo_stub"
+ ],
+ "held_out": [
+  "constant_condition",
+  "meta_comment",
+  "mutable_default_arg",
+  "swallowed_exception",
+  "tautological_assert",
+  "trivial_comment"
+ ],
+ "max_iterations": 4,
+ "instruction": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\n",
+ "instructions": {
+  "instructed": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\n",
+  "complement": "Follow these writing rules. They matter as much as the content:\n\n- if True: / if False: -- a dead branch, or leftover debug code\n- Comments citing the plan/spec/ticket, or narrating before/after state -- that belongs in a commit message, not the source\n- Mutable default arguments: def f(x=[]) -- they are shared across every call; use None and build the real default inside the function\n- Bare except-then-pass -- log the error, re-raise it, or name why it is safe to ignore\n- assert True -- it can never fail; assert the real condition, or remove it\n- Comments that only restate the next line -- cut them, or say why the code does this\n\nNow write the following. Return only the requested text.\n"
+ },
+ "intervention_arms": [
+  "complement"
+ ],
+ "combined_arms": [
+  "instructed+gated",
+  "complement+gated"
+ ],
+ "seconds": 1107.6,
+ "rows": [
+  {
+   "id": "retry-decorator",
+   "prompt": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+   "turns": [
+    "Add jitter to the backoff so retries do not synchronise.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "It should not retry on KeyboardInterrupt or SystemExit. Fix that.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "Rename `retry` to `with_retries` everywhere and update the docstring.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+   ],
+   "ungated": {
+    "text": "```python\nimport time\nimport random\nimport functools\n\n\ndef with_retries(max_attempts=3, base_delay=1, backoff_factor=2, exceptions=(Exception,)):\n    \"\"\"\n    Decorator to retry a function on exception with exponential backoff and jitter.\n    \n    Re-executes the decorated function up to max_attempts times if an exception\n    is raised. Between attempts, waits for an exponentially increasing duration\n    with random jitter to prevent synchronization of retries across instances.\n    Uses full jitter: delay between 0 and (base_delay * backoff_factor^attempt).\n    \n    KeyboardInterrupt and SystemExit are never retried and are raised immediately.\n    \n    Args:\n        max_attempts: Maximum number of attempts (default: 3)\n        base_delay: Initial delay in seconds (default: 1)\n        backoff_factor: Multiplier for exponential backoff (default: 2)\n        exceptions: Tuple of exception types to catch (default: (Exception,))\n    \n    Raises:\n        The last exception if all attempts fail.\n    \n    Example:\n        @with_retries(max_attempts=5, base_delay=0.5)\n        def unstable_operation():\n            return some_risky_call()\n    \"\"\"\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(max_attempts):\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except exceptions as e:\n                    if attempt == max_attempts - 1:\n                        raise\n                    delay = base_delay * (backoff_factor ** attempt)\n                    time.sleep(random.uniform(0, delay))\n        \n        return wrapper\n    \n    return decorator\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 137
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 152
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 166
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 166
+     }
+    ],
+    "scores": {
+     "words": 185,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4757,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "control": {
+    "text": "```python\nimport time\nimport random\nfrom functools import wraps\n\n\ndef with_retries(max_attempts=3, base_delay=1, backoff_factor=2, jitter=True):\n    \"\"\"\n    Decorator that implements retry logic with exponential backoff and jitter.\n    \n    Args:\n        max_attempts: Maximum number of attempts (default: 3)\n        base_delay: Initial delay in seconds (default: 1)\n        backoff_factor: Multiplier for delay after each attempt (default: 2)\n        jitter: Add randomization to prevent thundering herd (default: True)\n    \n    Raises:\n        The last exception encountered after max_attempts is exceeded.\n        KeyboardInterrupt and SystemExit are always re-raised immediately.\n    \"\"\"\n    def decorator(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            delay = base_delay\n            \n            for attempt in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except Exception as e:\n                    if attempt == max_attempts:\n                        raise\n                    \n                    if jitter:\n                        sleep_time = delay * (0.5 + random.random())\n                    else:\n                        sleep_time = delay\n                    \n                    time.sleep(sleep_time)\n                    delay *= backoff_factor\n        \n        return wrapper\n    return decorator\n\n\n# Example usage:\n# @with_retries(max_attempts=5, base_delay=0.5, backoff_factor=2, jitter=True)\n# def flaky_operation():\n#     if random.random() < 0.7:\n#         raise ConnectionError(\"Network failed\")\n#     return \"Success\"\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 116
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 144
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 155
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 153
+     }
+    ],
+    "scores": {
+     "words": 162,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4815,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 6.17,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "```python\nimport time\nimport random\nfrom functools import wraps\n\ndef with_retries(max_attempts=3, base_delay=1, max_delay=60, backoff_factor=2):\n    \"\"\"\n    Decorator that retries a function on exception with exponential backoff and jitter.\n    Does not retry on KeyboardInterrupt or SystemExit.\n    \n    Args:\n        max_attempts: Maximum number of attempts (default: 3)\n        base_delay: Initial delay in seconds (default: 1)\n        max_delay: Maximum delay between retries (default: 60)\n        backoff_factor: Multiplier for delay on each retry (default: 2)\n    \"\"\"\n    def decorator(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            delay = base_delay\n            \n            for attempt in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except Exception as e:\n                    if attempt == max_attempts:\n                        raise\n                    \n                    jittered_delay = delay * random.uniform(0.5, 1.0)\n                    time.sleep(jittered_delay)\n                    delay = min(delay * backoff_factor, max_delay)\n        \n        return wrapper\n    return decorator\n\n\n@with_retries(max_attempts=4, base_delay=0.5, backoff_factor=2)\ndef flaky_operation():\n    import random\n    if random.random() < 0.7:\n        raise ConnectionError(\"Network timeout\")\n    return \"success\"\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 120
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 122
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 126
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 133
+     }
+    ],
+    "scores": {
+     "words": 148,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4392,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "```python\nimport time\nimport logging\nimport random\nfrom functools import wraps\n\nlogger = logging.getLogger(__name__)\n\n\ndef with_retries(max_attempts=3, initial_delay=1, backoff_factor=2, exceptions=(Exception,)):\n    \"\"\"\n    Decorator that retries a function with exponential backoff and jitter.\n    \n    Args:\n        max_attempts: Maximum number of attempts (default: 3)\n        initial_delay: Initial delay in seconds (default: 1)\n        backoff_factor: Multiplier for delay after each attempt (default: 2)\n        exceptions: Tuple of exceptions to catch (default: Exception)\n    \"\"\"\n    def decorator(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            delay = initial_delay\n            \n            for attempt in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except exceptions as e:\n                    if attempt == max_attempts:\n                        logger.error(\n                            f\"Failed after {max_attempts} attempts in {func.__name__}\",\n                            exc_info=True\n                        )\n                        raise\n                    \n                    sleep_time = random.uniform(0, delay)\n                    logger.warning(\n                        f\"Attempt {attempt}/{max_attempts} failed in {func.__name__}: {e}. \"\n                        f\"Retrying in {sleep_time:.2f}s...\"\n                    )\n                    time.sleep(sleep_time)\n                    delay *= backoff_factor\n        \n        return wrapper\n    return decorator\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 115
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 123
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 127
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 130
+     }
+    ],
+    "scores": {
+     "words": 153,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4444,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "```python\nimport time\nimport logging\nimport random\nfrom functools import wraps\nfrom typing import Callable, Any\n\nlogger = logging.getLogger(__name__)\n\ndef with_retries(\n    max_attempts: int = 3,\n    base_delay: float = 1.0,\n    max_delay: float = 60.0,\n    exceptions: tuple = (Exception,)\n):\n    \"\"\"\n    Decorator that retries a function on exception with exponential backoff and jitter.\n    Does not retry on KeyboardInterrupt or SystemExit.\n    \n    Args:\n        max_attempts: Maximum number of attempts including the first\n        base_delay: Initial delay in seconds before first retry\n        max_delay: Maximum delay between retries in seconds\n        exceptions: Tuple of exception types to catch and retry on\n    \"\"\"\n    def decorator(func: Callable) -> Callable:\n        @wraps(func)\n        def wrapper(*args: Any, **kwargs: Any) -> Any:\n            attempt = 1\n            delay = base_delay\n            \n            while attempt <= max_attempts:\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except exceptions as e:\n                    if attempt == max_attempts:\n                        logger.error(f\"Failed after {max_attempts} attempts\", exc_info=True)\n                        raise\n                    \n                    jittered_delay = delay * random.uniform(0.5, 1.5)\n                    jittered_delay = min(jittered_delay, max_delay)\n                    logger.warning(f\"Attempt {attempt}/{max_attempts} failed, retrying in {jittered_delay:.2f}s: {e}\")\n                    time.sleep(jittered_delay)\n                    delay = min(delay * 2, max_delay)\n                    attempt += 1\n        \n        return wrapper\n    return decorator\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 145
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 159
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 163
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 170
+     }
+    ],
+    "scores": {
+     "words": 183,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4481,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "```python\nimport functools\nimport time\nimport random\nfrom typing import TypeVar, Callable, Any, Type, Tuple\n\nF = TypeVar('F', bound=Callable[..., Any])\n\ndef with_retries(\n    max_attempts: int = 3,\n    base_delay: float = 1.0,\n    max_delay: float = 60.0,\n    exceptions: Tuple[Type[Exception], ...] = (Exception,),\n) -> Callable[[F], F]:\n    \"\"\"\n    Decorator to retry a function on exception with exponential backoff and jitter.\n    \n    Args:\n        max_attempts: Maximum number of attempts (must be >= 1)\n        base_delay: Initial delay in seconds between retries\n        max_delay: Maximum delay cap in seconds\n        exceptions: Tuple of exception types to catch and retry on\n    \"\"\"\n    def decorator(func: F) -> F:\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            last_exception = None\n            for attempt in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except exceptions as e:\n                    last_exception = e\n                    if attempt < max_attempts:\n                        delay = min(base_delay * (2 ** (attempt - 1)), max_delay)\n                        delay += random.uniform(0, delay * 0.1)\n                        time.sleep(delay)\n            \n            raise last_exception\n        return wrapper\n    return decorator\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 154
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 146
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 150
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 152
+     }
+    ],
+    "scores": {
+     "words": 149,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4698,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "```python\nimport functools\nimport time\nimport random\nfrom typing import Callable, TypeVar, Any\n\nF = TypeVar('F', bound=Callable[..., Any])\n\ndef with_retries(max_attempts: int = 3, base_delay: float = 1.0, backoff_factor: float = 2.0) -> Callable[[F], F]:\n    \"\"\"Decorator that retries a function with exponential backoff and jitter on exception.\n    \n    Args:\n        max_attempts: Maximum number of attempts before giving up.\n        base_delay: Initial delay in seconds between retries.\n        backoff_factor: Multiplier for delay after each failed attempt.\n    \n    Returns:\n        A decorator that wraps the function with retry logic.\n    \n    Raises:\n        The original exception if all attempts fail. KeyboardInterrupt and SystemExit are never retried.\n    \"\"\"\n    def decorator(func: F) -> F:\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            delay = base_delay\n            last_exception = None\n            \n            for attempt in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except Exception as e:\n                    last_exception = e\n                    if attempt < max_attempts:\n                        jittered_delay = delay * (0.5 + random.random())\n                        print(f\"Attempt {attempt} failed: {e}. Retrying in {jittered_delay:.2f}s...\")\n                        time.sleep(jittered_delay)\n                        delay *= backoff_factor\n                    else:\n                        print(f\"All {max_attempts} attempts failed.\")\n            \n            raise last_exception\n        \n        return wrapper\n    \n    return decorator\n\n\n# Example usage\n@with_retries(max_attempts=3, base_delay=0.5, backoff_factor=2.0)\ndef unstable_operation():\n    import random\n    if random.random() < 0.7:\n        raise ConnectionError(\"Network error\")\n    return \"Success!\"\n\n\nif __name__ == \"__main__\":\n    result = unstable_operation()\n    print(result)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 119
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 128
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 132
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 193
+     }
+    ],
+    "scores": {
+     "words": 212,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4434,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "blind": {
+    "text": "```python\nimport time\nimport functools\n\ndef retry(max_attempts=3, base_delay=1):\n    \"\"\"\n    Decorator for automatic retry with exponential backoff on function failure.\n    \n    Args:\n        max_attempts: Total attempts permitted before raising (default: 3)\n        base_delay: Starting interval in seconds between retries (default: 1)\n    \"\"\"\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            delay_time = base_delay\n            last_error = None\n            \n            for try_count in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except Exception as ex:\n                    last_error = ex\n                    \n                    if try_count == max_attempts:\n                        raise last_error\n                    \n                    print(f\"Try #{try_count} failed: {ex}\")\n                    print(f\"Sleeping for {delay_time}s before retry...\")\n                    time.sleep(delay_time)\n                    delay_time *= 2\n        \n        return wrapper\n    return decorator\n\n\n# Example usage:\n@retry(max_attempts=4, base_delay=0.5)\ndef database_query():\n    import random\n    if random.random() < 0.7:\n        raise ConnectionError(\"Database connection refused\")\n    return \"Query executed successfully!\"\n\n\nif __name__ == \"__main__\":\n    result = database_query()\n    print(result)\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 112
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 119
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 119
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 121
+     }
+    ],
+    "scores": {
+     "words": 141,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4752,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "config-loader",
+   "prompt": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+   "turns": [
+    "Add validation that a `port` key is an integer between 1024 and 65535.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "A malformed JSON file currently crashes the caller. Make it fall back to defaults instead, and say so.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "Support an optional environment-variable override for any key.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+   ],
+   "ungated": {
+    "text": "```python\nimport json\nimport os\nfrom typing import Any, Dict, Optional\n\nDEFAULT_CONFIG = {\n    \"debug\": False,\n    \"host\": \"localhost\",\n    \"port\": 8000,\n    \"timeout\": 30,\n    \"max_retries\": 3,\n    \"log_level\": \"INFO\",\n}\n\nENV_PREFIX = \"APP_\"\n\n\nclass Config:\n    \"\"\"Load and manage application configuration from JSON files.\"\"\"\n    \n    def __init__(self, config_path: Optional[str] = None) -> None:\n        self.config_path = config_path or os.getenv(\"CONFIG_PATH\", \"config.json\")\n        self.data = self._load_config()\n    \n    def _load_config(self) -> Dict[str, Any]:\n        \"\"\"Load configuration from file, falling back to defaults if missing or invalid.\"\"\"\n        config = DEFAULT_CONFIG.copy()\n        \n        try:\n            if os.path.exists(self.config_path):\n                with open(self.config_path, \"r\") as f:\n                    file_config = json.load(f)\n                    config.update(file_config)\n                    self._validate_config(config)\n        except (json.JSONDecodeError, IOError, ValueError) as e:\n            print(f\"Warning: Could not load config from {self.config_path}: {e}\")\n            print(\"Using default configuration instead.\")\n            config = DEFAULT_CONFIG.copy()\n        \n        config = self._apply_env_overrides(config)\n        return config\n    \n    def _apply_env_overrides(self, config: Dict[str, Any]) -> Dict[str, Any]:\n        \"\"\"Apply environment variable overrides to configuration.\"\"\"\n        for key in config:\n            env_key = f\"{ENV_PREFIX}{key.upper()}\"\n            env_value = os.getenv(env_key)\n            \n            if env_value is not None:\n                config[key] = self._convert_value(env_value, type(config[key]))\n        \n        self._validate_config(config)\n        return config\n    \n    def _convert_value(self, value: str, target_type: type) -> Any:\n        \"\"\"Convert a string environment variable to the target type.\"\"\"\n        if target_type is bool:\n            return value.lower() in (\"true\", \"1\", \"yes\", \"on\")\n        elif target_type is int:\n            return int(value)\n        elif target_type is float:\n            return float(value)\n        else:\n            return value\n    \n    def _validate_config(self, config: Dict[str, Any]) -> None:\n        \"\"\"Validate configuration values.\"\"\"\n        port = config.get(\"port\")\n        \n        if not isinstance(port, int):\n            raise ValueError(f\"Port must be an integer, got {type(port).__name__}\")\n        \n        if not (1024 <= port <= 65535):\n            raise ValueError(f\"Port must be between 1024 and 65535, got {port}\")\n    \n    def get(self, key: str, default: Any = None) -> Any:\n        \"\"\"Get a configuration value by key with optional default.\"\"\"\n        return self.data.get(key, default)\n    \n    def __getitem__(self, key: str) -> Any:\n        \"\"\"Enable dictionary-style access to configuration values.\"\"\"\n        return self.data[key]\n    \n    def __contains__(self, key: str) -> bool:\n        \"\"\"Check if a configuration key exists.\"\"\"\n        return key in self.data\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 152
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 195
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 205
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 290
+     }
+    ],
+    "scores": {
+     "words": 361,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3158,
+     "enforced_per_1k": 5.54,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 2,
+     "held_out_flags": 0
+    }
+   },
+   "control": {
+    "text": "```python\nimport json\nimport os\nfrom pathlib import Path\nfrom typing import Any, Dict\n\nDEFAULT_CONFIG: Dict[str, Any] = {\n    \"debug\": False,\n    \"port\": 8000,\n    \"host\": \"localhost\",\n    \"database\": {\n        \"url\": \"sqlite:///app.db\",\n        \"pool_size\": 10,\n    },\n    \"logging\": {\n        \"level\": \"INFO\",\n        \"format\": \"json\",\n    },\n}\n\nENV_PREFIX = \"APP_\"\n\n\ndef deep_merge(base: Dict, updates: Dict) -> Dict:\n    \"\"\"Recursively merge updates into base dictionary.\"\"\"\n    result = base.copy()\n    for key, value in updates.items():\n        if key in result and isinstance(result[key], dict) and isinstance(value, dict):\n            result[key] = deep_merge(result[key], value)\n        else:\n            result[key] = value\n    return result\n\n\ndef parse_env_value(value: str, hint: Any) -> Any:\n    \"\"\"Parse environment variable value based on type hint.\"\"\"\n    if isinstance(hint, bool):\n        return value.lower() in (\"true\", \"1\", \"yes\", \"on\")\n    elif isinstance(hint, int):\n        return int(value)\n    elif isinstance(hint, (list, dict)):\n        return json.loads(value)\n    return value\n\n\ndef apply_env_overrides(config: Dict[str, Any]) -> Dict[str, Any]:\n    \"\"\"Apply environment variable overrides to config.\"\"\"\n    result = config.copy()\n    for key, value in config.items():\n        env_key = f\"{ENV_PREFIX}{key.upper()}\"\n        if env_key in os.environ:\n            result[key] = parse_env_value(os.environ[env_key], value)\n    return result\n\n\ndef validate_config(config: Dict[str, Any]) -> None:\n    \"\"\"Validate configuration values.\"\"\"\n    port = config.get(\"port\")\n    if not isinstance(port, int):\n        raise ValueError(f\"port must be an integer, got {type(port).__name__}\")\n    if not (1024 <= port <= 65535):\n        raise ValueError(f\"port must be between 1024 and 65535, got {port}\")\n\n\ndef load_config(config_path: str | Path = \"config.json\") -> Dict[str, Any]:\n    \"\"\"Load configuration from JSON file with environment overrides and defaults.\"\"\"\n    config_path = Path(config_path)\n    config = DEFAULT_CONFIG.copy()\n    \n    if config_path.exists():\n        try:\n            with open(config_path) as f:\n                file_config = json.load(f)\n                config = deep_merge(DEFAULT_CONFIG, file_config)\n        except (json.JSONDecodeError, IOError) as e:\n            print(f\"Could not load {config_path}: {e}. Falling back to defaults.\")\n    \n    config = apply_env_overrides(config)\n    validate_config(config)\n    return config\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 151
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 210
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 177
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 258
+     }
+    ],
+    "scores": {
+     "words": 312,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3301,
+     "enforced_per_1k": 3.21,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 1,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "```python\nimport json\nimport logging\nimport os\nfrom pathlib import Path\nfrom typing import Any\n\nlogger = logging.getLogger(__name__)\n\nDEFAULT_CONFIG: dict[str, Any] = {\n    \"debug\": False,\n    \"timeout\": 30,\n    \"max_retries\": 3,\n    \"log_level\": \"INFO\",\n    \"port\": 8000,\n}\n\n\nclass Config:\n    ENV_PREFIX = \"CONFIG_\"\n\n    def __init__(self, config_path: str | Path, defaults: dict[str, Any] | None = None):\n        self.config_path = Path(config_path)\n        self.defaults = defaults or DEFAULT_CONFIG\n        self.data = self._load()\n        self._apply_env_overrides()\n        self._validate()\n\n    def _load(self) -> dict[str, Any]:\n        if not self.config_path.exists():\n            logger.warning(f\"Config file not found at {self.config_path}, using defaults\")\n            return self.defaults.copy()\n\n        try:\n            with open(self.config_path) as f:\n                loaded = json.load(f)\n                merged = self.defaults.copy()\n                merged.update(loaded)\n                logger.info(f\"Config loaded from {self.config_path}\")\n                return merged\n        except (json.JSONDecodeError, IOError) as e:\n            logger.error(f\"Failed to load config: {e}, falling back to defaults\")\n            return self.defaults.copy()\n\n    def _apply_env_overrides(self) -> None:\n        for key in self.data:\n            env_var = f\"{self.ENV_PREFIX}{key.upper()}\"\n            if env_var in os.environ:\n                value = os.environ[env_var]\n                value = self._coerce_type(value, type(self.data[key]))\n                self.data[key] = value\n                logger.info(f\"Config key '{key}' overridden by {env_var}\")\n\n    def _coerce_type(self, value: str, target_type: type) -> Any:\n        if target_type is bool:\n            return value.lower() in (\"true\", \"1\", \"yes\", \"on\")\n        elif target_type is int:\n            return int(value)\n        elif target_type is float:\n            return float(value)\n        return value\n\n    def _validate(self) -> None:\n        try:\n            if \"port\" in self.data:\n                port = self.data[\"port\"]\n                if not isinstance(port, int):\n                    raise ValueError(f\"port must be an integer, got {type(port).__name__}\")\n                if not (1024 <= port <= 65535):\n                    raise ValueError(f\"port must be between 1024 and 65535, got {port}\")\n        except ValueError as e:\n            logger.error(f\"Validation failed: {e}, falling back to defaults\")\n            self.data = self.defaults.copy()\n\n    def get(self, key: str, default: Any = None) -> Any:\n        return self.data.get(key, default)\n\n    def __getitem__(self, key: str) -> Any:\n        return self.data[key]\n\n    def __contains__(self, key: str) -> bool:\n        return key in self.data\n\n    def __repr__(self) -> str:\n        return f\"Config({self.data})\"\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 144
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 187
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 204
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 274
+     }
+    ],
+    "scores": {
+     "words": 355,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.2901,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "```python\nimport copy\nimport json\nimport os\nfrom pathlib import Path\nfrom typing import Any, Dict\n\nDEFAULT_CONFIG: Dict[str, Any] = {\n    \"debug\": False,\n    \"host\": \"localhost\",\n    \"port\": 8000,\n    \"log_level\": \"INFO\",\n    \"timeout\": 30,\n    \"database\": {\n        \"engine\": \"sqlite\",\n        \"path\": \":memory:\",\n    },\n}\n\nENV_PREFIX = \"APP_\"\n\n\ndef validate_config(config: Dict[str, Any]) -> Dict[str, Any]:\n    \"\"\"Validate configuration values.\"\"\"\n    if \"port\" in config:\n        port = config[\"port\"]\n        if not isinstance(port, int):\n            raise ValueError(f\"port must be an integer, got {type(port).__name__}\")\n        if not (1024 <= port <= 65535):\n            raise ValueError(f\"port must be between 1024 and 65535, got {port}\")\n    return config\n\n\ndef parse_env_value(value: str) -> Any:\n    \"\"\"Parse environment variable value to appropriate type.\"\"\"\n    if value.lower() in (\"true\", \"false\"):\n        return value.lower() == \"true\"\n    try:\n        return int(value)\n    except ValueError:\n        pass\n    try:\n        return float(value)\n    except ValueError:\n        pass\n    return value\n\n\ndef apply_env_overrides(config: Dict[str, Any]) -> Dict[str, Any]:\n    \"\"\"Override config values with environment variables prefixed with APP_.\"\"\"\n    for key, value in config.items():\n        if isinstance(value, dict):\n            continue\n        env_key = ENV_PREFIX + key.upper()\n        if env_key in os.environ:\n            config[key] = parse_env_value(os.environ[env_key])\n    return config\n\n\ndef load_config(config_path: str | Path = \"config.json\") -> Dict[str, Any]:\n    \"\"\"Load JSON config file with fallback to defaults when missing or invalid.\"\"\"\n    config_path = Path(config_path)\n    \n    if not config_path.exists():\n        config = copy.deepcopy(DEFAULT_CONFIG)\n    else:\n        try:\n            with open(config_path) as f:\n                user_config = json.load(f)\n        except (json.JSONDecodeError, IOError) as e:\n            print(f\"Failed to parse config at {config_path}: {e}, using defaults\")\n            return copy.deepcopy(DEFAULT_CONFIG)\n        \n        config = copy.deepcopy(DEFAULT_CONFIG)\n        config.update(user_config)\n    \n    try:\n        validate_config(config)\n    except ValueError as e:\n        print(f\"Invalid config at {config_path}: {e}, using defaults\")\n        return copy.deepcopy(DEFAULT_CONFIG)\n    \n    apply_env_overrides(config)\n    return config\n\n\ndef get_config(config_path: str | Path | None = None) -> Dict[str, Any]:\n    \"\"\"Load config from path, environment variable, or default location.\"\"\"\n    if config_path is None:\n        config_path = os.getenv(\"CONFIG_PATH\", \"config.json\")\n    return load_config(config_path)\n\n\nif __name__ == \"__main__\":\n    config = get_config()\n    print(\"Configuration loaded:\")\n    print(json.dumps(config, indent=2))\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 140
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 189
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 203
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 285
+     }
+    ],
+    "scores": {
+     "words": 350,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3057,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.71,
+     "enforced_flags": 0,
+     "held_out_flags": 2
+    }
+   },
+   "instructed+gated": {
+    "text": "```python\nimport json\nimport logging\nimport os\nfrom pathlib import Path\nfrom typing import Any, Dict\n\nlogger = logging.getLogger(__name__)\n\nDEFAULT_CONFIG = {\n    \"debug\": False,\n    \"timeout\": 30,\n    \"max_retries\": 3,\n    \"log_level\": \"INFO\",\n    \"host\": \"localhost\",\n    \"port\": 8000,\n}\n\n\nclass ConfigValidationError(ValueError):\n    pass\n\n\nclass ConfigLoader:\n    def __init__(self, config_path: str | Path = \"config.json\", env_prefix: str = \"APP_\"):\n        self.config_path = Path(config_path)\n        self.env_prefix = env_prefix\n        self.config = self._load_config()\n\n    def _load_config(self) -> Dict[str, Any]:\n        if self.config_path.exists():\n            try:\n                with open(self.config_path) as f:\n                    file_config = json.load(f)\n                merged = {**DEFAULT_CONFIG, **file_config}\n            except json.JSONDecodeError as e:\n                logger.warning(f\"Malformed JSON in {self.config_path}: {e}. Using defaults.\")\n                merged = DEFAULT_CONFIG.copy()\n            except IOError as e:\n                logger.warning(f\"Failed to read {self.config_path}: {e}. Using defaults.\")\n                merged = DEFAULT_CONFIG.copy()\n        else:\n            merged = DEFAULT_CONFIG.copy()\n\n        merged = self._apply_env_overrides(merged)\n        self._validate_config(merged)\n        return merged\n\n    def _apply_env_overrides(self, config: Dict[str, Any]) -> Dict[str, Any]:\n        for key in config:\n            env_key = f\"{self.env_prefix}{key.upper()}\"\n            if env_key in os.environ:\n                env_value = os.environ[env_key]\n                config[key] = self._parse_env_value(env_value, config[key])\n        return config\n\n    def _parse_env_value(self, env_str: str, default_value: Any) -> Any:\n        if isinstance(default_value, bool):\n            return env_str.lower() in (\"true\", \"1\", \"yes\")\n        elif isinstance(default_value, int):\n            try:\n                return int(env_str)\n            except ValueError:\n                logger.warning(f\"Could not parse '{env_str}' as int, using default\")\n                return default_value\n        elif isinstance(default_value, float):\n            try:\n                return float(env_str)\n            except ValueError:\n                logger.warning(f\"Could not parse '{env_str}' as float, using default\")\n                return default_value\n        return env_str\n\n    def _validate_config(self, config: Dict[str, Any]) -> None:\n        port = config.get(\"port\")\n        if not isinstance(port, int):\n            raise ConfigValidationError(\n                f\"port must be an integer, got {type(port).__name__}\"\n            )\n        if not (1024 <= port <= 65535):\n            raise ConfigValidationError(f\"port must be between 1024 and 65535, got {port}\")\n\n    def get(self, key: str, default: Any = None) -> Any:\n        return self.config.get(key, default)\n\n    def __getitem__(self, key: str) -> Any:\n        return self.config[key]\n\n    def __contains__(self, key: str) -> bool:\n        return key in self.config\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 116
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 152
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 179
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 274
+     }
+    ],
+    "scores": {
+     "words": 364,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.2637,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "```python\nimport json\nimport logging\nimport os\nfrom pathlib import Path\nfrom typing import Any\n\nlogger = logging.getLogger(__name__)\n\nDEFAULT_CONFIG = {\n    \"host\": \"localhost\",\n    \"port\": 8080,\n    \"debug\": False,\n    \"timeout\": 30,\n    \"max_retries\": 3,\n}\n\nENV_PREFIX = \"CONFIG_\"\n\n\nclass ConfigLoader:\n    def __init__(self, config_path: str | None = None):\n        self.config_path = Path(config_path) if config_path else Path(\"config.json\")\n        self._config: dict[str, Any] | None = None\n\n    @property\n    def config(self) -> dict[str, Any]:\n        if self._config is None:\n            self._config = self.load()\n        return self._config\n\n    def load(self) -> dict[str, Any]:\n        if not self.config_path.exists():\n            logger.warning(f\"Config file not found at {self.config_path}, using defaults\")\n            config = DEFAULT_CONFIG.copy()\n        else:\n            try:\n                with open(self.config_path) as f:\n                    loaded = json.load(f)\n                config = {**DEFAULT_CONFIG, **loaded}\n            except (json.JSONDecodeError, IOError) as e:\n                logger.warning(f\"Failed to load config from {self.config_path}: {e}, using defaults\")\n                config = DEFAULT_CONFIG.copy()\n        \n        self._apply_env_overrides(config)\n        self._validate(config)\n        return config\n\n    def _apply_env_overrides(self, config: dict[str, Any]) -> None:\n        for key in config:\n            env_key = f\"{ENV_PREFIX}{key.upper()}\"\n            if env_key in os.environ:\n                env_value = os.environ[env_key]\n                if isinstance(config[key], bool):\n                    config[key] = env_value.lower() in (\"true\", \"1\", \"yes\")\n                elif isinstance(config[key], int):\n                    config[key] = int(env_value)\n                else:\n                    config[key] = env_value\n\n    def _validate(self, config: dict[str, Any]) -> None:\n        port = config.get(\"port\")\n        if not isinstance(port, int):\n            raise ValueError(f\"port must be an integer, got {type(port).__name__}\")\n        if not (1024 <= port <= 65535):\n            raise ValueError(f\"port must be between 1024 and 65535, got {port}\")\n\n    def get(self, key: str, default: Any = None) -> Any:\n        return self.config.get(key, default)\n\n    def reload(self) -> None:\n        self._config = None\n\n\nif __name__ == \"__main__\":\n    loader = ConfigLoader()\n    print(loader.config)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 119
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 165
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 189
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 236
+     }
+    ],
+    "scores": {
+     "words": 294,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3095,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "```python\nimport json\nimport logging\nimport os\nfrom typing import Any, Dict\n\nlogger = logging.getLogger(__name__)\n\nDEFAULT_CONFIG = {\n    \"debug\": False,\n    \"timeout\": 30,\n    \"max_retries\": 3,\n    \"log_level\": \"INFO\",\n    \"port\": 8080,\n}\n\nENV_PREFIX = \"APP_CONFIG_\"\n\n\nclass ConfigLoader:\n    def __init__(self, config_path: str = \"config.json\"):\n        self.config_path = config_path\n        self.config = self._load_config()\n\n    def _load_config(self) -> Dict[str, Any]:\n        \"\"\"Load config from file, apply env overrides, or return defaults if file is missing or malformed.\"\"\"\n        if os.path.exists(self.config_path):\n            try:\n                with open(self.config_path, \"r\") as f:\n                    file_config = json.load(f)\n                    config = {**DEFAULT_CONFIG, **file_config}\n            except (json.JSONDecodeError, IOError) as e:\n                logger.warning(\n                    f\"Failed to load config from {self.config_path}: {e}. \"\n                    \"Using defaults.\"\n                )\n                config = DEFAULT_CONFIG.copy()\n        else:\n            config = DEFAULT_CONFIG.copy()\n        \n        # Apply environment variable overrides\n        config = self._apply_env_overrides(config)\n        \n        self._validate_config(config)\n        return config\n\n    def _apply_env_overrides(self, config: Dict[str, Any]) -> Dict[str, Any]:\n        \"\"\"Apply environment variable overrides to config.\"\"\"\n        for key in config:\n            env_key = f\"{ENV_PREFIX}{key.upper()}\"\n            if env_key in os.environ:\n                value = os.environ[env_key]\n                # Try to convert to appropriate type\n                if isinstance(config[key], bool):\n                    config[key] = value.lower() in (\"true\", \"1\", \"yes\")\n                elif isinstance(config[key], int):\n                    try:\n                        config[key] = int(value)\n                    except ValueError:\n                        logger.warning(f\"Could not convert {env_key}={value} to int\")\n                else:\n                    config[key] = value\n        return config\n\n    def _validate_config(self, config: Dict[str, Any]) -> None:\n        \"\"\"Validate config values.\"\"\"\n        if \"port\" in config:\n            port = config[\"port\"]\n            if not isinstance(port, int) or port < 1024 or port > 65535:\n                raise ValueError(\n                    f\"port must be an integer between 1024 and 65535, got {port}\"\n                )\n\n    def get(self, key: str, default: Any = None) -> Any:\n        \"\"\"Get a config value by key.\"\"\"\n        return self.config.get(key, default)\n\n    def get_all(self) -> Dict[str, Any]:\n        \"\"\"Get the entire config dictionary.\"\"\"\n        return self.config.copy()\n\n\nif __name__ == \"__main__\":\n    logging.basicConfig(level=logging.WARNING)\n    loader = ConfigLoader()\n    print(loader.get_all())\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 113
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 165
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 187
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 267
+     }
+    ],
+    "scores": {
+     "words": 323,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.322,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "blind": {
+    "text": "```python\nimport json\nfrom pathlib import Path\nfrom typing import Any\n\n\nclass Configuration:\n    \"\"\"Load and manage application settings from JSON with fallback defaults.\"\"\"\n    \n    def __init__(self, config_path: str, defaults: dict[str, Any] | None = None):\n        self.config_path = Path(config_path)\n        self.defaults = defaults or {}\n        self._settings = {}\n        self._load_config()\n    \n    def _load_config(self) -> None:\n        \"\"\"Load configuration from file, falling back to defaults on failure.\"\"\"\n        try:\n            if self.config_path.exists():\n                with open(self.config_path, 'r') as f:\n                    self._settings = json.load(f)\n            else:\n                self._settings = self.defaults.copy()\n        except (json.JSONDecodeError, OSError):\n            self._settings = self.defaults.copy()\n    \n    def get(self, key: str, default: Any = None) -> Any:\n        \"\"\"Retrieve a setting value.\"\"\"\n        return self._settings.get(key, default)\n    \n    def __getitem__(self, key: str) -> Any:\n        return self._settings[key]\n    \n    def __setitem__(self, key: str, value: Any) -> None:\n        self._settings[key] = value\n    \n    def refresh(self) -> None:\n        \"\"\"Reload configuration from disk.\"\"\"\n        self._load_config()\n    \n    def to_dict(self) -> dict[str, Any]:\n        \"\"\"Export current configuration as dictionary.\"\"\"\n        return self._settings.copy()\n\n\nif __name__ == \"__main__\":\n    defaults = {\n        \"api_key\": \"\",\n        \"timeout\": 30,\n        \"retries\": 3,\n        \"environment\": \"development\",\n    }\n    \n    cfg = Configuration(\"settings.json\", defaults)\n    print(f\"Environment: {cfg.get('environment')}\")\n    print(f\"Timeout: {cfg['timeout']}\")\n    print(f\"Config: {cfg.to_dict()}\")\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 150
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 170
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 170
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 165
+     }
+    ],
+    "scores": {
+     "words": 199,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3568,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "lru-cache",
+   "prompt": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+   "turns": [
+    "Add a `stats()` method returning hits, misses and the current size.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "It is not thread-safe and two threads can corrupt the ordering. Fix it.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "Add an optional per-entry time-to-live.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+   ],
+   "ungated": {
+    "text": "```python\nfrom collections import OrderedDict\nimport threading\nimport time\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.hits = 0\n        self.misses = 0\n        self.lock = threading.Lock()\n    \n    def get(self, key):\n        \"\"\"Get value and mark as most recently used.\"\"\"\n        with self.lock:\n            if key not in self.cache:\n                self.misses += 1\n                return -1\n            \n            value, ttl, timestamp = self.cache[key]\n            \n            # Check if entry has expired\n            if ttl is not None and time.time() - timestamp > ttl:\n                del self.cache[key]\n                self.misses += 1\n                return -1\n            \n            # Move to end to mark as recently used\n            self.cache.move_to_end(key)\n            self.hits += 1\n            return value\n    \n    def put(self, key, value, ttl=None):\n        \"\"\"Put key-value pair with optional TTL, evicting LRU item if necessary.\"\"\"\n        with self.lock:\n            if key in self.cache:\n                # Update existing key\n                self.cache[key] = (value, ttl, time.time())\n                self.cache.move_to_end(key)\n            else:\n                # Add new key\n                self.cache[key] = (value, ttl, time.time())\n                # Evict least recently used if over capacity\n                if len(self.cache) > self.capacity:\n                    self.cache.popitem(last=False)\n    \n    def stats(self):\n        \"\"\"Return cache statistics: hits, misses, and current size.\"\"\"\n        with self.lock:\n            return {\n                'hits': self.hits,\n                'misses': self.misses,\n                'size': len(self.cache)\n            }\n\n\n# Example usage:\nif __name__ == \"__main__\":\n    lru = LRUCache(capacity=2)\n    \n    lru.put(1, \"a\", ttl=1.0)\n    lru.put(2, \"b\")\n    print(lru.get(1))          # 'a'\n    \n    lru.put(3, \"c\")            # Evicts 2\n    print(lru.get(2))          # -1 (evicted)\n    \n    time.sleep(1.1)\n    print(lru.get(1))          # -1 (expired)\n    \n    lru.put(4, \"d\")\n    print(lru.get(4))          # 'd'\n    \n    print(lru.stats())\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 137
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 176
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 187
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 211
+     }
+    ],
+    "scores": {
+     "words": 238,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3529,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 4.2,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "```python\nfrom collections import OrderedDict\nimport threading\nimport time\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.hits = 0\n        self.misses = 0\n        self.lock = threading.Lock()\n    \n    def get(self, key):\n        \"\"\"Get value for key. Returns -1 if not found or expired.\n        Marks key as recently used. Updates hit/miss counters.\"\"\"\n        with self.lock:\n            if key not in self.cache:\n                self.misses += 1\n                return -1\n            value, expiration = self.cache[key]\n            if expiration is not None and time.time() > expiration:\n                del self.cache[key]\n                self.misses += 1\n                return -1\n            self.hits += 1\n            self.cache.move_to_end(key)\n            return value\n    \n    def put(self, key, value, ttl=None):\n        \"\"\"Store key-value pair with optional TTL in seconds.\n        If capacity exceeded, removes least recently used item.\"\"\"\n        with self.lock:\n            expiration = time.time() + ttl if ttl is not None else None\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            self.cache[key] = (value, expiration)\n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)\n    \n    def stats(self):\n        \"\"\"Return cache statistics: hits, misses, and current size.\"\"\"\n        with self.lock:\n            return {\n                'hits': self.hits,\n                'misses': self.misses,\n                'size': len(self.cache)\n            }\n\n\n# Example usage\ncache = LRUCache(capacity=2)\ncache.put(1, 'a')\ncache.put(2, 'b', ttl=1)  # 1 second TTL\nprint(cache.get(1))      # 'a' - hit\nprint(cache.get(2))      # 'b' - hit\ntime.sleep(1.1)\nprint(cache.get(2))      # -1 - expired (miss)\ncache.put(3, 'c')\nprint(cache.stats())     # {'hits': 2, 'misses': 1, 'size': 2}\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 106
+     },
+     {
+      "total": 4,
+      "enforced": 4,
+      "words": 144
+     },
+     {
+      "total": 4,
+      "enforced": 4,
+      "words": 155
+     },
+     {
+      "total": 4,
+      "enforced": 4,
+      "words": 202
+     }
+    ],
+    "scores": {
+     "words": 224,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3438,
+     "enforced_per_1k": 17.86,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 4,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "```python\nfrom collections import OrderedDict\nfrom threading import Lock\nimport time\n\n\nclass LRUCache:\n    \"\"\"A Least Recently Used cache backed by OrderedDict with optional per-entry TTL.\"\"\"\n    \n    def __init__(self, capacity):\n        \"\"\"Initialize cache with maximum capacity.\"\"\"\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.hits = 0\n        self.misses = 0\n        self.lock = Lock()\n    \n    def get(self, key):\n        \"\"\"Retrieve value for key, marking it as recently used.\n        \n        Returns None if key not found or expired. Tracks hits and misses.\n        \"\"\"\n        with self.lock:\n            if key not in self.cache:\n                self.misses += 1\n                return None\n            value, expiry = self.cache[key]\n            if expiry is not None and time.time() > expiry:\n                del self.cache[key]\n                self.misses += 1\n                return None\n            self.hits += 1\n            self.cache.move_to_end(key)\n            return value\n    \n    def put(self, key, value, ttl=None):\n        \"\"\"Store or update key-value pair with optional TTL in seconds.\n        \n        If the key exists, it is moved to the end (marked as recent).\n        If cache exceeds capacity, the least recently used item is evicted.\n        \"\"\"\n        with self.lock:\n            expiry = None if ttl is None else time.time() + ttl\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            self.cache[key] = (value, expiry)\n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)\n    \n    def stats(self):\n        \"\"\"Return cache statistics: hits, misses, and current size.\"\"\"\n        with self.lock:\n            return {\n                'hits': self.hits,\n                'misses': self.misses,\n                'size': len(self.cache)\n            }\n    \n    def __len__(self):\n        with self.lock:\n            return len(self.cache)\n    \n    def __repr__(self):\n        with self.lock:\n            return f\"LRUCache(capacity={self.capacity}, size={len(self.cache)})\"\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 115
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 150
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 167
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 213
+     }
+    ],
+    "scores": {
+     "words": 249,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3293,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "```python\nimport time\nfrom collections import OrderedDict\nfrom threading import Lock\n\n\nclass LRUCache:\n    \"\"\"Least Recently Used cache with O(1) get and put operations.\"\"\"\n    \n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.hits = 0\n        self.misses = 0\n        self.lock = Lock()\n    \n    def get(self, key):\n        \"\"\"Return value if key exists and not expired, else None. Mark accessed keys as recently used.\"\"\"\n        with self.lock:\n            if key not in self.cache:\n                self.misses += 1\n                return None\n            value, expiry_time = self.cache[key]\n            if expiry_time is not None and time.time() > expiry_time:\n                del self.cache[key]\n                self.misses += 1\n                return None\n            self.hits += 1\n            self.cache.move_to_end(key)\n            return value\n    \n    def put(self, key, value, ttl=None):\n        \"\"\"Add or update key-value pair with optional time-to-live. Evict least recently used item if over capacity.\"\"\"\n        with self.lock:\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            expiry_time = time.time() + ttl if ttl is not None else None\n            self.cache[key] = (value, expiry_time)\n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)\n    \n    def stats(self):\n        \"\"\"Return cache statistics: hits, misses, and current size.\"\"\"\n        with self.lock:\n            return {\n                'hits': self.hits,\n                'misses': self.misses,\n                'size': len(self.cache)\n            }\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 83
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 114
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 127
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 169
+     }
+    ],
+    "scores": {
+     "words": 199,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3417,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "```python\nfrom collections import OrderedDict\nimport threading\nimport time\n\n\nclass LRUCache:\n    \"\"\"Least Recently Used cache backed by OrderedDict with optional TTL.\"\"\"\n\n    def __init__(self, capacity):\n        \"\"\"Initialize cache with maximum capacity.\n\n        Args:\n            capacity: Maximum number of items to store.\n        \"\"\"\n        if capacity <= 0:\n            raise ValueError(\"Capacity must be positive\")\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.hits = 0\n        self.misses = 0\n        self.lock = threading.Lock()\n\n    def get(self, key):\n        \"\"\"Retrieve value by key, marking it as recently used.\n\n        Args:\n            key: The key to look up.\n\n        Returns:\n            The cached value, or -1 if key not found or expired.\n        \"\"\"\n        with self.lock:\n            if key not in self.cache:\n                self.misses += 1\n                return -1\n            \n            value, timestamp, ttl = self.cache[key]\n            if ttl is not None and time.time() - timestamp > ttl:\n                del self.cache[key]\n                self.misses += 1\n                return -1\n            \n            self.hits += 1\n            self.cache.move_to_end(key)\n            return value\n\n    def put(self, key, value, ttl=None):\n        \"\"\"Store key-value pair with optional TTL.\n\n        Args:\n            key: The key to store.\n            value: The value to associate with key.\n            ttl: Optional time-to-live in seconds.\n        \"\"\"\n        with self.lock:\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            self.cache[key] = (value, time.time(), ttl)\n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)\n\n    def stats(self):\n        \"\"\"Return cache statistics.\n\n        Returns:\n            Dictionary with hits, misses, and current size.\n        \"\"\"\n        with self.lock:\n            return {\n                'hits': self.hits,\n                'misses': self.misses,\n                'size': len(self.cache)\n            }\n\n    def __len__(self):\n        \"\"\"Return current number of cached items.\"\"\"\n        with self.lock:\n            return len(self.cache)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 136
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 171
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 184
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 220
+     }
+    ],
+    "scores": {
+     "words": 243,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3374,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "```python\nfrom collections import OrderedDict\nimport threading\nimport time\n\nclass LRUCache:\n    \"\"\"Least Recently Used cache with fixed capacity and optional TTL.\"\"\"\n    \n    def __init__(self, capacity: int):\n        \"\"\"Initialize cache with maximum capacity.\"\"\"\n        if capacity <= 0:\n            raise ValueError(\"Capacity must be positive\")\n        self.cache = OrderedDict()\n        self.capacity = capacity\n        self.hits = 0\n        self.misses = 0\n        self.lock = threading.Lock()\n    \n    def get(self, key):\n        \"\"\"Retrieve value by key, marking as recently used.\"\"\"\n        with self.lock:\n            if key not in self.cache:\n                self.misses += 1\n                return -1\n            value, expiration = self.cache[key]\n            if expiration is not None and time.time() >= expiration:\n                del self.cache[key]\n                self.misses += 1\n                return -1\n            self.hits += 1\n            self.cache.move_to_end(key)\n            return value\n    \n    def put(self, key, value, ttl=None) -> None:\n        \"\"\"Store a key-value pair with optional TTL, evicting LRU item if necessary.\n        \n        Args:\n            ttl: Time-to-live in seconds (None for no expiration).\n        \"\"\"\n        with self.lock:\n            expiration = None if ttl is None else time.time() + ttl\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            self.cache[key] = (value, expiration)\n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)\n    \n    def stats(self) -> dict:\n        \"\"\"Return cache statistics.\"\"\"\n        with self.lock:\n            return {\n                'hits': self.hits,\n                'misses': self.misses,\n                'size': len(self.cache)\n            }\n    \n    def __len__(self) -> int:\n        \"\"\"Return the number of items currently in cache.\"\"\"\n        with self.lock:\n            return len(self.cache)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 147
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 130
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 143
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 194
+     }
+    ],
+    "scores": {
+     "words": 217,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3733,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "```python\nfrom collections import OrderedDict\nimport threading\nimport time\n\nclass LRUCache:\n    \"\"\"A thread-safe LRU (Least Recently Used) cache with optional per-entry TTL.\"\"\"\n    \n    def __init__(self, capacity: int):\n        \"\"\"Initialize the cache with a maximum capacity.\n        \n        Args:\n            capacity: Maximum number of items to store in the cache.\n        \"\"\"\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.hits = 0\n        self.misses = 0\n        self.lock = threading.Lock()\n    \n    def get(self, key: int) -> int:\n        \"\"\"Retrieve a value from the cache.\n        \n        Args:\n            key: The key to look up.\n            \n        Returns:\n            The value associated with the key, or -1 if not found or expired.\n        \"\"\"\n        with self.lock:\n            if key not in self.cache:\n                self.misses += 1\n                return -1\n            \n            value, expiry = self.cache[key]\n            \n            # Check if entry has expired\n            if expiry is not None and time.time() > expiry:\n                del self.cache[key]\n                self.misses += 1\n                return -1\n            \n            self.cache.move_to_end(key)\n            self.hits += 1\n            return value\n    \n    def put(self, key: int, value: int, ttl: float = None) -> None:\n        \"\"\"Store a key-value pair in the cache with optional TTL.\n        \n        Args:\n            key: The key to store.\n            value: The value to associate with the key.\n            ttl: Optional time-to-live in seconds. None means no expiration.\n        \"\"\"\n        with self.lock:\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            \n            expiry = time.time() + ttl if ttl is not None else None\n            self.cache[key] = (value, expiry)\n            \n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)\n    \n    def stats(self) -> dict:\n        \"\"\"Return cache statistics.\n        \n        Returns:\n            A dictionary with 'hits', 'misses', and 'size'.\n        \"\"\"\n        with self.lock:\n            return {'hits': self.hits, 'misses': self.misses, 'size': len(self.cache)}\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 156
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 165
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 176
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 238
+     }
+    ],
+    "scores": {
+     "words": 253,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.332,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "blind": {
+    "text": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    \"\"\"LRU (Least Recently Used) cache implemented with OrderedDict.\"\"\"\n    \n    def __init__(self, capacity):\n        \"\"\"Initialize the cache with a specified capacity limit.\"\"\"\n        if capacity <= 0:\n            raise ValueError(\"Capacity must be positive\")\n        self.capacity = capacity\n        self.items = OrderedDict()\n    \n    def get(self, key):\n        \"\"\"Fetch a value by key and mark it as recently accessed.\n        \n        Returns -1 if key does not exist in the cache.\n        \"\"\"\n        if key not in self.items:\n            return -1\n        \n        self.items.move_to_end(key)\n        return self.items[key]\n    \n    def put(self, key, value):\n        \"\"\"Insert or update a key in the cache with the given value.\n        \n        When the cache exceeds capacity, the oldest (least recently\n        used) entry is automatically removed.\n        \"\"\"\n        if key in self.items:\n            self.items[key] = value\n            self.items.move_to_end(key)\n        else:\n            self.items[key] = value\n            \n            if len(self.items) > self.capacity:\n                self.items.popitem(last=False)\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 128
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 144
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 116
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 125
+     }
+    ],
+    "scores": {
+     "words": 144,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4583,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "queue-worker",
+   "prompt": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+   "turns": [
+    "Add a clean shutdown on a sentinel value.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "An exception in the callback currently kills the thread silently. Handle it.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "Add a maximum in-flight count so a slow callback cannot back everything up.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+   ],
+   "ungated": {
+    "text": "```python\nimport threading\nimport queue\nimport logging\nfrom typing import Callable\n\n\nlogging.basicConfig(level=logging.ERROR)\nlogger = logging.getLogger(__name__)\n\n\nclass _STOP_SENTINEL:\n    \"\"\"Sentinel value to signal worker shutdown.\"\"\"\n    pass\n\n\nclass QueueWorker:\n    def __init__(self, callback: Callable, num_workers: int = 1, max_in_flight: int = 10):\n        self.callback = callback\n        self.queue = queue.Queue()\n        self.num_workers = num_workers\n        self.max_in_flight = max_in_flight\n        self.semaphore = threading.Semaphore(max_in_flight)\n        self.threads = []\n        self.running = False\n\n    def start(self):\n        \"\"\"Start worker threads.\"\"\"\n        self.running = True\n        for _ in range(self.num_workers):\n            t = threading.Thread(target=self._worker_loop, daemon=False)\n            t.start()\n            self.threads.append(t)\n\n    def _worker_loop(self):\n        \"\"\"Process items from queue until sentinel received.\"\"\"\n        while True:\n            try:\n                item = self.queue.get(timeout=1)\n                \n                if isinstance(item, _STOP_SENTINEL):\n                    self.queue.task_done()\n                    break\n                \n                self.semaphore.acquire()\n                try:\n                    self.callback(item)\n                except Exception as e:\n                    logger.exception(f\"Error processing item {item}: {e}\")\n                finally:\n                    self.semaphore.release()\n                    self.queue.task_done()\n            except queue.Empty:\n                continue\n\n    def put(self, item):\n        \"\"\"Add item to queue.\"\"\"\n        self.queue.put(item)\n\n    def stop(self):\n        \"\"\"Stop all workers gracefully by sending sentinel values.\"\"\"\n        self.running = False\n        for _ in range(self.num_workers):\n            self.queue.put(_STOP_SENTINEL())\n        for t in self.threads:\n            t.join()\n\n    def wait(self):\n        \"\"\"Block until all items processed.\"\"\"\n        self.queue.join()\n\n\nif __name__ == \"__main__\":\n    import time\n    \n    def process(item):\n        if item == 2:\n            raise ValueError(\"Test error\")\n        time.sleep(0.5)\n        print(f\"Processing: {item}\")\n\n    worker = QueueWorker(callback=process, num_workers=2, max_in_flight=3)\n    worker.start()\n    for i in range(5):\n        worker.put(i)\n    worker.wait()\n    worker.stop()\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 133
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 146
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 170
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 186
+     }
+    ],
+    "scores": {
+     "words": 262,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3511,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.82,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "```python\nimport queue\nimport threading\nfrom typing import Callable, Any, Optional\n\n\nclass QueueWorker:\n    SENTINEL = object()\n    \n    def __init__(\n        self, \n        callback: Callable[[Any], None], \n        queue_obj: queue.Queue, \n        daemon: bool = True,\n        error_callback: Optional[Callable[[Exception, Any], None]] = None,\n        max_in_flight: int = 10\n    ):\n        self.callback = callback\n        self.queue = queue_obj\n        self.daemon = daemon\n        self.error_callback = error_callback\n        self.capacity = threading.Semaphore(max_in_flight)\n        self.thread: Optional[threading.Thread] = None\n        self.running = False\n\n    def start(self) -> None:\n        \"\"\"Start the worker thread.\"\"\"\n        if self.thread is not None:\n            raise RuntimeError(\"Worker already started\")\n        self.running = True\n        self.thread = threading.Thread(target=self._run, daemon=self.daemon)\n        self.thread.start()\n\n    def _run(self) -> None:\n        \"\"\"Main worker loop.\"\"\"\n        while self.running:\n            try:\n                item = self.queue.get(timeout=0.5)\n                if item is self.SENTINEL:\n                    break\n                try:\n                    self.callback(item)\n                except Exception as e:\n                    if self.error_callback:\n                        self.error_callback(e, item)\n                    else:\n                        print(f\"Error processing item {item}: {e}\")\n                finally:\n                    self.queue.task_done()\n                    self.capacity.release()\n            except queue.Empty:\n                continue\n\n    def put_with_backpressure(self, item: Any) -> None:\n        \"\"\"Put an item, blocking if max in-flight is reached.\"\"\"\n        self.capacity.acquire()\n        self.queue.put(item)\n\n    def stop(self) -> None:\n        \"\"\"Stop the worker thread gracefully.\"\"\"\n        self.running = False\n        self.queue.put(self.SENTINEL)\n        if self.thread:\n            self.thread.join()\n\n    def is_alive(self) -> bool:\n        \"\"\"Check if worker thread is running.\"\"\"\n        return self.thread is not None and self.thread.is_alive()\n\n\nif __name__ == \"__main__\":\n    q = queue.Queue()\n\n    def process_item(item):\n        if item == \"item_2\":\n            raise ValueError(\"Simulated error\")\n        print(f\"Processing: {item}\")\n\n    def handle_error(exc, item):\n        print(f\"Failed to process {item}: {exc}\")\n\n    worker = QueueWorker(callback=process_item, queue_obj=q, error_callback=handle_error, max_in_flight=3)\n    worker.start()\n\n    for i in range(5):\n        worker.put_with_backpressure(f\"item_{i}\")\n\n    import time\n    time.sleep(1)\n    worker.stop()\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 161
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 160
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 196
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 219
+     }
+    ],
+    "scores": {
+     "words": 302,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3146,
+     "enforced_per_1k": 3.31,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 1,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "```python\nimport queue\nimport threading\nimport logging\nfrom typing import Callable, Any, Optional\n\nlogger = logging.getLogger(__name__)\n\n\nclass QueueWorker:\n    SHUTDOWN_SENTINEL = object()\n    \n    def __init__(self, callback: Callable[[Any], None], queue_obj: Optional[queue.Queue] = None, max_in_flight: int = 10):\n        self.callback = callback\n        self.queue = queue_obj or queue.Queue()\n        self.max_in_flight = max_in_flight\n        self.in_flight_semaphore = threading.Semaphore(max_in_flight)\n        self.thread = None\n        self.running = False\n\n    def start(self) -> None:\n        if self.running:\n            raise RuntimeError(\"Worker already running\")\n        self.running = True\n        self.thread = threading.Thread(target=self._process_queue, daemon=True)\n        self.thread.start()\n\n    def stop(self) -> None:\n        self.running = False\n        self.queue.put(self.SHUTDOWN_SENTINEL)\n        if self.thread:\n            self.thread.join(timeout=5)\n\n    def put(self, item: Any) -> None:\n        self.in_flight_semaphore.acquire()\n        self.queue.put(item)\n\n    def _process_queue(self) -> None:\n        while self.running:\n            try:\n                item = self.queue.get(timeout=1)\n            except queue.Empty:\n                continue\n            \n            if item is self.SHUTDOWN_SENTINEL:\n                break\n            \n            try:\n                self.callback(item)\n            except Exception as e:\n                logger.exception(f\"Callback failed for item: {item}\")\n            finally:\n                self.in_flight_semaphore.release()\n\n\nif __name__ == \"__main__\":\n    logging.basicConfig(level=logging.INFO)\n    \n    def process_item(item):\n        pass\n\n    worker = QueueWorker(process_item, max_in_flight=5)\n    worker.start()\n    worker.put(\"task1\")\n    worker.put(\"task2\")\n    worker.put(\"task3\")\n\n    import time\n    time.sleep(1)\n    worker.stop()\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 118
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 118
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 129
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 143
+     }
+    ],
+    "scores": {
+     "words": 218,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3349,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "```python\nimport threading\nimport queue\nimport logging\nfrom typing import Callable, Any\n\n\nlogger = logging.getLogger(__name__)\nSENTINEL = object()\n\n\nclass QueueWorker:\n    \"\"\"Worker thread that processes items from a queue.\"\"\"\n    \n    def __init__(self, callback: Callable[[Any], None], max_queue_size: int = 10):\n        self.callback = callback\n        self.queue = queue.Queue(maxsize=max_queue_size)\n        self.thread = threading.Thread(target=self._run, daemon=False)\n        self.thread.start()\n    \n    def _run(self) -> None:\n        while True:\n            try:\n                item = self.queue.get(timeout=0.1)\n            except queue.Empty:\n                continue\n            \n            if item is SENTINEL:\n                break\n            \n            try:\n                self.callback(item)\n            except Exception:\n                logger.exception(f\"Error processing {item}\")\n            finally:\n                self.queue.task_done()\n    \n    def put(self, item: Any) -> None:\n        self.queue.put(item)\n    \n    def stop(self, timeout: float = None) -> None:\n        self.queue.put(SENTINEL)\n        self.thread.join(timeout=timeout)\n    \n    def wait(self) -> None:\n        self.queue.join()\n\n\nif __name__ == \"__main__\":\n    logging.basicConfig(level=logging.INFO)\n    \n    def callback(item):\n        if item == 3:\n            raise ValueError(\"test error\")\n        print(f\"Processing: {item}\")\n    \n    worker = QueueWorker(callback, max_queue_size=2)\n    for i in range(5):\n        worker.put(i)\n    worker.wait()\n    worker.stop()\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 114
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 110
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 120
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 125
+     }
+    ],
+    "scores": {
+     "words": 171,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4211,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.85,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "instructed+gated": {
+    "text": "```python\nimport queue\nimport threading\nimport logging\nfrom typing import Callable, Any, Optional\n\n\nlogger = logging.getLogger(__name__)\n\n_SHUTDOWN_SENTINEL = object()\n\n\nclass QueueWorker:\n    def __init__(\n        self,\n        process_fn: Callable,\n        queue_size: int = 0,\n        error_fn: Optional[Callable[[Any, Exception], None]] = None,\n        max_inflight: int = 1,\n    ):\n        self.process_fn = process_fn\n        self.error_fn = error_fn\n        self.task_queue = queue.Queue(maxsize=queue_size)\n        self.inflight_semaphore = threading.Semaphore(max_inflight)\n        self.thread = None\n        self.running = False\n    \n    def start(self) -> None:\n        if self.running:\n            return\n        self.running = True\n        self.thread = threading.Thread(target=self._process_loop, daemon=False)\n        self.thread.start()\n    \n    def stop(self, timeout: Optional[float] = None) -> None:\n        if not self.running:\n            return\n        self.running = False\n        self.task_queue.put(_SHUTDOWN_SENTINEL)\n        if self.thread:\n            self.thread.join(timeout=timeout)\n    \n    def submit(self, item: Any) -> None:\n        if not self.running:\n            raise RuntimeError(\"Worker not started\")\n        self.task_queue.put(item)\n    \n    def _process_loop(self) -> None:\n        while True:\n            try:\n                item = self.task_queue.get(timeout=1.0)\n            except queue.Empty:\n                continue\n            \n            if item is _SHUTDOWN_SENTINEL:\n                break\n            \n            self.inflight_semaphore.acquire()\n            try:\n                self.process_fn(item)\n            except Exception as e:\n                if self.error_fn:\n                    self.error_fn(item, e)\n                else:\n                    logger.exception(\"Error processing item\")\n            finally:\n                self.inflight_semaphore.release()\n\n\nif __name__ == \"__main__\":\n    def process_item(item):\n        logger.info(f\"Processing: {item}\")\n        if item == 2:\n            raise ValueError(\"Test error\")\n    \n    def handle_error(item, error):\n        logger.error(f\"Failed to process {item}: {error}\")\n    \n    worker = QueueWorker(process_item, error_fn=handle_error, max_inflight=3)\n    worker.start()\n    \n    for i in range(5):\n        worker.submit(i)\n    \n    worker.stop(timeout=5)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 131
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 134
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 167
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 178
+     }
+    ],
+    "scores": {
+     "words": 257,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3191,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.89,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "```python\nimport logging\nimport queue\nimport threading\nfrom typing import Callable, Any\n\nlogger = logging.getLogger(__name__)\n\n\nclass QueueWorker:\n    _SENTINEL = object()\n    \n    def __init__(self, callback: Callable[[Any], None], max_in_flight: int = 10):\n        self.queue = queue.Queue()\n        self.callback = callback\n        self.semaphore = threading.Semaphore(max_in_flight)\n        self.thread = None\n\n    def _worker(self):\n        while True:\n            try:\n                item = self.queue.get(timeout=0.5)\n            except queue.Empty:\n                continue\n            \n            if item is self._SENTINEL:\n                break\n            \n            with self.semaphore:\n                try:\n                    self.callback(item)\n                except Exception:\n                    logger.exception(\"Callback failed for item\")\n                finally:\n                    self.queue.task_done()\n\n    def start(self):\n        self.thread = threading.Thread(target=self._worker, daemon=True)\n        self.thread.start()\n\n    def stop(self):\n        self.queue.put(self._SENTINEL)\n        if self.thread:\n            self.thread.join(timeout=5)\n\n    def put(self, item: Any):\n        self.queue.put(item)\n\n    def join(self):\n        self.queue.join()\n\n\nif __name__ == \"__main__\":\n    logging.basicConfig(level=logging.INFO)\n    \n    def process_item(item):\n        print(f\"Processing: {item}\")\n\n    worker = QueueWorker(process_item, max_in_flight=3)\n    worker.start()\n    \n    for i in range(5):\n        worker.put(i)\n    \n    worker.join()\n    worker.stop()\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 98
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 98
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 102
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 112
+     }
+    ],
+    "scores": {
+     "words": 170,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3706,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.88,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "```python\nimport threading\nimport queue\nfrom typing import Callable, Any\nimport traceback\n\n\nclass QueueWorker:\n    \"\"\"Worker that processes queue items with limited concurrency.\"\"\"\n    \n    _SENTINEL = object()\n    \n    def __init__(self, callback: Callable[[Any], None], q: queue.Queue = None,\n                 error_handler: Callable[[Exception], None] = None,\n                 max_inflight: int = 4):\n        self.callback = callback\n        self.queue = q or queue.Queue()\n        self.main_thread = None\n        self.error_handler = error_handler or self._print_error\n        self.semaphore = threading.Semaphore(max_inflight)\n        self.workers = []\n    \n    def start(self):\n        \"\"\"Start the worker thread.\"\"\"\n        if self.main_thread and self.main_thread.is_alive():\n            return\n        self.main_thread = threading.Thread(target=self._run, daemon=False)\n        self.main_thread.start()\n    \n    def stop(self):\n        \"\"\"Stop and wait for all processing to complete.\"\"\"\n        self.queue.put(self._SENTINEL)\n        self.main_thread.join()\n        for t in self.workers:\n            t.join()\n    \n    def _run(self):\n        \"\"\"Main loop dispatching items to worker threads.\"\"\"\n        while True:\n            item = self.queue.get()\n            if item is self._SENTINEL:\n                self.queue.task_done()\n                break\n            self.semaphore.acquire()\n            t = threading.Thread(target=self._process, args=(item,),\n                                daemon=True)\n            self.workers.append(t)\n            t.start()\n            self.queue.task_done()\n    \n    def _process(self, item):\n        \"\"\"Process item and release semaphore slot.\"\"\"\n        try:\n            self.callback(item)\n        except Exception as e:\n            self.error_handler(e)\n        finally:\n            self.semaphore.release()\n    \n    @staticmethod\n    def _print_error(error):\n        \"\"\"Default error handler.\"\"\"\n        print(f\"Error processing item: {error}\")\n        traceback.print_exc()\n\n\nif __name__ == \"__main__\":\n    def process_item(item):\n        print(f\"Processing: {item}\")\n    \n    worker = QueueWorker(process_item, max_inflight=2)\n    worker.start()\n    for i in range(5):\n        worker.queue.put(i)\n    worker.stop()\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 126
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 139
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 186
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 176
+     }
+    ],
+    "scores": {
+     "words": 254,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3465,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.94,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "```python\nimport queue\nimport threading\nfrom typing import Callable, Any, Optional\n\n\nclass ThreadedProcessor:\n    \"\"\"Processes queue items asynchronously in a background thread.\"\"\"\n    \n    def __init__(\n        self,\n        handle: Callable[[Any], None],\n        q: Optional[queue.Queue] = None,\n        is_daemon: bool = True,\n        timeout_sec: float = 0.5,\n    ):\n        self.handle = handle\n        self.q = q or queue.Queue()\n        self.is_daemon = is_daemon\n        self.timeout_sec = timeout_sec\n        self._stop_flag = threading.Event()\n        self._proc_thread = threading.Thread(target=self._process_loop, daemon=is_daemon)\n    \n    def start(self) -> None:\n        \"\"\"Begin processing queue items.\"\"\"\n        self._proc_thread.start()\n    \n    def stop(self, wait_for_thread: bool = True) -> None:\n        \"\"\"Stop processing and optionally wait for thread.\"\"\"\n        self._stop_flag.set()\n        if wait_for_thread:\n            self._proc_thread.join(timeout=6)\n    \n    def add_item(self, item: Any) -> None:\n        \"\"\"Queue an item for processing.\"\"\"\n        self.q.put(item)\n    \n    def _process_loop(self) -> None:\n        \"\"\"Main loop that dequeues and processes items.\"\"\"\n        while not self._stop_flag.is_set():\n            try:\n                item = self.q.get(timeout=self.timeout_sec)\n                try:\n                    self.handle(item)\n                finally:\n                    self.q.task_done()\n            except queue.Empty:\n                continue\n            except Exception as e:\n                print(f\"Processing error: {e}\")\n\n\nif __name__ == \"__main__\":\n    def item_handler(data):\n        print(f\"Item: {data}\")\n    \n    proc = ThreadedProcessor(item_handler)\n    proc.start()\n    \n    for i in range(5):\n        proc.add_item(i)\n    \n    proc.q.join()\n    proc.stop()\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 150
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 152
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 149
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 153
+     }
+    ],
+    "scores": {
+     "words": 213,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3615,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "path-walker",
+   "prompt": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+   "turns": [
+    "Skip hidden directories and symlinks.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "It follows symlinked directories and can loop forever. Fix that.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "Return the results sorted, and add a `max_depth` argument.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+   ],
+   "ungated": {
+    "text": "```python\nimport os\nfrom pathlib import Path\nfrom typing import List, Set, Optional\n\ndef walk_and_glob(directory: str, pattern: str, max_depth: Optional[int] = None) -> List[str]:\n    \"\"\"Walk directory tree and return files matching glob pattern.\n    \n    Skips hidden dirs/files, symlinks, and circular symlink loops.\n    \n    Args:\n        directory: Root directory to search\n        pattern: Glob pattern (e.g., \"*.py\")\n        max_depth: Maximum depth to traverse (None for unlimited)\n    \n    Returns:\n        Sorted list of absolute file paths matching the pattern\n    \"\"\"\n    root_path = Path(directory).resolve()\n    if not root_path.is_dir():\n        raise ValueError(f\"Directory does not exist: {directory}\")\n    \n    matches = []\n    visited_inodes: Set[int] = set()\n    \n    for dirpath, dirnames, filenames in os.walk(root_path, followlinks=False):\n        rel_path = Path(dirpath).relative_to(root_path)\n        current_depth = len(rel_path.parts)\n        \n        if max_depth is not None and current_depth >= max_depth:\n            dirnames[:] = []\n        \n        dirnames[:] = [d for d in dirnames if not d.startswith('.')]\n        \n        try:\n            stat = os.stat(dirpath)\n            dir_inode = (stat.st_dev, stat.st_ino)\n            if dir_inode in visited_inodes:\n                dirnames[:] = []\n                continue\n            visited_inodes.add(dir_inode)\n        except (OSError, ValueError):\n            continue\n        \n        for filename in filenames:\n            if filename.startswith('.'):\n                continue\n            filepath = Path(dirpath) / filename\n            if not filepath.is_symlink() and filepath.match(pattern):\n                matches.append(str(filepath.absolute()))\n    \n    return sorted(matches)\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 136
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 146
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 191
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 167
+     }
+    ],
+    "scores": {
+     "words": 208,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4327,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "control": {
+    "text": "```python\nfrom pathlib import Path\nfrom typing import List, Union, Optional\nimport os\n\ndef find_files_by_glob(directory: Union[str, Path], pattern: str, max_depth: Optional[int] = None) -> List[Path]:\n    \"\"\"\n    Walk directory tree and return files matching glob pattern.\n    \n    Skips hidden directories, hidden files, symlinks, and detects cycles\n    by tracking visited inodes to prevent infinite loops.\n    \n    Args:\n        directory: Root directory to search\n        pattern: Glob pattern to match (e.g., '*.py', '**/*.txt')\n        max_depth: Maximum directory depth to traverse (None for unlimited, 0 = root only)\n    \n    Returns:\n        Sorted list of Path objects matching the pattern\n    \"\"\"\n    root = Path(directory)\n    \n    if not root.exists():\n        raise NotADirectoryError(f\"Directory does not exist: {directory}\")\n    if not root.is_dir():\n        raise NotADirectoryError(f\"Path is not a directory: {directory}\")\n    \n    visited_inodes = set()\n    matched_files = []\n    \n    for dirpath, dirnames, filenames in os.walk(root):\n        dir_path = Path(dirpath)\n        \n        # Calculate current depth\n        try:\n            rel_path = dir_path.relative_to(root)\n            depth = len(rel_path.parts)\n        except ValueError:\n            depth = 0\n        \n        if dir_path.is_symlink():\n            dirnames.clear()\n            continue\n        \n        try:\n            stat_info = os.stat(dirpath)\n            inode = (stat_info.st_dev, stat_info.st_ino)\n            \n            if inode in visited_inodes:\n                dirnames.clear()\n                continue\n            \n            visited_inodes.add(inode)\n        except OSError:\n            dirnames.clear()\n            continue\n        \n        # Filter directories\n        dirnames[:] = [d for d in dirnames if not d.startswith('.')]\n        dirnames[:] = [d for d in dirnames if not (dir_path / d).is_symlink()]\n        \n        # Respect max_depth\n        if max_depth is not None and depth + 1 > max_depth:\n            dirnames.clear()\n        \n        for filename in filenames:\n            if filename.startswith('.'):\n                continue\n            \n            file_path = dir_path / filename\n            \n            if file_path.is_symlink():\n                continue\n            \n            if file_path.match(pattern):\n                matched_files.append(file_path)\n    \n    return sorted(matched_files)\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 165
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 138
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 174
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 226
+     }
+    ],
+    "scores": {
+     "words": 271,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3764,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "```python\nfrom pathlib import Path\nfrom typing import List, Union, Optional\n\ndef find_files_matching_glob(\n    directory: Union[str, Path],\n    glob_pattern: str,\n    exclude_dirs: List[str] = None,\n    max_depth: Optional[int] = None\n) -> List[Path]:\n    \"\"\"Return sorted files matching glob, skipping hidden dirs, symlinks, and cycles.\"\"\"\n    root = Path(directory)\n    \n    if not root.is_dir():\n        raise ValueError(f\"{directory} is not a valid directory\")\n    \n    if exclude_dirs is None:\n        exclude_dirs = {'.git', '__pycache__', '.venv', 'node_modules'}\n    else:\n        exclude_dirs = set(exclude_dirs)\n    \n    matches = []\n    visited = set()\n    \n    def traverse(current_dir: Path, depth: int) -> None:\n        if max_depth is not None and depth > max_depth:\n            return\n        \n        try:\n            real_path = current_dir.resolve()\n        except (OSError, RuntimeError):\n            return\n        \n        if real_path in visited:\n            return\n        visited.add(real_path)\n        \n        try:\n            for entry in current_dir.iterdir():\n                if entry.is_symlink() or entry.name.startswith('.'):\n                    continue\n                if entry.name in exclude_dirs:\n                    continue\n                if entry.is_dir():\n                    traverse(entry, depth + 1)\n                elif entry.is_file() and entry.match(glob_pattern):\n                    matches.append(entry)\n        except (OSError, PermissionError):\n            pass\n    \n    traverse(root, 0)\n    return sorted(matches)\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 112
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 125
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 156
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 139
+     }
+    ],
+    "scores": {
+     "words": 174,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4195,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "```python\nimport os\nfrom pathlib import Path\nfrom typing import List, Optional\n\ndef glob_files(directory: str, pattern: str, \n               absolute: bool = True,\n               max_depth: Optional[int] = None) -> List[Path]:\n    \"\"\"Walk directory tree returning files matching glob, following symlinks\n    but detecting cycles. Skips hidden files and symlinks.\"\"\"\n    \n    root = Path(directory).resolve()\n    if not root.is_dir():\n        raise ValueError(f\"Directory not found: {directory}\")\n    \n    matches = []\n    visited = set()\n    \n    try:\n        for dirpath, dirnames, filenames in os.walk(root, followlinks=True):\n            dirpath_obj = Path(dirpath)\n            \n            if max_depth is not None:\n                depth = len(dirpath_obj.relative_to(root).parts)\n                if depth >= max_depth:\n                    dirnames.clear()\n            \n            try:\n                stat = dirpath_obj.stat()\n                inode = (stat.st_dev, stat.st_ino)\n                if inode in visited:\n                    dirnames.clear()\n                    continue\n                visited.add(inode)\n            except (OSError, PermissionError):\n                dirnames.clear()\n                continue\n            \n            dirnames[:] = [d for d in dirnames \n                          if not d.startswith('.') and \n                          not (dirpath_obj / d).is_symlink()]\n            \n            for filename in filenames:\n                if not filename.startswith('.'):\n                    file_path = dirpath_obj / filename\n                    if not file_path.is_symlink() and file_path.match(pattern):\n                        matches.append(file_path if absolute \n                                      else file_path.relative_to(root))\n    except PermissionError as e:\n        raise PermissionError(f\"Permission denied accessing {directory}\") from e\n    \n    return sorted(matches)\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 114
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 154
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 138
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 156
+     }
+    ],
+    "scores": {
+     "words": 197,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4315,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "```python\nimport os\nfrom pathlib import Path\nfrom typing import List, Optional\n\ndef find_files_by_glob(root_dir: str, pattern: str, max_depth: Optional[int] = None) -> List[str]:\n    \"\"\"\n    Recursively walk a directory tree and return all files matching a glob pattern.\n    Skips hidden directories and symlinks. Prevents infinite loops from circular symlinks.\n    \n    Args:\n        root_dir: Root directory to search from\n        pattern: Glob pattern to match (e.g., '*.py', '**/*.txt')\n        max_depth: Maximum directory depth to traverse (None for unlimited)\n    \n    Returns:\n        Sorted list of absolute file paths matching the pattern\n    \n    Raises:\n        ValueError: If root_dir does not exist or is not a directory\n    \"\"\"\n    root_path = Path(root_dir).resolve()\n    if not root_path.exists():\n        raise ValueError(f\"Directory does not exist: {root_dir}\")\n    if not root_path.is_dir():\n        raise ValueError(f\"Path is not a directory: {root_dir}\")\n    \n    matching_files = []\n    visited_inodes = set()\n    \n    for dirpath, dirnames, filenames in os.walk(root_path):\n        depth = len(Path(dirpath).parts) - len(root_path.parts)\n        \n        dir_stat = os.stat(dirpath)\n        inode = (dir_stat.st_ino, dir_stat.st_dev)\n        \n        if inode in visited_inodes:\n            dirnames[:] = []\n            continue\n        visited_inodes.add(inode)\n        \n        if max_depth is None or depth < max_depth:\n            dirnames[:] = [d for d in dirnames if not d.startswith('.') and not Path(dirpath, d).is_symlink()]\n        else:\n            dirnames[:] = []\n        \n        for filename in filenames:\n            file_path = Path(dirpath, filename)\n            if not file_path.is_symlink() and file_path.match(pattern):\n                matching_files.append(str(file_path))\n    \n    return sorted(matching_files)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 128
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 137
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 162
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 193
+     }
+    ],
+    "scores": {
+     "words": 245,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3755,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "```python\nfrom pathlib import Path\nfrom typing import List, Optional\n\ndef walk_glob(root_dir: str, pattern: str, exclude: Optional[List[str]] = None, max_depth: Optional[int] = None) -> List[str]:\n    root = Path(root_dir)\n    exclude = exclude or []\n    matches = []\n    visited = set()\n    \n    if not root.is_dir():\n        return matches\n    \n    def visit(dirpath: Path, depth: int) -> None:\n        if max_depth is not None and depth > max_depth:\n            return\n        \n        try:\n            real_path = dirpath.resolve()\n        except (OSError, ValueError):\n            return\n        \n        if real_path in visited:\n            return\n        visited.add(real_path)\n        \n        try:\n            entries = dirpath.iterdir()\n        except (OSError, PermissionError):\n            return\n        \n        for entry in entries:\n            if any(part.startswith('.') for part in entry.relative_to(root).parts):\n                continue\n            \n            if entry.is_dir(follow_symlinks=True):\n                visit(entry, depth + 1)\n            elif entry.is_file(follow_symlinks=True) and entry.match(pattern):\n                should_exclude = any(entry.match(p) for p in exclude)\n                if not should_exclude:\n                    try:\n                        matches.append(str(entry.resolve()))\n                    except (OSError, ValueError):\n                        pass\n    \n    visit(root, 0)\n    return sorted(set(matches))\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 111
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 80
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 105
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 125
+     }
+    ],
+    "scores": {
+     "words": 160,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3875,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "```python\nfrom pathlib import Path\nfrom typing import List, Union, Set, Optional\n\ndef find_files(directory: Union[str, Path], pattern: str, max_depth: Optional[int] = None) -> List[Path]:\n    \"\"\"Walk directory tree, return files matching pattern. Skip symlinks and hidden dirs.\"\"\"\n    root = Path(directory).resolve()\n    if not root.is_dir():\n        raise ValueError(f\"{directory} is not a valid directory\")\n    \n    matching_files = []\n    visited_inodes: Set[int] = set()\n    \n    def _walk(current_dir: Path, depth: int) -> None:\n        if max_depth is not None and depth > max_depth:\n            return\n        \n        if current_dir.is_symlink():\n            return\n        \n        if any(part.startswith('.') for part in current_dir.relative_to(root).parts):\n            return\n        \n        try:\n            inode = (current_dir.stat().st_dev, current_dir.stat().st_ino)\n            if inode in visited_inodes:\n                return\n            visited_inodes.add(inode)\n        except OSError:\n            return\n        \n        try:\n            for item in current_dir.iterdir():\n                if item.is_symlink() or any(p.startswith('.') for p in item.relative_to(root).parts):\n                    continue\n                if item.is_file() and item.match(pattern):\n                    matching_files.append(item)\n                elif item.is_dir():\n                    _walk(item, depth + 1)\n        except OSError:\n            pass\n    \n    _walk(root, 0)\n    return sorted(matching_files)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 148
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 147
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 109
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 130
+     }
+    ],
+    "scores": {
+     "words": 181,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3978,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.52,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "```python\nfrom pathlib import Path\nfrom typing import List, Union\n\ndef search_directory(root: Union[str, Path], pattern: str) -> List[str]:\n    \"\"\"\n    Traverse directory tree and collect files matching glob pattern.\n    \n    Args:\n        root: Starting directory path\n        pattern: Glob pattern for matching files\n        \n    Returns:\n        Sorted list of file paths matching pattern\n        \n    Raises:\n        ValueError: If root path is invalid\n    \"\"\"\n    root_path = Path(root)\n    \n    if not root_path.is_dir():\n        raise ValueError(f\"Invalid directory: {root}\")\n    if not root_path.exists():\n        raise ValueError(f\"Path not found: {root}\")\n    \n    files = []\n    for item in root_path.glob(pattern):\n        if item.is_file():\n            files.append(str(item))\n    \n    return sorted(files)\n\n\nif __name__ == \"__main__\":\n    # Search for all TypeScript files\n    ts_files = search_directory(\".\", \"**/*.ts\")\n    print(f\"Found {len(ts_files)} TypeScript files\")\n    for filepath in ts_files[:5]:\n        print(f\"  {filepath}\")\n    \n    # Search for test files\n    test_files = search_directory(\".\", \"**/test/**/*.py\")\n    print(f\"Found {len(test_files)} test files\")\n    for filepath in test_files[:3]:\n        print(f\"  {filepath}\")\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 143
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 135
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 104
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 129
+     }
+    ],
+    "scores": {
+     "words": 158,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3418,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "rate-limiter",
+   "prompt": "Write a token-bucket rate limiter class in Python with a `try_acquire` method. Around 50 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+   "turns": [
+    "Make it thread-safe.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "Add a blocking `acquire` with a timeout.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable.",
+    "The refill currently drifts under load because it uses time.time(). Fix it.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+   ],
+   "ungated": {
+    "text": "```python\nimport time\nimport threading\n\nclass TokenBucketRateLimiter:\n    \"\"\"A thread-safe token bucket rate limiter with blocking acquire.\"\"\"\n    \n    def __init__(self, capacity: float, refill_rate: float):\n        \"\"\"\n        Args:\n            capacity: Maximum tokens the bucket can hold\n            refill_rate: Tokens added per second\n        \"\"\"\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = capacity\n        self.last_refill_time = time.monotonic()\n        self._condition = threading.Condition()\n    \n    def try_acquire(self, tokens: float = 1) -> bool:\n        \"\"\"Try to acquire tokens without blocking.\"\"\"\n        with self._condition:\n            self._refill()\n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n    \n    def acquire(self, tokens: float = 1, timeout: float = None) -> bool:\n        \"\"\"\n        Acquire tokens, blocking until available or timeout.\n        \n        Args:\n            tokens: Number of tokens to acquire\n            timeout: Maximum seconds to wait (None for infinite)\n        \n        Returns:\n            True if successful, False on timeout\n        \"\"\"\n        deadline = None if timeout is None else time.monotonic() + timeout\n        \n        with self._condition:\n            while True:\n                self._refill()\n                if self.tokens >= tokens:\n                    self.tokens -= tokens\n                    return True\n                \n                if deadline is not None and time.monotonic() >= deadline:\n                    return False\n                \n                wait_timeout = 0.1 if deadline is None else min(0.1, max(0, deadline - time.monotonic()))\n                self._condition.wait(timeout=wait_timeout)\n    \n    def _refill(self) -> None:\n        \"\"\"Refill tokens based on elapsed time.\"\"\"\n        now = time.monotonic()\n        elapsed = now - self.last_refill_time\n        self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_rate)\n        self.last_refill_time = now\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 152
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 160
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 203
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 203
+     }
+    ],
+    "scores": {
+     "words": 216,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3056,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 4.63,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "```python\nimport time\nfrom threading import Lock, Condition\n\n\nclass TokenBucket:\n    \"\"\"Token bucket rate limiter for controlling request rates.\"\"\"\n    \n    def __init__(self, capacity, refill_rate):\n        \"\"\"\n        Initialize a token bucket.\n        \n        Args:\n            capacity: Maximum number of tokens the bucket can hold\n            refill_rate: Number of tokens added per second\n        \"\"\"\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = capacity\n        self.last_refill = time.monotonic()\n        self.lock = Lock()\n        self.condition = Condition(self.lock)\n    \n    def try_acquire(self, tokens=1):\n        \"\"\"\n        Attempt to acquire tokens from the bucket.\n        \n        Args:\n            tokens: Number of tokens to acquire (default: 1)\n        \n        Returns:\n            True if tokens were successfully acquired, False otherwise\n        \"\"\"\n        with self.lock:\n            self._refill()\n            \n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n    \n    def acquire(self, tokens=1, timeout=None):\n        \"\"\"\n        Block until tokens are available or timeout is reached.\n        \n        Args:\n            tokens: Number of tokens to acquire (default: 1)\n            timeout: Maximum time to wait in seconds (None for infinite)\n        \n        Returns:\n            True if tokens were acquired, False if timeout was reached\n        \"\"\"\n        with self.condition:\n            start = time.monotonic()\n            \n            while True:\n                self._refill()\n                \n                if self.tokens >= tokens:\n                    self.tokens -= tokens\n                    return True\n                \n                elapsed = time.monotonic() - start\n                if timeout is not None and elapsed >= timeout:\n                    return False\n                \n                if timeout is None:\n                    self.condition.wait()\n                else:\n                    remaining = timeout - elapsed\n                    self.condition.wait(timeout=remaining)\n    \n    def _refill(self):\n        \"\"\"Refill tokens based on elapsed time since last refill.\"\"\"\n        now = time.monotonic()\n        elapsed = now - self.last_refill\n        tokens_to_add = elapsed * self.refill_rate\n        self.tokens = min(self.capacity, self.tokens + tokens_to_add)\n        self.last_refill = now\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 137
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 137
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 231
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 231
+     }
+    ],
+    "scores": {
+     "words": 249,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3173,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 4.02,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "```python\nimport time\nfrom threading import Lock, Condition\n\n\nclass TokenBucket:\n    \"\"\"Rate limiter using the token bucket algorithm.\n    \n    Tokens are refilled at a constant rate. Requests that exceed\n    available tokens are rejected. All operations are thread-safe.\n    \"\"\"\n\n    def __init__(self, capacity, refill_rate):\n        \"\"\"Initialize the token bucket.\n        \n        Args:\n            capacity: Maximum number of tokens the bucket can hold\n            refill_rate: Number of tokens added per second\n        \"\"\"\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = capacity\n        self.last_refill = time.monotonic()\n        self.lock = Lock()\n        self.condition = Condition(self.lock)\n\n    def try_acquire(self, tokens=1):\n        \"\"\"Attempt to acquire tokens from the bucket.\n        \n        Args:\n            tokens: Number of tokens to acquire (default 1)\n            \n        Returns:\n            True if sufficient tokens were available and acquired,\n            False otherwise.\n        \"\"\"\n        with self.lock:\n            self._refill()\n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n\n    def acquire(self, tokens=1, timeout=None):\n        \"\"\"Block until tokens are available or timeout occurs.\n        \n        Args:\n            tokens: Number of tokens to acquire (default 1)\n            timeout: Maximum time to wait in seconds (None = wait indefinitely)\n            \n        Returns:\n            True if tokens were acquired, False if timeout occurred.\n        \"\"\"\n        deadline = None if timeout is None else time.monotonic() + timeout\n        with self.condition:\n            while True:\n                self._refill()\n                if self.tokens >= tokens:\n                    self.tokens -= tokens\n                    return True\n                if deadline is not None:\n                    remaining = deadline - time.monotonic()\n                    if remaining <= 0:\n                        return False\n                    self.condition.wait(timeout=min(remaining, 0.01))\n                else:\n                    self.condition.wait(timeout=0.01)\n\n    def _refill(self):\n        \"\"\"Refill tokens based on elapsed time since last refill.\n        \n        Must be called while holding the lock.\n        \"\"\"\n        now = time.monotonic()\n        elapsed = now - self.last_refill\n        tokens_to_add = elapsed * self.refill_rate\n        self.tokens = min(self.capacity, self.tokens + tokens_to_add)\n        self.last_refill = now\n\n    def get_available_tokens(self):\n        \"\"\"Return the current number of available tokens.\"\"\"\n        with self.lock:\n            self._refill()\n            return self.tokens\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 165
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 177
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 269
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 269
+     }
+    ],
+    "scores": {
+     "words": 294,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3163,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.4,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "```python\nimport time\nfrom threading import Lock\n\n\nclass TokenBucket:\n    def __init__(self, capacity, refill_rate):\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = float(capacity)\n        self.last_refill_time = time.monotonic()\n        self.lock = Lock()\n    \n    def try_acquire(self, tokens=1):\n        \"\"\"Attempt to acquire tokens. Returns True if successful, False if insufficient.\"\"\"\n        with self.lock:\n            self._refill()\n            \n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n    \n    def acquire(self, tokens=1, timeout=None):\n        \"\"\"Block until tokens are available, or timeout expires. Returns True if successful.\"\"\"\n        start_time = time.monotonic()\n        \n        while True:\n            if self.try_acquire(tokens):\n                return True\n            \n            if timeout is not None:\n                elapsed = time.monotonic() - start_time\n                if elapsed >= timeout:\n                    return False\n            \n            time.sleep(0.01)\n    \n    def _refill(self):\n        \"\"\"Add tokens based on elapsed time, capped at capacity.\"\"\"\n        now = time.monotonic()\n        time_passed = now - self.last_refill_time\n        tokens_to_add = time_passed * self.refill_rate\n        \n        self.tokens = min(self.capacity, self.tokens + tokens_to_add)\n        self.last_refill_time = now\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 90
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 90
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 132
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 132
+     }
+    ],
+    "scores": {
+     "words": 161,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.323,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 6.21,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "instructed+gated": {
+    "text": "```python\nimport time\nfrom threading import Lock\n\n\nclass TokenBucket:\n    def __init__(self, capacity, refill_rate):\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = float(capacity)\n        self.last_refill = time.monotonic()\n        self.lock = Lock()\n\n    def _refill(self):\n        now = time.monotonic()\n        elapsed = now - self.last_refill\n        self.tokens = min(\n            self.capacity,\n            self.tokens + elapsed * self.refill_rate\n        )\n        self.last_refill = now\n\n    def try_acquire(self, tokens=1):\n        with self.lock:\n            self._refill()\n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n\n    def acquire(self, tokens=1, timeout=None):\n        start = time.monotonic()\n        while True:\n            if self.try_acquire(tokens):\n                return True\n            if timeout and time.monotonic() - start > timeout:\n                return False\n            time.sleep(0.001)\n\n    def get_tokens(self):\n        with self.lock:\n            self._refill()\n            return self.tokens\n\n    def reset(self):\n        with self.lock:\n            self.tokens = self.capacity\n            self.last_refill = time.monotonic()\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 110
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 110
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 110
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 110
+     }
+    ],
+    "scores": {
+     "words": 138,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.2609,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 7.25,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "```python\nimport time\nfrom threading import Condition\n\n\nclass TokenBucketRateLimiter:\n    \"\"\"Token bucket rate limiter.\"\"\"\n    \n    def __init__(self, capacity, refill_rate):\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = float(capacity)\n        self.last_refill = time.monotonic()\n        self.condition = Condition()\n    \n    def _refill(self):\n        now = time.monotonic()\n        elapsed = now - self.last_refill\n        refilled = elapsed * self.refill_rate\n        self.tokens = min(self.capacity, self.tokens + refilled)\n        self.last_refill = now\n    \n    def try_acquire(self, tokens=1):\n        \"\"\"Attempt to acquire tokens. Returns True if successful.\"\"\"\n        with self.condition:\n            self._refill()\n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n    \n    def acquire(self, tokens=1, timeout=None):\n        \"\"\"\n        Acquire tokens, blocking until available or timeout.\n        Returns True if acquired, False if timeout expired.\n        \"\"\"\n        deadline = None if timeout is None else time.monotonic() + timeout\n        \n        with self.condition:\n            while True:\n                self._refill()\n                if self.tokens >= tokens:\n                    self.tokens -= tokens\n                    return True\n                \n                if deadline is not None:\n                    remaining = deadline - time.monotonic()\n                    if remaining <= 0:\n                        return False\n                    self.condition.wait(timeout=min(remaining, 0.1))\n                else:\n                    self.condition.wait(timeout=0.1)\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 150
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 150
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 148
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 148
+     }
+    ],
+    "scores": {
+     "words": 167,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3054,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.99,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "```python\nimport time\nfrom threading import Lock\n\n\nclass TokenBucket:\n    def __init__(self, capacity: float, refill_rate: float):\n        \"\"\"\n        Initialize a token bucket rate limiter.\n        \n        Args:\n            capacity: Maximum number of tokens in the bucket\n            refill_rate: Number of tokens added per second\n        \"\"\"\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = capacity\n        self.last_refill = time.monotonic()\n        self.lock = Lock()\n    \n    def try_acquire(self, tokens: float = 1.0) -> bool:\n        \"\"\"\n        Try to acquire tokens from the bucket.\n        \n        Args:\n            tokens: Number of tokens to acquire (default: 1)\n        \n        Returns:\n            True if tokens were acquired, False otherwise\n        \"\"\"\n        with self.lock:\n            now = time.monotonic()\n            elapsed = now - self.last_refill\n            \n            # Refill tokens based on elapsed time\n            self.tokens = min(\n                self.capacity,\n                self.tokens + elapsed * self.refill_rate\n            )\n            self.last_refill = now\n            \n            # Try to acquire tokens\n            if self.tokens >= tokens:\n                self.tokens -= tokens\n                return True\n            return False\n    \n    def acquire(self, tokens: float = 1.0, timeout: float = None) -> bool:\n        \"\"\"\n        Acquire tokens from the bucket, blocking until available or timeout.\n        \n        Args:\n            tokens: Number of tokens to acquire (default: 1)\n            timeout: Maximum seconds to wait (None = infinite)\n        \n        Returns:\n            True if tokens were acquired, False if timeout exceeded\n        \"\"\"\n        start_time = time.monotonic()\n        while True:\n            if self.try_acquire(tokens):\n                return True\n            \n            if timeout is not None:\n                elapsed = time.monotonic() - start_time\n                if elapsed >= timeout:\n                    return False\n            \n            time.sleep(0.001)  # 1ms sleep between attempts\n```",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 135
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 135
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 217
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 217
+     }
+    ],
+    "scores": {
+     "words": 214,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.3224,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 4.67,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "```python\nimport time\nfrom threading import Lock\n\nclass TokenBucket:\n    \"\"\"Thread-safe token bucket for rate limiting.\"\"\"\n    \n    def __init__(self, capacity, tokens_per_second):\n        \"\"\"\n        Initialize the rate limiter.\n        \n        Args:\n            capacity: Maximum tokens stored\n            tokens_per_second: Refill rate\n        \"\"\"\n        self.capacity = capacity\n        self.rate = tokens_per_second\n        self.balance = float(capacity)\n        self.timestamp = time.time()\n        self._mutex = Lock()\n    \n    def _replenish(self):\n        \"\"\"Top up tokens based on elapsed time.\"\"\"\n        now = time.time()\n        elapsed = now - self.timestamp\n        added = elapsed * self.rate\n        self.balance = min(self.capacity, self.balance + added)\n        self.timestamp = now\n    \n    def try_acquire(self, amount=1):\n        \"\"\"\n        Attempt to consume tokens.\n        \n        Args:\n            amount: Tokens to consume (default: 1)\n        \n        Returns:\n            True if successful, False if insufficient tokens\n        \"\"\"\n        with self._mutex:\n            self._replenish()\n            \n            if self.balance >= amount:\n                self.balance -= amount\n                return True\n            \n            return False\n\n\n# Example:\n# limiter = TokenBucket(capacity=10, tokens_per_second=2)\n# if limiter.try_acquire(1):\n#     process_request()\n# else:\n#     reject_request()\n```",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 157
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 154
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 144
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 134
+     }
+    ],
+    "scores": {
+     "words": 142,
+     "sentences": 0,
+     "mean_sentence_words": 0.0,
+     "sentence_length_stdev": 0.0,
+     "type_token_ratio": 0.4296,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  }
+ ],
+ "prompt_set": "evalab-prompts/code-edited.md",
+ "enforce": "codewatch"
+}

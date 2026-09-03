@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
-"""codewatch: a ruleset for the tells AI coding agents leave in Python
-source, not prose. Where ste100 and slopwatch both gate WRITING (docs,
+"""codewatch: a ruleset for the debris that accumulates in Python source
+as a file is edited. Where ste100 and slopwatch both gate WRITING (docs,
 READMEs, commit-adjacent text), codewatch gates CODE -- proof the plugin
 contract generalizes past the text-document domain entirely, the same
 point slopwatch already proved for a second writing style.
+
+It was documented as "the tells AI coding agents leave in source" until
+it was measured, and that framing was wrong. Six modules each edited
+three times, on two models: opus produced ONE flag across 16089 words,
+haiku six across 6406. Machine-written Python does not carry this
+fingerprint, and the debris rate tracks model capability rather than
+authorship -- see evalab-runs/2026-09-03-codewatch/FINDINGS.md.
+
+What it does catch is real, and this project's own gate caught a bare
+`except: pass` in its own commit and refused it, correctly. But that came
+from a model working iteratively in a live repository under pressure to
+make a test pass, not from one asked to produce a module and hand it
+back. Leftover prints, TODO stubs, comments narrating a refactor and
+swallowed exceptions are what a long editing session leaves behind, BY
+ANYONE. Reach for this when code is being changed, not when it is being
+generated.
 
 Line-based, not AST-based, on purpose: stopslop gates a single file's text
 at write time, the same regex-over-parser tradeoff already used
@@ -374,7 +390,21 @@ def check_generic_naming(line, extra=()):
 
 # --- tautological_assert / constant_condition (semantic) -- own words ------
 _TAUTOLOGICAL_ASSERT_RE = re.compile(r"^\s*assert\s+True\s*$")
-_CONSTANT_CONDITION_RE = re.compile(r"^\s*(?:if|while)\s+(True|False)\s*:\s*$")
+# `while True:` is EXCLUDED, and it is the whole reason this pattern is
+# not simply (?:if|while). It is the standard Python idiom for a worker
+# loop, a retry loop, a poll loop -- code that runs until something
+# breaks it out. Flagging it calls correct, conventional code a defect.
+#
+# Measured: across ~3000 words of generated Python per arm, EVERY
+# constant_condition flag this ruleset produced was a `while True:` in a
+# queue worker or a token-bucket refill. The check's entire live output
+# was false positives, which is worse than a check that never fires --
+# a silent check wastes a reader's attention, a wrong one wastes their
+# afternoon and teaches them to ignore the tool.
+#
+# `while False:` stays flagged: that IS dead code.
+_CONSTANT_CONDITION_RE = re.compile(
+    r"^\s*(?:if\s+(True|False)|while\s+(False))\s*:\s*$")
 
 
 def check_tautological_assert(line):
@@ -387,8 +417,9 @@ def check_tautological_assert(line):
 def check_constant_condition(line):
     m = _CONSTANT_CONDITION_RE.match(line)
     if m:
-        return [{"word": m.group(1), "rule": "codewatch.constant_condition", "auto_fix": False,
-                  "note": f"condition is always {m.group(1)} -- dead branch, or leftover debug code"}]
+        word = m.group(1) or m.group(2)
+        return [{"word": word, "rule": "codewatch.constant_condition", "auto_fix": False,
+                  "note": f"condition is always {word} -- dead branch, or leftover debug code"}]
     return []
 
 

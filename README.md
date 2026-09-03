@@ -35,7 +35,7 @@ That is the actual product. Everything above is a default.
 
 ## What the evidence says
 
-Fourteen committed runs on three models, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). One of them measured this project against the other tools in its category on the same prompts, in the same run -- as far as I can find, nobody had done that before, because until this harness there was no rig.
+Sixteen committed runs on three models, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). One of them measured this project against the other tools in its category on the same prompts, in the same run -- as far as I can find, nobody had done that before, because until this harness there was no rig.
 
 | tier | tells | generations |
 |---|---|---|
@@ -102,7 +102,7 @@ It is not a security boundary and does not see every write path. [SECURITY.md](S
 A ruleset is a small Python package under `src/rulesets/` supplying three functions (`lint_and_gate`, `blocking_semantic_flags`, `apply_mechanical_fixes`) and three attributes. The gate knows nothing else about it. See [docs/adding-a-ruleset.md](docs/adding-a-ruleset.md) for the contract.
 
 - `slopwatch` -- the default for prose, 31 checks. AI writing tells: wording habits, and the formatting habits that outlast them. Every check warns; none blocks.
-- `codewatch` -- `.py` files, 10 checks. The tells an agent leaves in source. Blocks one thing, `swallowed_exception`, because a bare `except: pass` is a defect rather than a tell.
+- `codewatch` -- `.py` files, 10 checks. Debris that accumulates as code is EDITED: leftover `print()` calls, TODO stubs, comments narrating a refactor, a bare `except: pass`. Blocks that last one, because it is a defect rather than a tell. It was documented as "the tells an agent leaves in source" until it was measured, and that was wrong -- across six modules each edited three times, opus produced one flag in 16089 words and haiku six in 6406. Machine-written Python does not carry this fingerprint, and the rate tracks model capability rather than authorship. Reach for it when code is being changed over a long session, not when it is being generated. [Findings](evalab-runs/2026-09-03-codewatch/FINDINGS.md).
 - `ste100` -- ASD-STE100 Simplified Technical English, 13 checks, 12 of them blocking. Opt-in: it reaches no file until a rule names it. It is a controlled language for maintenance procedures, and it buys precision with a deliberate monotone. Right for a runbook, a category error for a README -- this tool proved that on itself, flagging 23 sentences of `SECURITY.md` over the words "blocking", "warning" and "reading".
 
 Defaults with no config file: `slopwatch` on `.md`/`.txt`/`.rst`, `codewatch` on `.py`, `.claude/` out of scope. Route procedures to `ste100` by name, above the general rule. This repository routes exactly one file that way.
@@ -196,7 +196,7 @@ python3 src/evalab/stats.py evalab-runs/2026-09-01-instructed/result.json gated 
 
 `stats.py` pairs any two arms of a saved `result.json` by prompt: an exact two-sided sign test with ties dropped, and a seeded percentile bootstrap on the mean paired difference. Every p-value in this README is reproducible with it, and a test holds the published structural claim against its own saved run so a future change to the harness fails the suite rather than silently rewriting history.
 
-Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The fourteen committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
+Each run writes `result.json`, `report.txt`, the recordings, and the ungated, instructed and gated texts under `texts/`, because no metric here decides whether prose is good and the saved texts are the actual evidence. The sixteen committed runs are in [`evalab-runs/`](evalab-runs/), each with its own `FINDINGS.md`.
 
 ## What it does not do
 
@@ -218,7 +218,7 @@ Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1
 - [How to add a ruleset](docs/adding-a-ruleset.md) -- the full plugin contract: the three required functions, the three required attributes, every optional capability, and what each one adds.
 - [Embedded prose](docs/embedded-prose.md) -- how one routing rule sends a code file's own strings and docstrings through a second, prose ruleset.
 - [ASD-STE100 rules, extracted](docs/ASD-STE100-rules-extracted.md) -- the Part 1 rule set this project built the `ste100` ruleset against. Reference material, not this project's own prose, so the gate does not read it.
-- [The evaluation runs](evalab-runs/) -- all fourteen, in the order they were run, with what each one asked and what it found. The conclusions change between them.
+- [The evaluation runs](evalab-runs/) -- all sixteen, in the order they were run, with what each one asked and what it found. The conclusions change between them.
 - [A gate bypass during dictionary extraction](docs/incidents/2026-08-01-ste100-dictionary-extraction-gate-bypass.md) -- an incident report on a real bypass of this project's own gate, and the fix.
 
 ## License

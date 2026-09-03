@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nimport os\nfrom pathlib import Path\nfrom typing import List\n\ndef walk_and_glob(\n    directory: str,\n    pattern: str,\n    recursive: bool = True\n) -> List[str]:\n    \"\"\"\n    Walk a directory tree and return every file matching a glob pattern.\n    \n    Args:\n        directory: Root directory to search from\n        pattern: Glob pattern to match files (e.g., \"*.py\", \"*.txt\")\n        recursive: Whether to search recursively (default: True)\n    \n    Returns:\n        Sorted list of absolute file paths matching the pattern\n    \n    Example:\n        >>> files = walk_and_glob(\".\", \"*.py\")\n        >>> json_files = walk_and_glob(\".\", \"*.json\", recursive=True)\n    \"\"\"\n    root_path = Path(directory).resolve()\n    \n    if not root_path.is_dir():\n        raise ValueError(f\"Directory does not exist: {directory}\")\n    \n    # Build search pattern with ** for recursive globbing\n    if recursive and '**' not in pattern:\n        search_pattern = f'**/{pattern}'\n    else:\n        search_pattern = pattern\n    \n    # Collect all matching files\n    matches = []\n    for file_path in root_path.glob(search_pattern):\n        if file_path.is_file():\n            matches.append(str(file_path.absolute()))\n    \n    return sorted(matches)\n```"
+}

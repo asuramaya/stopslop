@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nfrom pathlib import Path\nfrom typing import List, Union\n\ndef find_files_by_glob(directory: Union[str, Path], pattern: str, sort_results: bool = True) -> List[Path]:\n    \"\"\"\n    Walk a directory tree recursively and return all files matching a glob pattern.\n    \n    This function traverses the entire directory tree starting from the given\n    root directory and returns all files that match the provided glob pattern.\n    \n    Args:\n        directory: Root directory to search (string or Path object)\n        pattern: Glob pattern to match (e.g., '*.py', '**/*.txt', 'src/**/*.js')\n        sort_results: Whether to sort results alphabetically (default: True)\n    \n    Returns:\n        List of Path objects matching the pattern\n    \n    Raises:\n        NotADirectoryError: If directory does not exist or is not a directory\n        ValueError: If pattern is invalid\n    \n    Examples:\n        >>> files = find_files_by_glob('.', '*.py')\n        >>> py_files = find_files_by_glob('/home/user', '**/*.py')\n    \"\"\"\n    root = Path(directory)\n    \n    if not root.exists():\n        raise NotADirectoryError(f\"Directory does not exist: {directory}\")\n    \n    if not root.is_dir():\n        raise NotADirectoryError(f\"Path is not a directory: {directory}\")\n    \n    try:\n        matched_files = list(root.rglob(pattern))\n    except ValueError as e:\n        raise ValueError(f\"Invalid glob pattern '{pattern}': {e}\")\n    \n    if sort_results:\n        matched_files.sort()\n    \n    return matched_files\n```"
+}

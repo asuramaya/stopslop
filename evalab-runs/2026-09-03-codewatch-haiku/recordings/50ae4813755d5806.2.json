@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  }
+ ],
+ "output": "```python\nimport json\nimport os\nfrom typing import Any, Dict\n\nDEFAULT_CONFIG = {\n    \"debug\": False,\n    \"timeout\": 30,\n    \"max_retries\": 3,\n    \"log_level\": \"INFO\",\n}\n\n\nclass ConfigLoader:\n    def __init__(self, config_path: str = \"config.json\"):\n        self.config_path = config_path\n        self.config = self._load_config()\n\n    def _load_config(self) -> Dict[str, Any]:\n        \"\"\"Load config from file or return defaults if file is missing.\"\"\"\n        if os.path.exists(self.config_path):\n            try:\n                with open(self.config_path, \"r\") as f:\n                    file_config = json.load(f)\n                    return {**DEFAULT_CONFIG, **file_config}\n            except (json.JSONDecodeError, IOError):\n                return DEFAULT_CONFIG.copy()\n        return DEFAULT_CONFIG.copy()\n\n    def get(self, key: str, default: Any = None) -> Any:\n        \"\"\"Get a config value by key.\"\"\"\n        return self.config.get(key, default)\n\n    def get_all(self) -> Dict[str, Any]:\n        \"\"\"Get the entire config dictionary.\"\"\"\n        return self.config.copy()\n\n\nif __name__ == \"__main__\":\n    loader = ConfigLoader()\n    print(loader.get_all())\n```"
+}

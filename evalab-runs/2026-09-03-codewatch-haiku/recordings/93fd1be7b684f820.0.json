@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines.\n\nReturn the full text inline in your reply. Do not create, edit or read any file, and do not describe what you did -- the reply itself is the deliverable."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nimport time\nimport functools\n\ndef retry(max_attempts=3, base_delay=1):\n    \"\"\"\n    Decorator that retries a function with exponential backoff on exception.\n    \n    Args:\n        max_attempts: Maximum number of attempts (default: 3)\n        base_delay: Initial delay in seconds (default: 1)\n    \"\"\"\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            attempt = 1\n            delay = base_delay\n            \n            while attempt <= max_attempts:\n                try:\n                    return func(*args, **kwargs)\n                except Exception as e:\n                    if attempt == max_attempts:\n                        raise\n                    \n                    print(f\"Attempt {attempt} failed: {e}. Retrying in {delay}s...\")\n                    time.sleep(delay)\n                    delay *= 2  # Exponential backoff\n                    attempt += 1\n        \n        return wrapper\n    return decorator\n\n\n# Example usage:\n@retry(max_attempts=4, base_delay=0.5)\ndef flaky_function():\n    import random\n    if random.random() < 0.7:\n        raise ValueError(\"Random failure\")\n    return \"Success!\"\n\n\nif __name__ == \"__main__\":\n    result = flaky_function()\n    print(result)\n```"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "```python\nimport time\nimport functools\n\ndef retry(max_attempts=3, base_delay=1):\n    \"\"\"\n    Decorator for retrying failed function calls with exponential backoff strategy.\n    \n    Args:\n        max_attempts: Number of times to retry the function (default: 3)\n        base_delay: Starting delay between retries in seconds (default: 1)\n    \"\"\"\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            current_delay = base_delay\n            \n            for attempt_num in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except Exception as err:\n                    is_last_attempt = (attempt_num == max_attempts)\n                    \n                    if is_last_attempt:\n                        raise\n                    \n                    print(f\"Attempt {attempt_num} failed with {type(err).__name__}: {err}\")\n                    print(f\"Waiting {current_delay}s before retry...\")\n                    time.sleep(current_delay)\n                    current_delay *= 2\n        \n        return wrapper\n    return decorator\n\n\n# Example usage:\n@retry(max_attempts=4, base_delay=0.5)\ndef unreliable_operation():\n    import random\n    if random.random() < 0.7:\n        raise RuntimeError(\"Operation failed randomly\")\n    return \"Operation succeeded!\"\n\n\nif __name__ == \"__main__\":\n    result = unreliable_operation()\n    print(result)\n```"
+}
