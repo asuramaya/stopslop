@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "A queue with workers reacts. Something happens, a job lands on the queue, and whichever worker is free picks it up. Latency is roughly the wait until a worker frees up, so anything that must feel immediate (password reset emails, thumbnail generation) belongs here. The cost is that you run processes around the clock and you now own a broker: retry backoff, dead-letter handling, visibility timeouts, poison messages that wedge a consumer.\n\nScheduled batch runs invert that. Nothing happens until 3am, then everything happens at once. You get set-based work in exchange: one query over the whole day's rows instead of ten thousand single-row queries. Failure is easier to reason about, since a run either finished or it didn't, and rerunning it is usually cheap. What you pay is latency measured in hours, plus a lumpy load profile that forces you to size the database for the peak.\n\nThe dividing question is usually staleness tolerance rather than throughput. Billing reconciliation, report generation, nightly exports: fine to be hours behind. Anything a person is sitting there waiting on: not fine.\n\nMost systems end up running both. The failure mode is picking one, then forcing the other kind of work through it \u2014 cron jobs polling every ten seconds, or a queue used to fan out a million rows one at a time."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (You get set-based work in exchange:):\n- colon_reveal (Billing reconciliation, report generation, nightly exports:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "A queue with workers reacts. Something happens, a job lands on the queue, and whichever worker is free picks it up. Latency is roughly the wait until a worker frees up, so anything that must feel immediate (password reset emails, thumbnail generation) belongs here. The cost is that you run processes around the clock and you now own a broker: retry backoff, dead-letter handling, visibility timeouts, poison messages that wedge a consumer.\n\nScheduled batch runs invert that. Nothing happens until 3am, then everything happens at once. In exchange you get set-based work, one query over the whole day's rows instead of ten thousand single-row queries. Failure is easier to reason about, since a run either finished or it didn't, and rerunning it is usually cheap. What you pay is latency measured in hours, plus a lumpy load profile that forces you to size the database for the peak.\n\nThe dividing question is usually staleness tolerance rather than throughput. Billing reconciliation, report generation and nightly exports can sit hours behind without hurting anyone. Anything a person is sitting there waiting on cannot.\n\nMost systems end up running both. The failure mode is picking one, then forcing the other kind of work through it \u2014 cron jobs polling every ten seconds, or a queue used to fan out a million rows one at a time."
+}

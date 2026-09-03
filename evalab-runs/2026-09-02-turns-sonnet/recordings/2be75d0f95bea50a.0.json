@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Introduction\n\nThis guide covers the Bookings API, a REST interface for creating, updating, and canceling calendar reservations. If you're building a scheduling tool, a front desk system, or anything that needs to reserve a block of someone's time, this is the API that does it.\n\nAt its core, the API works with three resources: **calendars**, **bookings**, and **availability windows**. Calendars belong to a user or a resource (a room, a piece of equipment, a team). Bookings are the reservations placed against a calendar. Availability windows define when a calendar can accept new bookings in the first place.\n\nEvery endpoint returns JSON and uses standard HTTP status codes, so a 409 means a time slot conflict, a 404 means the calendar or booking doesn't exist, and so on. Authentication happens via a bearer token in the `Authorization` header, and all requests must be made over HTTPS.\n\nThe sections that follow walk through authentication, the core resources, and common workflows: checking availability before you book, creating a reservation, handling conflicts and double-bookings, and setting up webhooks so your app hears about changes in real time. Each section includes example requests and responses you can copy directly into your own client code.\n\nIf you're integrating this API for the first time, start with **Authentication**, then move to **Checking Availability** before you try to create your first booking."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  },
+  {
+   "role": "assistant",
+   "content": "**Authentication**\n\nEvery request to the Bookings API must include a bearer token in the `Authorization` header: `Authorization: Bearer <your-token>`. You can generate a token from the developer dashboard under API Keys, and each token is scoped to a single account, so it only sees calendars that account owns or has been granted access to. Tokens don't expire by default, but you can revoke and reissue them at any time if one gets exposed. Requests without a valid token, or made over plain HTTP, are rejected with a 401. If you're testing locally, use one of the sandbox tokens listed in the dashboard \u2014 they behave like production tokens but write to a sandbox calendar that resets nightly."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite it for someone who has never used a REST API before."
+  },
+  {
+   "role": "assistant",
+   "content": "**Authentication**\n\nBefore your app can talk to the Bookings API, it has to prove who it is. It does this with a \"token\" \u2014 a long, random string of letters and numbers that acts like a password just for your app.\n\nTo get one, log into the developer dashboard and open the API Keys section. Copy the token it gives you and keep it somewhere safe, the way you would a password.\n\nEvery time your app sends a request to the API, it has to include this token in a part of the request called the header, like this:\n\n```\nAuthorization: Bearer <your-token>\n```\n\nYour token only works with the calendars your account owns or has been given access to \u2014 it can't see or touch anyone else's data. If you ever think your token has leaked, you can revoke it from the dashboard and generate a new one.\n\nTwo rules to remember: requests must use HTTPS, not HTTP, and every request needs a valid token. Skip either one and the API sends back an error code (401) instead of doing what you asked.\n\nIf you're just experimenting, use one of the sandbox tokens in the dashboard instead of a real one. They work the same way, but write to a test calendar that clears itself out every night, so nothing you do can affect real bookings."
+  },
+  {
+   "role": "user",
+   "content": "Add a short warning about rate limits."
+  }
+ ],
+ "output": "A short warning added right after the authentication paragraph:\n\n**A note on rate limits**\n\nThe API also limits how many requests your app can send in a given time window \u2014 usually a set number per minute. If you go over that limit, the API stops responding with normal data and instead sends back a 429 error until the window resets. Check the response headers (`X-RateLimit-Remaining` and `X-RateLimit-Reset`) so your app can slow down before it hits the wall, rather than finding out from a stream of errors."
+}

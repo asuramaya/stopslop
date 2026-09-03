@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  }
+ ],
+ "output": "A queue with workers and a scheduled batch run answer the same question from opposite ends of the latency problem.\n\nThe queue treats each unit of work as an event. Something happens, a job lands on the queue, and whichever worker is free picks it up. Latency stays low because nothing waits on a clock. You pay for that with a process that has to stay alive, plus the accompanying chores: retries, dead letters, poison messages, and workers that die halfway through a job.\n\nBatch runs invert this. A cron entry fires at three in the morning, one process reads everything that piled up since yesterday, and it either finishes or it doesn't. Failures are easier to reason about, since there's one place to look and one thing to rerun. Batching also lets you do work that's cheaper in bulk: one insert instead of ten thousand rows, one API call carrying a thousand ids.\n\nWhat you give up is freshness and a small blast radius. A batch job that breaks takes the whole day's work down with it, and users wait for the next window regardless.\n\nRough rule: use a queue when someone is waiting on the result. Use a batch when nobody is and the volume is high."
+}

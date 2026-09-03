@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "This booking API lets you create, read, update, and cancel calendar reservations for people, rooms, and resources. It exposes standard REST endpoints over HTTPS, returns JSON, and follows conventional HTTP status codes and verbs, so anything that speaks HTTP can plug in without a special client library.\n\nA booking is a time slot tied to one or more resources and an organizer. The API tracks slot availability, prevents double-bookings on the same resource, and supports recurring events through a single parent record with generated instances. Time zones matter: every timestamp travels in ISO 8601 format with an explicit offset, and the API stores everything internally in UTC.\n\nEvery request needs an API key in the `Authorization` header. Keys are scoped per workspace, and rate limits apply per key rather than per endpoint. Responses include pagination cursors for list operations and a `request_id` for tracing issues through support.\n\nThe sections that follow cover authentication, resource and availability lookups, creating and modifying bookings, webhook notifications for booking changes, and error handling. Each section includes example requests and responses so you can copy a working call and adapt it. If you're integrating a scheduling UI, start with the Availability section \u2014 it's the endpoint most front-end calls depend on."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  }
+ ],
+ "output": "Every request authenticates with an API key sent in the `Authorization` header as a bearer token \u2014 no cookies, sessions, or query-string keys. Generate keys from the workspace settings page; each one is scoped to a single workspace and inherits the permissions of the user who created it, so a key from a read-only account can't create or cancel bookings. Treat keys as secrets: don't commit them, and rotate a key immediately if it leaks. Requests without a valid key get a 401; requests from a key that lacks permission for the target workspace get a 403. Keys aren't rate-limited per endpoint, but per key across all endpoints combined, so a script hammering the availability endpoint eats into the quota your booking-creation calls need. If you're building something long-lived, use a dedicated key per integration rather than sharing one key across services \u2014 it makes revoking access for one integration a lot cleaner when something breaks or gets decommissioned."
+}

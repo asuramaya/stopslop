@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Offline Sync Is Here**\n\nYour notes now work the same whether you're on a plane, in a basement, or anywhere else the signal drops. Write, edit, and organize notes with no connection, and everything syncs the moment you're back online.\n\nHere's how it works: the app keeps a local copy of your notes on your device. When you make a change offline, it's saved instantly and queued for sync. Reconnect, and the app merges your changes with the cloud automatically \u2014 no manual refresh, no lost work.\n\nIf you edit the same note on two devices while both are offline, we don't just pick one and discard the other. The app shows you both versions side by side so you can merge them yourself, or choose the one you want to keep.\n\nA few details:\n\n- Offline changes sync within seconds of reconnecting, depending on note size and connection speed.\n- Attachments (images, files) download for offline access only when you open them at least once while connected.\n- Sync status shows in the top bar: a small icon tells you when a note is fully synced, pending, or in conflict.\n\nThis has been our most requested feature for two years. Update the app today, and your notes will keep up with you \u2014 connection or not."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Here's how it works:):\n- bold_density:\n- paragraph_uniformity (4 paragraphs, spread 0.25):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**Offline Sync Is Here**\n\nYour notes now work the same whether you're on a plane, in a basement, or anywhere else the signal drops. Write, edit, and organize notes with no connection, and everything syncs the moment you're back online.\n\nThe app keeps a local copy of your notes on your device. When you make a change offline, it's saved instantly and queued for sync. Reconnect, and the app merges your changes with the cloud automatically \u2014 no manual refresh, no lost work.\n\nIf you edit the same note on two devices while both are offline, we don't just pick one and discard the other. The app shows you both versions side by side so you can merge them yourself, or choose the one you want to keep.\n\nA few details. Offline changes sync within seconds of reconnecting, depending on note size and connection speed. Attachments like images and files download for offline access only when you open them at least once while connected. Sync status shows in the top bar, where a small icon tells you when a note is fully synced, pending, or in conflict.\n\nThis has been our most requested feature for two years. Update the app today, and your notes will keep up with you, connection or not."
+}

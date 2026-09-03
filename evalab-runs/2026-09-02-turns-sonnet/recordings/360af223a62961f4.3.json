@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "# Welcome to the Payments Team\n\nYou're joining the team that moves money for the company \u2014 and moving money wrong is expensive in ways that other bugs aren't. A dropped feature flag might annoy a user; a double-charge or a stuck refund shows up on someone's bank statement. Keep that asymmetry in mind as you ramp up.\n\n**What we own**\n\nWe run the charge and payout pipeline: card processing, ACH transfers, refunds, and reconciliation against our payment providers (Stripe and Adyen, mainly). Downstream, billing and the ledger team consume our events.\n\n**First week**\n\n- Get read access to the `payments-core` and `ledger-service` repos, plus the runbook wiki.\n- Sit in on a reconciliation review \u2014 you'll see how we catch drift between our records and the processor's.\n- Pair with your onboarding buddy on a small, low-risk ticket (usually a logging or validation fix) to get a PR through our review process end to end.\n\n**How we work**\n\nEvery change touching money flow needs two reviewers, one of whom must be a team lead. We favor idempotent operations and explicit state machines over clever shortcuts \u2014 retries and double-submits are a fact of life here, not edge cases.\n\nQuestions? Post in `#payments-eng`. No question is too basic \u2014 everyone on this team started exactly where you are."
+}

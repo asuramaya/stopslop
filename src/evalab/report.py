@@ -260,19 +260,21 @@ def _drift_table(rows):
               "".join(f"{('t' + str(i)):>7}" for i in range(turn_count)) +
               f"{'change':>9}"]
     for arm in _arms(rows):
-        totals = []
+        # Only columns this arm actually reached. An arm with fewer turns
+        # used to get a trailing zero, which read as a large improvement
+        # and made the change column wrong for every row but the longest.
+        cells = []
         for index in range(turn_count):
-            total = 0
-            for row in rows:
-                per_turn = row[arm].get("per_turn") or []
-                if index < len(per_turn):
-                    total += per_turn[index]["total"]
-            totals.append(total)
-        if not totals:
+            scored = [row[arm]["per_turn"][index]["total"] for row in rows
+                       if index < len(row[arm].get("per_turn") or [])]
+            cells.append(sum(scored) if scored else None)
+        present = [c for c in cells if c is not None]
+        if not present:
             continue
-        delta = totals[-1] - totals[0]
+        delta = present[-1] - present[0]
         lines.append("  " + f"{arm:<22}" +
-                      "".join(f"{t:>7}" for t in totals) +
+                      "".join(f"{c:>7}" if c is not None else f"{'':>7}"
+                               for c in cells) +
                       f"{delta:>+9}")
     lines += ["",
                "  A rising row is a document getting worse as it is edited.",

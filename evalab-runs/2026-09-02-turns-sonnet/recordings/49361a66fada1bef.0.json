@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "This booking API lets you create, read, update, and cancel calendar reservations for people, rooms, and resources. It exposes standard REST endpoints over HTTPS, returns JSON, and follows conventional HTTP status codes and verbs, so anything that speaks HTTP can plug in without a special client library.\n\nA booking is a time slot tied to one or more resources and an organizer. The API tracks slot availability, prevents double-bookings on the same resource, and supports recurring events through a single parent record with generated instances. Time zones matter: every timestamp travels in ISO 8601 format with an explicit offset, and the API stores everything internally in UTC.\n\nEvery request needs an API key in the `Authorization` header. Keys are scoped per workspace, and rate limits apply per key rather than per endpoint. Responses include pagination cursors for list operations and a `request_id` for tracing issues through support.\n\nThe sections that follow cover authentication, resource and availability lookups, creating and modifying bookings, webhook notifications for booking changes, and error handling. Each section includes example requests and responses so you can copy a working call and adapt it. If you're integrating a scheduling UI, start with the Availability section \u2014 it's the endpoint most front-end calls depend on."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  },
+  {
+   "role": "assistant",
+   "content": "Every request authenticates with an API key sent in the `Authorization` header as a bearer token \u2014 no cookies, sessions, or query-string keys. Generate keys from the workspace settings page; each one is scoped to a single workspace and inherits the permissions of the user who created it, so a key from a read-only account can't create or cancel bookings. Treat keys as secrets: don't commit them, and rotate a key immediately if it leaks. Requests without a valid key get a 401; requests from a key that lacks permission for the target workspace get a 403. Keys aren't rate-limited per endpoint, but per key across all endpoints combined, so a script hammering the availability endpoint eats into the quota your booking-creation calls need. If you're building something long-lived, use a dedicated key per integration rather than sharing one key across services \u2014 it makes revoking access for one integration a lot cleaner when something breaks or gets decommissioned."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite it for someone who has never used a REST API before."
+  }
+ ],
+ "output": "An API key is like a password just for your program, not for you personally. Every time your code talks to this service, it has to show that key so the service knows who's asking and what they're allowed to do.\n\nTo get one, log into your workspace settings and generate a key there. Each key belongs to one workspace and can only do what the person who made it can do \u2014 so a key made by someone with view-only access can't create or cancel bookings, even if you try.\n\nYou send the key with every request, in a part of the request called a header, using the word \"Bearer\" in front of it. Don't worry about the mechanics of headers yet \u2014 the examples later in this guide show the exact format to copy.\n\nKeep your key private. It works like a password: anyone who has it can act as you, so don't paste it into public code, chat messages, or anywhere others might see it. If a key ever leaks, generate a new one and stop using the old one right away.\n\nOne more thing worth knowing: the service limits how many requests you can make with a given key in a given time. If you're building something that will run for a long time, use a separate key for each project. That way, if one project has a problem, you can shut off just that key without affecting anything else."
+}

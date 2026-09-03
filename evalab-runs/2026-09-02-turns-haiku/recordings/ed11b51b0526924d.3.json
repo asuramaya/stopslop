@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  }
+ ],
+ "output": "I'll write a straightforward introduction for a calendar booking API guide.\n\n---\n\n**Calendar Bookings API Guide**\n\nThis API lets you build calendar and booking features into your application. Whether you're creating a scheduling app, managing reservations, or connecting multiple calendars, this API handles the core operations: creating events, checking availability, updating reservations, and managing time slots across users or resources.\n\nThe guide covers all endpoints you need to integrate bookings into your system. You'll learn how to create and retrieve events, manage availability windows, handle time zones, and prevent double-bookings. Each endpoint includes example requests and responses, along with common error cases and how to handle them.\n\nWe've organized this by workflow rather than alphabetical listing\u2014start with \"Getting Started\" if you're new to the API, or jump to a specific section if you're integrating a particular feature. Code samples are available in Python, JavaScript, and cURL.\n\nYou'll need an API key to authenticate requests. Create one in your dashboard before you begin. Rate limits are generous for most use cases, but the section on pagination and bulk operations covers handling larger datasets efficiently.\n\nBy the end, you'll be able to build a complete booking system: let users view available times, make reservations, reschedule or cancel appointments, and send confirmations back to your app."
+}

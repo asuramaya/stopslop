@@ -1109,3 +1109,66 @@ class TurnHeadingTests(unittest.TestCase):
 
     def test_a_prompt_with_no_turns_reports_none(self):
         self.assertNotIn("turns", self._load("## a\nDraft it.\n")[0])
+
+
+class DriftTableTests(unittest.TestCase):
+    """The drift table is the point of a multi-turn run, so its
+    arithmetic has to survive arms of different lengths."""
+
+    def _row(self, **arms):
+        row = {"id": "p", "prompt": "x", "turns": ["a", "b"]}
+        for name, totals in arms.items():
+            row[name] = {"text": "t", "iterations": len(totals),
+                          "passed": None,
+                          "per_turn": [{"total": t, "enforced": 0, "words": 10}
+                                        for t in totals],
+                          "scores": {"words": 10, "enforced_flags": 0,
+                                      "held_out_flags": 0,
+                                      "enforced_per_1k": 0.0,
+                                      "held_out_per_1k": 0.0,
+                                      "sentence_length_stdev": 0.0,
+                                      "type_token_ratio": 1.0}}
+        return row
+
+    def _render(self, row):
+        """The drift table alone. render() also needs ungated/control/
+        gated for its averages, and building those here would couple
+        these tests to arithmetic they are not about."""
+        return report._drift_table([row])
+
+    def test_a_shorter_arm_is_not_given_a_trailing_zero(self):
+        """An arm with fewer turns used to get a 0 in the missing column,
+        which read as a large improvement and made the change column
+        wrong for every row but the longest."""
+        rendered = self._render(self._row(ungated=[8, 17, 18, 11],
+                                           blind=[12, 12, 16, 14, 11]))
+        line = next(l for l in rendered.splitlines()
+                     if l.strip().startswith("ungated"))
+        self.assertIn("+3", line)
+
+    def test_change_is_measured_over_the_arms_own_turns(self):
+        rendered = self._render(self._row(ungated=[10, 4]))
+        line = next(l for l in rendered.splitlines()
+                     if l.strip().startswith("ungated"))
+        self.assertIn("-6", line)
+
+    def test_a_rising_arm_reports_a_positive_change(self):
+        rendered = self._render(self._row(ungated=[2, 9]))
+        line = next(l for l in rendered.splitlines()
+                     if l.strip().startswith("ungated"))
+        self.assertIn("+7", line)
+
+    def test_a_single_turn_run_prints_no_drift_table(self):
+        """Nine committed runs are single-turn. A drift table over one
+        column would be a chart of nothing."""
+        self.assertEqual(self._render(self._row(ungated=[5])), "")
+
+    def test_the_blind_arm_runs_one_revision_per_turn(self):
+        """An extra turn gives that arm an extra pass at the document and
+        an extra column, and both make it incomparable."""
+        generator = ScriptedGenerator(["The cache stores results."] * 90)
+        row = harness.run([{"id": "p", "text": "write", "turns": ["a", "b"]}],
+                           rulesets.get_ruleset("slopwatch"), generator,
+                           enforced="structural", max_iterations=1)["rows"][0]
+        self.assertEqual(len(row["blind"]["per_turn"]),
+                          len(row["ungated"]["per_turn"]))

@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Offline Sync is Here\n\nYou can now work on your notes without an internet connection. Changes save locally on your device and sync automatically when you're back online\u2014no manual action needed.\n\nThis means you can open your notes anywhere: on a flight, in a subway, or anywhere you lose signal. Your notes stay accessible. When your connection returns, your edits merge seamlessly with updates from other devices.\n\n**How it works:**\n\nYour device keeps a full copy of your notes, encrypted the same way your cloud storage is. When you edit offline, the app records those changes. Once you connect, it compares your local version with the server and syncs both directions. If you made edits on two devices at once, we keep all changes\u2014nothing gets lost.\n\n**Try it now:**\n\nTurn off your WiFi or use airplane mode. Open the app, edit a note, and close it. Reconnect and check another device\u2014your changes are there. If you're on our free plan, you get offline access to 100 recent notes. Subscribers get full offline support for your entire vault.\n\nWe built this for people who write everywhere. Your ideas shouldn't wait for a connection."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph about what happens when two devices edit the same note offline."
+  },
+  {
+   "role": "assistant",
+   "content": "# Offline Sync is Here\n\nYou can now work on your notes without an internet connection. Changes save locally on your device and sync automatically when you're back online\u2014no manual action needed.\n\nThis means you can open your notes anywhere: on a flight, in a subway, or anywhere you lose signal. Your notes stay accessible. When your connection returns, your edits merge seamlessly with updates from other devices.\n\n**How it works:**\n\nYour device keeps a full copy of your notes, encrypted the same way your cloud storage is. When you edit offline, the app records those changes. Once you connect, it compares your local version with the server and syncs both directions. If you made edits on two devices at once, we keep all changes\u2014nothing gets lost.\n\nIf you edit the same note on two devices while offline, both sets of changes come through when you reconnect. Words you added on one device appear with edits from the other. If you both rewrote the same paragraph, we show you both versions and let you choose which to keep.\n\n**Try it now:**\n\nTurn off your WiFi or use airplane mode. Open the app, edit a note, and close it. Reconnect and check another device\u2014your changes are there. If you're on our free plan, you get offline access to 100 recent notes. Subscribers get full offline support for your entire vault.\n\nWe built this for people who write everywhere. Your ideas shouldn't wait for a connection."
+  },
+  {
+   "role": "user",
+   "content": "The feature is now called \"local-first sync\". Update the text."
+  },
+  {
+   "role": "assistant",
+   "content": "# Local-First Sync is Here\n\nYou can now work on your notes without an internet connection. Changes save locally on your device and sync automatically when you're back online\u2014no manual action needed.\n\nThis means you can open your notes anywhere: on a flight, in a subway, or anywhere you lose signal. Your notes stay accessible. When your connection returns, your edits merge seamlessly with updates from other devices.\n\n**How it works:**\n\nYour device keeps a full copy of your notes, encrypted the same way your cloud storage is. When you edit offline, the app records those changes. Once you connect, it compares your local version with the server and syncs both directions. If you made edits on two devices at once, we keep all changes\u2014nothing gets lost.\n\nIf you edit the same note on two devices while offline, both sets of changes come through when you reconnect. Words you added on one device appear with edits from the other. If you both rewrote the same paragraph, we show you both versions and let you choose which to keep.\n\n**Try it now:**\n\nTurn off your WiFi or use airplane mode. Open the app, edit a note, and close it. Reconnect and check another device\u2014your changes are there. If you're on our free plan, you get local-first sync for 100 recent notes. Subscribers get full support for your entire vault.\n\nWe built this for people who write everywhere. Your ideas shouldn't wait for a connection."
+  },
+  {
+   "role": "user",
+   "content": "Cut it to about 150 words."
+  }
+ ],
+ "output": "# Local-First Sync is Here\n\nYou can now work on your notes without an internet connection. Changes save locally and sync automatically when you reconnect\u2014no manual action needed.\n\nWork anywhere: on a flight, in a subway, or without signal. Your device keeps a full copy of your notes, encrypted like your cloud storage. When offline, edits record locally. Once connected, both directions sync seamlessly. If you edited the same note on two devices, both sets of changes merge\u2014we show conflicting versions so you choose which to keep.\n\nFree users get local-first sync for 100 recent notes. Subscribers get full support for your entire vault.\n\nWe built this for people who write everywhere. Your ideas shouldn't wait for a connection."
+}

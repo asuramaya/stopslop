@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "# Welcome to Payments\n\nYour first week is about pushing one test payment all the way through the system yourself, from the API call to the settlement row.\n\nWe own four services. `charge-api` takes the request and validates it. `ledger` records double-entry postings and is the source of truth for every balance. `psp-gateway` talks to Stripe and Adyen. `recon` reads settlement files each morning and yells when they disagree with the ledger.\n\nTwo rules matter more than anything else you will read here. Money moves only through the ledger, never by mutating a balance column. And every write to `psp-gateway` carries an idempotency key derived from the charge ID, because the network will retry and the card network will not forgive you twice.\n\nGet your local stack running first (`make dev`, then `make seed`). The runbook in `docs/local-setup.md` is current as of last month; if a step fails, fix the doc in the same PR.\n\nYour onboarding ticket is PAY-4412, adding a currency field to the refund endpoint. It touches three of the four services, which is the point.\n\nAsk Priya about the ledger, Tom about anything PSP-shaped, and me about everything else. Standup is 9:45."
+}

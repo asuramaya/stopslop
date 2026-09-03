@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Welcome to the Payments Team\n\nYou're joining the team that moves money for the company \u2014 every checkout, refund, and payout runs through code we own. That's a serious responsibility: a bug here doesn't just break a page, it can cost someone real money or double-charge a customer. So we move a little slower and test a little harder than other teams, and that's on purpose.\n\n**What we own.** The payments team runs the checkout API, the ledger service that tracks every transaction, and the integrations with our payment processors (currently Stripe and Adyen). If you want the full map, see `docs/architecture/payments-overview.md`.\n\n**Your first two weeks.** You won't touch production code right away. Expect to: get your local environment running against the sandbox processor accounts, read through the ledger service's reconciliation logic (it's the trickiest part of the system and worth understanding early), and pair with a teammate on a small bug fix or two.\n\n**Idempotency is not optional.** Every write path in this system assumes requests can be retried, duplicated, or arrive out of order. If a change you're making doesn't account for that, ask before you ship it.\n\nNext page: your environment setup checklist."
+  },
+  {
+   "role": "user",
+   "content": "Add a section on who to ask for what."
+  }
+ ],
+ "output": "**Who to ask for what**\n\n- **Local environment / sandbox access issues** \u2014 ask your onboarding buddy first; they set up the same thing two weeks ago.\n- **Ledger and reconciliation logic** \u2014 ask the ledger service owner (see `CODEOWNERS`); this is the module most people misread on first pass.\n- **Processor integration questions (Stripe, Adyen)** \u2014 ask whoever's on payments integration rotation that week; check the team calendar.\n- **Production incidents or anything that smells like a live money issue** \u2014 page on-call directly, don't wait for a Slack reply.\n- **Access requests (prod, vault secrets, processor dashboards)** \u2014 file through the access-request bot in `#payments-team`; approvals need a manager sign-off.\n- **\"Is this idempotent enough\" or design review** \u2014 bring it to the team's weekly design review, or ping the tech lead directly if it's blocking you.\n- **General \"who do I even ask\"** \u2014 your onboarding buddy is the default answer; they'd rather field a dumb question than have you guess on a payments code path."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Introduction\n\nThis guide covers the Booking API, a REST interface for managing calendar bookings: creating them, checking availability, updating times, and canceling when plans change. The API is organized around a few core resources: calendars, time slots, and bookings. Each calendar represents a bookable resource, such as a room, a piece of equipment, or a person's schedule. Time slots define when that resource is open for booking, and bookings represent a confirmed reservation against one of those slots.\n\nEvery request and response uses JSON, authentication happens via a bearer token in the Authorization header, and all endpoints live under a versioned base path so future changes don't break your existing integration. The sections that follow walk through authentication, then the core endpoints for listing availability, creating a booking, retrieving or modifying an existing one, and canceling.\n\nAlong the way you'll find example requests and responses, a list of error codes and what triggers them, and notes on rate limits and pagination.\n\nIf you're integrating a scheduling tool, a booking widget, or an internal ops dashboard, start with the Authentication section, then move to Creating a Booking: the endpoint most integrations touch first. Everything else builds on the same patterns you'll see there."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  }
+ ],
+ "output": "All requests to the API require a bearer token, obtained by exchanging your client credentials at the `/oauth/token` endpoint. Include this token in the `Authorization` header of every call using the `Bearer` scheme; requests without a valid token receive a `401 Unauthorized` response. Tokens expire after one hour, so integrations should refresh them proactively rather than waiting for a failed request. Each token is scoped to a specific calendar or set of calendars, so a booking widget tied to one room can't read or modify another team's schedule. If you're building a server-side integration, keep your client secret out of source control and out of any code that ships to a browser; use a backend endpoint to mint short-lived tokens for client-side use instead."
+}

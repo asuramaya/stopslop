@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Incident Report: Payment API Outage\n\n**Date:** September 3, 2026  \n**Duration:** 2 hours  \n**Impact:** Payment processing unavailable\n\n## Summary\nThe payment API experienced a complete outage from 14:30 UTC to 16:30 UTC due to an expired TLS certificate on the primary gateway server.\n\n## Root Cause\nThe TLS certificate for api.payments.internal expired at 00:00 UTC on September 3. The certificate renewal process failed silently because the renewal automation did not have write access to the updated certificate directory following a recent infrastructure migration. The certificate was not rotated, causing TLS handshake failures for all client connections.\n\n## Timeline\n- **14:30 UTC** \u2014 Monitoring alerts triggered; certificate validation errors detected\n- **14:35 UTC** \u2014 On-call engineer acknowledged alert\n- **14:45 UTC** \u2014 Root cause identified as expired certificate\n- **15:10 UTC** \u2014 Manual certificate renewal completed\n- **15:15 UTC** \u2014 API recovered; all connections re-established\n- **16:30 UTC** \u2014 Full recovery confirmed across all regions\n\n## Impact\nCustomers could not process payments during the outage window. Approximately 847 payment requests failed. No data loss occurred.\n\n## Resolution\nThe certificate was renewed manually. The renewal automation was updated to verify directory permissions post-migration.\n\n## Action Items\n1. Implement certificate expiration alerts 30 days in advance\n2. Add certificate validation to infrastructure validation suite\n3. Document certificate renewal procedures"
+  },
+  {
+   "role": "user",
+   "content": "Add a timeline with the four key moments."
+  }
+ ],
+ "output": "# Incident Report: Payment API Outage\n\n**Date:** September 3, 2026  \n**Duration:** 2 hours  \n**Impact:** Payment processing unavailable\n\n## Summary\nThe payment API experienced a complete outage from 14:30 UTC to 16:30 UTC due to an expired TLS certificate on the primary gateway server.\n\n## Root Cause\nThe TLS certificate for api.payments.internal expired at 00:00 UTC on September 3. The certificate renewal process failed silently because the renewal automation lacked write access to the certificate directory following a recent infrastructure migration. Without an updated certificate, all TLS handshakes failed.\n\n## Timeline\n\n| Time | Event |\n|------|-------|\n| 14:30 UTC | Outage begins; monitoring alerts triggered on certificate validation errors |\n| 14:45 UTC | Root cause identified as expired TLS certificate |\n| 15:10 UTC | Certificate manually renewed and deployed |\n| 16:30 UTC | Full recovery confirmed; all systems operational |\n\n## Impact\nCustomers could not process payments during the two-hour window. Approximately 847 payment requests failed. No data loss occurred.\n\n## Resolution\nThe expired certificate was renewed manually and redeployed. The renewal automation was updated to verify directory permissions after infrastructure changes.\n\n## Action Items\n1. Implement certificate expiration alerts 30 days in advance\n2. Add certificate validation to the post-migration validation suite\n3. Document and test certificate renewal procedures"
+}

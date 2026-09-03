@@ -1,0 +1,41 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Bookings API\n\nThis guide covers the Bookings API, which manages calendars, availability, and reservations for anything you can schedule against: a meeting room, a doctor, a tennis court, a rental van.\n\nThe API is REST over HTTPS. Requests carry an API key in the `Authorization` header and send and receive JSON. Timestamps are ISO 8601 with an explicit UTC offset. Each calendar also stores an IANA timezone of its own, so recurring bookings land at the right local hour after a daylight-saving shift.\n\nFour resource types do most of the work. Calendars hold working hours, buffer times, and blackout dates. Availability turns those rules into concrete open slots for a date range you ask about. Bookings claim a slot and hold it. Webhooks notify your application about changes it did not make itself, such as a customer cancelling from your public page. The whole design turns on not double-booking, and slot claims are transactional to make that hold. If two clients race for the same slot, one gets a 201 and the other gets a 409 with the conflicting booking ID. There is no window where both succeed.\n\nWant a working booking in ten minutes? Start with the quickstart. The reference sections after it go endpoint by endpoint, with errors and rate limits at the end."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the authentication paragraph. It slots in after the paragraph that introduces the `Authorization` header, before the one on resource types.\n\nKeys come in two kinds. A secret key acts for your whole account and belongs only on your own server. A publishable key is safe to ship to a browser, and it can read availability and nothing else. Send either one as `Authorization: Bearer sk_live_...`. Keys do not expire, so rotation is your job: mint a second key from the dashboard, move traffic across, then revoke the first. A request with a missing or malformed key gets a 401. A valid key without the scope for that endpoint gets a 403, which is worth catching separately, because retrying with the same key will never clear it.\n\nTwo things to check against your actual API before publishing: the key prefix (`sk_live_`) and whether the publishable key is read-only on availability. If scopes are finer-grained than that, the last two sentences want a pointer to the scope table instead."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite it for someone who has never used a REST API before."
+  },
+  {
+   "role": "assistant",
+   "content": "Every request has to say who is sending it. It does that with a key, a long string of characters that works like a password, except it belongs to a program rather than a person. You create keys in the dashboard, and there are two kinds. The secret key can do anything your account can do, so keep it on your own server where nobody else can read it. Never put it in a web page or a phone app, because people can read the code that runs on their own machine. The publishable key is the one for those places. It can look up open time slots and nothing else, so little harm comes of someone copying it.\n\nYou attach the key as a header, which is a line of extra information that travels alongside the request. The line reads:\n\n```\nAuthorization: Bearer sk_live_...\n```\n\nKeys stay valid until you switch them off, so replace them yourself now and then: create a second key, point your code at it, then delete the first. Nothing breaks partway through that way.\n\nWhen the key is the problem, the API sends back a number instead of your data. 401 means the key is missing or garbled. 403 means the key is real but not allowed to do that, usually a publishable key trying to make a booking. Trying again will not help; you need the other key.\n\nTwo knock-on effects are worth deciding on. The surrounding intro still says \"REST over HTTPS\" and \"ISO 8601 with an explicit UTC offset,\" which a first-timer won't parse either, so this paragraph now reads plainer than its neighbours. And if you want the whole intro at this reading level, the timestamp sentence is the next one to rewrite."
+  },
+  {
+   "role": "user",
+   "content": "Add a short warning about rate limits."
+  },
+  {
+   "role": "assistant",
+   "content": "Short warning, in the same plain register as the rewritten auth paragraph. It goes right after it, since a first-timer hits 401 and 429 in the same debugging session.\n\nThere is also a cap on how many requests you can send in a given minute. Go past it and the API answers 429 instead of your data, with a `Retry-After` header telling you how many seconds to wait. Wait that long, then try the request again. Do not retry immediately in a loop, because failed attempts count too and the wait grows. Most people hit the cap by checking availability over and over; storing the answer for a few seconds fixes it.\n\nCheck three things against your real API before this ships: whether the window is per minute, whether `Retry-After` is actually returned (some APIs send `X-RateLimit-Reset` instead), and whether rejected requests count toward the limit. That last one is the reason for the \"do not retry in a loop\" sentence, so if rejects are free, drop that sentence.\n\nOne knock-on: the intro's closing line promises \"rate limits at the end.\" That still holds, but the closing line should now say the section covers the per-endpoint numbers, so a reader doesn't think it repeats this."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (One knock-on:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Short warning, in the same plain register as the rewritten auth paragraph. It goes right after it, since a first-timer hits 401 and 429 in the same debugging session.\n\nThere is also a cap on how many requests you can send in a given minute. Go past it and the API answers 429 instead of your data, with a `Retry-After` header telling you how many seconds to wait. Wait that long, then try the request again. Do not retry immediately in a loop, because failed attempts count too and the wait grows. Most people hit the cap by checking availability over and over; storing the answer for a few seconds fixes it.\n\nCheck three things against your real API before this ships: whether the window is per minute, whether `Retry-After` is actually returned (some APIs send `X-RateLimit-Reset` instead), and whether rejected requests count toward the limit. That last one is the reason for the \"do not retry in a loop\" sentence, so if rejects are free, drop that sentence.\n\nThere is one knock-on further down. The intro's closing line promises \"rate limits at the end,\" which still holds, but that line should now say the section covers the per-endpoint numbers, so a reader doesn't think it repeats this."
+}

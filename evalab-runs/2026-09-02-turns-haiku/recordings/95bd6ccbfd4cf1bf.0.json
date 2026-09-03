@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words."
+  }
+ ],
+ "output": "**August Update**\n\nThe team shipped the PostgreSQL 15 migration successfully\u2014we actually finished three weeks ahead of schedule. Priya's rehearsal plan paid off by catching a critical connection-pooling edge case before production. Zero downtime.\n\nWe're welcoming two new engineers starting Monday: Sarah joins as a senior backend engineer from Figma, and Marcus is a frontend apprentice straight from his bootcamp.\n\nThe tougher story: the authentication refactor slipped three weeks. We discovered OAuth tokens living in database corners we didn't know about, which expanded the scope significantly. We're running a retrospective next week to tighten our estimation.\n\nWe're pausing feature work through mid-September to stabilize auth and get Sarah and Marcus ramped properly. The platform is solid right now\u2014worth the pause.\n\nWe're hiring one more senior role to rebalance the pace. Applications close Friday.\n\nSlack me if you have questions."
+}

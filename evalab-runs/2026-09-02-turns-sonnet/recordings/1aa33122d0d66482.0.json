@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  }
+ ],
+ "output": "Queue with workers: producers drop jobs onto a queue (SQS, Redis, RabbitMQ); a pool of workers pulls them off and processes each one as it arrives. Latency stays low \u2014 a job can start within milliseconds \u2014 and you scale by adding workers. Retries, dead-letter queues, and backpressure need explicit design, and debugging failures means tracing a job through an async system rather than reading a script top to bottom.\n\nScheduled batch runs: a cron job or scheduler fires a script at fixed intervals, and the script processes everything accumulated since the last run. This suits work that's naturally periodic \u2014 nightly reports, daily reconciliations \u2014 and it's simple to reason about: one run, one log, one exit code. The tradeoff is latency. A job created right after a run waits for the next window, and a run that takes longer than the interval risks overlapping with the next one.\n\nPick a queue when work arrives unpredictably and needs fast turnaround \u2014 order confirmations, notifications, webhooks. Pick batch when the work is inherently periodic and a delay of hours doesn't matter \u2014 data warehouse loads, billing cycles, cleanup tasks. Many systems use both: a queue for real-time events, a scheduler for periodic aggregation."
+}

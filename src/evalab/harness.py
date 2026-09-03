@@ -327,8 +327,12 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
     # told what to fix. In a multi-turn row the blind arm spends the same
     # total across the same turns, told only to rewrite at each one.
     if turns:
+        # One blind revision PER TURN, not per turn plus one. An extra
+        # turn gives this arm an extra pass at the document and an extra
+        # column in the drift table, and both make it incomparable to
+        # every other row.
         blind = run_turns(generator, prompt["text"],
-                           [BLIND_REVISION] * (len(turns) + 1),
+                           [BLIND_REVISION] * len(turns),
                            ruleset=ruleset, enforced=enforced)
     else:
         blind = run_arm_blind_revision(generator, prompt["text"],

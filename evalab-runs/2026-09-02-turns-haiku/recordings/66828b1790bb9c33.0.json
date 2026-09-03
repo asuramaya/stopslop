@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  }
+ ],
+ "output": "# Incident Report: Payment API Outage\n\n**Incident:** Payment API Service Unavailability\n**Duration:** 2 hours (14:23\u201316:23 UTC)\n**Date:** [Date]\n**Severity:** Critical\n\n## Summary\nThe payment API became unreachable due to an expired TLS certificate on the load balancer. All payment processing requests failed for approximately 2 hours, affecting merchants and customers during peak transaction hours.\n\n## Timeline\n- **14:23 UTC:** Monitoring alerts triggered on API endpoints returning certificate validation errors.\n- **14:31 UTC:** On-call engineer confirmed certificate expiration (issued 2024-09-03, expired 2026-09-03).\n- **14:45 UTC:** Certificate renewal initiated; propagation began across load balancers.\n- **16:23 UTC:** All endpoints restored to normal operation.\n\n## Root Cause\nThe TLS certificate expired due to lapsed renewal automation. The certificate renewal process failed silently in the CI/CD pipeline, and manual renewal oversight was not in place.\n\n## Impact\n- Approximately 47,000 transactions failed or were rejected during the window.\n- 12 merchants reported service disruptions to support.\n- Estimated customer-facing revenue impact: $38,000.\n\n## Resolution\nCertificate was renewed and deployed to all load balancers. Service returned to normal operation.\n\n## Follow-up Actions\n1. Implement automated certificate expiration alerts 30 days in advance.\n2. Audit CI/CD pipeline to log renewal failures and escalate alerts.\n3. Add manual renewal verification to on-call runbook.\n4. Review certificate management processes across all critical services."
+}

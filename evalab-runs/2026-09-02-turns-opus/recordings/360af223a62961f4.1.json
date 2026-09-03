@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "# Onboarding: Payments Backend\n\n## Week one\n\nWelcome. Before you touch any code, spend a day reading the ledger service. Everything else on this team is downstream of it, and most of the questions you'll have in your first month turn out to be questions about how the ledger records things.\n\nTwo facts shape almost every decision we make.\n\nFirst, money moves in one direction and never unmoves. We don't delete rows, we don't update balances in place, and we don't fix a bad transaction by editing it. We write a correcting entry. If you find yourself reaching for `UPDATE`, stop and ask someone.\n\nSecond, the card networks and our banking partners are slow, occasionally wrong, and entirely outside our control. Settlement files arrive late. Webhooks arrive twice, or out of order, or six hours after the event. Every handler you write has to survive being called again with the same input and produce the same result. Idempotency keys are not optional here, and code review will send back anything that skips them.\n\nYour first task is small on purpose: pick up the ticket tagged `onboarding` in the queue. It touches the refund path, which is where you'll learn the ledger fastest.\n\nAsk questions early. Nobody on this team learned payments from documentation."
+}

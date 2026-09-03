@@ -1,0 +1,1 @@
+The API allows 100 requests per minute per token. Exceed it, and the API returns a 429 with a `Retry-After` header giving the number of seconds to wait. Space out bulk operations, such as creating many bookings at once, rather than firing them in a single burst. The webhook events described in the next section let you track booking changes without polling the API at all.

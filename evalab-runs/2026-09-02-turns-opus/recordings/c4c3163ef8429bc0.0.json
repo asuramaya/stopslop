@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Offline sync\n\nYour notes now write to the device first and go up to the server whenever a connection is available.\n\nUntil now, opening the app without a network gave you a read-only view and a banner telling you to try again later. You could read old notes. You could not change them. This was the most common complaint we got, by a wide margin, from people who write on planes and trains. Every note now lives in a local database on your device, so typing lands there straight away, with no round trip.\n\nWhen the app sees a connection, it pushes what changed and pulls in anything your other devices wrote while you were away. The status line at the bottom tells you when the last sync finished, and how many notes are still waiting.\n\nEditing the same note on two offline devices produces a conflict. We do not pick a winner. Both versions are kept, and the note opens with them side by side so you can merge them yourself.\n\nOffline sync is on by default in version 3.4, on iOS, Android and desktop. The web app follows next month, once we finish testing storage limits in Safari.\n\nEditor, this runs to 206 words and comes back clean from the slopwatch gate (lint_text, no blocking issues). The version number, platforms and Safari caveat are invented placeholders, so swap in your real ones."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph about what happens when two devices edit the same note offline."
+  }
+ ],
+ "output": "The draft already had a conflict paragraph \u2014 I expanded it rather than adding a second one that would repeat it. Replace the old paragraph with this:\n\n> Editing the same note on two offline devices produces a conflict. We do not pick a winner, and we do not merge for you. When the second device reconnects, both versions are kept. The note opens with them side by side, the lines that differ marked, and you choose what stays. Nothing is discarded while you decide; if you never open the note, both copies sit there until you do. Once you have merged, the version you did not keep stays in the note's history for thirty days, so a wrong call is not a permanent one.\n\nThe full announcement now runs to about 265 words, so it's over the 200 you asked for. If you want it back near 200, the paragraph on the old read-only banner is the one to cut \u2014 the conflict behaviour is the harder thing to explain.\n\nClean from the slopwatch gate (`lint_text`, no blocking issues). The thirty-day history window is another invented placeholder, like the version number and platforms \u2014 swap in whatever your retention actually is, and drop that last sentence if there is no history at all."
+}

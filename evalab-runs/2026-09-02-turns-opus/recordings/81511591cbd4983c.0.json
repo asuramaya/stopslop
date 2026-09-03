@@ -1,0 +1,41 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Offline sync is here**\n\nYou can now write in [App] without a connection. Open a note on a plane, in a basement, on a train through a tunnel, and it saves to your device immediately. When you're back online, everything you wrote syncs to your other devices in the background.\n\nThe tricky part was edits from two places at once. If you added a paragraph on your laptop while your phone was offline and you also edited that same note on your phone, we merge both sets of changes instead of picking a winner. Where a real conflict exists (the same line changed two different ways), we keep both versions and mark the spot so you can decide.\n\nA few details worth knowing:\n\nYour notes are stored encrypted on the device, same as they are on our servers. Attachments over 25 MB wait for Wi-Fi by default; you can change that in Settings under Sync. The sync indicator in the sidebar shows what's pending, and you can tap it to see which notes haven't uploaded yet.\n\nOffline sync is on for everyone starting today, no setup required. If you hit a merge that looks wrong, send it to us through Help \u2192 Report a sync issue and we'll look at the history."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "**Offline sync is here**\n\n[App] no longer needs a connection to work. Start a note on a plane, in a basement, or on a train going through a tunnel, and it saves to your device right away. Once you have signal again, the note travels to your other devices in the background.\n\nThe hard problem was edits made in two places at once. Say you add a paragraph on your laptop while your phone is offline, and you also change that same note on the phone. We merge both sets of changes rather than picking a winner. Where the same line was changed two different ways, we keep both versions and mark the spot so you can sort it out.\n\nA few details worth knowing. Notes on your device are encrypted, the way they already are on our servers. Attachments over 25 MB wait for Wi-Fi unless you say otherwise in Settings, under Sync. The sync indicator in the sidebar shows what is still pending; tap it to see which notes have not uploaded yet.\n\nEveryone gets offline sync starting today, with nothing to turn on. If a merge comes out wrong, send it to us through Help \u2192 Report a sync issue and we will check the history."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "**Offline sync is here**\n\n[App] now works with no connection at all. Begin a note on a plane, in a basement, or on a train inside a tunnel, and it lands on your device instantly. When signal comes back, the note makes its way to your other devices quietly in the background.\n\nThe hard part was edits made in two places at once. Suppose you add a paragraph on your laptop while your phone sits offline, and you also change that same note on the phone. We fold both sets of changes together instead of picking a winner. Where the same line got changed two different ways, we keep both versions and flag the spot so you can settle it.\n\nSome details worth knowing. Notes are encrypted on your device, just as they already are on our servers. Attachments larger than 25 MB hold for Wi-Fi unless you tell us otherwise in Settings, under Sync. The sync indicator in the sidebar shows what is still waiting; tap it to see which notes have yet to upload.\n\nOffline sync turns on for everyone today, with nothing to enable. If a merge comes out wrong, send it our way through Help \u2192 Report a sync issue and we will look at the history."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "**Offline sync is here**\n\n[App] works with no connection now. Start a note on a plane, in a basement, or on a train inside a tunnel, and it saves to your device at once. When signal returns, the note travels to your other devices quietly in the background.\n\nThe hard part was edits made in two places at once. Say you add a paragraph on your laptop while your phone sits offline, and you change that same note on the phone too. We fold both sets of changes together rather than picking a winner. Where the same line was changed two different ways, we keep both versions and mark the spot so you can settle it.\n\nA few details worth knowing. Notes are encrypted on your device, just as they already are on our servers. Attachments over 25 MB wait for Wi-Fi unless you say otherwise in Settings, under Sync. The sync indicator in the sidebar shows what is still pending; tap it to see which notes have yet to upload.\n\nOffline sync switches on for everyone today, with nothing to enable. If a merge comes out wrong, send it to us through Help \u2192 Report a sync issue and we will look at the history."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Offline sync is here**\n\nConnection or not, [App] keeps working. Write a note on a plane, in a basement, or on a train inside a tunnel, and it saves to your device right then. Once you have signal, that note finds your other devices on its own, without you doing anything.\n\nThe hard part was edits from two places at once. Say you add a paragraph on your laptop while your phone is offline, and you edit the same note on the phone. We combine both sets of changes rather than choosing one. If the same line was changed two different ways, we keep both versions and mark the spot for you to settle.\n\nSome details worth knowing. Notes sit encrypted on your device, the way they already do on our servers. Attachments above 25 MB wait for Wi-Fi unless you change that in Settings, under Sync. The sync indicator in the sidebar shows what is still pending; tap it for a list of notes that have not uploaded.\n\nEveryone has offline sync as of today, and there is nothing to switch on. If a merge looks wrong to you, send it over through Help \u2192 Report a sync issue and we will go through the history."
+}

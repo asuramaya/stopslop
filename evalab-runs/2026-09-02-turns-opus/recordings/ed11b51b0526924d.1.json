@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  }
+ ],
+ "output": "## Introduction\n\nThis guide covers the Bookings API, an HTTP interface for creating, changing, and cancelling appointments against a set of calendars.\n\nThe model is small. A **calendar** belongs to a resource that can be booked: a person, a room, a piece of equipment. Each calendar carries **availability rules** that describe when it can be booked at all. A **booking** occupies a span of time on one calendar, and the API rejects any booking that falls outside the rules or overlaps one that already exists. Most of what you will do here is some combination of those three things.\n\nRequests and responses are JSON. Times are RFC 3339 with an explicit offset; if you send a naive timestamp, you will get a 400 back. Authentication is a bearer token scoped to an organization, so a token only ever sees that organization's calendars.\n\nTwo behaviours are worth knowing before you write any code. Writes are idempotent when you supply an `Idempotency-Key` header, which matters more than usual here, since a retried booking request without one can double-book a slot. And conflicts return 409 with the competing booking attached, rather than a bare error, so you can show the caller what got in the way.\n\nStart with [Authentication](#authentication)."
+}

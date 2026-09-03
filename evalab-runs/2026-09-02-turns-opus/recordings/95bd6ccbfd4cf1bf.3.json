@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words."
+  }
+ ],
+ "output": "**August engineering update**\n\nThe Postgres migration is done. We moved the last three services off the old cluster on the 19th, and the read replicas have held steady since. p95 query latency dropped from 340ms to about 90ms, better than we projected. Nobody worked a weekend for it, which is worth saying out loud, because both previous attempts cost us one.\n\nTwo people joined. Priya started on platform on the 4th and has already shipped the retry logic in the ingest worker. Tom joined data on the 18th and is still ramping. If you haven't paired with either of them, grab half an hour this month.\n\nThe reporting rewrite slipped. We said end of August; realistically it lands mid-October. The reason is that a lot of the old aggregation logic turned out to be undocumented business rules rather than code, and each one needs a human to confirm before we can port it. I don't think a version of this existed where we hit the original date. Sales knows, and they're fine.\n\nNext month: finish reporting, and get Tom through his first solo on-call shift.\n\nQuestions, or things I got wrong, come find me. I'd rather hear it now than in the retro."
+}

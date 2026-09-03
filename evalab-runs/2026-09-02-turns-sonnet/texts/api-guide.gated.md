@@ -1,0 +1,1 @@
+The API allows 100 requests per minute per token. Going over this limit gets a `429 Too Many Requests` response, and the response includes a `Retry-After` header telling you how many seconds to wait. If your integration polls availability often, cache results for a short period instead of checking on every page load.

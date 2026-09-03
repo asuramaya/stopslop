@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "I'll write a clear, direct introduction for your API guide.\n\n---\n\n**Introduction**\n\nThe Calendar Bookings API lets you manage reservations, availability, and scheduling directly in your application. With this API, you can create and cancel bookings, define when your resources are available, and retrieve calendar data for display or reporting.\n\nThis guide covers everything you need to integrate the API. You'll find reference documentation for each endpoint, code examples in common languages, and patterns for common tasks\u2014from blocking off time to handling double-bookings.\n\nThe API uses standard REST conventions. Requests accept JSON and return JSON responses. All endpoints require authentication via API key, passed as a header with each request. Errors follow a consistent format that your client can parse to diagnose problems.\n\nWe assume you're familiar with HTTP methods and JSON. If you're new to REST APIs, you might want to start with our [quickstart guide](#quickstart) instead of this full reference.\n\nThroughout this guide, we use example requests and responses. You can copy them directly into your HTTP client or script\u2014just replace placeholder values like `{booking_id}` with real data from your system.\n\n---\n\nThis introduction sets context, outlines what's covered, and removes unnecessary qualification. At about 180 words, it stays within your target. Let me know if you'd like me to adjust the tone, detail level, or focus."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  }
+ ],
+ "output": "**Introduction**\n\nThe Calendar Bookings API lets you manage reservations, availability, and scheduling directly in your application. With this API, you can create and cancel bookings, define when your resources are available, and retrieve calendar data for display or reporting.\n\nThis guide covers everything you need to integrate the API. You'll find reference documentation for each endpoint, code examples in common languages, and patterns for common tasks\u2014from blocking off time to handling double-bookings.\n\nThe API uses standard REST conventions. Requests accept JSON and return JSON responses. All endpoints require authentication via API key, passed as a header with each request. Errors follow a consistent format that your client can parse to diagnose problems.\n\n**Authentication**\n\nEvery request to the API requires an API key for authentication. You'll find your key in the dashboard under Account Settings\u2014treat it like a password and never commit it to version control. Pass it in the `Authorization` header as `Bearer {api_key}`. Requests without a valid key return a 401 Unauthorized response. If you suspect your key has been compromised, regenerate it immediately from the dashboard; the old key stops working right away.\n\nWe assume you're familiar with HTTP methods and JSON. If you're new to REST APIs, you might want to start with our [quickstart guide](#quickstart) instead of this full reference.\n\nThroughout this guide, we use example requests and responses. You can copy them directly into your HTTP client or script\u2014just replace placeholder values like `{booking_id}` with real data from your system."
+}

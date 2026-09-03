@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "A queue with workers and a scheduled batch run answer the same question from opposite ends of the latency problem.\n\nThe queue treats each unit of work as an event. Something happens, a job lands on the queue, and whichever worker is free picks it up. Latency stays low because nothing waits on a clock. You pay for that with a process that has to stay alive, plus the accompanying chores: retries, dead letters, poison messages, and workers that die halfway through a job.\n\nBatch runs invert this. A cron entry fires at three in the morning, one process reads everything that piled up since yesterday, and it either finishes or it doesn't. Failures are easier to reason about, since there's one place to look and one thing to rerun. Batching also lets you do work that's cheaper in bulk: one insert instead of ten thousand rows, one API call carrying a thousand ids.\n\nWhat you give up is freshness and a small blast radius. A batch job that breaks takes the whole day's work down with it, and users wait for the next window regardless.\n\nRough rule: use a queue when someone is waiting on the result. Use a batch when nobody is and the volume is high."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on what happens when a job fails in each."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the paragraph, to sit after the batch-runs discussion and before the closing rule:\n\nFailure looks different in each. On a queue, a failed job is one job. The worker nacks it, the broker hands it back, and a retry policy decides whether to try again in ten seconds, in ten minutes, or never. Everything else keeps flowing. The cost is that the failure is quiet: it lands in a dead letter queue that nobody looks at until a customer complains, and a job that fails after doing half its work will redo that half on the next attempt unless you made it idempotent. In a batch, the failure is loud and total. The run aborts at record 40,000 of 90,000, someone gets paged, and now you need to know whether the first 40,000 were committed, rolled back, or partly both. That question is answerable \u2014 checkpoint the offset, wrap the run in a transaction, make the whole thing rerunnable from the start \u2014 but you have to answer it deliberately, because the default is a half-finished day. Queues push you toward per-job idempotency; batches push you toward a resumable cursor or an all-or-nothing write.\n\nThat runs the piece to roughly 350 words total. Say the word if you want the whole thing trimmed back toward 200."
+  },
+  {
+   "role": "user",
+   "content": "Add a recommendation for a small team."
+  }
+ ],
+ "output": "Here's the recommendation, to close the piece:\n\nIf you're a team of three or four, start with the batch. One cron entry, one script, one log to read when the pager goes off at 3am and there's no on-call rotation to speak of. A queue means a broker to run, workers to keep alive, and a second class of failure that only shows up under load, which is a lot of standing cost for latency nobody has asked for yet. Move the specific job to a queue when someone starts complaining that they're waiting on it. That complaint is the signal; until it arrives, the batch is the cheaper thing to own.\n\nThat puts the piece at roughly 450 words. The offer to trim back toward 200 still stands, though at this length it's really three sections now: the comparison, the failure modes, and the recommendation."
+}

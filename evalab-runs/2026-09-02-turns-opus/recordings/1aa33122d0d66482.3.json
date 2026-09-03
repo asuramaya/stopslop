@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  }
+ ],
+ "output": "A queue with workers moves work the moment it arrives. Something enqueues a job, a worker picks it up, and the wait is measured in milliseconds. That responsiveness costs you a process that never sleeps: workers idle between jobs, and you pay for the idling. You also inherit the queue's own failure modes \u2014 retries, poison messages, visibility timeouts, and the question of what happens when a worker dies holding a job halfway through.\n\nScheduled batch runs invert this. Nothing is running most of the time. At 3am a process wakes, reads everything that accumulated since the last run, and handles it in one pass. Latency is now bounded by the interval, so an hourly job means an average delay of thirty minutes. In exchange the code gets simpler: one transaction, one place to look when it fails, and set operations instead of per-row work. A batch that updates 50,000 rows in a single statement will beat 50,000 workers doing it one at a time.\n\nThe deciding question is usually whether a person is waiting. Password reset emails need a queue. Nightly billing rollups, cache warming, and report generation do not, and they run cheaper with less to debug on a schedule."
+}

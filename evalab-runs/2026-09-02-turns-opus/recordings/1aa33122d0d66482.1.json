@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  }
+ ],
+ "output": "A queue with workers and a scheduled batch run solve the same problem from opposite ends.\n\nThe queue treats each unit of work as an event. Something happens, a message lands, a worker picks it up within seconds. Latency stays low and stays flat as volume grows, because you add workers instead of waiting longer. The cost is machinery: a broker to run, visibility timeouts to tune, retries and dead letters to reason about, and the permanent question of what happens when the same message gets delivered twice. Workers also idle. If your traffic arrives in a two-hour window, you pay for capacity the other twenty-two.\n\nBatch runs invert that. A cron entry fires, one process sweeps everything that accumulated since the last sweep, and you get a single log line to read the next morning. Debugging is easy because you can rerun the job by hand with the same inputs. Bulk operations get cheaper, since you can do one large query instead of ten thousand small ones. What you give up is responsiveness, and failure granularity: when hour three of a four-hour job dies, you often restart the whole thing.\n\nPick the queue when someone is waiting on the result. Pick batch when nobody is, and reconciliation matters more than speed."
+}

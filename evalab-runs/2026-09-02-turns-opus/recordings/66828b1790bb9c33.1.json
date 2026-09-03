@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  }
+ ],
+ "output": "**Incident report: Payment API outage, 2026-09-02**\n\n**Duration:** 14:07\u201316:11 UTC (2h 04m)\n**Impact:** All requests to `api.payments` failed TLS handshake. Roughly 41,000 authorization and capture calls were rejected. No data loss; no funds moved incorrectly.\n\n**Cause:** The certificate for `api.payments` expired at 14:07 UTC. It had been issued manually in 2025 outside the automated renewal path, so the ACME renewal job never held a record for it. Our cert-expiry monitor watched only the load balancer's default certificate, not the per-SNI certs, so the 30-day and 7-day warnings never fired.\n\n**Timeline:** First client reports at 14:09. Paged on-call at 14:14 after error-rate alerts crossed threshold. The team spent about an hour chasing an unrelated deploy that had landed at 13:50 before someone checked the handshake directly at 15:22. New cert issued and deployed by 16:11.\n\n**What we're doing:**\n1. Move every remaining manual cert onto ACME renewal (owner: platform, due 2026-09-12).\n2. Rewrite the expiry check to enumerate certs served per SNI rather than reading the LB default (owner: platform, due 2026-09-19).\n3. Add a TLS handshake check to the first page of the payments runbook \u2014 it should have been the first thing tried, not the fifth."
+}

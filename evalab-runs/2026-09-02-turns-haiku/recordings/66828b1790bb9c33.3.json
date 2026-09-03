@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  }
+ ],
+ "output": "# Incident Report: Payment API Outage\n\n**Incident Duration:** 2 hours (14:32\u201316:32 UTC, September 2, 2026)\n\n**Impact:** Payment API returned certificate validation errors to all clients. Approximately 8,400 payment requests failed during the window, affecting merchants across 12 regions.\n\n**Root Cause**\n\nThe TLS certificate for `api.payments.example.com` expired at 12:00 UTC on September 2. The certificate renewal automation failed due to a DNS propagation delay in the CAA records, preventing Let's Encrypt from completing the ACME challenge. Monitoring did not flag the expired certificate until traffic alerts fired at 14:32.\n\n**Timeline**\n\n- 12:00 UTC: Certificate expired\n- 14:32 UTC: First client connection failures reported\n- 14:35 UTC: On-call engineer paged; root cause identified within 10 minutes\n- 14:47 UTC: DNS CAA records corrected; certificate renewal initiated\n- 15:18 UTC: New certificate deployed and validated\n- 16:32 UTC: All monitoring returned to normal\n\n**Resolution**\n\nWe renewed the certificate and deployed it to all API endpoints. We verified connectivity across all regions before closing the incident.\n\n**Follow-up Actions**\n\n1. Enable certificate expiration alerts 30 days before renewal (currently set at 7 days)\n2. Add DNS CAA record validation to the renewal automation pre-check\n3. Review alerting on certificate validity in the monitoring stack"
+}

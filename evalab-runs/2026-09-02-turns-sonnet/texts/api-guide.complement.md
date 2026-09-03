@@ -1,0 +1,1 @@
+Reads are limited to 60 requests per minute and writes to 20. Exceeding either returns a 429 response; the response includes a Retry-After header telling you how many seconds to wait before trying again.

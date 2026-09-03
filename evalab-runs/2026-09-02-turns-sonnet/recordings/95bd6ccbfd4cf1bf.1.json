@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words."
+  }
+ ],
+ "output": "Team update \u2014 August\n\nWe finished the database migration this week, two weeks later than planned. The extra time went to a replication lag issue we didn't catch in staging: under production write volume, the new cluster fell behind enough to serve stale reads for a few seconds during peak traffic. We added a lag-aware routing check before cutting over for real, and it's been stable since.\n\nOn the slipped deadline: the original estimate didn't account for testing under production load, so we're building a load-replay step into the next migration's plan instead of finding out the hard way again.\n\nTwo hires joined this month. Priya starts on the platform team next week, coming from a background in distributed systems. Marcus joined the frontend team and is already picking up the design system.\n\nA few other notes:\n- The old migration scripts are still in the repo for reference; we'll clean those up next sprint.\n- On-call rotation adds Priya starting in October, after ramp-up.\n- If you hit any lingering issues from the migration, flag them in #eng-infra rather than filing a ticket \u2014 we're triaging directly this week.\n\nThanks for the patience on the timeline. Questions welcome anytime."
+}

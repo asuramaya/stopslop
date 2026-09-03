@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "I'll write a straightforward announcement for your offline sync feature.\n\n---\n\n**Your notes work offline now**\n\nWe've added offline sync to help you stay productive anywhere. Write, edit, and organize your notes without an internet connection. When you reconnect, your changes sync automatically to all your devices.\n\nThe feature works across our mobile and web apps. Open your notes offline, make changes, and they'll be there when you're back online. If you edit the same note on multiple devices while offline, we'll merge your changes\u2014your latest edits always take priority.\n\nThis is useful for travel, commutes, or spotty connectivity. You don't need to set anything up; it's on by default for all accounts. Your offline notes stay private until sync\u2014they're encrypted on your device just like everything else in the app.\n\nWe tested offline sync with notes of various sizes and on networks with unreliable connections. A few things worth knowing: very large attachments may take time to sync once you're online, and if you have many devices with conflicting edits, the sync process may take longer. For most people, sync completes within seconds.\n\nQuestions? Check our help docs or reach out to support.\n\n---\n\n**Word count: 186 words**"
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph about what happens when two devices edit the same note offline."
+  }
+ ],
+ "output": "---\n\n**Your notes work offline now**\n\nWe've added offline sync to help you stay productive anywhere. Write, edit, and organize your notes without an internet connection. When you reconnect, your changes sync automatically to all your devices.\n\nThe feature works across our mobile and web apps. Open your notes offline, make changes, and they'll be there when you're back online.\n\n**What happens when you edit on multiple devices**\n\nSay you edit a note on your phone while offline, then make different changes on your laptop\u2014also offline. When both devices connect, we'll sync your work automatically. Your most recent edits take priority, so whichever device was edited last wins. We preserve all your text and formatting changes, but if two edits conflict directly (like rewording the same sentence differently), the most recent version stays. This approach works well for most people because you rarely edit the exact same part of a note across devices.\n\nThis is useful for travel, commutes, or spotty connectivity. You don't need to set anything up; it's on by default for all accounts. Your offline notes stay private until sync\u2014they're encrypted on your device just like everything else in the app.\n\nWe tested offline sync with notes of various sizes and on networks with unreliable connections. A few things worth knowing: very large attachments may take time to sync once you're online, and if you have many devices with conflicting edits, the sync process may take longer. For most people, sync completes within seconds.\n\nQuestions? Check our help docs or reach out to support.\n\n---\n\n**Word count: 258 words**"
+}

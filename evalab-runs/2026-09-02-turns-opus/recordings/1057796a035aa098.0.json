@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Welcome to Payments\n\nYour first week is mostly reading, and that's deliberate. Money movement is the one part of the product where a bug doesn't just annoy someone, it costs them.\n\nStart with `payments-core`. It owns the ledger, and every other service in our stack eventually talks to it. The thing to understand early is that we never mutate a balance directly. Every change is an append-only entry, and the balance you see in an API response is a projection over those entries. This trips up almost everyone who joins from a CRUD background.\n\nSecond, read `psp-gateway`. It wraps the three processors we route through and normalizes their wildly different error semantics into our own status enum. The mapping table in `gateway/status.py` is the most useful file in the repo for building a mental model of what can actually go wrong in production.\n\nBy Friday you should be able to answer: what happens when we charge a card, the processor times out, and the customer retries? Ask your onboarding buddy to walk you through it if the code doesn't make it obvious.\n\nAccess requests go in the `#payments-access` channel. Get the staging database and Grafana on day one; you'll want both while reading."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# Welcome to Payments\n\nYour first week is mostly reading. That's on purpose. Money movement is the one part of the product where a bug doesn't just irritate someone, it takes money from them.\n\nStart with `payments-core`. It owns the ledger, and everything else in our stack eventually talks to it. Understand this part early: we never write over a balance. Every change is an appended entry, and the balance you get back from an API call is computed from those entries. People arriving from a CRUD background trip on this almost without exception.\n\nRead `psp-gateway` next. It wraps the three processors we route through and flattens their very different error semantics into one status enum of ours. If you want a mental model of what actually goes wrong in production, the mapping table in `gateway/status.py` is the file to sit with.\n\nBy Friday, you should be able to walk through this: we charge a card, the processor times out, the customer hits pay again. What happens? If the code doesn't make that obvious, ask your onboarding buddy.\n\nAccess requests go in `#payments-access`. Ask for the staging database and Grafana on day one, since you'll want both open while you read."
+}

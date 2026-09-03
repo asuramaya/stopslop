@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  }
+ ],
+ "output": "# Offline Sync is Here\n\nYou can now work on your notes without an internet connection. Changes save locally on your device and sync automatically when you're back online\u2014no manual action needed.\n\nThis means you can open your notes anywhere: on a flight, in a subway, or anywhere you lose signal. Your notes stay accessible. When your connection returns, your edits merge seamlessly with updates from other devices.\n\n**How it works:**\n\nYour device keeps a full copy of your notes, encrypted the same way your cloud storage is. When you edit offline, the app records those changes. Once you connect, it compares your local version with the server and syncs both directions. If you made edits on two devices at once, we keep all changes\u2014nothing gets lost.\n\n**Try it now:**\n\nTurn off your WiFi or use airplane mode. Open the app, edit a note, and close it. Reconnect and check another device\u2014your changes are there. If you're on our free plan, you get offline access to 100 recent notes. Subscribers get full offline support for your entire vault.\n\nWe built this for people who write everywhere. Your ideas shouldn't wait for a connection."
+}

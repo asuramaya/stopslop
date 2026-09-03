@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Payments Team Onboarding\n\nYou're joining the team that moves money for the company. Every checkout, refund, and payout runs through code you'll now own a piece of. That comes with a different bar than most backend work. A bug here doesn't just break a page; it can charge someone twice or leave a merchant unpaid. Read this before you write your first line.\n\nWhat we own. The payments service handles charge creation, refunds, payout scheduling, and reconciliation against our processor (Stripe). It's a Go monolith backed by Postgres, with a Kafka queue for async settlement events.\n\nYour first week. No code changes yet. Get read access to the payments repo, staging dashboard, and the #payments-oncall Slack channel. Shadow one on-call rotation. Read the postmortems in docs/incidents. They teach you more about our failure modes than any design doc.\n\nGround rules. Every change touching money paths needs two reviewers, one of them senior. Idempotency keys are mandatory on any endpoint that moves funds; if you're not sure whether yours needs one, ask. We test against the processor's sandbox before every deploy and never skip it.\n\nYour onboarding buddy is assigned in the welcome email. Reach out anytime. Local environment setup follows on the next page."
+  },
+  {
+   "role": "user",
+   "content": "Add a section on who to ask for what."
+  },
+  {
+   "role": "assistant",
+   "content": "Who to ask for what\n\nCode review and architecture questions: your onboarding buddy, first stop for anything. On-call and production incidents: post in #payments-oncall, don't DM individuals, someone is always watching that channel. Processor integration questions (API quirks, sandbox behavior, webhook signing): ask in #stripe-integration, several people there have direct contact with Stripe's support team. Reconciliation and ledger discrepancies: the finance-eng channel, they own the nightly reconciliation job and can tell you if a mismatch is expected or a bug. Compliance questions (PCI scope, what you can log, what you can't): ask before you guess, ping #payments-compliance. Access requests (prod database, processor dashboard, secrets): file a ticket through the IT portal linked in the welcome email, don't ask a teammate to share credentials directly.\n\nIf you're not sure who owns something, ask in the team channel rather than guessing. Nobody expects you to know the org chart in week one."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Code review and architecture questions:):\n- colon_reveal (On-call and production incidents:):\n- colon_reveal (Reconciliation and ledger discrepancies:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Who to ask for what\n\nYour onboarding buddy is the first stop for code review and architecture questions. For on-call and production incidents, post in #payments-oncall and don't DM individuals \u2014 someone is always watching that channel. Processor integration questions (API quirks, sandbox behavior, webhook signing) go to #stripe-integration, where several people have direct contact with Stripe's support team. Finance-eng owns reconciliation and ledger discrepancies; they run the nightly reconciliation job and can tell you if a mismatch is expected or a bug. Ask compliance questions (PCI scope, what you can log, what you can't) before you guess \u2014 ping #payments-compliance. File access requests (prod database, processor dashboard, secrets) through the IT portal linked in the welcome email; don't ask a teammate to share credentials directly.\n\nIf you're not sure who owns something, ask in the team channel rather than guessing. Nobody expects you to know the org chart in week one."
+}

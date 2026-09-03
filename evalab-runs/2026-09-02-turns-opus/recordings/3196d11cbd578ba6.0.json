@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "A queue with workers reacts. Something happens, a job lands on the queue, and whichever worker is free picks it up. Latency is roughly the wait until a worker frees up, so anything that must feel immediate (password reset emails, thumbnail generation) belongs here. The cost is that you run processes around the clock and you now own a broker: retry backoff, dead-letter handling, visibility timeouts, poison messages that wedge a consumer.\n\nScheduled batch runs invert that. Nothing happens until 3am, then everything happens at once. In exchange you get set-based work, one query over the whole day's rows instead of ten thousand single-row queries. Failure is easier to reason about, since a run either finished or it didn't, and rerunning it is usually cheap. What you pay is latency measured in hours, plus a lumpy load profile that forces you to size the database for the peak.\n\nThe dividing question is usually staleness tolerance rather than throughput. Billing reconciliation, report generation and nightly exports can sit hours behind without hurting anyone. Anything a person is sitting there waiting on cannot.\n\nMost systems end up running both. The failure mode is picking one, then forcing the other kind of work through it \u2014 cron jobs polling every ten seconds, or a queue used to fan out a million rows one at a time."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on what happens when a job fails in each."
+  }
+ ],
+ "output": "Failure is where the two feel least alike. A failed job on a queue is one row out of thousands, so the damage is contained, but you have to decide what happens next while the rest of the system keeps moving: retry immediately, retry with backoff, or park it in a dead-letter queue that someone has to actually read. Most teams never build the habit of reading it, and jobs rot there for months. A batch run fails as a unit. You find out in the morning, or you find out when someone asks where the report is, and then the real question is whether the job is safe to run twice. If it wrote half its rows before dying, it isn't, and you are now writing the resume logic you were hoping the simpler design would spare you. The queue makes failure frequent and small, which trains you to handle it. The batch makes it rare and loud, which means you handle it badly the two times a year it happens."
+}

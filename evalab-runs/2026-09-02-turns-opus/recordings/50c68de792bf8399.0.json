@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "A queue with workers and a scheduled batch run solve the same problem from opposite ends.\n\nThe queue treats each unit of work as an event. Something happens, a message lands, a worker picks it up within seconds. Latency stays low and stays flat as volume grows, because you add workers instead of waiting longer. The cost is machinery: a broker to run, visibility timeouts to tune, retries and dead letters to reason about, and the permanent question of what happens when the same message gets delivered twice. Workers also idle. If your traffic arrives in a two-hour window, you pay for capacity the other twenty-two.\n\nBatch runs invert that. A cron entry fires, one process sweeps everything that accumulated since the last sweep, and you get a single log line to read the next morning. Debugging is easy because you can rerun the job by hand with the same inputs. Bulk operations get cheaper, since you can do one large query instead of ten thousand small ones. What you give up is responsiveness, and failure granularity: when hour three of a four-hour job dies, you often restart the whole thing.\n\nPick the queue when someone is waiting on the result. Pick batch when nobody is, and reconciliation matters more than speed."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on what happens when a job fails in each."
+  }
+ ],
+ "output": "Failure is where the difference gets sharp. In a queue, a failed job is a single message that goes back on the queue, waits out a backoff, and gets tried again a few times before it lands in a dead letter queue for someone to look at. Everything else keeps flowing past it. That isolation is the main reason people reach for queues in the first place, but it means poison messages can sit unnoticed for weeks unless you actually alert on dead letter depth, and a retry that isn't idempotent will happily charge the card twice. A batch job fails as a unit. Row 40,000 hits a null and the process exits, leaving you with 39,999 rows in some half-committed state and a decision to make at 6am about whether rerunning is safe. The usual fixes are to wrap the run in a transaction, make the whole sweep idempotent so a rerun is harmless, or checkpoint progress so the next attempt resumes instead of restarting. All three are work you have to do deliberately; the queue gives you retry semantics whether you asked for them or not. And a failed batch run is silent until the next one is due, so the gap between breaking and noticing is a full interval wide."
+}

@@ -1,0 +1,1 @@
+For a small team, use a queue for anything a user is waiting on, and cron for everything else. A single worker process handles both a queue and a scheduled task list and covers most needs without adding a second system. Add a dedicated batch scheduler only when the number of scheduled jobs or their runtime makes that one process hard to manage.

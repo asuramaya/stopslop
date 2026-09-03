@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Onboarding: Payments Backend\n\n## Week one\n\nWelcome. Before you touch any code, spend a day reading the ledger service. Everything else on this team is downstream of it, and most of the questions you'll have in your first month turn out to be questions about how the ledger records things.\n\nTwo facts shape almost every decision we make.\n\nFirst, money moves in one direction and never unmoves. We don't delete rows, we don't update balances in place, and we don't fix a bad transaction by editing it. We write a correcting entry. If you find yourself reaching for `UPDATE`, stop and ask someone.\n\nSecond, the card networks and our banking partners are slow, occasionally wrong, and entirely outside our control. Settlement files arrive late. Webhooks arrive twice, or out of order, or six hours after the event. Every handler you write has to survive being called again with the same input and produce the same result. Idempotency keys are not optional here, and code review will send back anything that skips them.\n\nYour first task is small on purpose: pick up the ticket tagged `onboarding` in the queue. It touches the refund path, which is where you'll learn the ledger fastest.\n\nAsk questions early. Nobody on this team learned payments from documentation."
+  },
+  {
+   "role": "user",
+   "content": "Add a section on who to ask for what."
+  },
+  {
+   "role": "assistant",
+   "content": "## Who to ask\n\nWe don't have a formal escalation path and mostly don't want one, but the knowledge is unevenly distributed and it saves you time to know where it sits.\n\nPriya wrote most of the ledger and is the last word on anything involving entry ordering or reconciliation. If your question starts with \"should this be one entry or two,\" it's a Priya question.\n\nMarcus owns the network integrations \u2014 card auth, the Stripe fallback path, and the nightly settlement job. He also knows which of our partners is lying to us on any given day.\n\nDana handles compliance and PCI scope. Ask before you log anything that touches a card number, not after. That one is genuinely not negotiable.\n\nFor everything else, post in `#payments-eng`. Someone will pick it up, and the answer ends up searchable for the next person, which is worth more than a fast DM.\n\nSam, your onboarding buddy, has a standing 30 minutes with you on Thursdays. Use it for the questions that feel too basic to post."
+  },
+  {
+   "role": "user",
+   "content": "The team moved from Slack to Discord. Update every reference."
+  }
+ ],
+ "output": "The document never actually says \"Slack\" \u2014 the only platform-shaped reference is the channel, and `#payments-eng` reads the same on Discord. So the change is small: I made the platform explicit and added a line about getting into the server, since a new joiner won't be in it yet. Page one needs no edit.\n\n## Who to ask\n\nWe don't have a formal escalation path and mostly don't want one, but the knowledge is unevenly distributed and it saves you time to know where it sits.\n\nPriya wrote most of the ledger and is the last word on anything involving entry ordering or reconciliation. If your question starts with \"should this be one entry or two,\" it's a Priya question.\n\nMarcus owns the network integrations \u2014 card auth, the Stripe fallback path, and the nightly settlement job. He also knows which of our partners is lying to us on any given day.\n\nDana handles compliance and PCI scope. Ask before you log anything that touches a card number, not after. That one is genuinely not negotiable.\n\nFor everything else, post in `#payments-eng` on Discord. Someone will pick it up, and the answer ends up searchable for the next person, which is worth more than a fast DM. Get your server invite from Sam on day one; the old Slack workspace is read-only now and nobody is watching it.\n\nSam, your onboarding buddy, has a standing 30 minutes with you on Thursdays. Use it for the questions that feel too basic to post."
+}

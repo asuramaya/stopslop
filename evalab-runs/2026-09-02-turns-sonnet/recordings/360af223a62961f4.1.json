@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "# Welcome to the Payments Team\n\nPayments moves money for every customer on the platform, so the bar here is different from most backend work: correctness beats speed, and every change gets reviewed with that in mind.\n\n## What we own\n\nWe run the services that authorize charges, settle transactions, reconcile ledgers, and handle refunds and disputes. Upstream, we take requests from checkout and billing. Downstream, we talk to card networks, banks, and internal ledger systems. If a payment fails silently or double-charges someone, it shows up in support tickets within minutes \u2014 so observability and idempotency aren't optional extras, they're part of the job.\n\n## How we work\n\n- **Idempotency keys are mandatory** on every write path that touches money. If you're not sure whether an endpoint needs one, ask before merging.\n- **No silent retries.** Any retry logic must log intent and outcome \u2014 we need to reconstruct what happened after the fact.\n- **Migrations go through a second reviewer** from outside your immediate pod, since schema changes here affect reconciliation jobs you may not see day to day.\n- **On-call starts in week three**, shadowing first. You won't carry a pager alone until you've seen a live incident.\n\n## First week\n\nSet up local services with `make bootstrap`, read the ledger design doc linked in the wiki, and pair with your onboarding buddy on a small ticket \u2014 usually a dispute-handling fix, since it touches most of the stack without needing production access.\n\nQuestions belong in `#payments-eng`. Nobody expects you to know the failure modes yet \u2014 that's what week one is for."
+}

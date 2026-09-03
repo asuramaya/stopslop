@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Welcome to Payments\n\nRun a payment end to end in sandbox during your first week, and be able to explain what happened at each hop. That's the whole goal.\n\nStart with access. Ask your onboarding buddy for the payments-dev VPN profile, a sandbox merchant account, and read access to the ledger replica. Requests go through the platform team and usually clear in a day, so file them before you start reading. While you wait, skim the service map so the names in those documents mean something.\n\nThen read three documents, in this order. The ledger schema note explains why every balance change is two rows and never an update. The idempotency guide explains why every write endpoint requires a client-supplied key. The settlement timeline explains why a payment that looks finished on Monday can still fail on Wednesday.\n\nTwo rules matter more than the rest. We do not mutate or delete a ledger row; a correction is a new entry that references the old one. And we do not treat a processor callback as truth; we reconcile against the end-of-day file and let that win. Both rules have cost us money when someone forgot them.\n\nYour first ticket is small on purpose. It is normally something in the refund path, where the code is well covered and the blast radius is low. Pair on it. Nobody here ships their first payments change alone, and asking early costs the team far less than a bad reconciliation."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (5 paragraphs, spread 0.27):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "# Welcome to Payments\n\nRun a payment end to end in sandbox during your first week, and be able to explain what happened at each hop. That's the whole goal, and everything below serves it.\n\nStart with access. Ask your onboarding buddy for the payments-dev VPN profile, a sandbox merchant account, and read access to the ledger replica. Requests go through the platform team and usually clear in a day, so file them before you start reading. While you wait, skim the service map so the names in those documents mean something when you get to them.\n\nThen read three documents, in this order. The ledger schema note explains why every balance change is two rows and never an update. The idempotency guide explains why every write endpoint requires a client-supplied key. The settlement timeline explains why a payment that looks finished on Monday can still fail on Wednesday.\n\nTwo rules matter more than the rest. We do not mutate or delete a ledger row; a correction is a new entry that references the old one. And we do not treat a processor callback as truth; we reconcile against the end-of-day file and let that win. Both rules have cost us money when someone forgot them.\n\nYour first ticket is small on purpose. It is normally something in the refund path, where the code is well covered and the blast radius is low. Pair on it with whoever reviews your access requests. Nobody here ships their first payments change alone, and asking early costs the team far less than a bad reconciliation."
+}

@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Offline sync is here.\n\nYou can now keep working on your notes without a connection\u2014on a flight, in a basement, wherever the signal drops. Every change you make saves to your device immediately, then syncs to your other devices once you're back online.\n\nConflicts used to be the scary part. If you edited the same note on your phone and laptop while offline, older versions of the app just picked one and threw away the other. Now, when two versions genuinely conflict, we keep both and show you the difference so you decide what to keep.\n\nA few practical notes:\n\nThe sync queue is visible in Settings, so you can check what's waiting to upload. Notes with attachments (images, PDFs) sync those separately in the background, and large attachments finish after the text does. If you're on a metered connection, you can turn off attachment sync in Settings and pull them in manually later.\n\nThis works on iOS, Android, and desktop today. Web sync is coming in a future release, since it depends on browser storage limits we're still testing against.\n\nIf you hit a sync issue, the Settings > Sync page has a manual \"Force Sync\" button, and our support team can pull sync logs from your account if you send them your note ID."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "Offline sync is live.\n\nKeep working without a connection \u2014 on a plane, underground, wherever the signal drops. Changes save to your device right away, then sync to your other devices once you're back online.\n\nConflicts used to be the scary part. If you edited the same note on your phone and laptop while offline, the app just picked one version and discarded the other. Now, when two versions actually conflict, we keep both and show you the difference so you decide what stays.\n\nA few things worth knowing:\n\nCheck Settings to see what's still waiting to upload. Attachments \u2014 images, PDFs \u2014 sync separately in the background, and large files finish after the text does. On a metered connection, you can turn off attachment sync in Settings and pull files in manually later.\n\nThis ships today on iOS, Android, and desktop. Web sync is still in testing against browser storage limits, so it'll follow in a later release.\n\nIf sync gets stuck, Settings > Sync has a \"Force Sync\" button. If that doesn't fix it, support can pull your sync logs \u2014 just send them your note ID."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Offline sync is live.\n\nKeep working without a connection \u2014 on a plane, underground, wherever the signal drops. Changes save to your device right away, then sync to your other devices once you're back online.\n\nConflicts used to be the scary part. If you edited the same note on your phone and laptop while offline, the app just picked one version and discarded the other. Now, when two versions actually conflict, we keep both and show you the difference so you decide what stays.\n\nA few things worth knowing:\n\nCheck Settings to see what's still waiting to upload. Attachments \u2014 images, PDFs \u2014 sync separately in the background, and large files finish after the text does. On a metered connection, you can turn off attachment sync in Settings and pull files in manually later.\n\nThis ships today on iOS, Android, and desktop. Web sync is still in testing against browser storage limits, so it'll follow in a later release.\n\nIf sync gets stuck, Settings > Sync has a \"Force Sync\" button. If that doesn't fix it, support can pull your sync logs \u2014 just send them your note ID."
+}

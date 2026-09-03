@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  }
+ ],
+ "output": "This is a plain writing task \u2014 no tools needed.\n\n---\n\nThis guide covers the REST API for managing calendar bookings: creating, updating, canceling, and querying appointments across one or more calendars.\n\nThe API centers on a `booking` resource. Each booking belongs to a calendar, has a start and end time, and carries metadata such as attendees, location, and status. You create a booking with a `POST` request, retrieve one with `GET`, modify it with `PATCH`, and remove it with `DELETE`. A companion `availability` endpoint lets you check open time slots before you commit to a booking, so you can avoid double-bookings without polling the full schedule.\n\nEvery request and response uses JSON. Timestamps follow ISO 8601 and always include a time zone offset \u2014 a common source of bugs in scheduling systems, so pay close attention to it when your client and server sit in different zones. Authentication uses bearer tokens; every request needs an `Authorization` header.\n\nThe sections that follow walk through authentication, the booking lifecycle, recurring events, webhooks for booking changes, and error handling. Each section includes example requests and responses you can adapt directly.\n\nIf you're integrating a scheduling UI, start with the Quickstart, which walks through creating your first booking end to end."
+}

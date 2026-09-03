@@ -1,0 +1,1966 @@
+{
+ "ruleset": "slopwatch",
+ "generator": "claude-cli",
+ "generator_version": "2.1.259 (Claude Code) model=opus",
+ "enforced": [
+  "bold_density",
+  "canned_question_answer",
+  "colon_reveal",
+  "emoji_in_prose",
+  "entity_encoded_punctuation",
+  "filler_opener",
+  "id_label_lead",
+  "marketing_adjective",
+  "not_just_x_but_y",
+  "paragraph_uniformity",
+  "participial_tail",
+  "rule_of_three",
+  "solicit_criticism",
+  "thematic_break",
+  "title_case_heading",
+  "vague_intensifier",
+  "weasel_attribution"
+ ],
+ "held_out": [
+  "ai_markup_remnant",
+  "binary_contrast",
+  "bold_bullet_lead",
+  "copula_avoidance",
+  "dramatic_fragmentation",
+  "em_dash_cluster",
+  "filler_verb",
+  "identifier_in_prose",
+  "marketing_cliche",
+  "negative_listing",
+  "section_template",
+  "stock_adverb",
+  "terminology",
+  "unearned_profundity"
+ ],
+ "max_iterations": 4,
+ "instruction": "Follow these writing rules. They matter as much as the content:\n\n- Bold used as body emphasis throughout -- reserve bold for a rare callout\n- A short rhetorical question with a canned answer -- collapse into one direct statement\n- Short buildup, then a reveal: \"The best part: it learns.\" -- state it as a plain sentence\n- Emoji or decorative checkmarks in body text -- cut them\n- An em dash, section sign or middle dot written as an HTML entity -- write the plain character\n- Throat-clearing openers: \"needless to say\", \"at the end of the day\" -- state the point directly from the first sentence\n- Fake ID tags opening list items: \"R-1.\", \"US-01\" -- number the list plainly\n- Marketing adjectives: seamless, robust, cutting-edge -- say what is actually true\n- The \"not just X but Y\" construction -- make the point once\n- Body paragraphs nearly identical in length -- vary them with what each paragraph has to do\n- A significance clause bolted to a sentence: \", underscoring the...\" -- delete it, or make it a claim with something behind it\n- Three parallel -ing items in a series -- keep the one that carries information\n- Fake-humility feedback requests: \"would love your feedback on this\" -- cut them\n- Horizontal rules dropped between sections -- headings already separate sections\n- Headings Capitalised Like This -- sentence case\n- Vague intensifiers with no number behind them: very, really, quite, significantly -- say how much, or cut the word\n- Unnamed authority: \"studies show\", \"experts agree\" -- name the actual source, or cut the claim\n\nNow write the following. Return only the requested text.\n",
+ "instructions": {
+  "instructed": "Follow these writing rules. They matter as much as the content:\n\n- Bold used as body emphasis throughout -- reserve bold for a rare callout\n- A short rhetorical question with a canned answer -- collapse into one direct statement\n- Short buildup, then a reveal: \"The best part: it learns.\" -- state it as a plain sentence\n- Emoji or decorative checkmarks in body text -- cut them\n- An em dash, section sign or middle dot written as an HTML entity -- write the plain character\n- Throat-clearing openers: \"needless to say\", \"at the end of the day\" -- state the point directly from the first sentence\n- Fake ID tags opening list items: \"R-1.\", \"US-01\" -- number the list plainly\n- Marketing adjectives: seamless, robust, cutting-edge -- say what is actually true\n- The \"not just X but Y\" construction -- make the point once\n- Body paragraphs nearly identical in length -- vary them with what each paragraph has to do\n- A significance clause bolted to a sentence: \", underscoring the...\" -- delete it, or make it a claim with something behind it\n- Three parallel -ing items in a series -- keep the one that carries information\n- Fake-humility feedback requests: \"would love your feedback on this\" -- cut them\n- Horizontal rules dropped between sections -- headings already separate sections\n- Headings Capitalised Like This -- sentence case\n- Vague intensifiers with no number behind them: very, really, quite, significantly -- say how much, or cut the word\n- Unnamed authority: \"studies show\", \"experts agree\" -- name the actual source, or cut the claim\n\nNow write the following. Return only the requested text.\n",
+  "complement": "Follow these writing rules. They matter as much as the content:\n\n- Generator scaffolding left in: oaicite, [cite: 1], placeholders -- finish the text and read it\n- The \"it's not X, it's Y\" construction -- just state Y\n- A bolded word opening a list item as a per-item tag -- reserve bold for a rare callout\n- Saying \"is\" the long way: serves as, boasts, functions as -- use the plain verb\n- One-line dramatic fragments: \"That's it. That's the whole thing.\" -- cut them, the preceding sentence already made the point\n- Em dashes clustering in one document -- most drafts need 0-2; use commas, periods or parentheses for the rest\n- Filler verbs: leverages, facilitates, unlocks -- use a plain verb, or cut the sentence\n- A snake_case identifier written as plain prose -- name it in words, or mark it as inline code\n- Marketing cliches: \"hidden gem\", \"let's dive in\" -- say the specific thing\n- The \"Not X. Not Y.\" listing construction -- state the point once\n- Stock section skeleton: \"Despite its success\", \"Looking ahead\" -- name the specific thing the section is for\n- Standalone filler adverbs: undoubtedly, arguably, notably, importantly, ultimately -- most add nothing; cut them unless one is carrying real emphasis\n- A banned synonym of one of this project's canonical terms, per its declared lexicon -- one word, one meaning: use the canonical term the word's own note names\n- Dramatic turning points with nothing concrete behind them: \"Everything changed.\" -- name the actual event, or cut it\n\nNow write the following. Return only the requested text.\n"
+ },
+ "intervention_arms": [
+  "complement"
+ ],
+ "combined_arms": [
+  "instructed+gated",
+  "complement+gated"
+ ],
+ "seconds": 1542.7,
+ "rows": [
+  {
+   "id": "feature-announcement",
+   "prompt": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words.",
+   "turns": [
+    "Add a paragraph about what happens when two devices edit the same note offline.",
+    "The feature is now called \"local-first sync\". Update the text.",
+    "Cut it to about 150 words."
+   ],
+   "ungated": {
+    "text": "Clean through the gate. 151 words:\n\n## Local-first sync\n\nLocal-first sync is live on desktop, iOS, and Android as of today.\n\nUntil now, notes you wrote without a connection stayed on the device that made them. Open the app on your laptop after a flight and yesterday's scribbles were still on your phone.\n\nNow every edit is written to a local log and replayed against the server when you reconnect. Edits to different paragraphs merge on their own. When two devices change the same lines, we keep both versions and show them side by side so you pick, instead of burying one in a duplicate file. Whichever device reconnects first lands its edits, and the second replays on top. A device that stays offline for a month is fine; the picker waits for you when it comes back.\n\nThe queue survives a force-quit and a reboot. There is nothing to turn on.\n\nBug reports go to support@example.com.\n\nWhat went, to get from 300 to 150: the 2 GB / 90 day backfill paragraph (one of the two placeholders, so that's one fewer number to fill in), the \"conflict\" duplicate-title complaint from the old-behavior paragraph, and the status-dot detail. The two-device case survives as three sentences inside the merge paragraph rather than a paragraph of its own \u2014 it reads as consequence now, not as its own topic. Say the word if the status dot matters enough to buy back.\n\nThe support address is still a placeholder, and the same two assumptions hold: ordered per-device replay, and queues that never expire server-side.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 245
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 194
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 422
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 261
+     }
+    ],
+    "scores": {
+     "words": 255,
+     "sentences": 17,
+     "mean_sentence_words": 15.0,
+     "sentence_length_stdev": 9.31,
+     "type_token_ratio": 0.6196,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.92,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "Cut to 158 words, down from 308. Passes the slopwatch gate clean.\n\n```markdown\n# Local-first sync\n\nYour notes now work without a connection.\n\nEvery note in your account is stored on the device, and every edit you\nmake offline is queued and sent the moment you have a signal. Merging is\nper-block, so two people editing different paragraphs of one note both\nkeep their work.\n\nEdit the same note on two of your own devices offline and the first one\nto reconnect has its queue applied; the second replays its edits on top.\nBlocks only one device touched merge silently. For a block both changed,\nthe note opens with the two versions stacked and a bar asking which to\nkeep. The version you drop stays in the note's history for thirty days.\n\nThe first full download takes about a minute for a 5,000-note account.\nAttachments over 25 MB stay in the cloud until you open them.\n\nOn by default starting today. You can turn it off per device under\nSettings, Sync.\n```\n\nWhat went to make room: the \"plane or in a basement\" setup paragraph, the colleague example (the per-block rule now carries it alone), the explicit note that nothing is discarded (implied by the thirty-day line), and the shared-notebooks caveat about permission changes. That last one is the only cut that drops information a reader might act on \u2014 if shared notebooks matter to your audience, tell me and I'll trade it back against the download-time sentence.\n\nPlaceholder caveats are unchanged: reconnect-ordered merge, thirty-day retention, 5,000 notes, 25 MB. File is at `/tmp/announce.md`.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 241
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 164
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 121
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 264
+     }
+    ],
+    "scores": {
+     "words": 258,
+     "sentences": 6,
+     "mean_sentence_words": 16.33,
+     "sentence_length_stdev": 16.8,
+     "type_token_ratio": 0.6357,
+     "enforced_per_1k": 7.75,
+     "held_out_per_1k": 3.88,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "Local-first sync is now available in version 3.2.\n\nUntil now, editing a note offline meant the app queued your changes and pushed them on reconnect. If you edited the same note on your phone and laptop while both were offline, whichever device reconnected second overwrote the first. People lost work that way, and we heard about it.\n\nThe new sync engine tracks changes per paragraph instead of per note. Paragraphs that only one device touched merge without a prompt, so a note edited at the top on your laptop and at the bottom on your phone comes back whole. Where both devices changed the same paragraph, you get a side-by-side view with each version, its device name, and its timestamp. Nothing overwrites until you pick one.\n\nOffline edits sync in under two seconds on reconnect for notebooks up to 5,000 notes. Larger ones take ten to thirty seconds on first sync while the index rebuilds.\n\nAttachments still need a connection. An image added offline uploads when you reconnect, marked as pending until then.\n\nLocal-first sync is on by default. Turn it off under Settings, then Sync.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 213
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 116
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 314
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 186
+     }
+    ],
+    "scores": {
+     "words": 184,
+     "sentences": 14,
+     "mean_sentence_words": 13.14,
+     "sentence_length_stdev": 7.32,
+     "type_token_ratio": 0.6304,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "Local-first sync is now live in version 3.2.\n\nEditing a note without a connection used to mean your changes sat on that device until you reopened the app somewhere with signal. Now the app keeps a full local copy of your notebook and reconciles it the moment a connection returns. Write on a plane, on a subway, in a basement office with one bar.\n\nConflicts get handled per paragraph rather than per note. If you edit the third paragraph on your laptop and someone on your shared notebook edits the first, both edits survive. When two edits touch the same paragraph, you'll see both versions side by side with a device name and timestamp, and the note stays flagged in your sidebar until you resolve it. That holds when two of your own devices go offline at once: each replays its queued edits on reconnect, and the later one does not overwrite the earlier.\n\nSync status shows in the bottom left. Tap it to see which notes are waiting. The local copy is encrypted with the same key as your synced data, so an offline device holds nothing readable without your passcode.\n\nAvailable today on iOS, Android, and desktop. Web support is in beta behind a settings toggle.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 219
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 112
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 333
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 208
+     }
+    ],
+    "scores": {
+     "words": 207,
+     "sentences": 13,
+     "mean_sentence_words": 15.92,
+     "sentence_length_stdev": 8.85,
+     "type_token_ratio": 0.6087,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "Local-first sync is now live in version 3.2.\n\nUntil now, editing a note offline meant your changes sat in a local queue that only flushed when you reopened the app. If you closed it on a plane, the queue stayed put, and people lost work that way.\n\nThe new version keeps a full local copy of your notebook on the device. That copy is the one you edit; the server holds a mirror. Each change is recorded as a discrete operation rather than a file snapshot, and on reconnect those operations replay in the order you made them.\n\nWhen two devices edit the same note offline, neither wins by timestamp. The server interleaves the two operation lists by the position each edit targeted. Edits to different paragraphs merge silently. Edits to the same paragraph give you one note with both versions, split by a marker line naming the device and local time. A delete never overrides an edit, so the note stays and the deletion waits for you in the sync panel.\n\nSync runs in the background. Attachments over 25 MB still wait for a connection; chunked upload for those is not in this release.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 209
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 187
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 404
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 195
+     }
+    ],
+    "scores": {
+     "words": 193,
+     "sentences": 13,
+     "mean_sentence_words": 14.85,
+     "sentence_length_stdev": 6.54,
+     "type_token_ratio": 0.6062,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "Local-first sync is now live in version 3.2.\n\nUntil now, notes you wrote without a connection sat in a local queue and waited. If you opened the same note on your phone and your laptop before either reconnected, one version quietly won and the other went away. Several of you wrote to us about losing a paragraph that way.\n\nThe new sync engine keeps a full edit history on each device and merges changes character by character instead of picking a winner. Add a heading on your laptop on a plane, rewrite the opening line on your phone in the terminal, and you get both. Order of reconnection changes nothing. If two devices touched the same words, the note opens with both versions side by side and stays that way until you pick one.\n\nLocal-first sync works on all platforms, though the iOS and Android apps need version 3.2 or later to participate in a merge. Older versions fall back to the old behavior.\n\nYou don't need to turn anything on. Sync happens in the background when a connection returns, and notes edited on a device with no connection show a small clock icon until they land on the server.",
+    "iterations": 4,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 205
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 311
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 317
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 200
+     }
+    ],
+    "scores": {
+     "words": 198,
+     "sentences": 12,
+     "mean_sentence_words": 16.5,
+     "sentence_length_stdev": 8.43,
+     "type_token_ratio": 0.5859,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "# Local-first sync\n\nYour notes now write to the device first and go up to the server whenever a connection is available.\n\nEvery note lives in a local database on your device, so typing lands there straight away. You can write on a plane. When the app sees a connection, it pushes what changed and pulls in anything your other devices wrote while you were away. The status line tells you when the last sync finished, and how many notes are still waiting.\n\nEditing the same note on two offline devices produces a conflict. We do not pick a winner. Both versions are kept, and the note opens with them side by side, the lines that differ marked, so you choose what stays. The version you drop stays in the note's history for thirty days.\n\nLocal-first sync is on by default in version 3.4, on iOS, Android and desktop. The web app follows next month.\n\nThat's 156 words. I cut the paragraph on the old read-only banner, as I flagged last time \u2014 the \"most common complaint\" line and the before/after contrast are gone, and one sentence about writing on a plane carries what's left of it. The conflict paragraph lost the reassurance that nothing is discarded while you decide, and the history note is now a bare fact rather than a consolation. The Safari reason for the web app delay is gone too; the delay itself stays.\n\nClean from the slopwatch gate (`lint_text`, no blocking issues). Version 3.4, the platform list, the web-app timing and the thirty-day window remain invented placeholders.",
+    "iterations": 8,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 235
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 214
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 335
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 262
+     }
+    ],
+    "scores": {
+     "words": 259,
+     "sentences": 18,
+     "mean_sentence_words": 14.28,
+     "sentence_length_stdev": 9.34,
+     "type_token_ratio": 0.61,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.86,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "**Offline sync is here**\n\nConnection or not, [App] keeps working. Write a note on a plane, in a basement, or on a train inside a tunnel, and it saves to your device right then. Once you have signal, that note finds your other devices on its own, without you doing anything.\n\nThe hard part was edits from two places at once. Say you add a paragraph on your laptop while your phone is offline, and you edit the same note on the phone. We combine both sets of changes rather than choosing one. If the same line was changed two different ways, we keep both versions and mark the spot for you to settle.\n\nSome details worth knowing. Notes sit encrypted on your device, the way they already do on our servers. Attachments above 25 MB wait for Wi-Fi unless you change that in Settings, under Sync. The sync indicator in the sidebar shows what is still pending; tap it for a list of notes that have not uploaded.\n\nEveryone has offline sync as of today, and there is nothing to switch on. If a merge looks wrong to you, send it over through Help \u2192 Report a sync issue and we will go through the history.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 212
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 209
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 211
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 206
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 207
+     }
+    ],
+    "scores": {
+     "words": 205,
+     "sentences": 14,
+     "mean_sentence_words": 14.64,
+     "sentence_length_stdev": 7.11,
+     "type_token_ratio": 0.6293,
+     "enforced_per_1k": 9.76,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 2,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "incident-writeup",
+   "prompt": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words.",
+   "turns": [
+    "Add a timeline with the four key moments.",
+    "Add a section on what will stop it recurring.",
+    "Tighten the opening so it leads with impact rather than cause."
+   ],
+   "ungated": {
+    "text": "## Incident Report: Payment API Outage\n\n**Impact:** For two hours on 2026-09-02, no merchant could take a payment. Every request to `api.payments` failed the TLS handshake at the edge, which rejected about 41,000 authorization and capture attempts. Two merchant partners fell back to their offline queue; the rest showed customers an error at checkout. No payment data was lost, since the failures happened before any state was written.\n\n**Duration:** 14:03\u201316:07 UTC (2h 4m) \u00b7 **Severity:** SEV-1\n\n**Cause:** The leaf certificate for `api.payments` expired at 14:03 UTC. It had been issued by hand in September 2025 during a migration off the old edge terminator, and was never added to the automated renewal inventory. Our expiry monitor reads that inventory, so it had nothing to alert on.\n\nThe rest of the report follows as written: detection, resolution, timeline, and the recurrence section.\n\nTwo things moved. The date, duration, and severity now sit in a metadata line under the impact statement rather than above it, so the first thing a reader hits is that payments stopped. And the \"no payment data was lost\" line came forward from Resolution into Impact, because it answers the question an executive reader asks in the first five seconds.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 204
+     },
+     {
+      "total": 6,
+      "enforced": 1,
+      "words": 118
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 176
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 201
+     }
+    ],
+    "scores": {
+     "words": 196,
+     "sentences": 13,
+     "mean_sentence_words": 14.77,
+     "sentence_length_stdev": 8.64,
+     "type_token_ratio": 0.648,
+     "enforced_per_1k": 10.2,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 2,
+     "held_out_flags": 0
+    }
+   },
+   "control": {
+    "text": "**Incident report: Payment API outage, 2026-09-02**\n\n**Impact:** For 2h 04m (14:07\u201316:11 UTC), every request to `api.payments` failed at the TLS handshake. Roughly 41,000 authorization and capture calls were rejected. No data loss; no funds moved incorrectly.\n\n**Cause:** The certificate for `api.payments` expired at 14:07 UTC. It had been issued manually in 2025 outside the automated renewal path, so the ACME renewal job never held a record for it. Our cert-expiry monitor watched only the load balancer's default certificate, not the per-SNI certs, so the 30-day and 7-day warnings never fired.\n\n**Timeline (UTC):**\n\n- **14:07** \u2014 Certificate expires. Handshakes start failing immediately; first client reports at 14:09.\n- **14:14** \u2014 On-call paged after error-rate alerts cross threshold.\n- **15:22** \u2014 Someone tests the handshake directly and finds the expired cert. The preceding hour went to an unrelated deploy that had landed at 13:50.\n- **16:11** \u2014 New cert issued and deployed; traffic recovers.\n\n**Preventing recurrence**\n\nTwo of these stop the outage from happening again. The third only shortens it if we miss both.\n\n1. **Close the manual-issuance gap.** Inventory every cert the LB serves, move each onto ACME renewal, and fail the deploy pipeline on any cert without a renewal record. This is the fix that matters: an auto-renewed cert does not reach expiry. (Owner: platform, due 2026-09-12.)\n2. **Fix the monitor to watch what's actually served.** Enumerate certs per SNI rather than reading the LB default, and alert at 30, 7, and 2 days. The monitor was not wrong about the cert it checked; it was checking the wrong cert. (Owner: platform, due 2026-09-19.)\n3. **Put the handshake check first in the payments runbook.** This prevents nothing, but it turns 68 minutes of diagnosis into about two. (Owner: on-call lead, due 2026-09-09.)\n\nWe are not adding a calendar reminder for the next expiry. That is the control that failed here, in a different form.\n\nThe 68 minutes between the page and the diagnosis is the number worth arguing about in review. The deploy at 13:50 was a plausible suspect and the team chased it reasonably, but a handshake check costs one command.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 196
+     },
+     {
+      "total": 6,
+      "enforced": 1,
+      "words": 251
+     },
+     {
+      "total": 7,
+      "enforced": 2,
+      "words": 350
+     },
+     {
+      "total": 7,
+      "enforced": 2,
+      "words": 352
+     }
+    ],
+    "scores": {
+     "words": 323,
+     "sentences": 26,
+     "mean_sentence_words": 12.27,
+     "sentence_length_stdev": 7.41,
+     "type_token_ratio": 0.5882,
+     "enforced_per_1k": 6.19,
+     "held_out_per_1k": 15.48,
+     "enforced_flags": 2,
+     "held_out_flags": 5
+    }
+   },
+   "instructed": {
+    "text": "# Incident report: payment API outage, 2026-08-28\n\n## Summary\nRoughly 41,000 payment requests were rejected over 2 hours 4 minutes, from 03:12 to 05:16 UTC. Authorizations, captures, and refunds all failed. The API returned TLS handshake errors to every client that verified the certificate chain, because the leaf certificate for api-payments.internal expired at 03:12:00 UTC.\n\n## Timeline (UTC)\n| Time | Event |\n| --- | --- |\n| 03:12 | Certificate expires. Handshakes start failing for every verifying client. |\n| 03:38 | A merchant support ticket arrives. First human signal, 26 minutes after the failure. |\n| 04:20 | On-call identifies the expired leaf certificate as the cause. |\n| 05:11 | Replacement certificate installed; traffic recovers by 05:16. |\n\n## What happened\nThe certificate was issued in August 2025 with a 12-month lifetime and renewed by hand. When the service moved from the shared ingress to its own load balancer in February, the renewal ticket stayed attached to the old ingress hostname, so nothing tracked the new listener. Expiry monitoring covered certificates presented by the shared ingress only.\n\nPaging was delayed. The synthetic check that would have caught this ran against an internal endpoint that skips verification, so it stayed green.\n\n## What stops it recurring\nTwo failures had to line up: a certificate nobody owned, and a check that could not see the failure it was written for.\n\nAutomatic renewal removes the first. Under ACME the certificate is reissued at 30 days remaining without a human in the path, so a stale ticket or a departed owner no longer matters. A migration that moves a listener carries its renewal with it.\n\nThe second needs the check to fail for the right reason. Verifying the chain from outside the trust boundary means the synthetic sees what a merchant sees, and a 21-day expiry threshold pages us three weeks before any customer notices. The listener audit closes the gap between these two: any certificate ACME does not manage gets a named owner or gets retired.\n\n## Actions\n1. Move api-payments.internal to ACME with automatic renewal at 30 days remaining. Owner: platform. Due 2026-09-12.\n2. Change the synthetic check to verify the chain and fail on expiry inside 21 days. Owner: platform. Due 2026-09-08.\n3. Audit all listeners for certificates with no renewal owner. Owner: SRE. Due 2026-09-19.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 212
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 256
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 389
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 389
+     }
+    ],
+    "scores": {
+     "words": 342,
+     "sentences": 33,
+     "mean_sentence_words": 10.36,
+     "sentence_length_stdev": 9.29,
+     "type_token_ratio": 0.5643,
+     "enforced_per_1k": 8.77,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 3,
+     "held_out_flags": 0
+    }
+   },
+   "complement": {
+    "text": "# Incident Report: Payment API Outage, 2026-08-28\n\n**Duration:** 14:02\u201316:07 UTC (2h 05m)\n**Impact:** All requests to api.payments.internal returned TLS handshake failures. Roughly 41,000 authorization attempts failed. No transactions were double-charged; no data was lost.\n\n## What happened\n\nEvery client of api.payments.internal lost the ability to authorize payments for two hours. Client SDKs rejected the connection at the handshake and retried, which added load to the gateway but did not extend the outage.\n\nThe cause was an expired TLS certificate. It had been issued manually in August 2025 during a migration off the automated renewal path, and was never returned to that path, so cert-manager did not track it. The expiry monitor only watched certificates cert-manager knew about.\n\n## Timeline\n\n- 14:02 UTC. Certificate expires. Error rate goes to 100%.\n- 14:09 UTC. Two merchants report failures. On-call paged.\n- 15:20 UTC. New certificate issued, after 49 minutes spent locating the CA account owner.\n- 16:07 UTC. Certificate deployed to all six gateway nodes. Traffic recovers.\n\n## What will stop it recurring\n\nThree gaps produced this outage, and each has a fix.\n\nThe certificate sat outside automated renewal. Moving api.payments.internal back under cert-manager removes the manual step entirely.\n\nThe monitor watched the wrong list. Checking live TLS endpoints against the cert-manager inventory, rather than trusting the inventory alone, catches any future certificate that drops off the automated path.\n\nNobody knew who held the CA account. Recording the account owner in the service catalogue and adding a backup holder removes the 49-minute lookup from the recovery path.\n\n## Follow-up\n\n1. Move api.payments.internal back under cert-manager. Owner: platform. Due 2026-09-10.\n2. Audit every TLS endpoint against the cert-manager inventory; alert on any certificate absent from it. Owner: platform. Due 2026-09-17.\n3. Alert at 30 and 7 days before expiry, paging at 7. Owner: SRE. Due 2026-09-10.\n4. Record CA account owner and backup in the service catalogue. Owner: SRE. Due 2026-09-10.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 207
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 200
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 305
+     },
+     {
+      "total": 4,
+      "enforced": 4,
+      "words": 318
+     }
+    ],
+    "scores": {
+     "words": 296,
+     "sentences": 43,
+     "mean_sentence_words": 6.88,
+     "sentence_length_stdev": 6.91,
+     "type_token_ratio": 0.5642,
+     "enforced_per_1k": 13.51,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 4,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "# Payment API outage, 2026-09-01\n\n## Summary\nEvery payment authorization failed for 2 hours 7 minutes, from 03:14 to 05:21 UTC. Roughly 41,000 merchant requests to `api.payments.internal` were rejected at the transport layer and never reached the application. The cause was the TLS certificate on the edge load balancer, which expired at 03:14:00 UTC.\n\n## Timeline\n1. 03:14 UTC \u2014 the certificate expires. Health checks keep passing, because they run over plaintext on the internal port.\n2. 03:49 UTC \u2014 on-call is paged, 35 minutes after the first merchant support ticket at 03:22.\n3. 04:35 UTC \u2014 cause identified as an expired certificate.\n4. 05:21 UTC \u2014 renewed certificate deployed to all four edge nodes; traffic recovers.\n\n## Cause\nThe certificate was issued manually in 2025 and was never enrolled in the automated renewal system that covers the other 60 services. The expiry monitor reads from that system's inventory, so this certificate was never in scope for a warning.\n\n## What will stop it recurring\nThe certificate is now enrolled in automated renewal, which removes this specific certificate as a source of expiry. That alone would leave the class of failure open, so the expiry monitor is being repointed at the load balancer's live certificate list rather than the renewal inventory. Any certificate served in production then gets a 30-day and a 7-day warning, whether or not anyone remembered to enroll it. The inventory-based check is retired once the new source has run clean for two weeks.\n\nEdge health checks move to TLS, so a handshake failure fails the check instead of passing it. This is what would have caught the outage at 03:14 rather than 03:22.\n\nThe 35-minute delay before paging is tracked separately. The error-rate alert averages over 30 minutes, which is reasonable for partial degradation and wrong for total failure; a second rule pages at 2 minutes when the success rate for a service reaches zero.",
+    "iterations": 5,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 233
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 226
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 324
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 319
+     }
+    ],
+    "scores": {
+     "words": 289,
+     "sentences": 23,
+     "mean_sentence_words": 12.43,
+     "sentence_length_stdev": 8.33,
+     "type_token_ratio": 0.5571,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 3.46,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "# Payment API Outage, 2026-09-01\n\n## Summary\n\nCard authorizations, refunds, and webhook deliveries failed for 2 hours 7 minutes, from 03:14 to 05:21 UTC. Roughly 41,000 requests were declined, deferring about $310,000 in volume; no transactions were lost. Every client that verified the certificate chain refused to connect, because the edge certificate for `api-payments.example.com` expired at 03:14 UTC.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 229
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 98
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 189
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 58
+     }
+    ],
+    "scores": {
+     "words": 50,
+     "sentences": 5,
+     "mean_sentence_words": 9.4,
+     "sentence_length_stdev": 7.16,
+     "type_token_ratio": 0.88,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "## Incident Report \u2014 Payments API Outage\n\nDate: 2 September 2026\nDuration: 09:14\u201311:22 UTC (2h 08m)\n\nFor two hours and eight minutes, no customer could take a payment.\n\nEvery call to `/v1/charges` and `/v1/refunds` failed at the TLS handshake, so the outage was total rather than degraded, and roughly 41,000 transactions were rejected outright. No data was lost and nothing was accessed without authorization. The cause was an expired certificate on `api.payments.internal`.\n\n### Timeline (UTC)\n\n| Time | Event |\n|---|---|\n| 09:14 | Certificate for `api.payments.internal` expires. All TLS handshakes start failing. |\n| 09:21 | Error-rate alarm pages on-call. Triage begins against the gateway's generic 502s. |\n| 10:40 | On-call reads the raw handshake error and identifies the expired certificate. |\n| 11:18 | Manually issued certificate rolled out. Traffic fully recovered by 11:22. |\n\n### What happened\n\nRenewal had been automated in 2024 through cert-manager. But this host was migrated to the new cluster in July and its Certificate resource was never recreated, so nothing was watching the old host at all.\n\nThe 30-day expiry alert did fire on schedule. It routed to a Slack channel we archived in June, where nobody read it.\n\nThen the first 79 minutes went to the wrong layer. The gateway masked the handshake failure as a 502, so the on-call engineer chased upstream health before looking at the transport.\n\n### What stops it recurring\n\nRenewal stopped, the warning went nowhere, and the symptom pointed away from the cause. All three had to fail together, and any one of them working would have kept the outage short or prevented it outright, so each gets its own fix.\n\nRenewal coverage. Platform will reconcile every TLS endpoint in the new cluster against its cert-manager Certificate resource and fail CI on any host without one. The July migration checklist gains a certificates step. Platform owns this, due 12 Sept.\n\nWarnings that reach a person. Expiry alerts move from Slack to PagerDuty at 45 and 14 days. A quarterly test fires a synthetic expiry to confirm the page still lands on somebody's phone. SRE owns this, due 19 Sept.\n\nFaster diagnosis. A synthetic probe will check the handshake itself and report certificate expiry as its own alarm, and the gateway will stop collapsing TLS errors into 502. The gateway team owns this, due 26 Sept. None of these three fixes is watertight alone, and we are not claiming otherwise.\n\nWhat the combination buys us is that a repeat now needs a silent renewal failure, a dead alert path, and a probe outage at once.",
+    "iterations": 9,
+    "passed": false,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 190
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 257
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 389
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 429
+     }
+    ],
+    "scores": {
+     "words": 396,
+     "sentences": 34,
+     "mean_sentence_words": 11.35,
+     "sentence_length_stdev": 8.17,
+     "type_token_ratio": 0.5833,
+     "enforced_per_1k": 2.53,
+     "held_out_per_1k": 2.53,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   },
+   "blind": {
+    "text": "**Incident: payment API unreachable, 2026-09-01, 02:14\u201304:19 UTC**\n\n(Names, times, and counts are stand-ins for the real figures.)\n\nThe edge load balancer in front of the payment API was serving a TLS certificate that expired at 02:14 UTC. Handshakes failed from that point, which meant authorization and capture calls returned connection errors instead of HTTP responses. Service came back two hours and five minutes later.\n\nRoughly 41,000 payment attempts failed, and merchant checkout success sat at zero throughout. No request got as far as the processor, so no card data was exposed and nothing was billed twice.\n\nRenewals had been done by hand since March 2025, when the load balancer migration turned ACME off and it was never turned back on. The expiry monitor was pointed at the origin certificate rather than the edge one that terminates traffic, which is why the previous 30 days produced no warning. On-call was paged at 02:19 by merchant error-rate alarms. Ninety minutes of investigation went to the processor and the network path; the expiry came to light at 03:58. A replacement certificate was live by 04:19.\n\nFollow-ups: turn ACME renewal back on at the edge (platform, due 2026-09-10); move expiry checks to an external prober that covers every public endpoint; page at 14 and 7 days remaining.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 4,
+      "enforced": 2,
+      "words": 206
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 198
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 213
+     },
+     {
+      "total": 4,
+      "enforced": 2,
+      "words": 206
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 213
+     }
+    ],
+    "scores": {
+     "words": 201,
+     "sentences": 13,
+     "mean_sentence_words": 15.46,
+     "sentence_length_stdev": 7.64,
+     "type_token_ratio": 0.6617,
+     "enforced_per_1k": 9.95,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 2,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "api-guide",
+   "prompt": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words.",
+   "turns": [
+    "Add a paragraph on authentication.",
+    "Rewrite it for someone who has never used a REST API before.",
+    "Add a short warning about rate limits."
+   ],
+   "ungated": {
+    "text": "Slots in right after the 409 paragraph, since both are about the server telling you no:\n\n> The server also says no if you ask too often. There is a limit on how many requests you can send per minute, and going over it gets you error 429 plus a `Retry-After` header saying how many seconds to wait. Wait that long, then try the same request again. Most people hit this by checking availability one day at a time in a loop. Ask for the whole range at once instead.\n\nI left the actual number out rather than invent one; drop your real per-minute limit into the second sentence. The 429 code and `Retry-After` header are the standard way to do this, but if your service signals rate limits some other way, tell me and I'll correct it.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 211
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 157
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 456
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 138
+     }
+    ],
+    "scores": {
+     "words": 134,
+     "sentences": 8,
+     "mean_sentence_words": 16.5,
+     "sentence_length_stdev": 8.0,
+     "type_token_ratio": 0.7388,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "control": {
+    "text": "Slotting in at the end of the Authentication section, since the limit is tied to the token:\n\nThere is a cap on how many requests a token can make: 100 per minute. This is normal for an API, and it exists so that one noisy client cannot slow the service down for everyone. If you go over, the next request comes back as 429 instead of the answer you wanted, along with a `Retry-After` header telling you how many seconds to wait. Waiting that long and trying again is the whole fix. The common way to hit the cap by accident is a loop that calls the API once per item without pausing.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 206
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 158
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 208
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 113
+     }
+    ],
+    "scores": {
+     "words": 111,
+     "sentences": 6,
+     "mean_sentence_words": 18.33,
+     "sentence_length_stdev": 5.99,
+     "type_token_ratio": 0.7117,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "One more thing to watch: the API caps you at 100 requests per minute per token. Go over and you get status code 429, meaning \"slow down.\" The response includes a `Retry-After` header telling you how many seconds to wait before trying again. Write your code to wait that long and then retry, rather than hammering the API in a loop \u2014 repeated 429s can get a token blocked for an hour.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 229
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 129
+     },
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 246
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 72
+     }
+    ],
+    "scores": {
+     "words": 69,
+     "sentences": 3,
+     "mean_sentence_words": 22.67,
+     "sentence_length_stdev": 6.81,
+     "type_token_ratio": 0.7826,
+     "enforced_per_1k": 14.49,
+     "held_out_per_1k": 14.49,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "## Rate limits\n\nEach token allows 100 requests per minute. Go over that and you get a 429 response with a `Retry-After` header telling you how many seconds to wait. Availability queries across long date ranges count double, so a widget that polls open slots on every keystroke will hit the ceiling fast. Cache availability for a few seconds on your side and back off when a 429 arrives.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 204
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 172
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 227
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 69
+     }
+    ],
+    "scores": {
+     "words": 65,
+     "sentences": 5,
+     "mean_sentence_words": 12.8,
+     "sentence_length_stdev": 8.64,
+     "type_token_ratio": 0.8462,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "Each token gets 60 requests a minute, plus a separate limit of 10 bookings a minute on any single calendar. Go over either and the API returns status 429 with a `Retry-After` header telling you how many seconds to wait. This bites hardest when you import an existing schedule, since a loop that creates 500 bookings as fast as it can will be throttled partway through. Add a pause between calls, or send them in batches of 10 with a one second gap.",
+    "iterations": 11,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 245
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 133
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 306
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 83
+     }
+    ],
+    "scores": {
+     "words": 78,
+     "sentences": 4,
+     "mean_sentence_words": 19.25,
+     "sentence_length_stdev": 3.95,
+     "type_token_ratio": 0.8462,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "A note on rate limits before you start building: the caps are low enough that a first attempt can hit them by accident. A loop that fetches one calendar at a time will pass 120 requests in under a minute on a user token, and once you cross the line the API returns 429 and refuses everything until the minute rolls over. Read `X-RateLimit-Remaining` on each response and pause when it gets close to zero. If you do get a 429, the `Retry-After` header tells you how many seconds to wait; wait that long rather than retrying at once, since a retry storm keeps you locked out longer than the original limit would have.",
+    "iterations": 5,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 217
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 223
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 310
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 114
+     }
+    ],
+    "scores": {
+     "words": 111,
+     "sentences": 4,
+     "mean_sentence_words": 27.25,
+     "sentence_length_stdev": 12.12,
+     "type_token_ratio": 0.7477,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "Short warning, in the same plain register as the rewritten auth paragraph. It goes right after it, since a first-timer hits 401 and 429 in the same debugging session.\n\nThere is also a cap on how many requests you can send in a given minute. Go past it and the API answers 429 instead of your data, with a `Retry-After` header telling you how many seconds to wait. Wait that long, then try the request again. Do not retry immediately in a loop, because failed attempts count too and the wait grows. Most people hit the cap by checking availability over and over; storing the answer for a few seconds fixes it.\n\nCheck three things against your real API before this ships: whether the window is per minute, whether `Retry-After` is actually returned (some APIs send `X-RateLimit-Reset` instead), and whether rejected requests count toward the limit. That last one is the reason for the \"do not retry in a loop\" sentence, so if rejects are free, drop that sentence.\n\nThere is one knock-on further down. The intro's closing line promises \"rate limits at the end,\" which still holds, but that line should now say the section covers the per-endpoint numbers, so a reader doesn't think it repeats this.",
+    "iterations": 8,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 217
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 168
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 293
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 208
+     }
+    ],
+    "scores": {
+     "words": 205,
+     "sentences": 11,
+     "mean_sentence_words": 18.36,
+     "sentence_length_stdev": 8.69,
+     "type_token_ratio": 0.6537,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "blind": {
+    "text": "The Bookings API looks after appointments on a calendar or a whole set of them: making them, shifting them, cancelling them, and asking what time is still unclaimed.\n\nEverything goes over HTTPS and comes back as JSON. Four resources show up almost everywhere. A *calendar* is the thing being booked, be it a room, a person, or a piece of equipment. An *availability rule* states when that calendar is open, written as a weekly repeating pattern plus any exceptions you add for holidays. A *booking* is a confirmed slot held on a calendar. An *attendee* is a person tied to a booking, carrying notification preferences of their own.\n\nTwo details account for most early trouble, so here they are up front. Every timestamp you send or receive is UTC in RFC 3339 format, while each calendar holds its own IANA timezone for display. The conversion is yours to do, not ours. And every booking is written against a version token handed back by the availability endpoint. If another client takes the slot between your read and your write, the write returns 409 instead of double-booking. Read again, then write.\n\nAuthentication is by bearer token, scoped to a calendar. Rate limits are documented per endpoint and echoed in response headers on every call.\n\nThe next section carries one booking all the way through.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 211
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 209
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 208
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 226
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 222
+     }
+    ],
+    "scores": {
+     "words": 220,
+     "sentences": 16,
+     "mean_sentence_words": 13.75,
+     "sentence_length_stdev": 6.45,
+     "type_token_ratio": 0.6591,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "team-update",
+   "prompt": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words.",
+   "turns": [
+    "The deadline slipped again. Update it and explain why.",
+    "Add a line thanking the two people who covered on-call.",
+    "Make it shorter and less formal."
+   ],
+   "ungated": {
+    "text": "**Engineering update \u2014 September**\n\nBilling rewrite slips again, to December 1st. I said last month I'd move the date once. Once wasn't enough. Here's why.\n\nAmara spent her first two weeks in the old proration code and found stuff nobody wrote down: at least four customers depend on how mid-cycle downgrades work today, and one of them is our second-biggest account. So it's not just a rewrite now, it's a rewrite plus a compatibility layer we never scoped. October was never going to hold.\n\nNikhil and Amara take proration as its own track with a weekly check-in. I'm not dating the rest until that track has a design we believe. If December looks wrong in three weeks, you'll hear it in three weeks.\n\nOtherwise things are fine. Jordan shipped the connection-pool fix from the migration postmortem. Deferred migration work is about half done. And thanks to Sara and Marcus for taking the on-call weeks nobody else could cover.\n\nBoth slips are on me. Tell me what I've got wrong on Thursday.\n\n*Swap in your own names, dates, and systems.*",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 205
+     },
+     {
+      "total": 4,
+      "enforced": 2,
+      "words": 206
+     },
+     {
+      "total": 5,
+      "enforced": 3,
+      "words": 227
+     },
+     {
+      "total": 3,
+      "enforced": 1,
+      "words": 179
+     }
+    ],
+    "scores": {
+     "words": 178,
+     "sentences": 18,
+     "mean_sentence_words": 9.89,
+     "sentence_length_stdev": 7.84,
+     "type_token_ratio": 0.7472,
+     "enforced_per_1k": 5.62,
+     "held_out_per_1k": 11.24,
+     "enforced_flags": 1,
+     "held_out_flags": 2
+    }
+   },
+   "control": {
+    "text": "Shorter and looser, whole memo:\n\n> Engineering update, September\n>\n> Billing is off MySQL. We cut over on the 19th, took 40 minutes against the hour and a half we planned, and nothing has gone backwards since. Priya and Dan took the 6am window. Ravi and Tom held on-call and ate every page it threw. Thanks, all four. The old read replicas are still up and still costing us; gone by the 10th.\n>\n> Marcus joins platform Monday, Aisha frontend the week after. Both pair for two weeks before they touch a ticket. Got work worth showing a new person? Tell me.\n>\n> Search slipped again. October is gone, the date is November 13th. Two of the last four pieces need the ranking service and its owner is out until the 26th. That was on the calendar and I planned around it wrong. Second miss, so no third promise: every Friday I post the four pieces and where each one stands. The date moves when a piece closes. Sales has November 13th.\n>\n> Twelve of us now, the most this group has ever been. More gets written down, less gets settled in the hallway. Next all-hands.\n\n186 words, down from ~260. Passes slopwatch clean.\n\nWhat the informality cost:\n\n- The slip is one paragraph again, so the \"I'm not going to hand you a third date\" line is compressed to \"no third promise.\" It still carries the ownership, but with less weight. If the second miss needs to land harder than the rest of the memo, that paragraph should stay long while everything around it shrinks.\n- I dropped \"I signed off on that trade, so the slip is mine\" and the sales-conversations detail. The first is now implied by \"I planned around it wrong\"; the second is just \"Sales has November 13th.\"\n- Casual register makes the on-call thanks read as a beat in the migration story rather than a formal acknowledgment. Fine if these are people you talk to daily, thin if the memo goes wider than the team.\n\nNames, dates and the invented ranking-service cause are still placeholders.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 210
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 256
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 153
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 355
+     }
+    ],
+    "scores": {
+     "words": 340,
+     "sentences": 28,
+     "mean_sentence_words": 12.14,
+     "sentence_length_stdev": 7.94,
+     "type_token_ratio": 0.6029,
+     "enforced_per_1k": 2.94,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 1,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "# Engineering update \u2014 September\n\nThe reindex pipeline slipped again. New date: 9 October, and I won't defend that hard until the schema work lands.\n\nTwo reasons. The new document schema stores facets as nested JSONB, and the old indexer flattened them on write. Rebuilding that flattening step is about eight days of work Marcus scoped last week. Then I pulled Priya and Tom onto the cluster decommission when the storage bill came in high. Right call for the month, wrong one for this date. I'd do it again.\n\nThe relevance A/B test moves to November. Nothing else is downstream.\n\nThanks to Dani and Marcus, who covered every on-call shift from the 8th to the 26th while the rest of us were on the decommission.\n\nNo more dates on the pipeline until Marcus has the facet-flattening step running against a full corpus snapshot. I'd rather go quiet for three weeks than move this a third time.\n\nOctober: facet flattening, decommission done on the 6th, on-call rotation rewrite live on the 13th.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 199
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 208
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 233
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 171
+     }
+    ],
+    "scores": {
+     "words": 169,
+     "sentences": 15,
+     "mean_sentence_words": 11.27,
+     "sentence_length_stdev": 6.78,
+     "type_token_ratio": 0.6923,
+     "enforced_per_1k": 5.92,
+     "held_out_per_1k": 5.92,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "## Reporting exports slipped again \u2014 new date Oct 17\n\nThe chunked job cleared the rate limit and passed staging Sept 8. Then we ran it on a real account: exports over 200k rows take 41 minutes, and the vendor expires job tokens at 30. Refreshing mid-run restarts from row zero. Their API, not our code.\n\nSo we're doing two things at once. Ticket filed asking them to raise the token TTL (no commitment yet), and Marcus and Dana start on persisting partial results Monday, about three weeks. We can't sit around waiting for the vendor.\n\nI set Sept 26 off a staging run without testing a big account. My call, cost us three weeks.\n\nThanks to Sam and Priya for covering on-call through the Aug 30 pager storm and the cutover weekend.\n\nSales knows. I'm calling the two customers today.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 208
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 208
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 229
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 141
+     }
+    ],
+    "scores": {
+     "words": 133,
+     "sentences": 13,
+     "mean_sentence_words": 10.23,
+     "sentence_length_stdev": 6.82,
+     "type_token_ratio": 0.7895,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 7.52,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "instructed+gated": {
+    "text": "# Engineering update \u2014 September\n\nCheckout has moved again, October 3rd to November 14th. Different reason this time.\n\nLast month it was the payment path touching the old schema. Fixed that. But we never checked the refund and chargeback flows, which live behind a service another team owns, and they read three columns we dropped. That team can pick it up October 20th. The alternative is a shim we'd throw away in December, two weeks of work and a second code path in billing. Not worth it, so we wait.\n\nDana's scoping review caught the payment path but stopped at our repo boundary. So we're adding a rule that anything crossing teams needs a named owner on the other side before we pick a date. Marcus is writing that up with her.\n\nPriya and Jen split on-call while Marcus ramped, including the September 8th pager storm. Thank you both.\n\nSales and support have November 14th. I won't call it firm, I've done that twice now. It's what we believe today.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 223
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 225
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 252
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 170
+     }
+    ],
+    "scores": {
+     "words": 168,
+     "sentences": 17,
+     "mean_sentence_words": 9.88,
+     "sentence_length_stdev": 6.87,
+     "type_token_ratio": 0.744,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.95,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "complement+gated": {
+    "text": "# Reporting rewrite \u2014 where it stands\n\nNew date: 10 November. That's three weeks past the 19 October date I gave last month, about seven weeks past what we first committed to.\n\nI set that date before anyone had opened the reporting code with the new cluster under it. Three of the nightly rollup queries now take 40+ minutes instead of 4, because they were tuned for the old planner. Sam's rewritten two; the third needs a summary table we haven't built. Also, finance's two custom reports lean on a column we dropped in the migration, so they need a backfill first.\n\nThanks to Marcus and Priya for splitting the whole September on-call rotation so Sam could stay off the pager.\n\nBoth slips are on me for the same reason: I priced the reporting work without accounting for what the migration would do to it. This time the rollup rewrite, the summary table, and the backfill are estimated separately with a week of slack. Sales knows. If it moves again I'll come with a scope cut, not a third date.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 206
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 225
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 246
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 180
+     }
+    ],
+    "scores": {
+     "words": 174,
+     "sentences": 12,
+     "mean_sentence_words": 14.5,
+     "sentence_length_stdev": 7.4,
+     "type_token_ratio": 0.6609,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 5.75,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "Engineering update \u2014 September\n\nNothing to report on the migration, which is the point. The old cluster's DNS comes out in October and then we stop paying for it.\n\nDani owns the build system now. Marcus shipped his first payments fix on the 22nd, that refund bug from June. And thanks to Ade and Vera for covering the on-call weeks nobody else could take, Labor Day included.\n\nThe reporting rewrite moved again, from mid-October to mid-November. Last month I said I'd rather move the date once than move it every month, and then I moved it again, so here's what happened. The audit found 41 stored procedures, not 25. Eleven of them write to tables no live service reads, and we can't drop those until we know who does. That was two unplanned weeks.\n\nNovember comes from a real count this time, not a guess. October is still the three biggest reports.\n\nNames and specifics still placeholders.",
+    "iterations": 8,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 217
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 200
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 221
+     },
+     {
+      "total": 2,
+      "enforced": 0,
+      "words": 157
+     }
+    ],
+    "scores": {
+     "words": 154,
+     "sentences": 14,
+     "mean_sentence_words": 11.0,
+     "sentence_length_stdev": 6.55,
+     "type_token_ratio": 0.7468,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 12.99,
+     "enforced_flags": 0,
+     "held_out_flags": 2
+    }
+   },
+   "blind": {
+    "text": "**August engineering update**\n\nThe Postgres migration is finished. We cut the last three services over from the old cluster on the 19th, and the read replicas have stayed calm since. p95 query latency dropped from 340ms to roughly 90ms, past what we said to expect. Nobody worked a weekend for it. I'll say that directly, because the two attempts before this one each took a weekend from someone.\n\nTwo hires. Priya came onto platform on the 4th and has already shipped the retry logic in the ingest worker. Tom came onto data on the 18th and is still learning where things are. Grab half an hour with each of them this month if you haven't.\n\nThe reporting rewrite missed its date. We said end of August. Mid-October is honest. Most of the old aggregation logic isn't really code, it's undocumented business rules, and someone has to confirm each one before we can port it. I don't think there was a version of this that made August. Sales has heard the new date and is fine with it.\n\nSeptember: ship reporting, and get Tom through his first solo on-call.\n\nQuestions, or something I got wrong, come find me. Sooner beats the retro.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 203
+     },
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 207
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 193
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 202
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 201
+     }
+    ],
+    "scores": {
+     "words": 201,
+     "sentences": 18,
+     "mean_sentence_words": 11.17,
+     "sentence_length_stdev": 8.93,
+     "type_token_ratio": 0.6816,
+     "enforced_per_1k": 14.93,
+     "held_out_per_1k": 4.98,
+     "enforced_flags": 3,
+     "held_out_flags": 1
+    }
+   }
+  },
+  {
+   "id": "product-comparison",
+   "prompt": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words.",
+   "turns": [
+    "Add a paragraph on what happens when a job fails in each.",
+    "Add a recommendation for a small team.",
+    "Cut the hedging and commit to the recommendation."
+   ],
+   "ungated": {
+    "text": "Replacing the closing paragraph:\n\nIf you're three or four people, start with the batch. One cron entry, one script, one log to read when the pager goes off at 3am and there's no on-call rotation to read it for you. A queue costs you a broker to run, workers to keep alive, and a class of failure that only shows up under load \u2014 standing operational cost for latency nobody has asked for. Move a job to a queue the first time someone complains about waiting on it, and move only that job. The complaint is the signal. Until it arrives, the batch is the cheaper thing to own.\n\nOne knock-on: the earlier line \"Rough rule: use a queue when someone is waiting on the result\" now hedges against the recommendation it sets up. Cut \"Rough\" \u2014 \"The rule: use a queue when someone is waiting on the result. Use a batch when nobody is and the volume is high.\"",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 209
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 217
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 146
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 160
+     }
+    ],
+    "scores": {
+     "words": 158,
+     "sentences": 10,
+     "mean_sentence_words": 15.8,
+     "sentence_length_stdev": 9.47,
+     "type_token_ratio": 0.5696,
+     "enforced_per_1k": 12.66,
+     "held_out_per_1k": 6.33,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "Revised recommendation:\n\nUse cron and a database table. You have both already, and a table of pending rows swept every minute is a queue for a team that doesn't have a spare person to run a broker. Make the sweep idempotent on day one. That one habit covers retries, reruns, and half-finished runs together, and it is the only piece of this you cannot add later without pain.\n\nMove a job to a real queue when one of three things happens: a user is watching a spinner and a one-minute floor is too slow, one slow job type is starving the rest, or the sweep stops finishing before the next one starts. Move that one job type and leave everything else on cron. A mixed setup is the right end state, not a transitional mess.\n\nBuilding queue infrastructure for a workload a five-line cron entry handles is the expensive mistake, and you own it for three years.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 212
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 213
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 200
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 157
+     }
+    ],
+    "scores": {
+     "words": 157,
+     "sentences": 9,
+     "mean_sentence_words": 17.44,
+     "sentence_length_stdev": 13.47,
+     "type_token_ratio": 0.6115,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed": {
+    "text": "For a team of three to five engineers, use the batch run. A cron entry plus a script that marks each row done covers reconciliation, report generation, cleanup, and email sends. It costs you no broker to patch, no worker fleet alive at 3 a.m., no second set of retry semantics to hold in your head. Write it re-runnable from the first commit and you have what a queue would have given you.\n\nAdd a queue the day a user is watching a spinner. If someone submits a form and needs the result in three seconds, cron cannot deliver that, and tightening the schedule to every minute does not change the answer. That is the line: batch for work with a deadline in hours, queue for work with a deadline in seconds. Nothing else on the list of reasons to adopt a broker holds up.\n\nWhen you cross that line, use the infrastructure you already run. On Postgres, a jobs table with `SELECT ... FOR UPDATE SKIP LOCKED` is a working queue and costs you one migration. On Redis, use Redis. Do not stand up RabbitMQ or SQS for your first queue; you will spend the next year monitoring and upgrading it, and the outage will land on a Saturday. Buy latency when a user is paying for it, and buy it from the database you already back up.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 3,
+      "words": 218
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 222
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 234
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 229
+     }
+    ],
+    "scores": {
+     "words": 228,
+     "sentences": 13,
+     "mean_sentence_words": 17.15,
+     "sentence_length_stdev": 7.26,
+     "type_token_ratio": 0.5614,
+     "enforced_per_1k": 4.39,
+     "held_out_per_1k": 4.39,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "For a team of three or four, use scheduled batch runs. A cron entry and a `SELECT ... WHERE processed_at IS NULL` query take an afternoon to write, and you can debug them by running the script by hand. A queue adds a broker to operate, a worker deployment to keep alive, and a dead-letter queue that helps only if someone checks it. That is ongoing work a team without an on-call rotation will not do.\n\nMove a specific job to a queue when it earns the move: a user watches a spinner for it, or the batch tick takes longer than the interval between ticks. Managed platforms (Sidekiq on Heroku, Celery with SQS, your framework's built-in queue) get you there in a day, so the migration costs you a day, not a rewrite. Standing up a broker in week one for four nightly jobs wastes that week.\n\nMake jobs idempotent from the start. It costs little while the code is fresh, it makes batch reruns safe, and it removes the hardest part of the migration when you switch.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 221
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 212
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 202
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 179
+     }
+    ],
+    "scores": {
+     "words": 179,
+     "sentences": 9,
+     "mean_sentence_words": 19.22,
+     "sentence_length_stdev": 8.41,
+     "type_token_ratio": 0.6425,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "For a team of three to six engineers with no dedicated infrastructure person, use scheduled batch runs against a Postgres table. A cron entry and a query that selects pending rows gives you retry, visibility, and an audit trail without a broker, a worker fleet, or a deploy story for long-lived processes. Run it every minute if you need lower latency; a one-minute cron plus `SELECT ... FOR UPDATE SKIP LOCKED` handles most of the workloads people reach for a queue to solve.\n\nMove to a real queue when you hit a specific wall: a user staring at a spinner waiting on the job, a burst that a single run cannot finish before the next one starts, or work that needs to fan out across more machines than one cron host has cores. Those are observable conditions. You will know when you hit them, and until then the queue buys you latency you do not need and costs you a component that pages someone at 3am.",
+    "iterations": 6,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 229
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 216
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 174
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 166
+     }
+    ],
+    "scores": {
+     "words": 165,
+     "sentences": 6,
+     "mean_sentence_words": 26.67,
+     "sentence_length_stdev": 14.95,
+     "type_token_ratio": 0.697,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "For a team of three or four people, start with the batch run. A cron entry and a script that reads a table are things you write in an afternoon and debug by rerunning them by hand. A queue costs you a broker to operate, a worker fleet to deploy, and a class of bug that only appears under a redelivery you cannot reproduce locally. Pay that when something concrete forces you to: a user waiting on the result, or a nightly run that no longer finishes before people arrive.\n\nWhen you do reach for a queue, use the one your database already gives you. Postgres with a jobs table, `SELECT ... FOR UPDATE SKIP LOCKED`, and a worker loop handles a few thousand jobs a minute, keeps the job state in the same transaction as your data, and lets you inspect the queue with the SQL you already know. Redis or SQS earns its separate system past that point, or when the workers need to scale independently of the database.\n\nWrite handlers so a repeat call is harmless from the first day, whichever you pick. That habit is what lets you move a job from the batch script to the queue later without rewriting it, and it costs nothing while the code is still small.",
+    "iterations": 5,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 222
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 210
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 220
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 216
+     }
+    ],
+    "scores": {
+     "words": 215,
+     "sentences": 9,
+     "mean_sentence_words": 23.33,
+     "sentence_length_stdev": 8.41,
+     "type_token_ratio": 0.6,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "gated": {
+    "text": "Use the batch run. One cron entry and a script you can read top to bottom is a thing one person holds in their head at 2am. A broker is a second production system with its own failure modes, its own dashboard nobody looks at, and its own upgrade path you will be doing on a Friday. Add a queue the first time a specific job has a person waiting on the other end of it, and add it for that job alone. Teams that reach for the queue early because it looks like the grown-up architecture end up with four workers, a Redis they can't lose, and one job that ever needed any of it. Make the batch run idempotent on the first day you write it. You will be glad you did either way.",
+    "iterations": 5,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 223
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 172
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 153
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 136
+     }
+    ],
+    "scores": {
+     "words": 136,
+     "sentences": 7,
+     "mean_sentence_words": 19.43,
+     "sentence_length_stdev": 11.37,
+     "type_token_ratio": 0.6176,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "blind": {
+    "text": "Put a job on a queue and it starts almost immediately. A worker is already sitting there ready, so the gap between \"this needs doing\" and \"someone is doing it\" runs to a few milliseconds. You pay for that readiness with a process that stays up all night doing nothing, and with the apparatus queues demand: retry counts, dead letters, visibility timeouts, and the ugly case of a worker that dies mid-job and strands the work.\n\nBatch runs take the opposite bargain. Nothing happens until the schedule says so. At 3am a process starts, reads whatever accumulated, and works through it in one pass. The schedule now sets your latency, so hourly means a typical caller waits half an hour. What you get back is smaller code: one transaction, one log to read after a failure, set operations rather than row by row. A single statement across 50,000 rows finishes while 50,000 worker invocations are still warming up.\n\nEverything turns on whether anyone is waiting. Someone staring at an inbox for a password reset link certainly is. Nightly billing rollups, cache warming and report generation are not, and on a schedule they cost less to run and take less work to fix.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 202
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 208
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 202
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 194
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 202
+     }
+    ],
+    "scores": {
+     "words": 200,
+     "sentences": 12,
+     "mean_sentence_words": 16.67,
+     "sentence_length_stdev": 10.12,
+     "type_token_ratio": 0.675,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   }
+  },
+  {
+   "id": "onboarding-doc",
+   "prompt": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words.",
+   "turns": [
+    "Add a section on who to ask for what.",
+    "The team moved from Slack to Discord. Update every reference.",
+    "Add a short note about the on-call rotation."
+   ],
+   "ungated": {
+    "text": "Here's the note. It sits at the end of **Who to ask**, since it explains the two role pings that section tells you to use.\n\n# On-call\n\nTwo rotations run in parallel. `@pay-oncall` covers the four services and answers pages from `#pay-incident`. `@pay-infra-oncall` covers deploys, Terraform, and staging. Both hand over Wednesday at 10:00, right after standup, and the outgoing person writes a short handover note in the channel. Read Wednesday's note even when you are not on call; it is the fastest way to learn what has been breaking.\n\nYou join `@pay-oncall` after your third month, and you shadow a full week before that. Shadowing means you get the pings but never the responsibility. Nobody goes on the rotation without having pushed a payment through the system end to end and watched a recon alert resolve.\n\nTwo things I invented and you should correct: the Wednesday 10:00 handover and the three-month threshold. Swap in whatever your rotation actually does \u2014 the shape of the note holds either way.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 196
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 183
+     },
+     {
+      "total": 5,
+      "enforced": 4,
+      "words": 172
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 169
+     }
+    ],
+    "scores": {
+     "words": 165,
+     "sentences": 11,
+     "mean_sentence_words": 14.64,
+     "sentence_length_stdev": 7.3,
+     "type_token_ratio": 0.6667,
+     "enforced_per_1k": 6.06,
+     "held_out_per_1k": 6.06,
+     "enforced_flags": 1,
+     "held_out_flags": 1
+    }
+   },
+   "control": {
+    "text": "Slotting in after the \"Who to ask\" section, since it leans on the same names:\n\n## On-call\n\nYou are not on the rotation, and you won't be for at least two months. Nobody goes on call before they've shipped a change to the settlement path and watched it land.\n\nUntil then, shadow. The rotation is one week, handoff Tuesday mornings, and the current on-call is pinned at the top of `#payments-eng`. Ask to sit in on a page when one fires. Real incidents here are mostly reconciliation drift and partner timeouts, and both are easier to understand while someone is actively working through one than from a postmortem afterwards.\n\nRead the runbooks anyway. They're in `payments-ops/runbooks`, they're short, and the refund one is directly relevant to your first ticket.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 213
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 175
+     },
+     {
+      "total": 2,
+      "enforced": 1,
+      "words": 252
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 129
+     }
+    ],
+    "scores": {
+     "words": 129,
+     "sentences": 10,
+     "mean_sentence_words": 12.6,
+     "sentence_length_stdev": 8.24,
+     "type_token_ratio": 0.6899,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 7.75,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "instructed": {
+    "text": "# Welcome to payments\n\nYou are joining the team that moves other people's money. That framing matters more than any architecture diagram: a bug here does not degrade a feature, it takes cash out of someone's account or fails to put it back.\n\n## What we own\n\nFour services. `auth-gateway` talks to the card networks and holds the only credentials that can. `ledger` is the double-entry record of every balance change, append-only, no updates or deletes. `payout-runner` batches merchant disbursements nightly. `recon` compares our ledger against bank settlement files each morning and raises breaks a human reads.\n\n## Two rules before you write code\n\nEvery mutating endpoint takes an idempotency key. Networks retry, our clients retry, our own queues retry. A charge that runs twice is the failure mode we spend the most engineering time preventing.\n\nMoney is stored as integer minor units with an ISO-4217 currency code. Never a float. Never a bare number without its currency. The `Money` type in `common/money` enforces both; use it rather than passing amounts around as primitives.\n\n## Your first week\n\nDay one is access: Okta groups, the Discord server, the sandbox network credentials, read-only production ledger. Day two, run the local stack and push a test charge through `auth-gateway` to settlement. By Friday you should have shipped one small fix from the `good-first-break` queue in Jira.\n\n## On-call\n\nOne week at a time, primary and secondary, handover Tuesday morning. You do not join the rotation until you have shadowed two full weeks and walked through the runbooks with your buddy, so expect that around month three.\n\nPages come from PagerDuty and route to `#pay-incident`. The paging alerts are settlement lag, authorisation error rate, and payout batch failure; everything else waits for business hours. Secondary exists so you can wake someone rather than guess at the ledger alone at 3am. Use it.\n\n## Who to ask for what\n\nLedger schema, double-entry invariants, anything that writes a journal entry: Priya. She wrote most of it and reviews every migration against it, so bring her the design before the pull request.\n\nCard network behaviour, declines, 3DS, why a specific acquirer returned a code nobody recognises: Marcus. He has the network specs and the relationships to escalate.\n\nPayout scheduling, merchant balance holds, and the nightly batch windows: Dede.\n\nRecon breaks, settlement file formats, and the finance team's questions about a number: post in `#pay-recon` rather than sending a direct message. The finance analysts read that channel and often answer before an engineer does.\n\nAccess, secrets, staging environments, and CI that will not go green: `#pay-platform`.\n\nIf you do not know who owns something, post in `#pay-team` instead of guessing. Wrong-guess routing costs a day here; asking costs ten minutes.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 237
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 364
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 368
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 453
+     }
+    ],
+    "scores": {
+     "words": 448,
+     "sentences": 35,
+     "mean_sentence_words": 12.43,
+     "sentence_length_stdev": 8.84,
+     "type_token_ratio": 0.6228,
+     "enforced_per_1k": 4.46,
+     "held_out_per_1k": 2.23,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   },
+   "complement": {
+    "text": "## On-call rotation\n\nOne engineer holds the primary pager for a week, Wednesday to Wednesday. A secondary picks up anything the primary misses after ten minutes. The handoff happens in a 20-minute call Wednesday morning, where the outgoing primary walks through whatever is still open.\n\nYour rotation starts in week three. Your first two shifts run with a senior engineer shadowing you, and they take over the moment you want them to. Ask.\n\nMost weeks are quiet. The pages that do come are usually a settlement batch failing partner validation or the authorization service running hot on latency. Both have runbooks in `docs/runbooks/`, and if the runbook does not cover what you are seeing, wake the secondary rather than working it alone.",
+    "iterations": 4,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 240
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 208
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 455
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 122
+     }
+    ],
+    "scores": {
+     "words": 122,
+     "sentences": 10,
+     "mean_sentence_words": 12.0,
+     "sentence_length_stdev": 8.52,
+     "type_token_ratio": 0.7541,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "instructed+gated": {
+    "text": "# Welcome to payments\n\nYou are joining the team that moves money. Everything else in the product can fail and be retried later; a payment that fails halfway leaves someone short. That constraint shapes most of the decisions you will find odd at first, and it is worth holding onto when a review comment seems pedantic.\n\n## What we own\n\nThree services. `ledger` is the double-entry record and the source of truth for every balance. `gateway` talks to the four processors we integrate with and normalizes their wildly different failure modes. `payouts` batches and schedules outbound transfers, including the retry logic for bank rejections. You will spend your first weeks in `gateway`, because it teaches you the domain fastest.\n\n## Rules we do not bend\n\nEvery write to the ledger is append-only. Corrections are new entries.\n\nEvery external call carries an idempotency key, and every handler must tolerate being called twice with the same one, because processors do resend webhooks.\n\nNever log a full card number or bank account. That includes debug level on your own machine. Our redaction middleware catches most of it, and we still find leaks in code review, usually in a hand-rolled log line someone added while chasing a bug.\n\n## Your first week\n\nGet the local stack running (see `docs/local-setup.md`), then pair with your onboarding buddy on a small `gateway` ticket. Ask about anything that looks arbitrary. Usually there is an incident behind it.\n\n## Who to ask for what\n\nPriya wrote most of `ledger`. Take reconciliation questions to her before you write a migration, and expect a longer answer than you wanted about why a balance query that looks simple is not.\n\nDan owns the processor relationships. If a processor returns something the docs do not mention, he has probably already emailed them about it.\n\nSam handles the payouts schedule and the bank file formats. Cutoff times, holidays, a transfer that left but never arrived: start with Sam.\n\nFor access, credentials, or a broken local environment, post in `#payments-help` rather than DMing. Someone else has usually hit the same thing that week, and the answer stays searchable instead of dying in a thread only the two of you can read.\n\nAnything touching PCI scope goes to `#payments-compliance` first. That includes a new request field that might carry card data.\n\n## On-call\n\nThe rotation is one week, one person, handed over Tuesday mornings. You will not be added to it for at least two months, and your first two rotations are shadowed by someone who has done it before. Pages come from `#payments-alerts`, and the runbooks live in `docs/runbooks/`. Read them before your shadow week, not during it.",
+    "iterations": 9,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 217
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 385
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 385
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 443
+     }
+    ],
+    "scores": {
+     "words": 440,
+     "sentences": 34,
+     "mean_sentence_words": 12.53,
+     "sentence_length_stdev": 9.54,
+     "type_token_ratio": 0.5841,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 0,
+     "held_out_flags": 0
+    }
+   },
+   "complement+gated": {
+    "text": "## On-call\n\nThe rotation is one week, handing over Monday morning. You'll shadow a week in your second week and take a real shift once you've shipped a change to production, usually around month two. Payments alerts page a human at any hour, because a stuck settlement batch gets worse the longer it sits. Sam keeps the runbooks in the wiki, and every alert links to one. If an alert fires without a usable runbook, that's a bug worth filing.",
+    "iterations": 8,
+    "passed": true,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 231
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 235
+     },
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 523
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 80
+     }
+    ],
+    "scores": {
+     "words": 79,
+     "sentences": 6,
+     "mean_sentence_words": 13.17,
+     "sentence_length_stdev": 7.96,
+     "type_token_ratio": 0.7975,
+     "enforced_per_1k": 0.0,
+     "held_out_per_1k": 12.66,
+     "enforced_flags": 0,
+     "held_out_flags": 1
+    }
+   },
+   "gated": {
+    "text": "# Welcome to Payments\n\nRun a payment end to end in sandbox during your first week, and be able to explain what happened at each hop. That's the whole goal, and everything below serves it. Start with access. Ask your onboarding buddy for the payments-dev VPN profile, a sandbox merchant account, read access to the ledger replica, and an invite to the payments Discord server. Requests go through the platform team and usually clear in a day, so file them before you start reading. While you wait, skim the service map so the names in those documents mean something when you get to them.\n\nThen read three documents, in this order. The ledger schema note explains why every balance change is two rows and never an update. The idempotency guide explains why every write endpoint requires a client-supplied key. The settlement timeline explains why a payment that looks finished on Monday can still fail on Wednesday. None of them is long, and the third one is the one people wish they had read sooner.\n\nTwo rules matter more than the rest. We do not mutate or delete a ledger row; a correction is a new entry that references the old one. And we do not treat a processor callback as truth; we reconcile against the end-of-day file and let that win. Both rules have cost us money when someone forgot them. Your first ticket is small on purpose, normally something in the refund path, where the code is well covered and the blast radius is low. Pair on it with whoever reviews your access requests. Nobody here ships their first payments change alone.\n\n## Who to ask for what\n\nAccess, VPN, and anything needing an approval you can't grant yourself goes to your onboarding buddy first. They know which requests the platform team handles and which ones need a manager signature, and they'll save you a day of guessing. Nothing here is a test, so ask early rather than working around a missing permission.\n\nLedger questions go to the #payments-ledger channel in Discord, where the people who wrote the double-entry schema read. They would rather answer a question than review a migration that got the sign wrong. Processor behaviour goes to #payments-processors, which covers quirks in callbacks, retry semantics, and anything that smells like the other side is misbehaving. Open a thread on your message rather than continuing in the main channel, and put the payment reference and the processor name in the first line; it's the first thing anyone will ask for. For everything else, ask your manager, normally at the weekly one-to-one, but go sooner if the thing is blocking you.\n\nFor on-call and anything happening right now in production, page through the payments rotation rather than posting in a channel. Channels are for questions that can wait an hour. If money is moving wrong, it can't wait an hour, and nobody will mind being paged over it. Don't reach for @here as a substitute; it wakes forty people and reaches nobody who can act on what you found.\n\n## The on-call rotation\n\nThe rotation is one week long and hands over on Tuesday morning, so nobody inherits a weekend they didn't see coming. You won't be on it for your first two months. Before you join, you shadow a full week: same pages, same channel, no responsibility for the fix. Shadowing is where you learn that most pages are settlement files arriving late, not the system on fire.\n\nTwo habits from the people who've done it longest. Write in the incident channel as you go, even when you're unsure, because the person who picks it up after you needs your dead ends as much as your findings. And escalate on a timer rather than on a feeling; if you're thirty minutes in with no theory, wake the secondary. That is what the secondary is for, and the rotation is built assuming you will use it.",
+    "iterations": 13,
+    "passed": false,
+    "per_turn": [
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 262
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 440
+     },
+     {
+      "total": 1,
+      "enforced": 0,
+      "words": 546
+     },
+     {
+      "total": 1,
+      "enforced": 1,
+      "words": 658
+     }
+    ],
+    "scores": {
+     "words": 655,
+     "sentences": 41,
+     "mean_sentence_words": 15.98,
+     "sentence_length_stdev": 7.36,
+     "type_token_ratio": 0.4947,
+     "enforced_per_1k": 1.53,
+     "held_out_per_1k": 0.0,
+     "enforced_flags": 1,
+     "held_out_flags": 0
+    }
+   },
+   "blind": {
+    "text": "# Welcome to Payments\n\nYour first week is mostly reading, and we planned it that way. Money movement is the one part of the product where a bug doesn't just annoy someone \u2014 it pulls money out of their account.\n\nOpen `payments-core` first. It owns the ledger, and every other service in the stack ends up calling into it. Settle this early: we never overwrite a balance. Each change arrives as a new appended entry, and the balance an API call returns is derived from those entries. Anyone with a CRUD background stumbles here, more or less without fail.\n\n`psp-gateway` comes second. It wraps the three processors we route through and flattens their wildly different error semantics into one status enum of our own. If you want a picture of what actually goes wrong in production, spend time with the mapping table in `gateway/status.py`.\n\nBy Friday you should be able to narrate this: we charge a card, the processor times out, the customer taps pay again. What follows? If the code doesn't spell that out, pull in your onboarding buddy.\n\nAccess requests belong in `#payments-access`. Ask for the staging database and Grafana on day one \u2014 you'll want both open beside the code.",
+    "iterations": 5,
+    "passed": null,
+    "per_turn": [
+     {
+      "total": 0,
+      "enforced": 0,
+      "words": 204
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 201
+     },
+     {
+      "total": 4,
+      "enforced": 3,
+      "words": 196
+     },
+     {
+      "total": 2,
+      "enforced": 2,
+      "words": 199
+     },
+     {
+      "total": 3,
+      "enforced": 2,
+      "words": 203
+     }
+    ],
+    "scores": {
+     "words": 202,
+     "sentences": 16,
+     "mean_sentence_words": 12.25,
+     "sentence_length_stdev": 7.9,
+     "type_token_ratio": 0.7129,
+     "enforced_per_1k": 9.9,
+     "held_out_per_1k": 4.95,
+     "enforced_flags": 2,
+     "held_out_flags": 1
+    }
+   }
+  }
+ ],
+ "prompt_set": "evalab-prompts/edited.md",
+ "enforce": "structural"
+}

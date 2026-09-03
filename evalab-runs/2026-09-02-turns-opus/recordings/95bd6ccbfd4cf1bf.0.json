@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words."
+  }
+ ],
+ "output": "**Engineering update \u2014 August**\n\nThe Postgres migration is done. We moved the last three services off the old cluster on the 19th, and the read replicas have been stable since. One thing worth saying plainly: the cutover window ran four hours instead of the ninety minutes we planned, because the analytics service was still holding connections nobody had documented. Nikhil and Sara stayed late to sort it. We should write down what we learned before we forget it.\n\nTwo new people start this month. Jordan joins the platform side on the 8th and will pair with Nikhil for the first few weeks. Amara joins on the 22nd on billing. Both of them will need someone to answer dumb questions without making them feel dumb, so if you have capacity, say so.\n\nThe billing rewrite slips to October 15th. The original date assumed the migration would finish in July, and it didn't. I'd rather move the date once, now, than trim scope in a way we regret in six months. I've told Product. Nobody is in trouble.\n\nNext month is mostly about onboarding and paying down the deferred work from the migration. Ask me anything in Thursday's sync.\n\n*Swap in your own names, dates, and systems.*"
+}

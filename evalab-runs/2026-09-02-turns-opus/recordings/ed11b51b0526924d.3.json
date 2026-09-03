@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  }
+ ],
+ "output": "The Bookings API covers appointments on one or more calendars: creating them, moving them, cancelling them, and asking what time is still free.\n\nEverything runs over HTTPS and speaks JSON. There are four resources you will use constantly. A *calendar* is the thing being booked \u2014 a room, a person, a piece of equipment. An *availability rule* describes when that calendar is open, in recurring weekly terms plus whatever exceptions you add for holidays. A *booking* is a confirmed slot held on a calendar. An *attendee* is someone attached to a booking, with their own notification preferences.\n\nTwo things trip people up early, so they are worth stating here. First, every timestamp you send or receive is UTC in RFC 3339 format, and each calendar carries its own IANA timezone for display. Converting is your job, not ours. Second, bookings are created against a version token returned by the availability endpoint. If someone else takes the slot between your read and your write, the write fails with a 409 rather than double-booking. Retry the read, then the write.\n\nAuthentication uses bearer tokens scoped per calendar. Rate limits are documented per endpoint and returned in response headers on every call.\n\nThe next section walks through booking a single slot end to end."
+}

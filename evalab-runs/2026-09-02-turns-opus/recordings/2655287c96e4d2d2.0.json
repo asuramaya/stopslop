@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Welcome to Payments\n\nYour first week is about pushing one test payment all the way through the system yourself, from the API call to the settlement row.\n\nWe own four services. `charge-api` takes the request and validates it. `ledger` records double-entry postings and is the source of truth for every balance. `psp-gateway` talks to Stripe and Adyen. `recon` reads settlement files each morning and yells when they disagree with the ledger.\n\nTwo rules matter more than anything else you will read here. Money moves only through the ledger, never by mutating a balance column. And every write to `psp-gateway` carries an idempotency key derived from the charge ID, because the network will retry and the card network will not forgive you twice.\n\nGet your local stack running first (`make dev`, then `make seed`). The runbook in `docs/local-setup.md` is current as of last month; if a step fails, fix the doc in the same PR.\n\nYour onboarding ticket is PAY-4412, adding a currency field to the refund endpoint. It touches three of the four services, which is the point.\n\nAsk Priya about the ledger, Tom about anything PSP-shaped, and me about everything else. Standup is 9:45."
+  },
+  {
+   "role": "user",
+   "content": "Add a section on who to ask for what."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the section. It replaces the closing \"Ask Priya about the ledger\" line, which was doing this job badly.\n\n# Who to ask\n\nPriya owns the ledger. Postings, balance queries, why one charge produced four rows instead of two, and any schema change under `ledger/` \u2014 all Priya. Do not merge a migration there without a review from Priya, even a trivial one.\n\nTom covers everything PSP-shaped: Stripe and Adyen quirks, webhook replay, sandbox credentials, and the reason a card decline arrives twice with different codes.\n\nDani runs recon and the settlement pipeline. If a morning alert fires and you cannot tell whether the file or the ledger is wrong, that is a Dani question, not a debugging exercise for you.\n\nFor deploys, staging access, and anything in Terraform, ask in `#pay-infra` rather than picking a person. Someone there is on rotation.\n\nMoney is moving wrong in production: page the on-call in `#pay-incident` first, then tell me. Do not investigate quietly for twenty minutes hoping it resolves.\n\nEverything else, or anything you cannot place, comes to me. Asking in week one costs nothing."
+  },
+  {
+   "role": "user",
+   "content": "The team moved from Slack to Discord. Update every reference."
+  }
+ ],
+ "output": "The draft never said \"Slack\" by name, so most of it carries over untouched \u2014 `#pay-infra` reads the same on Discord. What genuinely changes is the paging line, since Discord has no page button; a role ping is the equivalent.\n\nTwo replacement passages in **Who to ask**:\n\nFor deploys, staging access, and anything in Terraform, ask in `#pay-infra` rather than picking a person. Ping `@pay-infra-oncall` \u2014 someone holds that role each week.\n\nMoney is moving wrong in production: ping `@pay-oncall` in `#pay-incident` first, then tell me. Do not investigate quietly for twenty minutes hoping it resolves.\n\nAnd one line to add near the top of the first page, since the new engineer now needs an invite rather than an email-domain auto-join:\n\nYour Discord invite is in your welcome email. Join before your first standup and ask me for the `payments` role \u2014 the team channels are hidden until you have it.\n\nWorth checking separately: `docs/local-setup.md` and any offer-letter boilerplate probably still send people to the old workspace. I have not touched those."
+}

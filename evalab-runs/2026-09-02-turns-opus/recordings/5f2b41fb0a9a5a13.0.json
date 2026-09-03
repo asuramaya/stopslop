@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Introduction\n\nThis guide covers the Bookings API, an HTTP interface for creating, changing, and cancelling appointments against a set of calendars.\n\nThe model is small. A **calendar** belongs to a resource that can be booked: a person, a room, a piece of equipment. Each calendar carries **availability rules** that describe when it can be booked at all. A **booking** occupies a span of time on one calendar, and the API rejects any booking that falls outside the rules or overlaps one that already exists. Most of what you will do here is some combination of those three things.\n\nRequests and responses are JSON. Times are RFC 3339 with an explicit offset; if you send a naive timestamp, you will get a 400 back. Authentication is a bearer token scoped to an organization, so a token only ever sees that organization's calendars.\n\nTwo behaviours are worth knowing before you write any code. Writes are idempotent when you supply an `Idempotency-Key` header, which matters more than usual here, since a retried booking request without one can double-book a slot. And conflicts return 409 with the competing booking attached, rather than a bare error, so you can show the caller what got in the way.\n\nStart with [Authentication](#authentication)."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's the paragraph. It absorbs the one-line mention in the third paragraph, so drop \"Authentication is a bearer token scoped to an organization, so a token only ever sees that organization's calendars.\" from there.\n\n## Authentication\n\nEvery request carries a token in an `Authorization: Bearer <token>` header. Tokens are issued per organization from the dashboard, and a token can only read or write calendars belonging to the organization that issued it; there is no cross-organization access and no way to widen a token's reach after the fact. Two grades exist. A **secret key** can do anything the API offers and must stay on your server. A **public key** can read availability and create bookings, nothing else, which is what you want in a browser or mobile client. A missing or malformed token returns 401. A valid token asking for something outside its grade or organization returns 403, so the two failures are easy to tell apart in logs."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite it for someone who has never used a REST API before."
+  },
+  {
+   "role": "assistant",
+   "content": "## Authentication\n\nThe API needs to know who is asking. Every request has to carry a token: a long string of characters that works like a password. You attach it as a header, which is a line of extra information sent alongside the request itself:\n\n```\nAuthorization: Bearer <your-token>\n```\n\nWhatever library you use to make HTTP requests will have somewhere to set headers, so this is usually one line of setup that you write once.\n\nTokens come from the dashboard, and each one belongs to a single organization. A token can only see that organization's calendars, and you cannot widen its access afterwards; if you need something different, you create a new token.\n\nThere are two kinds, and the difference matters. A secret key can do everything the API offers, so it has to stay on a server you control. Never put one in a web page or a mobile app, where anyone can read it. A public key can only check availability and create bookings, which makes it safe to send to a browser.\n\nWhen something goes wrong, the API answers with a number. A missing or mistyped token gives you 401. A real token that isn't allowed to do what you asked gives you 403."
+  },
+  {
+   "role": "user",
+   "content": "Add a short warning about rate limits."
+  }
+ ],
+ "output": "Slotting in at the end of the Authentication section, since the limit is tied to the token:\n\nThere is a cap on how many requests a token can make: 100 per minute. This is normal for an API, and it exists so that one noisy client cannot slow the service down for everyone. If you go over, the next request comes back as 429 instead of the answer you wanted, along with a `Retry-After` header telling you how many seconds to wait. Waiting that long and trying again is the whole fix. The common way to hit the cap by accident is a loop that calls the API once per item without pausing."
+}

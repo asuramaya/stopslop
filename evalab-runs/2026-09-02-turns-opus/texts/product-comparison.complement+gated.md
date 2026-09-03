@@ -1,0 +1,5 @@
+For a team of three or four people, start with the batch run. A cron entry and a script that reads a table are things you write in an afternoon and debug by rerunning them by hand. A queue costs you a broker to operate, a worker fleet to deploy, and a class of bug that only appears under a redelivery you cannot reproduce locally. Pay that when something concrete forces you to: a user waiting on the result, or a nightly run that no longer finishes before people arrive.
+
+When you do reach for a queue, use the one your database already gives you. Postgres with a jobs table, `SELECT ... FOR UPDATE SKIP LOCKED`, and a worker loop handles a few thousand jobs a minute, keeps the job state in the same transaction as your data, and lets you inspect the queue with the SQL you already know. Redis or SQS earns its separate system past that point, or when the workers need to scale independently of the database.
+
+Write handlers so a repeat call is harmless from the first day, whichever you pick. That habit is what lets you move a job from the batch script to the queue later without rewriting it, and it costs nothing while the code is still small.

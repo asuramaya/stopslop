@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  }
+ ],
+ "output": "**Incident: payment API unreachable, 2026-09-01, 02:14\u201304:19 UTC**\n\n(Names, times, and counts below are placeholders \u2014 swap in the real ones.)\n\nThe TLS certificate on the payment API's edge load balancer expired at 02:14 UTC. From that moment every client handshake failed, so authorization and capture calls returned connection errors rather than HTTP responses. The outage lasted two hours and five minutes.\n\nAbout 41,000 payment attempts failed. Merchant checkout success went to zero for the duration. No card data was exposed and no transaction was double-charged; the failures happened before any request reached the processor.\n\nThe certificate had been renewed by hand since March 2025, when ACME renewal was switched off during the load balancer migration and never switched back on. The expiry monitor checked the origin certificate, not the one terminating at the edge, so nothing alerted in the 30 days beforehand. On-call was paged at 02:19 by merchant error-rate alarms, spent 90 minutes on the processor and the network path, and found the expiry at 03:58. A new certificate was issued and deployed by 04:19.\n\nFollow-ups: re-enable ACME renewal on the edge (owner: platform, due 2026-09-10); move expiry checks to an external prober covering every public endpoint; page at 14 days and 7 days remaining."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Incident Report: Payment API Outage\n\n**Date:** 2026-09-02\n**Duration:** 14:03\u201316:07 UTC (2h 4m)\n**Severity:** SEV-1\n**Impact:** All inbound requests to `api.payments` failed TLS handshake. Roughly 41,000 authorization and capture attempts were rejected. Two merchant partners fell back to their offline queue; the rest surfaced errors to customers at checkout.\n\n**Cause:** The leaf certificate for `api.payments` expired at 14:03 UTC. It had been issued manually in September 2025 during a migration off the old edge terminator and was never added to the automated renewal inventory. Our expiry monitor reads that inventory, so it had nothing to alert on.\n\n**Detection:** A customer support ticket at 14:11, then the synthetic checkout probe at 14:14. Neither the certificate monitor nor the API health check fired, because the health check runs inside the mesh and skips public TLS.\n\n**Resolution:** We issued a replacement certificate through the normal ACME path and rolled it out across the four terminator nodes. Traffic recovered by 16:07. No payment data was lost; the failures happened before any state was written.\n\n**Follow-up:** Audit every terminator for certificates absent from the renewal inventory (due 2026-09-10). Move the expiry check to scan live endpoints rather than the inventory. Add a public-path synthetic that pages on handshake failure."
+  },
+  {
+   "role": "user",
+   "content": "Add a timeline with the four key moments."
+  }
+ ],
+ "output": "**Timeline (UTC)**\n\n- **14:03** \u2014 Leaf certificate for `api.payments` expires. Handshakes start failing immediately; every inbound request is rejected at the edge.\n- **14:11** \u2014 First merchant support ticket arrives. This is the first signal anyone sees; no automated alert fired.\n- **14:52** \u2014 On-call traces the failures to certificate expiry after ruling out the mesh and the load balancers, since both health checks were green throughout.\n- **16:07** \u2014 Replacement certificate finishes rolling out to the fourth terminator node. Traffic recovers.\n\nThe gap from 14:11 to 14:52 is the part worth attention in the review. Both existing health checks reported healthy, which sent the first half of the investigation toward the application tier rather than the edge."
+}

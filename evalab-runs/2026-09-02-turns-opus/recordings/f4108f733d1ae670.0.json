@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "201 words, passes the slopwatch gate clean.\n\n# Offline sync\n\nYour notes now work without a connection.\n\nUntil today, opening the app on a plane or in a basement meant a spinning loader and a read-only copy of whatever happened to be cached. That is over. Every note in your account is stored on the device, and every edit you make offline is queued locally and sent the moment you have a signal again.\n\nThe sync itself is per-block rather than per-note. If you edit the third paragraph of a note on your laptop while a colleague edits the first paragraph on their phone, both edits land. Conflicts only happen when two people change the same block, and when that happens we keep both versions side by side and let you pick, rather than picking for you and telling you afterwards.\n\nA few practical notes. The first full download runs once per device and takes about a minute for a 5,000-note account. Attachments over 25 MB stay in the cloud until you open them. Shared notebooks sync offline too, but permission changes need a connection to take effect.\n\nOffline sync is on by default for everyone starting today. You can turn it off per device under Settings, Sync.\n\n---\n\nThe specifics (per-block merge, 5,000 notes, 25 MB, the shared-notebook caveat) are placeholders I invented to make the copy concrete \u2014 swap in your real numbers before publishing. Draft is at `/tmp/announce.md`."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph about what happens when two devices edit the same note offline."
+  },
+  {
+   "role": "assistant",
+   "content": "Added after the conflict paragraph. Full file passes the slopwatch gate; it's now 308 words, up from 201.\n\nTwo of your own devices are the case worth spelling out. Say you edit a note on your phone in the air and on your laptop at home, both offline, and then both reconnect. Whichever one gets a signal first has its queue applied; the second replays its edits on top of that. Blocks only one device touched merge without you seeing anything. For a block both devices changed, the note opens with the two versions stacked and a bar at the top asking which to keep. Nothing is discarded either way, and the version you do not pick stays in the note's history for thirty days.\n\nTwo things to check against your real system before publishing: the last-writer-replays-on-top ordering, and the thirty-day history retention. Both are invented, same as the earlier placeholders. If your merge is timestamp-ordered rather than reconnect-ordered, the third sentence needs rewriting."
+  },
+  {
+   "role": "user",
+   "content": "The feature is now called \"local-first sync\". Update the text."
+  }
+ ],
+ "output": "Renamed. The heading is now `# Local-first sync` and the closing line reads \"Local-first sync is on by default for everyone starting today.\"\n\nI left the other three uses of \"offline\" alone, since they describe state rather than name the feature: \"every edit you make offline,\" \"both offline, and then both reconnect,\" and \"shared notebooks sync offline too.\" Swapping \"local-first\" into those would read oddly \u2014 \"every edit you make local-first\" isn't English. If you want the word \"offline\" gone from the copy entirely, say so and I'll rework those sentences instead of substituting.\n\nStill 308 words, still passes the slopwatch gate clean. Same two placeholder caveats from the last pass stand: the reconnect-ordered merge and the thirty-day retention are invented."
+}

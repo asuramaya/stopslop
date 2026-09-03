@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Introduction\n\nThis guide covers the Bookings API, a REST interface for creating, updating, and canceling calendar reservations. If you're building a scheduling tool, a front desk system, or anything that needs to reserve a block of someone's time, this is the API that does it.\n\nAt its core, the API works with three resources: **calendars**, **bookings**, and **availability windows**. Calendars belong to a user or a resource (a room, a piece of equipment, a team). Bookings are the reservations placed against a calendar. Availability windows define when a calendar can accept new bookings in the first place.\n\nEvery endpoint returns JSON and uses standard HTTP status codes, so a 409 means a time slot conflict, a 404 means the calendar or booking doesn't exist, and so on. Authentication happens via a bearer token in the `Authorization` header, and all requests must be made over HTTPS.\n\nThe sections that follow walk through authentication, the core resources, and common workflows: checking availability before you book, creating a reservation, handling conflicts and double-bookings, and setting up webhooks so your app hears about changes in real time. Each section includes example requests and responses you can copy directly into your own client code.\n\nIf you're integrating this API for the first time, start with **Authentication**, then move to **Checking Availability** before you try to create your first booking."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  }
+ ],
+ "output": "**Authentication**\n\nEvery request to the Bookings API must include a bearer token in the `Authorization` header: `Authorization: Bearer <your-token>`. You can generate a token from the developer dashboard under API Keys, and each token is scoped to a single account, so it only sees calendars that account owns or has been granted access to. Tokens don't expire by default, but you can revoke and reissue them at any time if one gets exposed. Requests without a valid token, or made over plain HTTP, are rejected with a 401. If you're testing locally, use one of the sandbox tokens listed in the dashboard \u2014 they behave like production tokens but write to a sandbox calendar that resets nightly."
+}

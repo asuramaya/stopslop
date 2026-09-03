@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  }
+ ],
+ "output": "**Notes now work without a connection**\n\nStarting today, the app saves everything you write locally first, then syncs it the moment you're back online. Write on a plane, in a tunnel, or anywhere signal drops, and your notes wait for you exactly as you left them.\n\nHere's how it works: every edit saves to your device immediately. When the app detects a connection, it pushes changes to your other devices and pulls down anything you missed. If you edited the same note on two devices while offline, the app merges the changes automatically and flags any real conflicts for you to review, so you never lose text without knowing.\n\nA few things worth knowing:\n\n- Offline sync applies to all note types, including checklists and attachments under 10MB.\n- You can check sync status anytime from the note list \u2014 a small icon shows whether a note is saved locally, syncing, or fully up to date.\n- Existing notes update to the new sync engine automatically; no action is needed on your part.\n\nWe built this after hearing from users who take notes on commutes, in the field, or anywhere connectivity is unreliable. Update the app to get it now.\n\nQuestions or issues? Reach out through the in-app feedback form."
+}

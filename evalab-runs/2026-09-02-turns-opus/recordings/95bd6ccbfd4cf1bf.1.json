@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a monthly engineering update for a team of twelve, covering a migration, two hires, and a slipped deadline. Around 200 words."
+  }
+ ],
+ "output": "Engineering update \u2014 September\n\nThe billing service finished its move off MySQL on the 19th. Cutover took 40 minutes, about half what we budgeted, and nothing has rolled back since. Thanks to Priya and Dan for taking the 6am window. Cleanup is still open: the old read replicas are running and billing us, and I want them gone by the 10th.\n\nTwo people joined. Marcus starts Monday on platform, coming from a payments team, and Aisha joins the week after on frontend. Both will pair for their first two weeks instead of picking up tickets. If you have work worth showing a new person, tell me and I'll route them to you.\n\nThe search rework slipped. We said end of September; it lands in the third week of October. The migration ate two weeks of Priya's time that the plan assumed we had. I signed off on that trade, so the slip is mine, not the team's. Sales knows and has moved the customer conversations.\n\nWe're at twelve now. That's the biggest this group has been, and it changes how we work: more decisions written down, fewer settled in the hallway. I'll go into that at the next all-hands.\n\nNames and dates are placeholders \u2014 swap in the real ones."
+}

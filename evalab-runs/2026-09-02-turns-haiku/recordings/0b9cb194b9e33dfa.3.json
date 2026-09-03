@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  }
+ ],
+ "output": "Here's a natural-sounding announcement for your note-taking app's offline sync feature:\n\n---\n\n**Offline sync is here**\n\nYou can now work on your notes anywhere, with or without an internet connection. Write, edit, and organize offline\u2014everything syncs automatically once you're back online.\n\nThis solves a real problem we kept hearing: you'd start writing on the train or plane and hit a wall when your connection dropped. Or you'd be in a meeting, lose wifi, and panic about losing what you just typed. That friction is gone.\n\nHow it works is straightforward. Every change you make is saved locally first. When you're online, we sync those changes to the cloud in the background. If you edit the same note on multiple devices, we merge changes intelligently\u2014you won't lose anything. Conflicts are rare, and when they happen, we flag them clearly so you can decide.\n\nThere's no setup required. It just works on web, mobile, and desktop. Your existing notes are ready for offline use right now.\n\nWe've been testing this for three months with early users. The feedback was clear: people wanted to trust their app worked everywhere, not just when the network was perfect. This release brings us there.\n\nStart working offline today. Your notes will catch up when you reconnect.\n\n---\n\n**Word count:** 198"
+}

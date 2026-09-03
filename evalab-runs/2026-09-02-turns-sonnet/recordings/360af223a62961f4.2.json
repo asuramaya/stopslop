@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "# Welcome to the Payments Team\n\nYou're joining the team that moves money for the company \u2014 every checkout, refund, and payout runs through code you'll now own a piece of. That comes with a different bar than most backend work: a bug here doesn't just break a page, it can charge someone twice or leave a merchant unpaid. Read on before you write your first line.\n\n**What we own.** The payments service handles charge creation, refunds, payout scheduling, and reconciliation against our processor (Stripe). It's a Go monolith backed by Postgres, with a Kafka queue for async settlement events.\n\n**Your first week.** No code changes yet. Get read access to the payments repo, staging dashboard, and the `#payments-oncall` Slack channel. Shadow one on-call rotation. Read the postmortems in `docs/incidents/` \u2014 they'll teach you more about our failure modes than any design doc.\n\n**Ground rules.**\n- Every change touching money paths needs two reviewers, one of them senior.\n- Idempotency keys are mandatory on any endpoint that moves funds. If you're not sure whether yours needs one, ask.\n- We test against the processor's sandbox before every deploy. Never skip it.\n\nYour onboarding buddy is assigned in the welcome email \u2014 reach out anytime. Next page: local environment setup."
+}

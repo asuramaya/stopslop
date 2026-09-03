@@ -1,0 +1,1 @@
+Rate limits reset by the minute, not per call: 100 reads and 20 writes per token per minute. A single retry loop without backoff can burn through the write limit in seconds. Check the Retry-After header on a 429 and wait that long before retrying, rather than guessing.

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a short announcement for a new feature in a note-taking app: offline sync. Around 200 words."
+  }
+ ],
+ "output": "**Offline sync is here**\n\nYou can now write in [App] without a connection. Open a note on a plane, in a basement, on a train through a tunnel, and it saves to your device immediately. When you're back online, everything you wrote syncs to your other devices in the background.\n\nThe tricky part was edits from two places at once. If you added a paragraph on your laptop while your phone was offline and you also edited that same note on your phone, we merge both sets of changes instead of picking a winner. Where a real conflict exists (the same line changed two different ways), we keep both versions and mark the spot so you can decide.\n\nA few details worth knowing:\n\nYour notes are stored encrypted on the device, same as they are on our servers. Attachments over 25 MB wait for Wi-Fi by default; you can change that in Settings under Sync. The sync indicator in the sidebar shows what's pending, and you can tap it to see which notes haven't uploaded yet.\n\nOffline sync is on for everyone starting today, no setup required. If you hit a merge that looks wrong, send it to us through Help \u2192 Report a sync issue and we'll look at the history."
+}

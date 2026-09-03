@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  }
+ ],
+ "output": "## Introduction\n\nThis guide covers the Booking API, a REST interface for managing calendar bookings: creating them, checking availability, updating times, and canceling when plans change.\n\nThe API is organized around a few core resources: calendars, time slots, and bookings. Each calendar represents a bookable resource, such as a room, a piece of equipment, or a person's schedule. Time slots define when that resource is open for booking, and bookings represent a confirmed reservation against one of those slots.\n\nEvery request and response uses JSON. Authentication happens via a bearer token in the Authorization header, and all endpoints live under a versioned base path so future changes won't break your existing integration.\n\nThe sections that follow walk through authentication, then the core endpoints for listing availability, creating a booking, retrieving or modifying an existing one, and canceling. Along the way you'll find example requests and responses, a list of error codes and what triggers them, and notes on rate limits and pagination.\n\nIf you're integrating a scheduling tool, a booking widget, or an internal ops dashboard, start with the Authentication section, then move to Creating a Booking \u2014 that's the endpoint most integrations touch first. Everything else builds on the same patterns you'll see there."
+}

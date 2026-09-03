@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Bookings API\n\nThis guide covers the HTTP API behind the calendar bookings service. Use it to list availability, hold a slot while a customer decides, confirm or cancel a booking, and get notified when something changes elsewhere.\n\nEverything is JSON over HTTPS. Requests go to `https://api.example.com/v1` with a bearer token you generate in the dashboard. Timestamps are RFC 3339 with an explicit offset; the API never guesses a time zone for you, and neither should your client.\n\nTwo objects do most of the work. A *calendar* owns the rules about when it can be booked: working hours, buffers between appointments, holidays, how far ahead people may reserve. A *booking* is one accepted slot on that calendar. Availability itself is never stored. It is computed from the rules and the bookings that already exist, which is why the availability endpoint takes a date range instead of handing you a list to cache.\n\nDouble booking is the failure everyone runs into, so the write path is built around it. Holds expire on a timer. Confirmations require an `If-Match` header. When two clients race for the same slot, one of them gets a 409, and this guide explains what to do next.\n\nIf you just want a working booking, start with the Quickstart."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  },
+  {
+   "role": "assistant",
+   "content": "Slots in after the \"Everything is JSON over HTTPS\" paragraph:\n\n> Tokens come in two kinds. A secret key (`sk_live_\u2026`) belongs on your server and can do anything the account can do. A scoped key is restricted to named calendars, and optionally to reads only; give those to anything you don't fully control. Neither one belongs in browser code. If a key does leak into a bundle, revoke it from the dashboard and it stops working immediately, including for requests already in flight. Keys don't expire on their own, so rotate on whatever schedule you like. During a rotation the old and new key both work until you close the window.\n\nTwo things I assumed, since the original draft only said \"a bearer token you generate in the dashboard\": that scoped keys exist, and that rotation has an overlap window. If either is wrong, say so and I'll cut those sentences \u2014 the paragraph holds without them."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite it for someone who has never used a REST API before."
+  },
+  {
+   "role": "assistant",
+   "content": "Rewritten for a first-time API user. I did the whole introduction, not just the auth paragraph \u2014 a beginner-level explanation of keys sitting next to \"RFC 3339 with an explicit offset\" would read as two different documents.\n\n---\n\n# Bookings API\n\nThis guide covers the bookings service. If you have never worked with an API: it is a way for your program to talk to ours over the internet, roughly the way your browser talks to a website. You send a request, you get an answer back. You can list free times, hold a slot while a customer decides, confirm or cancel, and get told when something changes.\n\nRequests go to addresses starting with `https://api.example.com/v1`. Answers come back as JSON, a text format for structured data that every language can read. Times look like `2026-03-14T09:30:00-07:00`: a date, a clock time, and the offset from UTC. Always include the offset. A booking at \"9:30\" means nothing until you know where.\n\nEvery request has to prove who you are. You do that with a key, a long string you copy from the dashboard and send in a header named `Authorization`. There are two kinds. A secret key (it starts with `sk_live_`) can do anything your account can do, so keep it on your server and out of anything that ships to a browser. A scoped key works only on calendars you name, and can be limited to reading. Those are the ones to hand out. If a key gets loose, revoke it in the dashboard and it stops working right away. Keys never expire on their own, and when you swap one out, the old and new both work until you turn the old one off.\n\nTwo ideas do most of the work. A *calendar* holds the rules: working hours, gaps between appointments, days off, how far ahead people can book. A *booking* is one accepted slot on a calendar. We don't store a list of free slots. We work them out from the rules and the existing bookings each time you ask, which is why you request availability for a range of dates.\n\nThe thing that goes wrong most is two people taking the same slot. Holds expire on their own, and if two clients race, one gets back error 409. A later section explains what to do about it.\n\nStart with the Quickstart. It walks through one booking end to end.\n\n---\n\nTwo changes beyond the reading level. I cut the `If-Match` requirement from the intro, since conditional headers need more setup than an opening section can give a beginner; it belongs where confirmations are documented. The two assumptions from last time still stand \u2014 that scoped keys exist and that rotation has an overlap window."
+  },
+  {
+   "role": "user",
+   "content": "Add a short warning about rate limits."
+  }
+ ],
+ "output": "Slots in right after the 409 paragraph, since both are about the server telling you no:\n\n> The server also says no if you ask too often. There is a limit on how many requests you can send per minute, and going over it gets you error 429 plus a `Retry-After` header saying how many seconds to wait. Wait that long, then try the same request again. Most people hit this by checking availability one day at a time in a loop. Ask for the whole range at once instead.\n\nI left the actual number out rather than invent one; drop your real per-minute limit into the second sentence. The 429 code and `Retry-After` header are the standard way to do this, but if your service signals rate limits some other way, tell me and I'll correct it."
+}

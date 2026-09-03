@@ -1,0 +1,1 @@
+For a small team, use a queue with workers for anything user-facing. Set up a broker like Redis or SQS with a managed worker library, and failures stay isolated to one job. Add a scheduled batch run only for periodic aggregation work, like a nightly rollup. Do not build both systems from day one.

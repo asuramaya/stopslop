@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a comparison of two approaches to background jobs: a queue with workers, and scheduled batch runs. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Queue with workers: producers drop jobs onto a queue (SQS, Redis, RabbitMQ); a pool of workers pulls them off and processes each one as it arrives. Latency stays low \u2014 a job can start within milliseconds \u2014 and you scale by adding workers. Retries, dead-letter queues, and backpressure need explicit design, and debugging failures means tracing a job through an async system rather than reading a script top to bottom.\n\nScheduled batch runs: a cron job or scheduler fires a script at fixed intervals, and the script processes everything accumulated since the last run. This suits work that's naturally periodic \u2014 nightly reports, daily reconciliations \u2014 and it's simple to reason about: one run, one log, one exit code. The tradeoff is latency. A job created right after a run waits for the next window, and a run that takes longer than the interval risks overlapping with the next one.\n\nPick a queue when work arrives unpredictably and needs fast turnaround \u2014 order confirmations, notifications, webhooks. Pick batch when the work is inherently periodic and a delay of hours doesn't matter \u2014 data warehouse loads, billing cycles, cleanup tasks. Many systems use both: a queue for real-time events, a scheduler for periodic aggregation."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on what happens when a job fails in each."
+  },
+  {
+   "role": "assistant",
+   "content": "When a queued job fails, the worker typically retries it a few times with backoff, then routes it to a dead-letter queue for inspection. Other jobs keep flowing since one failure doesn't block the queue. The risk is a \"poison message\" that fails repeatedly and eats retry budget, or a bug that fails silently and pollutes the dead-letter queue without anyone noticing until someone checks it.\n\nWhen a batch run fails, the whole run usually stops, and everything after the failure point doesn't happen until the next scheduled window (or a manual re-run). This makes failure easier to spot \u2014 a missing report or a non-zero exit code \u2014 but recovery means re-running the entire batch or writing careful checkpointing so a partial run can resume from where it left off. If the script isn't idempotent, a naive re-run can double-process records already committed before the crash."
+  },
+  {
+   "role": "user",
+   "content": "Add a recommendation for a small team."
+  },
+  {
+   "role": "assistant",
+   "content": "For a small team, start with scheduled batch runs. A cron job needs no new infrastructure, fails in an obvious way, and covers most early needs \u2014 reports, cleanups, syncs. Reach for a queue only when a specific feature genuinely needs low latency, like a signup email or a payment webhook, and add it for just that path rather than migrating everything at once. The added complexity of a queue (retries, dead-letter handling, worker deployment) is easier to justify once you know exactly which jobs need it."
+  },
+  {
+   "role": "user",
+   "content": "Cut the hedging and commit to the recommendation."
+  }
+ ],
+ "output": "For a small team, start with scheduled batch runs. A cron job needs no new infrastructure, fails in an obvious way, and covers most early needs \u2014 reports, cleanups, syncs. Add a queue only when a specific feature needs low latency, like a signup email or a payment webhook, and add it for just that path, not as a wholesale migration. Queue infrastructure \u2014 retries, dead-letter handling, worker deployment \u2014 is worth building once you know exactly which jobs need it, not before."
+}

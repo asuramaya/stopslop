@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  }
+ ],
+ "output": "# Bookings API\n\nThis guide covers the HTTP API behind the calendar bookings service. Use it to list availability, hold a slot while a customer decides, confirm or cancel a booking, and get notified when something changes elsewhere.\n\nEverything is JSON over HTTPS. Requests go to `https://api.example.com/v1` with a bearer token you generate in the dashboard. Timestamps are RFC 3339 with an explicit offset; the API never guesses a time zone for you, and neither should your client.\n\nTwo objects do most of the work. A *calendar* owns the rules about when it can be booked: working hours, buffers between appointments, holidays, how far ahead people may reserve. A *booking* is one accepted slot on that calendar. Availability itself is never stored. It is computed from the rules and the bookings that already exist, which is why the availability endpoint takes a date range instead of handing you a list to cache.\n\nDouble booking is the failure everyone runs into, so the write path is built around it. Holds expire on a timer. Confirmations require an `If-Match` header. When two clients race for the same slot, one of them gets a 409, and this guide explains what to do next.\n\nIf you just want a working booking, start with the Quickstart."
+}

@@ -1,0 +1,1 @@
+One more thing: the API rate-limits each key across all endpoints combined, not per endpoint. Blow through your quota with a polling loop on availability and you'll start getting 429s on the booking calls that actually matter — check the response headers for your remaining quota and back off before you hit zero.

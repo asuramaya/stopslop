@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the first page of an onboarding document for a new backend engineer joining a payments team. Around 200 words."
+  }
+ ],
+ "output": "# Welcome to the Payments Team\n\nYou're joining the team that moves money for the company \u2014 every checkout, refund, and payout runs through code we own. That's a serious responsibility: a bug here doesn't just break a page, it can cost someone real money or double-charge a customer. So we move a little slower and test a little harder than other teams, and that's on purpose.\n\n**What we own.** The payments team runs the checkout API, the ledger service that tracks every transaction, and the integrations with our payment processors (currently Stripe and Adyen). If you want the full map, see `docs/architecture/payments-overview.md`.\n\n**Your first two weeks.** You won't touch production code right away. Expect to: get your local environment running against the sandbox processor accounts, read through the ledger service's reconciliation logic (it's the trickiest part of the system and worth understanding early), and pair with a teammate on a small bug fix or two.\n\n**Idempotency is not optional.** Every write path in this system assumes requests can be retried, duplicated, or arrive out of order. If a change you're making doesn't account for that, ask before you ship it.\n\nNext page: your environment setup checklist."
+}

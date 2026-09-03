@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a guide for a REST API that manages calendar bookings. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Bookings API\n\nThis guide covers the Bookings API, which manages calendars, availability, and reservations for anything you can schedule against: a meeting room, a doctor, a tennis court, a rental van.\n\nThe API is REST over HTTPS. Requests carry an API key in the `Authorization` header and send and receive JSON. Timestamps are ISO 8601 with an explicit UTC offset. Each calendar also stores an IANA timezone of its own, so recurring bookings land at the right local hour after a daylight-saving shift.\n\nFour resource types do most of the work. Calendars hold working hours, buffer times, and blackout dates. Availability turns those rules into concrete open slots for a date range you ask about. Bookings claim a slot and hold it. Webhooks notify your application about changes it did not make itself, such as a customer cancelling from your public page. The whole design turns on not double-booking, and slot claims are transactional to make that hold. If two clients race for the same slot, one gets a 201 and the other gets a 409 with the conflicting booking ID. There is no window where both succeed.\n\nWant a working booking in ten minutes? Start with the quickstart. The reference sections after it go endpoint by endpoint, with errors and rate limits at the end."
+  },
+  {
+   "role": "user",
+   "content": "Add a paragraph on authentication."
+  }
+ ],
+ "output": "Here's the authentication paragraph. It slots in after the paragraph that introduces the `Authorization` header, before the one on resource types.\n\nKeys come in two kinds. A secret key acts for your whole account and belongs only on your own server. A publishable key is safe to ship to a browser, and it can read availability and nothing else. Send either one as `Authorization: Bearer sk_live_...`. Keys do not expire, so rotation is your job: mint a second key from the dashboard, move traffic across, then revoke the first. A request with a missing or malformed key gets a 401. A valid key without the scope for that endpoint gets a 403, which is worth catching separately, because retrying with the same key will never clear it.\n\nTwo things to check against your actual API before publishing: the key prefix (`sk_live_`) and whether the publishable key really is read-only on availability. If scopes are finer-grained than that, the last two sentences want a pointer to the scope table instead."
+}

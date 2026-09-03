@@ -1,0 +1,1 @@
+Rate limits are 100 requests per minute per token. Requests beyond that limit return a 429 status until the window resets. Check `X-RateLimit-Remaining` before batch operations, and back off when it approaches zero rather than waiting for the 429.

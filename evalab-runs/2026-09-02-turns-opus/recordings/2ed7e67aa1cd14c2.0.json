@@ -1,0 +1,41 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Incident: payment API unreachable, 2026-09-01, 02:14\u201304:19 UTC**\n\n(Names, times, and counts below are placeholders \u2014 swap in the real ones.)\n\nThe TLS certificate on the payment API's edge load balancer expired at 02:14 UTC. From that moment every client handshake failed, so authorization and capture calls returned connection errors rather than HTTP responses. The outage lasted two hours and five minutes.\n\nAbout 41,000 payment attempts failed. Merchant checkout success went to zero for the duration. No card data was exposed and no transaction was double-charged; the failures happened before any request reached the processor.\n\nThe certificate had been renewed by hand since March 2025, when ACME renewal was switched off during the load balancer migration and never switched back on. The expiry monitor checked the origin certificate, not the one terminating at the edge, so nothing alerted in the 30 days beforehand. On-call was paged at 02:19 by merchant error-rate alarms, spent 90 minutes on the processor and the network path, and found the expiry at 03:58. A new certificate was issued and deployed by 04:19.\n\nFollow-ups: re-enable ACME renewal on the edge (owner: platform, due 2026-09-10); move expiry checks to an external prober covering every public endpoint; page at 14 days and 7 days remaining."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "**Incident: payment API unreachable, 2026-09-01, 02:14\u201304:19 UTC**\n\n(Names, times, and counts are placeholders \u2014 substitute the real ones.)\n\nAt 02:14 UTC the TLS certificate on the payment API's edge load balancer expired. Client handshakes failed from that point on, so authorization and capture calls came back as connection errors instead of HTTP responses. Total downtime: two hours and five minutes.\n\nRoughly 41,000 payment attempts failed, and merchant checkout success sat at zero throughout. Nothing reached the processor, so no card data was exposed and nothing was charged twice.\n\nRenewal had been manual since March 2025, when ACME was disabled for the load balancer migration and never turned back on. The expiry monitor watched the origin certificate rather than the one terminating at the edge, which is why the preceding 30 days produced no warning. Merchant error-rate alarms paged on-call at 02:19. The next 90 minutes went to the processor and the network path; the expiry surfaced at 03:58. A replacement certificate was issued and deployed by 04:19.\n\nFollow-ups: turn ACME renewal back on at the edge (platform, due 2026-09-10); shift expiry checks to an external prober that covers every public endpoint; page at 14 and 7 days remaining."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "**Incident: payment API unreachable, 2026-09-01, 02:14\u201304:19 UTC**\n\n(Names, times, and counts here are placeholders \u2014 replace with the real ones.)\n\nThe payment API's edge load balancer had a TLS certificate that expired at 02:14 UTC. Every client handshake failed after that, and authorization and capture calls returned connection errors in place of HTTP responses. The API was down for two hours and five minutes.\n\nFailed payment attempts numbered about 41,000, and merchant checkout success stayed at zero for the whole window. Because no request got as far as the processor, no card data leaked and no transaction was charged twice.\n\nSomeone had renewed the certificate by hand every time since March 2025, when the load balancer migration turned ACME off and nobody turned it back on. The expiry monitor was pointed at the origin certificate instead of the one that terminates at the edge, so the 30 days of advance warning never arrived. On-call got paged at 02:19 by merchant error-rate alarms, chased the processor and the network path for 90 minutes, and spotted the expiry at 03:58. A fresh certificate went out by 04:19.\n\nFollow-ups: restore ACME renewal at the edge (platform, due 2026-09-10); move expiry checks onto an external prober covering all public endpoints; page at 14 and 7 days out."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "**Incident: payment API unreachable, 2026-09-01, 02:14\u201304:19 UTC**\n\n(Names, times, and counts below stand in for the real ones.)\n\nAt 02:14 UTC, the TLS certificate on the edge load balancer fronting the payment API ran out. Client handshakes failed from then on, so authorization and capture calls came back as connection errors rather than HTTP responses. Two hours and five minutes passed before service returned.\n\nAround 41,000 payment attempts failed. Merchant checkout success held at zero the entire time. Since no request ever reached the processor, no card data was exposed and no transaction was billed twice.\n\nCertificate renewal had been a manual job since March 2025, when the load balancer migration switched ACME off and nobody switched it back on. The expiry monitor watched the origin certificate, not the edge one doing the termination \u2014 which is why no warning came in the preceding 30 days. Merchant error-rate alarms paged on-call at 02:19. Ninety minutes went into the processor and the network path before the expiry turned up at 03:58. A new certificate shipped by 04:19.\n\nFollow-ups: switch ACME renewal back on at the edge (platform, due 2026-09-10); move expiry checks to an external prober covering every public endpoint; page at 14 and 7 days remaining."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Incident: payment API unreachable, 2026-09-01, 02:14\u201304:19 UTC**\n\n(Names, times, and counts are stand-ins for the real figures.)\n\nThe edge load balancer in front of the payment API was serving a TLS certificate that expired at 02:14 UTC. Handshakes failed from that point, which meant authorization and capture calls returned connection errors instead of HTTP responses. Service came back two hours and five minutes later.\n\nRoughly 41,000 payment attempts failed, and merchant checkout success sat at zero throughout. No request got as far as the processor, so no card data was exposed and nothing was billed twice.\n\nRenewals had been done by hand since March 2025, when the load balancer migration turned ACME off and it was never turned back on. The expiry monitor was pointed at the origin certificate rather than the edge one that terminates traffic, which is why the previous 30 days produced no warning. On-call was paged at 02:19 by merchant error-rate alarms. Ninety minutes of investigation went to the processor and the network path; the expiry came to light at 03:58. A replacement certificate was live by 04:19.\n\nFollow-ups: turn ACME renewal back on at the edge (platform, due 2026-09-10); move expiry checks to an external prober that covers every public endpoint; page at 14 and 7 days remaining."
+}

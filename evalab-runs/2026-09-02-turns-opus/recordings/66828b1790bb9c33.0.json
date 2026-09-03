@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  }
+ ],
+ "output": "## Incident Report: Payment API Outage\n\n**Date:** 2026-09-02\n**Duration:** 14:03\u201316:07 UTC (2h 4m)\n**Severity:** SEV-1\n**Impact:** All inbound requests to `api.payments` failed TLS handshake. Roughly 41,000 authorization and capture attempts were rejected. Two merchant partners fell back to their offline queue; the rest surfaced errors to customers at checkout.\n\n**Cause:** The leaf certificate for `api.payments` expired at 14:03 UTC. It had been issued manually in September 2025 during a migration off the old edge terminator and was never added to the automated renewal inventory. Our expiry monitor reads that inventory, so it had nothing to alert on.\n\n**Detection:** A customer support ticket at 14:11, then the synthetic checkout probe at 14:14. Neither the certificate monitor nor the API health check fired, because the health check runs inside the mesh and skips public TLS.\n\n**Resolution:** We issued a replacement certificate through the normal ACME path and rolled it out across the four terminator nodes. Traffic recovered by 16:07. No payment data was lost; the failures happened before any state was written.\n\n**Follow-up:** Audit every terminator for certificates absent from the renewal inventory (due 2026-09-10). Move the expiry check to scan live endpoints rather than the inventory. Add a public-path synthetic that pages on handshake failure."
+}

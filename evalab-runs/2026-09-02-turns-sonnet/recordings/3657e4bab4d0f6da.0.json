@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an incident report for a two-hour outage of a payment API caused by a expired TLS certificate. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Incident Report: Payment API Outage**\n\nDate: 2026-09-03\nDuration: 2 hours\nSeverity: High\n\nSummary\nThe payment API was unavailable for two hours because the TLS certificate on the public endpoint expired. Clients could not complete the TLS handshake, so all requests failed at connection time.\n\nImpact\nAll payment processing failed during the outage. Downstream services returned errors to customers, and no transactions completed until service was restored.\n\nTimeline\n- Certificate expired; requests began failing.\n- Monitoring alerted on-call after error rates spiked.\n- On-call confirmed the cause was an expired certificate on the load balancer.\n- A new certificate was issued and deployed.\n- Service was confirmed healthy and traffic resumed.\n\nRoot Cause\nThe certificate had no automated renewal in place, and the expiration date was not tracked in an alerting system. No one caught the upcoming expiry before it caused an outage.\n\nResolution\nThe team issued a new certificate and deployed it to the load balancer, restoring TLS connectivity.\n\nFollow-up Actions\n- Add automated certificate renewal.\n- Add alerting for certificates approaching expiration, with 30-day advance warning.\n- Audit all other production certificates for expiration dates.\n\nWant me to adjust length, tone (more formal/postmortem-style), or add a specific timestamp timeline instead of relative steps?"
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- bold_density:\n- paragraph_uniformity (5 paragraphs, spread 0.26):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**Incident Report: Payment API Outage**\n\nDate: 2026-09-03 | Duration: 2 hours | Severity: High\n\nThe payment API went down for two hours after the TLS certificate on the public endpoint expired. Clients could not complete the TLS handshake, so every request failed at connection time, and all payment processing stopped for the duration.\n\nDownstream services returned errors to customers, and no transactions completed until the team restored service.\n\nThe certificate expired and requests began failing immediately. Monitoring alerted on-call once error rates spiked. On-call traced the failure to the expired certificate on the load balancer, issued a new certificate, and deployed it. The team then confirmed the service was healthy and traffic resumed.\n\nThe certificate had no automated renewal process, and no alerting system tracked its expiration date, so nobody caught the upcoming expiry before it caused the outage. The team issued a new certificate and deployed it to the load balancer, which restored TLS connectivity and ended the outage.\n\nThree follow-up actions come out of this: add automated certificate renewal, add alerting for certificates approaching expiration with 30 days of advance warning, and audit every other production certificate for its expiration date."
+}
