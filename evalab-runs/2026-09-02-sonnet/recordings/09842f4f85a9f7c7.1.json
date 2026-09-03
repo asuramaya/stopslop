@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a monthly engineering newsletter whose theme this month is technical debt. Around 200 words."
+  }
+ ],
+ "output": "Every codebase carries debt. The question is never whether you have it, but whether you know where it lives and what it's costing you.\n\nThis month we're looking at technical debt head-on \u2014 not as a guilt trip, but as a design constraint like any other. Debt isn't inherently bad; it's a tool teams use, sometimes deliberately, to ship faster and learn from real usage before committing to a design. The trouble starts when it goes untracked, when nobody remembers why a shortcut was taken or what it's blocking now.\n\nInside, you'll find a few different angles on the problem. One team walks through how they mapped a decade of undocumented workarounds in the billing service and turned that map into a prioritized backlog. Another shares a postmortem on a refactor that went sideways, and what they'd do differently. We've also got a short piece on the difference between debt you should pay down now and debt you should just label clearly and leave alone.\n\nThe goal isn't to eliminate debt. It's to make it visible, make it a choice rather than an accident, and stop pretending that \"we'll fix it later\" counts as a plan.\n\nAs always, if you've got a debt story worth sharing, reply to this email \u2014 we're always looking for the next one."
+}

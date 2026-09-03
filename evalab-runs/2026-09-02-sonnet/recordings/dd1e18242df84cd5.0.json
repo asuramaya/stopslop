@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a job posting for a senior backend engineer at a mid-sized fintech company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Senior Backend Engineer\n\nWe move money for small businesses \u2014 payments, reconciliation, settlement across banking partners. Payroll depends on this working every time.\n\nWe need a senior backend engineer for our core platform team. You'll own the services behind transaction processing, ledger accuracy, and bank and card network integrations, working with product and compliance so features hold up under audit and under load.\n\nWhat you'll do:\n- Design backend services in a distributed, event-driven system (Go and Python on AWS)\n- Own data integrity for money movement: idempotency, reconciliation, failure recovery\n- Review architecture with peers and mentor junior engineers\n- Partner with compliance and risk on controls for a regulated environment\n- Debug production issues where a bug means a wrong balance, not a broken button\n\nWhat we're looking for:\n- 5+ years building backend systems in production, ideally with financial or transactional data\n- Strong grasp of database design, concurrency, and distributed systems tradeoffs\n- Experience with at least one statically typed language (Go, Java, or similar)\n- Comfort with ambiguity \u2014 parts of this business are still taking shape\n- Bonus: payment rails, ACH, or card processing experience\n\nWe offer competitive salary, equity, full health coverage, and a remote-friendly culture with quarterly in-person team weeks. Based in the US; we don't sponsor visas.\n\nTo apply, send your resume and a short note on the most interesting technical problem you've solved to careers@[company].com."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Senior Backend Engineer\n\nWe move money for small businesses \u2014 payments, reconciliation, settlement across banking partners. When payroll runs, it runs on this.\n\nWe're hiring a senior backend engineer for our core platform team. You'll own the services behind transaction processing, ledger accuracy, and our bank and card network integrations, working closely with product and compliance so what you build holds up under audit and under load.\n\nWhat you'll do:\n- Design backend services in a distributed, event-driven system (Go and Python on AWS)\n- Own data integrity for money movement: idempotency, reconciliation, failure recovery\n- Review architecture with peers and mentor junior engineers\n- Partner with compliance and risk on controls for a regulated environment\n- Debug production issues where a bug means a wrong balance, not a broken button\n\nWhat we're looking for:\n- 5+ years building backend systems in production, ideally with financial or transactional data\n- Solid grasp of database design, concurrency, and the tradeoffs that come with distributed systems\n- Experience with at least one statically typed language (Go, Java, or similar)\n- Comfort with ambiguity \u2014 parts of this business are still taking shape\n- Bonus: payment rails, ACH, or card processing experience\n\nWe offer competitive salary, equity, full health coverage, and a remote-friendly culture with quarterly in-person team weeks. Based in the US; we don't sponsor visas.\n\nTo apply, send your resume and a short note on the most interesting technical problem you've solved to careers@[company].com."
+}

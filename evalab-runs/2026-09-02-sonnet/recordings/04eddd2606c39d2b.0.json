@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  }
+ ],
+ "output": "What a Year of Remote Work Actually Taught Us\n\nA year ago we closed the office and told everyone to figure out their own setup. Here's what stuck.\n\nAsync beats meetings for most decisions. We used to default to a call for anything with more than one opinion attached. Now the default is a written doc with a 48-hour comment window, and only genuinely contested calls get a meeting. Decisions take longer to open but close faster, and there's a paper trail nobody has to reconstruct later.\n\nTimezones are a feature if you plan for them, a tax if you don't. Our engineering team spans five zones. Early on that meant constant scheduling friction. Once we split work into blocks that don't need real-time handoff, the spread became an advantage \u2014 someone is always awake when something breaks.\n\nPeople need a reason to talk that isn't work. We lost the hallway conversations where half our product ideas used to come from. A standing Friday call with no agenda brought some of that back, though not all of it. This is the one problem we haven't solved.\n\nTrust has to be built on output, not visibility. Nobody could see who was at their desk, so we stopped pretending that mattered and started grading on what shipped. Turned out most people did fine, and the ones who didn't would've struggled in an office too.\n\nNone of this is a case for remote over office, or the other way around. It's just what we found running the experiment for a year."
+}

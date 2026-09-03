@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a page comparing a managed database service with running your own, for a technical audience choosing between them. Around 250 words."
+  }
+ ],
+ "output": "# Managed database or self-hosted: how to choose\n\nA managed service (RDS, Cloud SQL, Atlas, PlanetScale) removes the operational load of running a database: patching, backups, failover, and version upgrades are the provider's job. You get a dashboard, an SLA, and a bill that scales with usage. For most teams below a few hundred thousand dollars in infrastructure spend, this trade favors the managed option \u2014 engineering time costs more than the markup.\n\nRunning your own database, on bare metal or self-managed VMs, buys back three things: cost at scale, control over configuration, and freedom from vendor lock-in. A team running Postgres on its own hardware can tune kernel parameters, choose exotic storage layouts, or run a fork the managed providers don't offer. At high volume, the difference between a managed service's per-GB pricing and raw disk cost adds up fast \u2014 companies like Basecamp and 37signals have written publicly about six- and seven-figure annual savings after moving off the cloud.\n\nThe catch is staffing. Self-hosting requires someone on call who understands replication topology, backup verification, and disk failure recovery \u2014 not occasionally, but as an ongoing responsibility. Skip that investment and a self-hosted database becomes a liability: backups that were never tested, a failover that was never rehearsed.\n\nA reasonable default: start managed. Move to self-hosted only when cost or control requirements are proven, not projected, and only with a team that owns operations as a real discipline. The switch is easier to make once, deliberately, than to reverse after a bad month."
+}

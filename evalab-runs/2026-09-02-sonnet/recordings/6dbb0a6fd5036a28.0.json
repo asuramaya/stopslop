@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "Here's a draft intro for the roadmap:\n\n---\n\n**Roadmap**\n\nThis page tracks what we're building and why, updated as priorities shift rather than on a fixed schedule.\n\nThree things guide the order we work in: what breaks for you today, what you've asked for most, and what keeps the tool honest as your codebase grows. When those pull in different directions, we favor fixes over features and clarity over scope.\n\nEach entry below sits in one of three columns \u2014 shipped, in progress, or planned \u2014 and links to the discussion where it started, usually a GitHub issue or a support thread. If you don't see something you need, open an issue; we read all of them, and a good chunk of this list started that way.\n\nDates are deliberately absent. We'd rather ship something solid a month late than promise a date and cut corners to hit it. What you can count on: we post here when something moves, and we explain why when a planned item gets dropped or delayed.\n\nThis is a living document, not a pitch. Expect it to look different next quarter.\n\n---\n\nLet me know if you'd like a different tone (more formal/investor-facing, or punchier/marketing-forward) \u2014 this version leans toward candid and low-hype, which tends to read better to a developer audience."
+}

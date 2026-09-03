@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "Platform Investment: Vision\n\nOver the next two years, we will treat platform work as a first-class product with its own roadmap, not as overhead squeezed between feature deadlines. Every quarter we defer this investment, the interest compounds: onboarding stretches longer, incidents repeat for reasons we already understood, and our best engineers spend more time fighting infrastructure than building for customers.\n\nThe goal is straightforward. A new engineer should ship a real change in their first week, not their first month. A team should launch a service without re-solving deployment, observability, and access control from scratch. An on-call engineer should trust that the tools in front of them tell the truth about what's happening in production.\n\nWe get there by treating internal developer experience as seriously as we treat external product experience: measuring it, setting targets, and holding teams accountable for regressions the same way we would for a customer-facing outage. Concretely, that means a unified deployment path, shared observability defaults, self-service infrastructure provisioning, and a golden path for new services that is genuinely the easiest option, not just the sanctioned one.\n\nThis is not a call to rebuild everything or to pause feature work for a year. It's a call to fund the unglamorous fixes \u2014 the shared libraries, the CI speedups, the paved roads \u2014 with the same discipline we apply to anything on the product roadmap, because the two are not in competition. A slow platform is a tax on every feature we ship after this one. We're choosing to pay down that tax deliberately, on our schedule, instead of paying it involuntarily on every future deadline."
+}

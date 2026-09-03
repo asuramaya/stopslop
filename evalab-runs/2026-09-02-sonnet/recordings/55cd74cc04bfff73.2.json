@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "## Pricing\n\n**Free**\nFor solo projects and evaluation. Scan up to 500 lines per pull request, with the core rule set and standard GitHub integration. No credit card required. Good for trying the tool on a real repo before you commit to a team plan.\n\n**Team \u2014 $18/user/month**\nFor engineering teams that review code daily. Unlimited scans, custom rule sets, and Slack notifications for flagged patterns. Includes priority support and a shared dashboard so leads can see trends across repos instead of chasing individual PRs. Most teams start here once they've outgrown the free tier's line limit.\n\n**Enterprise \u2014 custom pricing**\nFor organizations with compliance requirements or self-hosted infrastructure. Everything in Team, plus SSO, audit logs, on-premise deployment, and a dedicated account manager. We work with your security team to define rule sets that match internal standards, and we support multi-repo policy enforcement across the org. Contact sales for a quote based on seat count and deployment model.\n\n---\n\nAll plans include the same detection engine \u2014 the difference is scale and control, not accuracy. Downgrade or cancel anytime; you keep your rule sets and history for 90 days after cancellation. Annual billing saves 15% on Team and Enterprise plans.\n\nQuestions about which tier fits your team? Talk to us before you buy \u2014 we'd rather size you correctly than sign you up for more than you need."
+}

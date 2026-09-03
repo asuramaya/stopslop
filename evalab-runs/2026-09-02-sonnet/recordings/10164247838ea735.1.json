@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  }
+ ],
+ "output": "## Design Philosophy\n\nWe built this API around a simple rule: the shape of the data should match the shape of the problem. Endpoints map to resources, not to actions, so you can predict a URL before you look it up. `GET /orders/42` returns an order. `POST /orders` creates one. There's no `/orders/cancelOrder` hiding a state change behind a verb \u2014 you `PATCH` the status field instead.\n\nWe favor explicit over implicit. Every response includes the fields you asked for and nothing you didn't; there's no hidden expansion of related objects unless you request it with `?include=`. Errors carry a machine-readable code and a plain-language message, because a developer debugging at 2 a.m. shouldn't have to parse a stack trace to find out a required field was missing.\n\nVersioning is boring on purpose. We version the whole API, not individual endpoints, and we don't remove fields \u2014 we deprecate them, announce a date, and give you time to move. Breaking your integration is a last resort, not a release strategy.\n\nFinally, we treat the docs as part of the product. Every endpoint example is real, runnable code, not pseudocode \u2014 copy it, run it, and it works. If something in these docs doesn't match the actual API behavior, that's a bug, and we want to hear about it."
+}

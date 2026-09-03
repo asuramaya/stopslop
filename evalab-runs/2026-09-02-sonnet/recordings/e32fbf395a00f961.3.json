@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "**Proposal: Q4 Technical Debt Sprint**\n\n**Ask:** One quarter of engineering time (roughly 20% of the team's capacity, or one dedicated pod) allocated to paying down technical debt.\n\n**Why now:** Feature velocity has slowed over the last two quarters. Code reviews take longer, onboarding new engineers takes weeks instead of days, and we've had three production incidents traced back to the same brittle areas of the codebase (auth middleware, the billing pipeline, and our CI config). Every sprint we defer this work, the interest compounds \u2014 new features get built on top of the same shaky foundations, making the eventual fix more expensive.\n\n**What we'd fix:**\n- Retire the legacy auth middleware flagged by legal for compliance gaps\n- Break up the billing pipeline's largest module, which has become nearly untestable\n- Modernize CI so builds run in minutes, not tens of minutes\n- Delete unused code paths and dependencies that show up in every audit\n\n**What we're not asking for:** A rewrite. This is targeted cleanup on the systems causing the most pain, not a green-field redo.\n\n**Cost of not doing this:** Based on incident history, we estimate 15-20% of engineering time already goes to debt-related friction \u2014 slow builds, workarounds, and firefighting. A focused quarter now should pay that back within two to three quarters through faster shipping and fewer incidents.\n\n**Ask for leadership:** Approve one pod (3-4 engineers) for Q4, with a mid-quarter check-in to confirm we're tracking to the plan above. Happy to walk through specifics in our next planning sync."
+}

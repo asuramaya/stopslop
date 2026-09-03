@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "Here's a draft. I don't have specifics on your team's actual projects or metrics, so I filled in placeholder details \u2014 swap those out before publishing.\n\n---\n\n**Engineering, 2026: the year in review**\n\nWe shipped a lot this year, and some of it even went smoothly the first time.\n\nThe big one was the migration off the old queue system. It took four months longer than planned, cost us a painful week in March when consumer lag spiked to six hours, and by August it was running with a third of the on-call pages we used to get. Worth it. The team that owns it now spends its time building instead of babysitting.\n\nWe also rewrote the deploy pipeline. Builds that used to take 22 minutes take 6. Nobody asked for a party, but we're mentioning it anyway because 16 minutes back, multiplied by however many deploys a day, adds up to weeks of nobody's life spent watching a progress bar.\n\nNot everything landed. The internal tooling project from Q2 stalled after two engineers rotated onto the payments work, and it's still stalled. We should either kill it formally or staff it \u2014 leaving it in limbo helps no one.\n\nHeadcount grew from 14 to 19. Onboarding got better because of it: new hires now ship something real in week one instead of week three, mostly thanks to the runbook rewrite nobody will admit was overdue.\n\nNext year: finish the queue migration's second phase, decide the fate of that stalled tooling project, and get incident review time down from an average of eleven days to something closer to three.\n\nThanks for the work. Rest over the break."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "Here's the roadmap introduction:\n\n---\n\n## What we're building next\n\nThis roadmap tracks our public plans for the next two quarters. We publish it so you can plan your own integrations, vote on priorities, and hold us accountable to the direction we set.\n\nThree themes drive the work ahead. First, we cut the time between writing code and seeing it run: faster builds, quicker feedback in the CLI, and fewer round trips to a browser. Second, we extend the API surface so you can script workflows we haven't imagined yet \u2014 webhooks, a stable plugin interface, and finer-grained permissions. Third, we pay down debt in the areas that generate the most support tickets: error messages, onboarding, and the docs that explain them.\n\nItems here fall into three buckets: **Now** (in active development, shipping this quarter), **Next** (scoped and queued), and **Later** (directional, not yet committed). We move items between buckets as we learn from usage data and your feedback, so treat \"Later\" as a signal of intent rather than a promise.\n\nWe update this page every two weeks. If something you rely on is missing, open an issue on our tracker or drop a note in our community forum \u2014 we read both and use them to reorder this list.\n\n---\n\nWord count: ~205. Let me know if you'd like a different tone (more technical, more casual) or a specific set of themes swapped in."
+}

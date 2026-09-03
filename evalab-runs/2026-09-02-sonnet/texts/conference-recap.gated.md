@@ -1,0 +1,1 @@
+Before I draft this, I need real specifics: which conference, which team, and what were the actual takeaways — sessions attended, key insights, any product or process changes coming out of it. I don't want to invent details for something framed as a factual recap. Give me the real specifics and I'll write the post.

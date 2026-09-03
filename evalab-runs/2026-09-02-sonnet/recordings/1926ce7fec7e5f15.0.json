@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Why we're investing in developer relations\n\nWe're hiring a developer relations team. Here's the reasoning.\n\nMost new customers over the past year read our docs, tried our SDK, or watched a conference talk before they spoke to sales. That path is the default now. If a developer can't figure out our API from the documentation alone, we lose them before a salesperson gets the chance.\n\nSupport tickets tell the same story.\n\nA large share of the questions we get aren't about bugs. They're about missing examples, unclear error messages, and gaps between what the docs describe and what the SDK does. Nobody owned those problems full time.\n\nWe want better documentation and real example code instead of stub snippets. We want engineers who spend time in our Discord and GitHub issues, answering questions as they come in. We want people who sit in on customer calls and bring back what they hear, because some of our best fixes started as an offhand comment from a developer stuck at 11pm.\n\nThis isn't a marketing hire. The team reports through engineering. Success looks like fewer support tickets, faster time from signup to a working first request, and docs developers trust enough to stop asking us questions we already answered.\n\nIf you've done this work before, we're hiring."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (4 paragraphs, spread 0.26):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Why we're investing in developer relations\n\nWe're hiring a developer relations team.\n\nMost new customers over the past year read our docs, tried our SDK, or watched a conference talk before they spoke to sales. That path is the default now. If a developer can't figure out our API from the documentation alone, we lose them before a salesperson gets the chance.\n\nSupport tickets tell the same story. A large share of the questions we get aren't about bugs \u2014 they're about missing examples, unclear error messages, and gaps between what the docs describe and what the SDK does. Nobody owned those problems full time.\n\nWe want better documentation and real example code instead of stub snippets. We want engineers who spend time in our Discord and GitHub issues, answering questions as they come in. We want people who sit in on customer calls and bring back what they hear, because some of our best fixes started as an offhand comment from a developer stuck at 11pm.\n\nThis isn't a marketing hire. The team reports through engineering. Success looks like fewer support tickets, faster time from signup to a working first request, and docs developers trust enough to stop asking us questions we already answered.\n\nIf you've done this work before, we're hiring."
+}

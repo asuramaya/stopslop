@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  }
+ ],
+ "output": "# The year, in short\n\nWe shipped fewer features than we planned in January and fixed more of the things that were quietly breaking on-call every week. Both turned out to matter more than the roadmap suggested at the time.\n\nThe migration off the old queue system took four months longer than estimated, mostly because we found three separate places where retry logic silently dropped messages under load. Nobody had noticed because the failure rate was low enough to stay under our alert thresholds. Fixing it cut our incident count from 14 last year to 5 this year.\n\nWe also rewrote the deploy pipeline. It now takes 9 minutes end to end instead of 40, and rollbacks are a single command instead of a runbook with six steps. That change alone probably saved the team more hours than any feature we built.\n\nOn the people side, three engineers moved into on-call rotation for the first time, and two took on tech lead responsibilities on projects outside their usual area. The pairing sessions around the queue migration helped with that more than any formal onboarding did.\n\nWhat we'd do differently: estimate migrations by counting the unknowns, not the known steps, and write the postmortem before the fix ships, not after.\n\nNext year we're prioritizing the search service rewrite and getting our test suite under 10 minutes. Both are overdue.\n\nThanks to everyone who filed a bug report, sat through a design review, or covered on-call so someone else could take a real vacation."
+}

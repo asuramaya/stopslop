@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Monolith to Microservices: What Actually Broke\n\nTwo years ago our team split a ten-year-old Rails monolith into fourteen services. This talk skips the architecture diagrams and gets into what the migration guides leave out.\n\nWe cover the decision to migrate at all \u2014 the business pressure that justified it, and the parts of the codebase we deliberately left alone because splitting them wasn't worth the risk. We used the strangler fig pattern to peel off services one at a time, kept the monolith and new services talking to each other without a distributed transaction nightmare, and ran a data migration that took three times longer than we estimated.\n\nThe middle section covers the failures: a service boundary we drew in the wrong place and had to redraw six months later, an on-call rotation that got worse before it got better, and the latency we didn't notice until customers did.\n\nYou leave with a concrete checklist for deciding whether your team needs microservices at all, a way to estimate migration timelines that accounts for the parts nobody plans for, and a clearer sense of the operational cost you're signing up for \u2014 not just the code.\n\nAimed at engineers and tech leads considering or mid-way through a similar migration."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Monolith to Microservices:):\n- colon_reveal (The middle section covers the failures:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Monolith to Microservices, What Actually Broke\n\nTwo years ago our team split a ten-year-old Rails monolith into fourteen services. This talk skips the architecture diagrams and gets into what the migration guides leave out.\n\nWe cover the decision to migrate at all \u2014 the business pressure that justified it, and the parts of the codebase we deliberately left alone because splitting them wasn't worth the risk. We used the strangler fig pattern to peel off services one at a time, kept the monolith and new services talking to each other without a distributed transaction nightmare, and ran a data migration that took three times longer than we estimated.\n\nThe middle section covers the failures. A service boundary we drew in the wrong place and had to redraw six months later. An on-call rotation that got worse before it got better. Latency we didn't notice until customers did.\n\nYou leave with a concrete checklist for deciding whether your team needs microservices at all, a way to estimate migration timelines that accounts for the parts nobody plans for, and a clearer sense of the operational cost you're signing up for \u2014 not just the code.\n\nAimed at engineers and tech leads considering or mid-way through a similar migration."
+}

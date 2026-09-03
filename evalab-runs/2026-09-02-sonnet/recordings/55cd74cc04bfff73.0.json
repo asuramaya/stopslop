@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "# Pricing\n\n## Starter \u2014 $0\nFor solo developers and side projects. Connect one repository and get review comments on every pull request. Includes the core rule set, 100 reviews a month, and community support.\n\n## Team \u2014 $29/user/month\nFor teams that ship together. Unlimited repositories and reviews, custom rule configuration, and shared style guides across the org. Reviews post directly to GitHub, GitLab, or Bitbucket, and block merges when a check fails. Slack and email notifications included. Priority support with a same-day response.\n\n## Enterprise \u2014 Contact us\nFor organizations with compliance and scale requirements. Everything in Team, plus SSO/SAML, audit logs, on-premise or VPC deployment, and a dedicated account manager. We work with your security team to set data retention and access policies. Custom SLAs available.\n\n---\n\nAll plans include a 14-day trial of Team features. No credit card required to start. Cancel anytime \u2014 you keep access through the end of the billing period.\n\nNeed a plan that fits your setup? Talk to sales and we'll build one around your repo count, review volume, or deployment constraints.\n\n---\n\nI wrote this directly rather than routing through a skill \u2014 happy to run it through `/slopwatch` if you want the stopslop gate to check it before you publish."
+}

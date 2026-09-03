@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Splitting the Monolith: What Two Years Taught Us\n\nWe spent two years pulling apart a decade-old monolith into microservices, and half of what we learned only made sense after the first few services shipped. This talk covers the real path: how we drew service boundaries around team ownership instead of technical layers, why a shared database nearly stalled the project, and what changed once services started talking through events instead of direct calls.\n\nWe'll cover the parts most migration talks skip: six months running both systems side by side, an on-call rotation learning two architectures at once, and the moment our monitoring couldn't tell us which service caused an outage. Expect specific numbers on deploy frequency, incident rates, and team velocity before and after the split, plus the tradeoffs that didn't pay off.\n\nThis talk suits engineers and engineering managers weighing a similar move, or already partway through one. Leave with a framework for deciding whether your monolith is actually the problem, a checklist for sequencing the migration, and a clear list of what we'd change if we started over today."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Splitting the Monolith: What Two Years Taught Us\n\nWe spent two years pulling apart a decade-old monolith into microservices, and half of what we learned only clicked after the first few services shipped. This talk walks through the real path: how we drew service boundaries around team ownership instead of technical layers, why a shared database nearly stalled the project, and what changed once services started talking through events instead of direct calls.\n\nWe'll cover the parts most migration talks skip: six months running both systems side by side, an on-call rotation learning two architectures at once, and the moment our monitoring couldn't tell us which service caused an outage. Expect specific numbers on deploy frequency, incident rates, and team velocity before and after the split, plus the tradeoffs that didn't pay off.\n\nThis talk suits engineers and engineering managers weighing a similar move, or already partway through one. You'll leave with a framework for deciding whether your monolith is actually the problem, a checklist for sequencing the migration, and a clear list of what we'd change if we started over today."
+}

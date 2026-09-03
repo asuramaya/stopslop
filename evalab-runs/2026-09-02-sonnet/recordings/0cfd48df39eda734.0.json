@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Design philosophy\n\nWe built this API around one rule: the shape of your request should match the shape of your problem. Every endpoint maps to a single resource, every verb does what HTTP says it does, and nothing requires you to read a paragraph of prose to guess what a field means.\n\nWe favor explicit over clever. Pagination cursors are opaque strings, not page numbers you can miscalculate. Errors return a machine-readable code plus a sentence a human can act on, not a stack trace. Fields don't disappear based on what you sent last time; the response shape for a resource is the same whether it's empty, partial, or full.\n\nVersioning is a promise, not a suggestion. Once a field ships, it stays until a major version bump, and we tell you what's changing before it happens. We'd rather add a new field than repurpose an old one.\n\nNone of this is about minimalism for its own sake. It's about making the API predictable enough that you can write a client against the docs alone, then have it keep working six months later without checking back. If you find a place where that promise breaks, tell us \u2014 that's a bug, not a design choice."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Design philosophy\n\nThe shape of a request should match the shape of the problem it solves. Every endpoint maps to one resource. Every verb does what HTTP says it does. No field should need a paragraph of prose before it makes sense.\n\nWe choose the explicit option over the clever one. Pagination cursors are opaque strings, so you can't miscalculate a page number. Errors return a machine-readable code plus a sentence a person can act on \u2014 not a stack trace. Fields don't vanish depending on what you sent last time; a resource's response shape stays the same whether it's empty, partial, or full.\n\nVersioning is a promise. Once a field ships, it stays until a major version bump, and we tell you what's changing before it happens. We add a new field rather than repurpose an old one.\n\nThis isn't minimalism for its own sake. It's what makes the API predictable enough that you can write a client from the docs alone, then leave it alone for six months and find it still works. If you hit a place where that promise breaks, tell us. That's a bug, not a design choice."
+}

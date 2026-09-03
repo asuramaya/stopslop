@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a page comparing a managed database service with running your own, for a technical audience choosing between them. Around 250 words."
+  }
+ ],
+ "output": "## Managed vs. Self-Hosted Databases\n\nThe choice rarely comes down to cost per gigabyte. It comes down to what you want your team spending time on.\n\nA managed service (RDS, Cloud SQL, Atlas, PlanetScale) handles patching, backups, failover, and storage scaling. You get a dashboard, an API, and a bill that scales with usage. In exchange, you give up some control: you can't SSH into the box, tune every kernel parameter, or install arbitrary extensions. Most teams don't need to \u2014 but if you're running a workload with unusual requirements (custom extensions, specific replication topologies, exotic storage engines), the managed layer can become a wall instead of a floor.\n\nRunning your own database means real ownership: full access to configuration, the filesystem, the exact Postgres or MySQL build you want. It also means you own 3 a.m. disk-full alerts, replica lag during a failover, and the CVE that needs a patch this weekend. That's a real operational cost, and it doesn't show up on a pricing page.\n\nThe practical split: teams under roughly 10 engineers, or without dedicated database or SRE staff, come out ahead with managed services almost every time \u2014 the ops burden outweighs the control they'd gain. Larger organizations with dedicated infrastructure teams, unusual scale requirements, or strict data-residency rules that managed offerings can't satisfy have a stronger case for self-hosting.\n\nA reasonable default: start managed. Move to self-hosted only when you can name the specific limitation forcing the change, not just the theoretical appeal of control."
+}

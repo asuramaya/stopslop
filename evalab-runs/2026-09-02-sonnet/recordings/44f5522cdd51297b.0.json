@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the design philosophy section of an API's public documentation. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Design Philosophy\n\nWe built this API around a simple idea: you should never have to guess what a call does. Every endpoint does one thing, names it plainly, and returns a response that matches the request's shape. If you can predict the URL, you can probably predict the payload too.\n\nWe chose REST over more elaborate alternatives because most integrations need one, in most cases, and this keeps that case fast. Resources map to nouns, methods map to verbs, and status codes carry real information \u2014 a 409 means something specific happened, not \"an error occurred.\"\n\nVersioning lives in the URL, not in headers you have to remember to set. Breaking changes get a new version; everything else ships in place. We would rather add a field than restructure one, and we document every deprecation with a removal date, not a vague warning.\n\nErrors return a machine-readable code and a human-readable message in the same body, so you can branch on one and log the other without parsing prose.\n\nNone of this is unusual. That is the point \u2014 an API you already understand is one you can build on without re-reading the docs every time."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (5 paragraphs, spread 0.29):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## Design Philosophy\n\nWe built this API around a simple idea: you should never have to guess what a call does.\n\nEvery endpoint does one thing, names it plainly, and returns a response that matches the request's shape. If you can predict the URL, you can probably predict the payload too. We chose REST over more elaborate alternatives because most integrations need one, in most cases, and this keeps that case fast. Resources map to nouns, methods map to verbs, and status codes carry real information \u2014 a 409 means something specific happened, not \"an error occurred.\"\n\nVersioning lives in the URL, not in headers you have to remember to set.\n\nBreaking changes get a new version; everything else ships in place. We add fields instead of restructuring existing ones, and we document every deprecation with a removal date, not a vague warning. Errors return a machine-readable code and a human-readable message in the same body, so you can branch on one and log the other without parsing prose.\n\nNone of this is unusual. That is the point: an API you already understand is one you can build on without re-reading the docs every time."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "Built for teams that ship, not teams that meet.\n\nMost chat tools optimize for volume \u2014 more channels, more reactions, more notifications. Yours already has enough of that. What it's missing is a place where engineering conversations don't get buried under standup reminders and gif threads.\n\n**Threads that resolve.** Every conversation has a status: open, blocked, or done. Nothing scrolls off into the void unresolved \u2014 you can see at a glance what's still waiting on someone.\n\n**Code-aware by default.** Paste a stack trace or a diff and it renders with syntax highlighting, not as a wall of unformatted text. Link a PR and the thread tracks its status automatically.\n\n**Notification budgets, not notification floods.** Each person sets how much interruption they'll tolerate per hour. The app respects it. No more choosing between \"mute everything\" and \"drown in pings.\"\n\n**Audit trail included.** Decisions made in chat are searchable and exportable \u2014 useful the next time someone asks \"why did we choose Postgres over Mongo\" six months later and nobody remembers.\n\n**Integrates with what you already run.** GitHub, Linear, PagerDuty, and your CI pipeline post updates as structured messages, not raw webhook JSON dumped into a channel.\n\nPricing is per active user, not per seat \u2014 so a dormant account from a contractor who left in March doesn't cost you anything. Free for teams under 10.\n\nIf your current tool is where messages go to get lost, this one is where decisions get made. Try it free for 30 days, no credit card required."
+}

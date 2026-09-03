@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "## Platform Engineering Team Charter\n\n**Mission**\n\nThe platform team builds and operates the shared infrastructure, tooling, and internal services that let product engineers ship reliably and fast. We treat internal engineers as our customers and their productivity as our success metric.\n\n**Scope**\n\n- CI/CD pipelines and deployment tooling\n- Cloud infrastructure, provisioning, and cost management\n- Observability: logging, metrics, tracing, alerting\n- Developer environments and local tooling\n- Service scaffolding, internal libraries, and paved-road templates\n- On-call tooling and incident response infrastructure\n\n**What we own vs. what we don't**\n\nWe own the platform layer \u2014 the systems teams build on top of. We do not own individual product services, business logic, or feature roadmaps. We set defaults and provide golden paths; teams can deviate when they have a good reason, but we're not in the business of mandating without support.\n\n**How we work**\n\n- We measure ourselves by developer experience: build times, deploy frequency, time-to-first-commit for new hires, incident recovery time.\n- We prioritize self-service over gatekeeping. If a request keeps landing in our queue, we build a tool so it doesn't have to.\n- We run a public roadmap and take requests through an open backlog, not side channels.\n- We staff on-call for platform-critical systems and treat platform outages with the same severity as customer-facing outages.\n\n**Success looks like**\n\nProduct teams spend their time on product work, not fighting infrastructure. Onboarding a new service or a new engineer takes hours, not weeks."
+}

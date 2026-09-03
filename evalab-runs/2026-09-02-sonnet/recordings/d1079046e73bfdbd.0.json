@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Why this exists\n\nMost charting libraries make you choose: pick something simple and hit a wall the moment you need a log scale or a custom tooltip, or pick something powerful and spend a week reading docs before you render a single bar. This library tries to avoid that trade.\n\nThe API is a handful of functions, not a component tree you have to learn before you can draw anything. Pass it your data and a type, and you get a chart. Pass it a config object, and you can override scales, axes, colors, and interactions one piece at a time, without switching to a different mental model.\n\nIt ships as plain JavaScript with TypeScript types, works with SVG or canvas depending on how many points you're plotting, and has no required build step. Drop a script tag on a page, or import it into a bundler project, and the same API works in both places.\n\nIt does line, bar, scatter, area, and pie charts out of the box, plus a plugin system for anything else. If you need a chart type it doesn't have, you write the render function and register it, and it behaves like a built-in.\n\nMIT licensed. Contributions welcome, especially for chart types the core team hasn't gotten to yet."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Most charting libraries make you pick a side: something simple that hits a wall the moment you need a log scale, or something powerful that takes a week of docs before you draw a single bar. This one tries to split the difference.\n\nThe API is a handful of functions. Pass data and a type, get a chart. Pass a config object instead, and you can swap out scales, axes, colors, and interactions one at a time \u2014 no new mental model required.\n\nIt's plain JavaScript with TypeScript types. It runs on SVG or canvas depending on how many points you're plotting, and there's no build step to set up. Drop it in a script tag or import it into a bundler; the API doesn't change either way.\n\nLine, bar, scatter, area, and pie ship by default. Need something else? Write a render function and register it \u2014 it works like a built-in from there.\n\nMIT licensed. We'd especially welcome help with chart types nobody's gotten to yet."
+}

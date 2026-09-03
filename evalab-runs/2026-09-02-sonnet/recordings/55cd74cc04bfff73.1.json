@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "# Pricing\n\n## Solo \u2014 $12/mo\nFor one developer keeping their own code honest. Scan any repo, run checks locally or in CI, and see every finding inline. Includes the full ruleset library and unlimited scans on public and private repos you own.\n\n- 1 seat\n- All built-in checks\n- CLI + CI integration\n- Community support\n\n## Team \u2014 $29/user/mo\nFor teams that want the same bar on every PR, not just the ones someone remembers to review. Shared configs, custom rulesets, and a dashboard that tracks drift across the codebase over time.\n\n- Everything in Solo\n- Shared team configs\n- Custom rules and term lists\n- GitHub/GitLab PR checks\n- Priority email support\n\n## Enterprise \u2014 talk to us\nFor organizations running this across many repos, many teams, and rules that vary by codebase. Self-hosted or cloud, SSO, audit logs, and a rep who answers when something breaks.\n\n- Everything in Team\n- Self-hosted option\n- SSO and audit logs\n- Custom onboarding\n- Dedicated support channel\n\n---\n\nAll plans start with a 14-day trial. No card required. Cancel anytime \u2014 your configs and history export with you.\n\nNot sure which tier fits? Start on Solo. Most teams outgrow it in a month, and we'll prorate the switch."
+}

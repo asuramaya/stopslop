@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a blog post announcing version 2.0 of an API client library. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "We shipped v2.0 of the API client today, and it breaks three things on purpose.\n\nFirst: authentication. Before, you passed an API key string to the constructor. Now you pass a `CredentialProvider`. If you're using a static key, `StaticCredentialProvider(\"sk-...\")` gets you back to where you were in one line. If you're not, this is the whole point of the release \u2014 you can wire in a Vault client, an env-var reader that rotates on SIGHUP, or an OAuth token refresher, and the client will call it before every request instead of holding a key for its whole lifetime.\n\nSecond: retries. The old client retried every failed request with the same fixed backoff, whether it hit a rate limit or a dropped connection. That's gone. A 429 now waits for the `Retry-After` header. A 5xx backs off exponentially with jitter. A connection reset retries once, immediately. If you had code compensating for the old one-size-fits-all behavior \u2014 a wrapper that slept before calling us, say \u2014 pull it out; the client does this correctly now.\n\nThird: errors. `catch (e)` used to hand you a generic `APIError` with a string message you had to parse to figure out what happened. Now you get a hierarchy: `RateLimitError`, `AuthenticationError`, `ValidationError`, each with the fields you actually need (`retryAfter`, `field`, etc.) instead of a message to regex.\n\nMigration guide and a codemod for the credential provider change are linked in the README. Upgrade when you're ready \u2014 1.x stays on the security-fix track through the end of the year."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "We shipped v2.0 of the API client today, and three things break on purpose.\n\nFirst, authentication. The old constructor took an API key string. The new one takes a `CredentialProvider`. If you're on a static key, `StaticCredentialProvider(\"sk-...\")` puts you back where you started in one line. If you're not, this is the point of the release: wire in a Vault client, an env-var reader that rotates on SIGHUP, an OAuth token refresher \u2014 the client calls it before every request instead of holding one key for its whole life.\n\nSecond, retries. The old client retried every failure with the same fixed backoff, rate limit or dropped connection, no distinction. Not anymore. A 429 waits for the `Retry-After` header. A 5xx backs off exponentially with jitter. A connection reset retries once, right away. If you wrote a wrapper that slept before calling us to compensate for the old behavior, remove it \u2014 the client handles this correctly now.\n\nThird, errors. `catch (e)` used to give you a generic `APIError` with a message you had to parse to find out what went wrong. Now there's a hierarchy: `RateLimitError`, `AuthenticationError`, `ValidationError`, each carrying the fields you need \u2014 `retryAfter`, `field` \u2014 instead of a string to regex.\n\nA migration guide and a codemod for the credential provider change are linked in the README. Upgrade on your own schedule: 1.x keeps getting security fixes through the end of the year."
+}

@@ -1,0 +1,11 @@
+Starting a Mentorship Program
+
+Six months ago, three engineers on our team were mid-level and stuck. Not because they lacked ability, but because nobody had a job to make sure they got better. So we started pairing juniors with seniors, one hour a week, no fixed agenda.
+
+The rules stayed simple. Mentors don't review the mentee's code in that hour — that already happens in PRs. Instead they talk about the stuff that doesn't show up in a diff: how to push back on a bad deadline, how to read a system you didn't write, when to ask for help versus when to sit with a problem a little longer.
+
+We didn't build a curriculum. Every attempt at one turned into a checklist nobody used. What worked was matching people by what the junior wanted to get better at, not by team or tenure, and then getting out of the way.
+
+Three things surprised us. First, the mentors got as much out of it as the mentees — explaining a decision out loud exposes the parts you were fuzzy on. Second, the pairs that lasted were the ones that met even when there was "nothing to talk about." Fifteen minutes of small talk turned out to matter. Third, one hour a week was enough. We expected people to want more time and they didn't.
+
+If you're thinking about this for your own team: pick two pairs, run it for a month, and ask both sides what they'd change before you scale it.

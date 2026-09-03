@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Engineering Culture**\n\nWe hire people who finish what they start. Most engineers here own a feature from the first design doc through the on-call rotation after it ships \u2014 if something breaks at 2am, you're the one we call. That's the deal, and we think it's a fair trade for the say you get in how the thing gets built.\n\nThe review bar stays high, but nobody sits on a pull request. You'll get a real read within a few hours. We'd rather hash out a disagreement in a comment thread than find it in production three weeks later.\n\nDecisions go in docs. Not because we love paperwork, but because the team's small enough that any of us could be out the week someone needs the answer. New hires read the same design docs the founders wrote on day one \u2014 no oral history required.\n\nLate nights happen. If they happen every sprint, though, that's a planning failure, not a badge we hand out. Smaller and correct beats big and shaky, every time.\n\nOpen a file cold and you should be able to tell why it looks the way it does. That legibility isn't free \u2014 we spend real time on tests and tooling so nobody has to pay for it twice.\n\nIf you want to write code and hand it off forever, look elsewhere. If you want to build something and still be there when it matters, come talk to us."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Engineering Culture**\n\nOwnership doesn't stop at the pull request here. Most engineers carry a feature from the first design doc through the on-call rotation after launch \u2014 if it breaks at 2am, you're the one who picks up. In exchange, you get real say in how the thing gets built.\n\nWe keep the bar high on reviews, but nobody waits days for one. Expect a real read within hours. Disagreements get hashed out in a comment thread, not discovered in production three weeks later.\n\nDecisions live in docs, not in someone's head. The team's small enough that anyone could be out the week their answer is needed, so we write it down. New hires read the same design docs the founders wrote on day one.\n\nLate nights happen sometimes. If they happen every sprint, that's a planning problem, not something to be proud of. We'd rather ship something smaller and solid than something big and shaky.\n\nOpen any file cold and the reasoning behind it should be obvious. We put real time into tests and tooling so that clarity doesn't have to get rebuilt from scratch by the next person.\n\nIf you're looking to write code and walk away, this isn't it. If you want to build something and still be around when it counts, we'd like to talk."
+}

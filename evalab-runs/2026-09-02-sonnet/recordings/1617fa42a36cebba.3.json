@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "Why We Should Run Blameless Postmortems\n\nLast month's outage cost us four hours and a scramble across three teams. What it also cost us: nobody wrote down what actually happened, because the instinct was to close the ticket and move on quietly. That instinct is the problem worth fixing, not the outage itself.\n\nWhen postmortems carry blame, people optimize for not getting caught, not for surfacing the truth. Engineers hedge their explanations, skip inconvenient details, or avoid flagging near-misses at all. We lose the exact information that would prevent a repeat.\n\nBlameless doesn't mean consequence-free. It means we separate two questions: what happened, and who's accountable. The postmortem answers the first one, in full, without anyone worrying that a detail will end up in a performance review. Accountability still exists \u2014 it just lives somewhere else, handled by managers, not baked into the incident review.\n\nThe mechanics are simple. Write the timeline. Ask \"what made this decision reasonable at the time?\" instead of \"who screwed up?\" Assume everyone acted rationally given what they knew, and find out where their information or systems failed them. Publish the writeup internally, including the mistakes.\n\nCompanies that do this well \u2014 Google, Etsy, Netflix \u2014 didn't adopt it because it feels nice. They adopted it because it's the only approach that reliably surfaces systemic issues before they repeat. Ours will keep repeating otherwise.\n\nI'd like to pilot this on the next incident review, with a template and a facilitator who isn't the on-call engineer involved. If it works, we make it standard. Fifteen minutes at next week's eng sync to discuss?"
+}

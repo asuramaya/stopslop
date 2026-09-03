@@ -1,0 +1,1 @@
+Trimmed the existing draft down to four testimonials (207 words) in `testimonials-draft.md` — kept the strongest, most concrete ones (production incident, migration speed, cross-service search, pricing model) and cut the audit and support-call quotes to hit the target length.

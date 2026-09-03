@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Welcome to the team.\n\nYou'll spend today getting your laptop set up, meeting the people you'll work with most, and probably forgetting half their names. That's normal \u2014 nobody remembers names on day one, and nobody expects you to.\n\nA few things worth knowing before you dive in:\n\n**Ask questions early.** The engineers here would rather answer a question now than untangle a wrong assumption in three weeks. There's no such thing as a dumb question in your first month \u2014 use that.\n\n**Read before you write.** Before touching any code, spend time in the repositories you'll be working in. Read the README files, skim recent pull requests, and look at how existing features are built. Understanding the shape of the codebase will save you time later.\n\n**Your onboarding buddy is your first stop.** You've been paired with someone from your team who's agreed to answer the questions you don't want to ask in a group Slack channel. Use them.\n\n**Ship something small this week.** Your manager will help you find a small, well-scoped task \u2014 a bug fix, a documentation update, a minor feature. The goal isn't impact; it's learning the tools, the review process, and how code gets from your laptop to production here.\n\n**Take the time you need.** Setup issues happen. Environments break. None of that reflects on you.\n\nBy the end of the week, you should have your development environment running, a merged pull request, and a rough map of who to ask about what. Everything else follows from there.\n\nGlad you're here."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- bold_density:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Welcome to the team.\n\nYou'll spend today getting your laptop set up, meeting the people you'll work with most, and probably forgetting half their names. That's normal \u2014 nobody remembers names on day one, and nobody expects you to.\n\nA few things worth knowing before you dive in.\n\nAsk questions early. The engineers here would rather answer a question now than untangle a wrong assumption in three weeks. There's no such thing as a dumb question in your first month \u2014 use that.\n\nRead before you write. Before touching any code, spend time in the repositories you'll be working in. Read the README files, skim recent pull requests, and look at how existing features are built. Understanding the shape of the codebase will save you time later.\n\nYour onboarding buddy is your first stop. You've been paired with someone from your team who's agreed to answer the questions you don't want to ask in a group Slack channel. Use them.\n\nShip something small this week. Your manager will help you find a small, well-scoped task \u2014 a bug fix, a documentation update, a minor feature. The goal isn't impact; it's learning the tools, the review process, and how code gets from your laptop to production here.\n\nTake the time you need. Setup issues happen. Environments break. None of that reflects on you.\n\nBy the end of the week, you should have your development environment running, a merged pull request, and a rough map of who to ask about what. Everything else follows from there.\n\nGlad you're here."
+}

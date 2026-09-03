@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about what a software company learned from a year of remote work. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "A Year of Remote Work: What We Actually Learned\n\nLast September we sent everyone home and told them to figure it out. A year later, the office lease is gone and so are most of our assumptions about how this team works best.\n\nThe biggest surprise was meetings. We cut our weekly meeting load by half in the first month, mostly out of necessity, and productivity went up, not down. Turns out a lot of what we called \"alignment\" was just people talking at each other because the conference room was free. Now we default to async updates in Slack and save live calls for decisions that actually need a room full of voices.\n\nOnboarding got harder before it got fixed. Our first three remote hires spent their first two weeks lost, pinging five different people to piece together how anything worked. We wrote it down: a real onboarding doc, a buddy system, and a Slack channel just for new-hire questions. That turned things around within a quarter.\n\nTrust matters more than hours logged. Nobody here clocks in or out anymore. We stopped tracking time and started tracking output, and the engineers who used to stay late just to look busy are now the ones shipping the most, because nobody's watching the clock.\n\nSome things don't translate over video, though. Debugging a gnarly production issue together, or the ten-minute hallway conversation that used to settle an argument in one sitting \u2014 we haven't solved that yet. We're not sure we will."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (A Year of Remote Work:):\n- colon_reveal (We wrote it down:):\n- paragraph_uniformity (5 paragraphs, spread 0.30):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "A Year of Remote Work: What We Actually Learned\n\nLast September we sent everyone home and told them to figure it out. A year later, the office lease is gone and so are most of our assumptions about how this team works best.\n\nThe biggest surprise was meetings. We cut our weekly meeting load by half in the first month, mostly out of necessity, and productivity went up, not down. A lot of what we called \"alignment\" was just people talking at each other because the conference room was free. Now we default to async updates in Slack and save live calls for decisions that need a room full of voices.\n\nOnboarding got harder before it got fixed. Our first three remote hires spent their first two weeks lost, pinging five different people to piece together how anything worked. We built a real onboarding doc, set up a buddy system, and opened a Slack channel just for new-hire questions. Things turned around within a quarter.\n\nTrust matters more than hours logged. Nobody clocks in or out anymore. We stopped tracking time and started tracking output. The engineers who used to stay late just to look busy are now the ones shipping the most, because nobody's watching the clock.\n\nSome things don't translate over video. Debugging a gnarly production issue together, or the ten-minute hallway conversation that used to settle an argument in one sitting, are harder now. We haven't solved that. We might not."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about starting a mentorship program on an engineering team. Around 250 words."
+  }
+ ],
+ "output": "Starting a Mentorship Program on Our Engineering Team\n\nWe rolled out a mentorship program on the team this quarter, and I want to write down what actually happened, since most posts about this kind of thing describe the plan instead of the result.\n\nThe setup was simple: pair every engineer with less than a year on the team with someone who's been here longer, one hour a week, no fixed agenda. We resisted the urge to build a curriculum. Early on, someone suggested a syllabus with checkpoints, and we cut it \u2014 the whole point was to give people room to ask the dumb questions they'd otherwise Slack into the void at 11pm.\n\nThree months in, the pairs that stuck were the ones where the mentor treated it as an actual meeting, not a favor squeezed between other work. The ones that fizzled had mentors who kept rescheduling. That's the whole lesson, really: this only works if it's protected time, not optional time.\n\nThe biggest surprise was that mentors got as much out of it as mentees. Explaining why we chose Postgres over DynamoDB for a service forced a couple of senior engineers to actually articulate reasoning they'd been running on autopilot for years. One mentor told me the sessions were the first time in months she'd talked about anything other than her current sprint.\n\nWe're keeping it going, but loosening the structure further \u2014 pairs can meet biweekly now if that fits better. If you're thinking about starting something similar, the advice I'd give is: don't overbuild the framework before you know what your people actually need from it."
+}

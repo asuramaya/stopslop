@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "You made it. There were interviews, an offer, a stack of paperwork, and now a laptop that still doesn't have your dotfiles on it. That's normal \u2014 everyone here sat where you're sitting.\n\nThe first few days follow a pattern: more system access than you can track, meetings where half the context is missing, and a nagging feeling that you're behind. You're not. Ramp-up takes weeks, and we plan for that.\n\nA few things help.\n\nAsk in the open channels, not just DMs. If you're stuck, three other people are probably stuck on the same thing, and a public answer saves them the trouble.\n\nTry to ship something in week one \u2014 a bug fix, a doc fix, one line that goes through real review and a real deploy. Nothing fancy. Seeing your name in the commit history does more for you than any onboarding doc could.\n\nRead the code before the specs. Our systems move faster than our documentation, and the codebase is the one thing here that can't lie to you.\n\nCheck your welcome email for your onboarding buddy and message them directly. That's their job this week \u2014 answering the questions you're sure are dumb. They're not.\n\nWe hired you expecting you'll eventually disagree with us. So if something looks wrong, say so. You have outsider eyes today. You won't have them again.\n\nGlad you're here."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "You made it. Interviews, an offer, a pile of paperwork, and a laptop that still doesn't have your dotfiles on it. Normal \u2014 everyone here sat where you're sitting.\n\nThe first few days go the same way for most people: more system access than you can keep straight, meetings where half the context is missing, and a nagging sense that you're already behind. You're not. Ramp-up takes weeks, and we build the schedule around that.\n\nA few things help.\n\nAsk in the open channels, not just DMs. If you're stuck, three other people are probably stuck on the same thing, and answering in public saves them the trouble.\n\nTry to ship something in your first week \u2014 a bug fix, a doc fix, one line that goes through real review and a real deploy. Nothing fancy. Seeing your name in the commit history does more for you than any onboarding doc.\n\nRead the code before the specs. Our systems move faster than our documentation, and the codebase is the one thing here that won't lie to you.\n\nCheck your welcome email for your onboarding buddy and message them directly. That's their job this week \u2014 answering the questions you're sure are dumb. They're not.\n\nWe hired you expecting you'll eventually disagree with us. So if something looks wrong, say so. You have outsider eyes today. You won't have them again.\n\nGlad you're here."
+}

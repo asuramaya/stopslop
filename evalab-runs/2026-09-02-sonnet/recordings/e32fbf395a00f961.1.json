@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal proposal asking leadership for a quarter of engineering time to pay down technical debt. Around 250 words."
+  }
+ ],
+ "output": "# Proposal: Dedicate Q4 to Technical Debt\n\nWe're asking for one quarter \u2014 roughly 25% of engineering capacity \u2014 to pay down technical debt that's now slowing every team touching the core codebase.\n\n**The problem:** Feature velocity has dropped over the last two quarters. Code review cycles run longer because reviewers have to reason around legacy patterns. Onboarding a new engineer takes weeks instead of days. Incident response is harder because parts of the system have no clear owner or up-to-date documentation. None of this shows up as a single ticket, but it shows up in every sprint retro.\n\n**What we'd fix:**\n- Consolidate three overlapping auth implementations into one\n- Upgrade the dependencies blocking us from adopting newer, faster tooling\n- Add test coverage to the modules with the highest incident rate\n- Break apart the two services that have become tightly coupled bottlenecks\n\n**Why now:** Debt compounds. Every quarter we defer this, the fix gets more expensive and the risk of a customer-facing incident grows. We've already had two outages this year traceable directly to the auth duplication.\n\n**What we're not asking for:** A rewrite. This is targeted cleanup on the specific areas causing the most drag, not a green-field effort.\n\n**Cost of doing nothing:** Based on the last two quarters, we estimate debt-related friction costs us 15-20% of engineering time already, just spread invisibly across every project instead of budgeted openly.\n\nWe'd like to review scope and success metrics with leadership before committing the quarter, and report progress at the midpoint."
+}

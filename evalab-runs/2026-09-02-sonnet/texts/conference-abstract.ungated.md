@@ -1,0 +1,7 @@
+**Breaking the Monolith: Lessons from Three Years of Migration**
+
+Our team spent three years pulling a 400,000-line Rails monolith apart into fourteen services, and we made almost every mistake in the book before we found what worked. This talk walks through that migration in the order it actually happened, not the order we'd recommend in hindsight.
+
+We'll cover how we picked the first service to extract (and why we picked wrong twice before we got it right), the data ownership fights that ate more time than any code change, and the outage that taught us why synchronous service-to-service calls are a trap. I'll show the strangler fig pattern we eventually settled on, how we handled distributed transactions without falling back to two-phase commit, and the observability gaps that left us debugging blind for the first six months.
+
+This isn't a story about microservices being better than monoliths. Plenty of what we split apart didn't need splitting, and I'll be honest about where the added complexity cost us more than it saved. If you're weighing this migration for your own system, or you're mid-migration and things feel harder than the blog posts promised, you'll leave with a clearer sense of what's actually worth the pain.

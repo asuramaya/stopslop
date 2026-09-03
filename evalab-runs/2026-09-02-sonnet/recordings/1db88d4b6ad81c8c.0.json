@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## What's Next\n\nThis page tracks where we're taking the product over the next two quarters, published because you're the one building on top of us and deserve to see what's coming before it ships, not after.\n\nA few ground rules: dates are estimates, not commitments, since software slips and we'd rather tell you the truth late than a lie on time. \"Exploring\" means we're validating an idea, not building it \u2014 your feedback there can still change the outcome. \"In Progress\" has an owner and a target quarter.\n\nWork falls into three rough buckets.\n\nCore platform covers what most of you depend on daily: API stability, performance, uptime. Developer experience covers the CLI, SDKs, docs, and onboarding. Integrations covers the tools you already use, and how well we talk to them.\n\nWe read every comment on this board. Some of the best items here started as a complaint in our Discord or a one-line issue on GitHub, so if something you need is missing, tell us \u2014 we'd rather hear about the gap now than find out when you switch to a competitor.\n\nBelow, sorted by quarter."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (A few ground rules:):\n- paragraph_uniformity (4 paragraphs, spread 0.22):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## What's Next\n\nThis page tracks where we're taking the product over the next two quarters, published because you're the one building on top of us and deserve to see what's coming before it ships, not after.\n\nA few ground rules apply here. Dates are estimates, not commitments, since software slips and we'd rather tell you the truth late than a lie on time. \"Exploring\" means we're validating an idea, not building it yet, and your feedback there can still change the outcome. \"In Progress\" has an owner and a target quarter.\n\nWork falls into three rough buckets. Core platform covers what most of you depend on daily: API stability, performance, uptime. Developer experience covers the CLI, SDKs, docs, and onboarding. Integrations covers the tools you already use, and how well we talk to them.\n\nWe read every comment on this board, and some of the best items here started as a complaint in our Discord or a one-line issue on GitHub. If something you need is missing, tell us. We'd rather hear about the gap now than find out when you switch to a competitor.\n\nBelow, sorted by quarter."
+}

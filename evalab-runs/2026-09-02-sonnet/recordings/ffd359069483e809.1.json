@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer testimonial section for the website of a log aggregation service. Around 200 words."
+  }
+ ],
+ "output": "Added two more testimonials (~110 words) to `testimonials-draft.md`, matching the existing set's format and voice: one on cost predictability after scaling, one on incident-response support. Let me know if you want a different angle (e.g., ease of setup, alerting accuracy) instead."
+}

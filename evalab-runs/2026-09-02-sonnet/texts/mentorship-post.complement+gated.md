@@ -1,0 +1,7 @@
+We started a mentorship program on the team this quarter. Every new hire gets paired with someone who's been here at least a year, and they meet weekly for the first three months.
+
+The pairing isn't random. We match on what the new hire wants to learn, not just who has free time. One engineer wanted to get better at debugging distributed systems, so we paired her with the person who wrote our tracing setup. Another wanted to understand how we make architecture decisions, so he sat in on design reviews with a senior engineer for six weeks before writing his own proposal. The structure is loose on purpose. Mentors get a short list of suggested topics — code review habits, how to ask for help without feeling like you're bothering someone, how our on-call rotation actually works day to day — but most pairs end up talking about whatever's stuck that week. One pair spent a month just working through a gnarly migration together.
+
+A few things surprised me. Mentors report learning as much as mentees, mostly because explaining a system out loud exposes the parts you'd only half understood. And the pairs that stuck best weren't the ones with the most experience gap — they were the ones where both people showed up prepared.
+
+We're six weeks in, so it's too early to call this a success. Retention conversations with new hires now start with "my mentor mentioned" instead of silence, and that alone is worth the time it costs.

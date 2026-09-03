@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an engineering team's year in review post for an internal blog. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Engineering, 2026: the year in review**\n\nWe shipped a lot. Some of it even went smoothly the first time.\n\nThe queue migration was the big one. It ran four months past schedule, and in March consumer lag spiked to six hours for a week that nobody wants to repeat. By August, on-call pages had dropped to a third of what they used to be. Worth it. The team that owns the system now builds instead of babysitting it.\n\nWe also rewrote the deploy pipeline. Builds that took 22 minutes now take 6. Nobody threw a party. But 16 minutes back, times however many deploys happen in a day, adds up to weeks nobody spent staring at a progress bar.\n\nNot everything landed. The internal tooling project from Q2 stalled when two engineers rotated onto payments, and it's still stalled. Kill it or staff it. Limbo helps no one.\n\nHeadcount went from 14 to 19, and onboarding got better because of it \u2014 new hires ship something real in week one instead of week three, mostly thanks to a runbook rewrite that was overdue.\n\nNext year: finish phase two of the queue migration, decide the tooling project's fate, and pull incident review time down from eleven days to something closer to three.\n\nThanks for the work this year. Rest over the break."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Engineering, 2026: the year in review**\n\nWe shipped a lot this year. Most of it worked the first time.\n\nThe queue migration was the big one \u2014 four months over schedule, and a March week where consumer lag hit six hours and everyone's phone lit up. Nobody wants a repeat. But by August, on-call pages had dropped to a third of what they used to be, and the team that owns the system now spends its time building instead of firefighting. Worth it.\n\nWe also rewrote the deploy pipeline. Builds went from 22 minutes to 6. No one threw a party for it, but 16 minutes back, multiplied across a day's worth of deploys, adds up to weeks nobody spent watching a progress bar.\n\nNot everything landed. The internal tooling project from Q2 stalled when two engineers rotated onto payments, and it's been sitting there since. We need to kill it or staff it \u2014 limbo isn't doing anyone any favors.\n\nHeadcount grew from 14 to 19, and onboarding is in better shape for it. New hires ship something real in their first week now instead of their third, mostly because someone finally rewrote the runbook that had been overdue for a year.\n\nFor next year: finish phase two of the queue migration, make a call on the tooling project one way or the other, and get incident review time down from eleven days to something closer to three.\n\nThanks for the work this year. Take the break."
+}

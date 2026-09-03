@@ -1,0 +1,7 @@
+A service goes down at 2 a.m. and the on-call engineer stares at a dashboard that shows CPU at 40% and memory at normal. Nothing in it explains why requests are timing out. This is the gap observability closes: the difference between knowing a system is unhealthy and knowing why.
+
+Most teams already have monitoring. They collect CPU, memory, request counts, error rates. These metrics answer questions decided in advance, at the time someone wrote the dashboard. They fail the moment a new kind of failure shows up, because nobody thought to graph the thing that's now broken. A payment service that times out only for users in one region, only during a specific database migration window, only when a particular feature flag is on — no fixed dashboard was built for that combination, and no fixed dashboard ever will be.
+
+Observability is built for the unknown case. It means instrumenting a system so that when a new question arrives, the answer already exists in the data: in structured logs, in traces that follow a request across ten services, in metrics with enough dimensions to slice by region, version, and customer. The engineer doesn't need to predict the failure mode in advance. They query the data they already have.
+
+This matters more as systems get distributed. A monolith fails in a handful of ways an engineer can hold in their head. A system with 50 services, each deployed independently, fails in combinations nobody designed for. Observability is what makes debugging that system possible instead of a guessing exercise.

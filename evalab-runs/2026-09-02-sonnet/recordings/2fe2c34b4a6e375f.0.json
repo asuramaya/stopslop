@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "A chat app built for teams that ship code, not teams that hold meetings.\n\nMost chat tools optimize for volume. More channels, more reactions, more notifications. Yours has enough of that already. It lacks a place where engineering conversations survive standup reminders and gif threads.\n\nThreads resolve. Every conversation carries a status of open, blocked, or done. Nothing scrolls off unresolved, so you see at a glance what still waits on someone.\n\nThe app renders code by default. Paste a stack trace or a diff and it displays with syntax highlighting, not as a wall of unformatted text. Link a pull request and the thread tracks its status automatically.\n\nNotification budgets replace notification floods. Each person sets how much interruption they will tolerate per hour, and the app enforces it. No more choosing between muting everything and drowning in pings.\n\nThe app keeps an audit trail. Decisions made in chat are searchable and exportable, useful six months later when someone asks why the team chose Postgres over Mongo and nobody remembers.\n\nIt connects to the tools you already run. GitHub, Linear, PagerDuty, and your CI pipeline post updates as structured messages, not raw webhook JSON dumped into a channel.\n\nPricing runs per active user, not per seat, so a dormant account from a contractor who left in March costs you nothing. Teams under 10 use it free.\n\nIf your current tool loses messages, this one keeps decisions. Try it free for 30 days. No credit card required."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- paragraph_uniformity (8 paragraphs, spread 0.17):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "A chat app built for teams that ship code, not teams that hold meetings.\n\nMost chat tools optimize for volume: more channels, more reactions, more notifications. Your team already has enough of that. What's missing is a place where engineering conversations survive standup reminders and gif threads.\n\nThreads resolve. Every conversation carries a status of open, blocked, or done, so nothing scrolls off unresolved and you see at a glance what still waits on someone.\n\nThe app renders code by default. Paste a stack trace or a diff and it shows up with syntax highlighting instead of a wall of unformatted text. Link a pull request and the thread tracks its status.\n\nNotification budgets replace notification floods. Each person sets how much interruption they tolerate per hour, and the app enforces it \u2014 no more choosing between muting everything and drowning in pings.\n\nThe app keeps an audit trail. Decisions made in chat stay searchable and exportable, which matters six months later when someone asks why the team chose Postgres over Mongo and nobody remembers.\n\nIt connects to the tools you run. GitHub, Linear, PagerDuty, and your CI pipeline post updates as structured messages, not raw webhook JSON dumped into a channel.\n\nPricing runs per active user, not per seat, so a dormant account from a contractor who left in March costs nothing. Teams under 10 use it free.\n\nIf your current tool loses messages, this one keeps decisions.\n\nTry it free for 30 days. No credit card required."
+}

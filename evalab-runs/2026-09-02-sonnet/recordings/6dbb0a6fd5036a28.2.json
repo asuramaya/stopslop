@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  }
+ ],
+ "output": "Here's a roadmap introduction, around 200 words:\n\n---\n\n## What's Next\n\nThis page tracks where we're taking the product over the next two quarters. We publish it because you're the one building on top of us, and you deserve to see what's coming before it ships \u2014 not after.\n\nA few ground rules. Dates are estimates, not commitments; software slips, and we'd rather tell you the truth late than a lie on time. Anything marked \"Exploring\" means we're validating the idea, not building it yet \u2014 your feedback there can still change the outcome. Anything marked \"In Progress\" has an owner and a target quarter.\n\nWe group work into three buckets: core platform (the stuff most of you depend on daily \u2014 API stability, performance, uptime), developer experience (CLI, SDKs, docs, onboarding), and integrations (the tools you already use that we should talk to better).\n\nWe read every comment on this board. Some of the best items here started as a complaint in our Discord or a one-line issue on GitHub. If something you need is missing, tell us \u2014 we'd rather hear about the gap now than find out when you switch to a competitor.\n\nBelow, sorted by quarter."
+}

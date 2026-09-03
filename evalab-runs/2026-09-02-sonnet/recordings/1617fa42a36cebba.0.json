@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "Why We Should Run Blameless Postmortems\n\nLast month's outage cost us four hours and a Saturday for three engineers. We wrote up what happened, fixed the immediate bug, and moved on. What we didn't do: figure out why the deploy pipeline let a bad config through, or why the alert that should have caught it fired an hour late. Those questions are harder, and right now we don't have a process that forces us to ask them.\n\nThat's the case for blameless postmortems. The idea isn't complicated: when something breaks, the review focuses on the system and the decisions that made sense at the time, not on who to point at. It's not about being nice. It's about getting honest information. If people are worried about how the review reads on their performance review, they hedge \u2014 they leave things out, they downplay their part, they let the timeline stay vague. A blameless review gets the opposite: someone says \"I saw the alert and dismissed it because we get false positives from that service constantly,\" and now you know the actual problem is alert fatigue, not a lapse in judgment.\n\nCompanies that do this well (Etsy's the usual reference, Google's SRE book has a chapter on it) treat outages as free information about where the system is weaker than people assumed. We're currently throwing that information away.\n\nConcretely, I'd propose: every incident above a certain severity gets a written review within a week, run by someone not directly involved, with a standing agenda item of \"what would have caught this earlier\" rather than \"who missed this.\" Happy to draft a template if there's interest."
+}

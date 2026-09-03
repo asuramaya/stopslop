@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "Welcome to the team.\n\nYou're joining a company that builds software people rely on every day, and today you become part of that. Over the next few weeks you'll meet your team, set up your development environment, and ship your first small change. Take your time with each step \u2014 we'd rather you understand the systems you're working in than rush through them.\n\nA few things to know as you get started:\n\n**Your onboarding buddy** is your first point of contact for anything, no question too small. They'll walk you through your first week and introduce you around.\n\n**Your manager** will set up a 1:1 in your first few days to talk through your role, early goals, and how your team works together.\n\n**IT and access** \u2014 you should already have your laptop, accounts, and badge. If anything is missing, reach out to the helpdesk and they'll sort it out quickly.\n\n**Documentation** lives in our internal wiki. Start with the \"New Hire\" space, which links out to team-specific guides, coding standards, and how we plan and ship work.\n\n**Culture** \u2014 we value curiosity, direct feedback, and ownership. If something seems broken or unclear, say so. Your outside perspective is most valuable right now, before you've absorbed all our assumptions.\n\nYour first two weeks are for learning, not producing. Read code, ask questions, sit in on meetings, and get a feel for how we work. Nobody expects you to have answers yet \u2014 we expect you to have questions.\n\nAgain, welcome. We're glad you're here, and we're looking forward to what you'll build with us.\n\n\u2014 The Team"
+}

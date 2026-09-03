@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "Here's a ~200 word abstract:\n\n---\n\n**From Monolith to Microservices: A Field Report on What Actually Broke**\n\nEvery migration talk promises independent deployments and clean service boundaries. Ours delivered both, eventually, but not before we broke checkout for forty minutes and learned that \"the database is the interface\" was true in ways we hadn't planned for.\n\nThis talk walks through eighteen months of splitting a five-year-old Rails monolith into a dozen services, with a focus on the parts nobody puts in the architecture diagram: the shared database that stayed shared far longer than anyone admitted, the distributed transaction that used to be a single SQL commit, and the on-call rotation that had to learn a new failure mode every other week.\n\nI will cover the strangler fig pattern we used to peel services off one at a time, the event bus we built and then partly regretted, and the observability gaps that only showed up once requests crossed process boundaries. I will also share the numbers: deploy frequency, incident count, and the surprising place where latency got worse, not better.\n\nAttendees will leave with a concrete decomposition checklist, a list of anti-patterns we hit first so you do not have to, and honest advice on when a monolith should stay exactly where it is."
+}

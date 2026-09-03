@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  }
+ ],
+ "output": "Welcome. You made it through the interviews, the offer, the paperwork, and now you're staring at a laptop that doesn't have your dotfiles on it yet. That's normal. Everyone on this team started exactly where you are.\n\nHere's what to expect from your first few days: you'll get access to more systems than you can remember, sit in on meetings where the context is missing, and probably feel like you're behind. You're not. Ramp-up takes weeks, not hours, and the team knows that.\n\nA few things that will make this easier:\n\nAsk questions in the open channels, not just in DMs. If you're confused about something, three other people probably are too, and a public answer helps them as much as you.\n\nShip something small in your first week if you can. It doesn't need to be impressive \u2014 a bug fix, a doc update, a one-line change that goes through the real review and deploy process. Seeing your name in the commit history does more for your confidence than any onboarding doc.\n\nRead code before you read specs. Our systems change faster than our documentation, and the codebase is the one source that can't lie to you.\n\nYour onboarding buddy is listed in the welcome email \u2014 reach out to them directly, they've been assigned to you specifically so you have someone whose job is to answer your dumb questions (there's no such thing, but you know what we mean).\n\nWe hire people we expect to disagree with us eventually. If something looks wrong, say so \u2014 you have outsider eyes right now that you'll never have again.\n\nGlad you're here."
+}

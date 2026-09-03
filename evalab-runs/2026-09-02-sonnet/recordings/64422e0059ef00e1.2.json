@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "Here's an opening section for the post:\n\n---\n\nSomething breaks in production at 2 a.m. The pager goes off, and the first ten minutes are spent not fixing anything but figuring out what's even wrong. Which service is failing? Is it upstream or downstream? Did a deploy cause this, or a spike in traffic, or a dependency that quietly changed behavior three days ago? Teams without observability spend that time guessing. Teams with it spend that time looking at an answer.\n\nThat's the real case for observability: it's not a dashboard requirement or a compliance checkbox, it's the difference between debugging by evidence and debugging by hunch. Logs, metrics, and traces exist so that when a system misbehaves, an engineer can ask it questions and get answers back, instead of adding print statements and redeploying to find out what's happening.\n\nThe distinction between monitoring and observability matters here. Monitoring tells you a service is unhealthy. Observability tells you why, without requiring you to have predicted the failure mode in advance. A good monitoring setup catches the known unknowns \u2014 CPU spikes, error rate thresholds, disk usage. Observability is built for the unknown unknowns: the weird interaction between a cache eviction policy and a retry loop that nobody wrote a check for because nobody imagined it.\n\nAs systems get more distributed, this gap widens. A single request might touch a dozen services, three databases, and a queue, and the failure could be in any of them. Observability is what makes that complexity navigable instead of paralyzing. The rest of this post looks at how to build it."
+}

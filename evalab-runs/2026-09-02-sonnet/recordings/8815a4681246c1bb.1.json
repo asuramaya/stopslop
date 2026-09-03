@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "We build software the way we'd want to inherit it. Code review is where most of the actual mentoring happens here \u2014 reviewers explain tradeoffs, not just flag issues, and we expect authors to push back when they disagree. Nobody merges a PR they don't understand.\n\nWe keep teams small on purpose. A four-person team ships an entire feature area, from database schema to the customer-facing UI, and owns it after launch too. That means the person who wrote the code is also the person paged at 2am if it breaks, so we spend real time on tests, monitoring, and rollback plans before we ship, not after an incident.\n\nWe write things down. Design docs before big changes, postmortems after outages (blameless, always), and decision logs so a new hire can read why something was built a certain way instead of asking around. If it's not written down, it didn't happen.\n\nWe hire for judgment over years of experience with a specific framework. Someone who's spent five years reasoning carefully about a small stack will pick up our tools faster than someone who's touched twelve without slowing down to understand any of them.\n\nMeetings are optional by default. We run async on decisions that don't need a room, and reserve live time for the things that actually benefit from it: debugging together, planning, or just catching up.\n\nWe ship in small increments and expect to be wrong sometimes. What matters is how fast we notice, and whether the fix comes with a test that keeps it from happening the same way twice."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Starter \u2014 Free**\nSolo projects and side work. 100 pull requests a month, public repos only. Inline comments, one rule set, community support. No card needed.\n\n**Team \u2014 $18/user/month**\nFor teams shipping together. Unlimited pull requests, private repos, custom rule sets, and review policies scoped by branch or path. Slack and Linear integrations. Reviews land in under a minute thanks to priority queuing. Email support, same-day response.\n\n**Enterprise \u2014 Custom**\nFor companies with compliance and scale needs. SSO and SCIM, audit logs, self-hosted or VPC deployment, a dedicated Slack channel with your account team. SLA-backed uptime and response times. Custom contracts, including annual invoicing.\n\n---\n\nEvery plan runs on the same review engine: it reads the diff, not just the file, so comments stay tied to what changed. Switch plans anytime \u2014 we prorate the difference. Team and Enterprise both start with a 14-day trial, no card required.\n\nNonprofit, open-source maintainer, or student project? Write to us. We have discounts for all three tiers."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Starter \u2014 Free**\nSolo projects and side work. 100 pull requests a month, public repos only. Inline comments, one rule set, community support. No card needed.\n\n**Team \u2014 $18/user/month**\nBuilt for teams shipping together. Unlimited pull requests, private repos, custom rule sets, and review policies scoped by branch or path. Slack and Linear integrations included. Priority queuing gets most reviews back in under a minute. Email support, same-day response.\n\n**Enterprise \u2014 Custom**\nFor companies with compliance and scale needs. SSO and SCIM, audit logs, self-hosted or VPC deployment, a dedicated Slack channel with your account team. SLA-backed uptime and response times. Custom contracts, annual invoicing included.\n\n---\n\nEvery plan runs on the same engine. It reads the diff, not just the file, so comments stay tied to what actually changed \u2014 not to code you never touched. Change plans whenever you want; we prorate the difference. Team and Enterprise both come with a 14-day trial. No card required.\n\nRunning a nonprofit, maintaining an open-source project, or building something for class? Write to us. We have discounts for all three tiers."
+}

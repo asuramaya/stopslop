@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the welcome page new engineers see on their first day at a software company. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Welcome. You made it through the interviews, the offer, the paperwork, and now you're staring at a laptop that doesn't have your dotfiles on it yet. That's normal. Everyone on this team started exactly where you are.\n\nHere's what to expect from your first few days: you'll get access to more systems than you can remember, sit in on meetings where the context is missing, and probably feel like you're behind. You're not. Ramp-up takes weeks, not hours, and the team knows that.\n\nA few things that will make this easier:\n\nAsk questions in the open channels, not just in DMs. If you're confused about something, three other people probably are too, and a public answer helps them as much as you.\n\nShip something small in your first week if you can. It doesn't need to be impressive \u2014 a bug fix, a doc update, a one-line change that goes through the real review and deploy process. Seeing your name in the commit history does more for your confidence than any onboarding doc.\n\nRead code before you read specs. Our systems change faster than our documentation, and the codebase is the one source that can't lie to you.\n\nYour onboarding buddy is listed in the welcome email \u2014 reach out to them directly, they've been assigned to you specifically so you have someone whose job is to answer your dumb questions (there's no such thing, but you know what we mean).\n\nWe hire people we expect to disagree with us eventually. If something looks wrong, say so \u2014 you have outsider eyes right now that you'll never have again.\n\nGlad you're here."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "You made it. Interviews, offer, paperwork \u2014 and now a laptop that doesn't have your dotfiles on it yet. Normal. Everyone here started exactly where you're sitting.\n\nThe first few days go like this: more system access than you can track, meetings where half the context is missing, and a nagging sense that you're behind. You're not. Ramp-up takes weeks. We know that going in.\n\nSome things that help.\n\nAsk in the open channels, not just in DMs. If you're stuck on something, odds are three other people are stuck on it too, and a public answer saves them the trouble.\n\nTry to ship something in week one \u2014 a bug fix, a doc fix, one line that goes through real review and a real deploy. Nothing fancy. Seeing your name in the commit history will do more for you than any onboarding doc we could write.\n\nRead the code before you read the specs. Our systems move faster than our documentation does, and the codebase is the only thing here that can't lie to you.\n\nCheck the welcome email for your onboarding buddy and message them directly. That's their job right now \u2014 answering the questions you're sure are dumb. They're not.\n\nWe hired you expecting you'll eventually disagree with us. So if something looks wrong, say it. You have outsider eyes today. You won't have them again.\n\nGlad you're here."
+}

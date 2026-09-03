@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening section of a blog post explaining why observability matters for engineering teams. Around 250 words."
+  }
+ ],
+ "output": "Here's an opening section for the post:\n\n---\n\nMost teams don't find out their system is broken from a dashboard. They find out from a customer, or a Slack message from a coworker, or a support ticket that's been sitting for an hour before anyone notices the pattern. By the time someone opens a terminal to investigate, the actual failure already happened minutes or hours ago, and the trail has gone cold.\n\nObservability is the difference between guessing and knowing. It's not a tool you buy or a dashboard you glance at once a week \u2014 it's the property of a system that lets you ask new questions about its behavior without having to ship new code first. When a request fails at 2 a.m., an observable system tells you which service failed, why, and what else was happening at the time. A system without that property leaves you adding print statements to production and waiting for the bug to happen again.\n\nThe distinction matters because software has gotten harder to reason about from the outside. A single user action might touch a dozen services, three databases, and a queue, each one owned by a different team, each one capable of failing in a way that looks like someone else's problem. Logs, metrics, and traces exist to make that complexity visible again \u2014 to turn \"something is slow\" into \"this specific call to this specific dependency is slow, and here's why.\"\n\nTeams that invest in observability early spend less time firefighting and more time building. This post looks at what that investment actually involves, and where it tends to pay off first."
+}

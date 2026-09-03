@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  }
+ ],
+ "output": "## Why this exists\n\nMost charting libraries make you choose: pick something simple and hit a wall the moment you need a log scale or a custom tooltip, or pick something powerful and spend a week reading docs before you render a single bar. This library tries to avoid that trade.\n\nThe API is a handful of functions, not a component tree you have to learn before you can draw anything. Pass it your data and a type, and you get a chart. Pass it a config object, and you can override scales, axes, colors, and interactions one piece at a time, without switching to a different mental model.\n\nIt ships as plain JavaScript with TypeScript types, works with SVG or canvas depending on how many points you're plotting, and has no required build step. Drop a script tag on a page, or import it into a bundler project, and the same API works in both places.\n\nIt does line, bar, scatter, area, and pie charts out of the box, plus a plugin system for anything else. If you need a chart type it doesn't have, you write the render function and register it, and it behaves like a built-in.\n\nMIT licensed. Contributions welcome, especially for chart types the core team hasn't gotten to yet."
+}

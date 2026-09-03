@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "Here's a ~250-word recap post:\n\n---\n\n**What we brought back from KubeCon**\n\nFour of us went to KubeCon in Salt Lake City last week. Here's what stuck.\n\nThe biggest shift in the hallway conversations was about sidecars. Two years ago every talk pushed the sidecar pattern for service mesh. This year, three separate teams told us they'd ripped theirs out in favor of ambient mesh, mainly to cut the memory overhead on high-density nodes. We're now testing this on our staging cluster.\n\nObservability costs came up constantly. One team from a mid-size fintech company described cutting their logging bill by 40% just by sampling debug-level logs instead of shipping everything. We're going to try the same sampling approach on our checkout service before the holiday traffic ramps up.\n\nWe also sat in on a session about progressive delivery that changed how we think about our rollout process. The speaker argued that canary analysis only works if you're checking business metrics, not just error rates. A deploy can look healthy on every infrastructure dashboard and still be quietly breaking checkout. That's a gap in our current setup, and we opened a ticket to close it.\n\nThe hallway track was worth more than most of the talks, honestly. Some of our best leads came from a twenty-minute conversation with an engineer from a company running a similar scale to ours, who walked us through how they handle multi-region failover.\n\nNext up: we're writing up the ambient mesh testing plan and sharing it with the platform team this week."
+}

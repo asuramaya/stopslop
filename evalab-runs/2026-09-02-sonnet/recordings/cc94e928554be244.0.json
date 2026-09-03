@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## What we're building next\n\nThis page shows where the product is headed over the next two quarters. We update it monthly and remove items once they ship, or once we decide not to build them.\n\nA few ground rules. Everything here is a direction, not a promise \u2014 dates shift, and priorities change as we learn from users. We won't quietly drop something you were counting on: if a planned item changes scope or gets cut, we'll say so here and explain why.\n\nMost items on this list came from support tickets, community requests, and conversations with teams running the product in production. To weigh in on priority, comment on the linked issue for each item rather than emailing us \u2014 we read every comment, and upvotes move things up the list.\n\nA few items are marked \"exploring.\" That means we're testing the idea before committing engineering time to it. Feedback on those is especially valuable, since we can still change direction cheaply at this stage.\n\nThanks for building with us. If something you need isn't listed here, open an issue and tell us what you're trying to do."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Roadmap\n\nHere's what we're working on for the next two quarters. We update this monthly and pull items once they ship \u2014 or once we decide not to build them after all.\n\nA few ground rules. Everything below is a direction, not a promise: dates move, and priorities change as we learn more from actual usage. But we won't quietly drop something you were counting on. If a planned item changes shape or gets cut, we'll say so here and explain why.\n\nMost of this list came from support tickets, community threads, and conversations with teams running the product in production. If you want to weigh in on priority, comment on the linked issue for that item instead of emailing us \u2014 we read every comment, and upvotes genuinely move things up the queue.\n\nA handful of items are marked \"exploring.\" That means we're testing the idea before committing real engineering time to it. Feedback on those matters more than usual, since we can still change course cheaply at this stage.\n\nThanks for building with us. If something you need isn't on this list, open an issue and tell us what you're trying to do \u2014 that's usually how items end up here in the first place."
+}

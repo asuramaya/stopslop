@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "Why We Should Run Blameless Postmortems\n\nLast month's outage report spent two paragraphs on what broke and a full page on who deployed the change. That's backwards, and it's costing us.\n\nWhen a postmortem centers on blame, people route around it. The engineer closest to the failure gets quiet in the meeting, or worse, quiet in the next incident \u2014 waiting to see if someone else notices the anomaly first before flagging it themselves. We lose the fastest signal we have: the person who was already looking at the system when it broke.\n\nBlameless doesn't mean consequence-free. It means we treat the incident as a systems failure, not a personal one. The question isn't \"who pushed the bad config,\" it's \"how did a bad config get to production without anything catching it.\" That second question actually produces fixes \u2014 better staging checks, saner rollback paths, alerts that fire before customers notice. The first question just produces defensiveness and a paper trail nobody reads twice.\n\nTeams that do this well, like Google's SRE org and Etsy's early postmortem culture, report the same thing: incident reports get more honest, not less, once people stop worrying about how the writeup makes them look. You get the real timeline instead of the sanitized one.\n\nI'd like us to try it on the next incident: no names attached to actions in the writeup, action items owned by the team, and a review focused entirely on the system. If it produces better fixes than our current format, we keep it. If not, we say so and go back \u2014 but I don't think we will.\n\nHappy to draft the template if there's interest."
+}

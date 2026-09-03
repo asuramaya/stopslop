@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a launch announcement blog post for a new dark mode feature in a note-taking app. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Dark mode is here\n\nYou asked for it since launch, and it's in the app now. Open Settings, tap Appearance, and pick Dark. Or leave it on Auto and let the app follow your system theme, switching at sunset or whenever your phone does.\n\nWe rebuilt the color system from scratch rather than just inverting the existing palette. A straight invert makes text glare against pure black and washes out the colored tags people use to organize notes. Instead we picked a dark gray background, tuned each accent color for contrast against it, and checked every screen by hand: the editor, the sidebar, checklists, the tag picker, even the export preview.\n\nA few details we paid attention to:\n\nSyntax highlighting in code blocks now uses a separate dark-mode palette, not a dimmed version of the light one. Highlighted text and search results keep the same contrast ratio in both themes, so nothing you've marked up looks harder to read at night. And images you've pasted into notes keep their original colors; only the surrounding chrome changes.\n\nDark mode works everywhere the app runs: desktop, mobile, and the web version. Your theme choice syncs across devices through the same account settings that sync your notes.\n\nIf you write late at night, this should cut the glare without losing any of the detail you rely on when scanning a long note. If you spot a screen where something still looks off, tell us. We read every message that comes through the feedback form, and we'll fix it.\n\nUpdate to the latest version to try it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## Dark mode is here\n\nYou've been asking for this since we launched. It's in the app now. Open Settings, tap Appearance, pick Dark \u2014 or leave it on Auto and let the app follow your system theme, switching at sunset or whenever your phone does.\n\nWe rebuilt the color system instead of inverting the existing palette. A straight invert makes text glare against pure black and washes out the colored tags people use to organize notes. We picked a dark gray background, tuned each accent color against it, and checked every screen by hand: the editor, the sidebar, checklists, the tag picker, the export preview.\n\nA few details we paid attention to:\n\nCode blocks use a separate dark-mode syntax palette, not a dimmed version of the light one. Highlighted text and search results hold the same contrast ratio in both themes, so nothing you've marked up gets harder to read at night. Images you paste into notes keep their original colors \u2014 only the surrounding chrome changes.\n\nDark mode runs on desktop, mobile, and web. Your theme choice syncs across devices through the same account settings that sync your notes.\n\nIf you write late at night, this cuts the glare without losing the detail you need when you're scanning a long note. If you find a screen where something still looks off, tell us \u2014 we read every message that comes through the feedback form, and we'll fix it.\n\nUpdate to the latest version to try it."
+}

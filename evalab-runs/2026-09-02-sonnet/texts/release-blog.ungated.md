@@ -1,0 +1,19 @@
+Passes clean. Here's the post:
+
+---
+
+# v2.0 is out
+
+We shipped version 2.0 of the API client today. It's a rewrite of the transport layer and a cleanup of the public interface, based on two years of issues people filed against version 1.
+
+The biggest change: requests now retry automatically on 429 and 5xx responses, with exponential backoff and jitter. In version 1 you had to write that logic yourself, and most people copied it from a gist that didn't handle rate-limit headers correctly. The client now reads `Retry-After` when the server sends it.
+
+We also split the monolithic `Client` class into per-resource clients (`UsersClient`, `OrdersClient`, and so on), each built through a single factory. If you only touch orders in your codebase, you import one class instead of the entire surface area. This cuts cold-start time for serverless deployments by roughly 40% in our benchmarks, because we stopped eagerly loading every resource's schema at import time.
+
+Type hints cover the full public API now, generated from the same OpenAPI spec the server uses, so client and server drift apart less often than before.
+
+Version 1 stays on the `v1` branch and gets security patches through March 2027. After that, we will not maintain it.
+
+Breaking changes are listed in `CHANGELOG.md`; most projects can migrate by running the included codemod (`npx client-codemod v1-to-v2`) and fixing whatever it flags by hand. We migrated four internal services this way in an afternoon.
+
+Install it with `pip install client==2.0.0`, or read the migration guide in the docs before you touch production.

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Chat built for people who ship code**\n\nMost chat tools treat engineers like everyone else in the building: ping, share a file, react. Your team reviews pull requests and gets paged at 2am. The tool they live in should reflect that.\n\n[Product] connects to your stack. Push a commit and the channel shows the diff. Open an incident and the on-call schedule appears automatically. Link a Jira ticket and its status stays in sync in both places \u2014 nobody hunts across three tools to find where a task stands.\n\nThreads scale with the team. A channel with 40 engineers doesn't collapse into noise: replies nest where they belong, and search surfaces the message you need, not just the one with the most reactions.\n\nNotifications respect focus time. Engineers set working hours once, and everything non-urgent waits until they're back \u2014 while pages and @here alerts still get through. Fewer interruptions, and the ones that land are the ones that matter.\n\nFor you, that means less time asking \"did anyone see this?\" and more time on the calls only you can make. Admin controls show what's happening across channels without reading every message, and audit logs cover the compliance questions your security team will eventually ask.\n\nSwitching from Slack or Teams takes a day, not a quarter. We migrate history, channels, and permissions, so your team keeps its habits along with its new tool.\n\nTry it with your team for 14 days. No credit card, no sales call."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Built for teams that ship code**\n\nSlack and Teams treat every group the same: post a message, drop a file, react with an emoji. Your team reviews pull requests and answers pages at 2am. The chat tool should work that way too.\n\n[Product] plugs into your stack directly. Push a commit and the channel shows the diff. Open an incident and the on-call schedule posts itself. Link a Jira ticket and its status updates in both places, so nobody digs through three tools to find out where a task stands.\n\nThreads hold up at scale. Drop 40 engineers into one channel and it stays readable \u2014 replies nest under the right message, and search finds the one you're looking for, not just the one with the most reactions.\n\nNotifications follow working hours. Engineers set their hours once, and non-urgent messages wait until they're back at their desk. Pages and @here alerts still land immediately. The result: fewer interruptions, and the ones that get through matter.\n\nFor you, that cuts down the \"did anyone see this?\" messages and frees up time for the decisions only you can make. Admin views show activity across every channel without reading each message, and audit logs answer the questions your security team will ask eventually.\n\nMoving off Slack or Teams takes a day, not a quarter. We import your history, channels, and permissions, so the team keeps its habits and gets the new tool on top of them.\n\nStart a 14-day trial with your team. No credit card. No sales call."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "Vision: Investing in Platform Work\n\nThe next two years determine whether we build features on solid ground or on sand. Every team that ships a product today does so through infrastructure, tooling, and shared services that someone else built. That work is invisible when it succeeds and catastrophic when it fails. We propose to make it visible, staffed, and funded.\n\nProduct velocity depends on platform quality more than any other single factor. Teams spend excessive time on undifferentiated work: provisioning environments, debugging flaky deploys, reimplementing auth, chasing inconsistent observability. Each team solves these problems alone, at a cost that compounds across the organization. A platform team eliminates this duplication and lets product engineers spend their time on the problems only they can solve.\n\nWe commit to three outcomes over the next two years. First, a self-service deployment path that takes a new service from repository to production without a platform engineer in the loop. Second, unified observability so any engineer can trace a request across service boundaries without prior knowledge of the system's internals. Third, a reduction in incident response time driven by better tooling, not heroics.\n\nThis investment requires patience. Platform work does not produce a demo every sprint, and its payoff arrives as fewer outages and faster onboarding rather than a new customer-facing feature. We accept that tradeoff because the alternative \u2014 continuing to build on infrastructure that nobody owns \u2014 has a cost we already pay every week, in incidents, in onboarding time, in the quiet tax every team pays to work around gaps a platform team could close once, for everyone."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the introduction to a public product roadmap for a developer tools company. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Here's a draft intro for the roadmap page:\n\n---\n\n## What we're building next\n\nThis page tracks where we're taking the product over the next two quarters. We update it monthly, and we pull items once they ship or once we decide not to build them.\n\nA few ground rules. Anything here is a direction, not a promise \u2014 dates move, and priorities shift when we learn something new from users. We won't quietly drop something you were counting on; if a planned item changes scope or gets cut, we'll say so here and explain why.\n\nMost of what's on this roadmap came from support tickets, community requests, and conversations with teams using the product in production. If you want to weigh in on priority, the best way is to comment on the linked issue for each item, not to email us \u2014 we read every comment, and upvotes genuinely move things up the list.\n\nWe're also including a few items marked \"exploring,\" which means we're validating the idea before committing engineering time. Feedback on those is especially useful, since we can still change direction cheaply.\n\nThanks for building with us. If something you need isn't here, open an issue and tell us what you're trying to do.\n\n---\n\nThat's 199 words. Want a different tone (more formal, more terse) or should I tailor it to your actual product?"
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "## What we're building next\n\nThis page shows where the product is headed over the next two quarters. We update it monthly and remove items once they ship, or once we decide not to build them.\n\nA few ground rules. Everything here is a direction, not a promise \u2014 dates shift, and priorities change as we learn from users. We won't quietly drop something you were counting on: if a planned item changes scope or gets cut, we'll say so here and explain why.\n\nMost items on this list came from support tickets, community requests, and conversations with teams running the product in production. To weigh in on priority, comment on the linked issue for each item rather than emailing us \u2014 we read every comment, and upvotes move things up the list.\n\nA few items are marked \"exploring.\" That means we're testing the idea before committing engineering time to it. Feedback on those is especially valuable, since we can still change direction cheaply at this stage.\n\nThanks for building with us. If something you need isn't listed here, open an issue and tell us what you're trying to do."
+}

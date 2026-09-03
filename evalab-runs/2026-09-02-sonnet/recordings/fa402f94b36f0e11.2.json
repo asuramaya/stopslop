@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  }
+ ],
+ "output": "Quick check before I draft this: which conference, which team, and what were the actual takeaways (sessions attended, key insights, any product/process changes coming out of it)? I don't want to invent details for something framed as a factual recap \u2014 give me the real specifics and I'll write the post."
+}

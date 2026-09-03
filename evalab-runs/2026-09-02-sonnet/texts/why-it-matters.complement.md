@@ -1,0 +1,7 @@
+Engineering teams usually find out something is broken when a customer files a ticket, not when the system detects it. By then the problem has been running for an hour, or a day, and nobody can say when it started or which deploy caused it. That gap between "something is wrong" and "we know what and why" is what observability closes.
+
+The term gets used loosely, so it helps to be specific: observability means you can ask new questions about your system's behavior without shipping new code to answer them. A service with good logs, metrics, and traces lets an engineer start from a vague symptom, like elevated latency on one endpoint, and narrow it down to a specific database query or a specific customer's traffic pattern, all from existing data. A service without it forces that same engineer to add print statements, redeploy, and wait for the bug to happen again.
+
+This matters more as systems get distributed. A single monolith might fail in ways you can reproduce locally. A system built from a dozen services, a queue, and three databases fails in ways that only show up in production, under production load, across service boundaries no single engineer holds in their head. Traces that follow a request across those boundaries turn a multi-hour incident call into a five-minute root-cause lookup.
+
+The payoff shows up in two places: incidents get shorter, because the data needed to diagnose them already exists, and engineers make better decisions day to day, because they can see how their code actually behaves instead of guessing from tests and intuition.

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "Team chat built for engineering managers who need to compare tools without wading through marketing fluff.\n\n**Threads that match how engineers actually work.** Every conversation stays attached to its origin \u2014 a pull request, an incident, a deploy. No more scrolling through a general channel to find the context behind a decision made three weeks ago.\n\n**Search that finds code, not just messages.** Paste a stack trace or a function name and pull up every discussion that mentions it, across every channel, going back as far as your workspace exists.\n\n**Notifications you control at the team level.** Set quiet hours per project, route on-call pages through a separate channel, and mute release-cutoff noise without muting your team. Fewer interruptions means fewer context switches for the people you manage.\n\n**Integrations that report status, not just links.** Connect your CI pipeline, your issue tracker, and your monitoring stack, and get inline status updates instead of a wall of bot messages. Your team sees build failures and deploy confirmations where the conversation already is.\n\n**Admin controls built for compliance, not decoration.** Audit logs, SSO, data retention policies, and export tools ship in every plan \u2014 not locked behind an enterprise tier you have to negotiate for.\n\n**Pricing that scales with your headcount, not your message volume.** No surprise bills when a launch week generates ten times the usual traffic.\n\nMigrate your history in an afternoon. Import channels, threads, and pinned messages from Slack or Microsoft Teams with a single import tool, and keep your team's institutional knowledge intact.\n\nStart a 30-day trial with your full team, no credit card required."
+}

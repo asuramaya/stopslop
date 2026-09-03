@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  }
+ ],
+ "output": "## Plotline\n\nMost charting libraries make you choose between two bad options: a high-level API that looks good in the demo and falls apart the moment your data has a gap in it, or a low-level canvas API where you're computing tick positions by hand. Plotline sits in between. You describe your data and the shape of the chart you want; it handles scales, axes, and layout, but every mark stays addressable if you need to override it.\n\nIt renders to SVG by default, so charts are inspectable in dev tools, stylable with CSS, and accessible to screen readers out of the box. For datasets over 50,000 points, it switches to canvas automatically, and you can force either mode.\n\nThe core bundle is 12kB gzipped, with no dependencies. Line, bar, scatter, and area charts work today; a plugin system covers everything else, including a D3-compatible adapter for existing custom marks.\n\nThis is a young project. The API surface is small on purpose, and we're adding chart types based on what people actually build with it, not what looks impressive in a gallery. Issues and pull requests are welcome, especially ones that come with a failing test."
+}

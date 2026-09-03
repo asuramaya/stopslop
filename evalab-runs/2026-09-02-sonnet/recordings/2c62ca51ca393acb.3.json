@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about starting a mentorship program on an engineering team. Around 250 words."
+  }
+ ],
+ "output": "We started pairing junior engineers with senior ones this quarter, and I want to write up why.\n\nThe idea came from exit interviews. Three people in six months said some version of the same thing: nobody showed them how decisions get made here. Not the tech stack, not the tools \u2014 the judgment calls. Why we shipped the quick fix instead of the proper one. Why that migration got delayed twice.\n\nSo we set up a mentorship program. Loose structure: pairs meet every other week, thirty minutes, no fixed agenda. The senior person doesn't review code in these sessions \u2014 that already happens in PRs. Instead they talk through a decision from the past two weeks. What they almost did instead. What they'd do differently now.\n\nSix pairs, ten weeks in. The pattern that surprised me: the mentees ask better questions in design reviews now. Not more questions \u2014 better ones. They've started saying \"what breaks if we're wrong about load\" instead of just nodding along.\n\nIt's not free. Every senior engineer on the program is giving up an hour a month they'd otherwise spend heads-down. We haven't measured whether that trade pays off yet, and I'm skeptical of anyone who claims they can measure it cleanly.\n\nWhat I do know: two of the six mentees have started mentoring interns on their own, without being asked. That's the signal I was watching for. A program that only moves information one level down the chain isn't a program \u2014 it's a briefing.\n\nWe're running it through the end of the year, then deciding whether it's a permanent fixture or a one-off experiment."
+}

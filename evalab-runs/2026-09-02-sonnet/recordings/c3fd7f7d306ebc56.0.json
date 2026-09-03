@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a recap post about what a team learned at an industry conference. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "Quick check before I draft this: which conference, which team, and what were the actual takeaways (sessions attended, key insights, any product/process changes coming out of it)? I don't want to invent details for something framed as a factual recap \u2014 give me the real specifics and I'll write the post."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Quick check before I draft this:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Before I draft this, I need real specifics: which conference, which team, and what were the actual takeaways \u2014 sessions attended, key insights, any product or process changes coming out of it. I don't want to invent details for something framed as a factual recap. Give me the real specifics and I'll write the post."
+}

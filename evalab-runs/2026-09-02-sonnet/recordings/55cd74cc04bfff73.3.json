@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  }
+ ],
+ "output": "Pricing for a code review tool, three tiers, plain language, no filler.\n\n---\n\n**Starter \u2014 Free**\nFor solo projects and side work. Review up to 100 pull requests a month, on public repos only. Inline comments, one rule set, community support. No credit card.\n\n**Team \u2014 $18/user/month**\nFor teams shipping together. Unlimited pull requests, private repos, custom rule sets, and review policies scoped by branch or path. Slack and Linear integrations. Priority queue so reviews land in under a minute. Email support with a same-day response.\n\n**Enterprise \u2014 Custom**\nFor companies with compliance and scale requirements. SSO and SCIM, audit logs, self-hosted or VPC deployment, and a dedicated Slack channel with your account team. SLA-backed uptime and response times. Custom contract terms, including annual invoicing.\n\n---\n\nAll plans include the core review engine: it reads the diff, not just the file, so comments stay relevant to what changed. Upgrade or downgrade anytime \u2014 we prorate the difference. Team and Enterprise plans come with a 14-day trial, no card required.\n\nHave a nonprofit, open-source maintainer, or student project? Write to us \u2014 we have discounts for all three."
+}

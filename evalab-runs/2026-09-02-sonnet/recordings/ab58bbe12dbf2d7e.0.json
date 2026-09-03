@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**About Meridian Scheduling**\n\nClinics run on appointments, and most scheduling software wasn't built by anyone who worked a front desk. We were. Two of our founders spent years managing intake at a multi-provider family practice, juggling no-shows, insurance verification, and a phone that never stopped ringing. The tools they had access to treated scheduling as an afterthought bolted onto a billing system. We started this company to fix that.\n\nMeridian is built for medical clinics: multi-provider calendars, automated reminders that cut no-show rates, real-time eligibility checks, and a patient booking portal that skips the phone call. It connects to the major EHR systems clinics already use, so staff don't enter the same patient information twice.\n\nWe work with independent practices, multi-location clinic groups, and specialty providers in dermatology, physical therapy, dental, and behavioral health. Each has different scheduling needs. A PT clinic books recurring sessions. A dermatology practice manages procedure rooms and equipment. A behavioral health practice needs longer buffer windows between appointments. Our software adapts to those differences instead of forcing every clinic into the same template.\n\nWe're a team of about thirty people, split between engineering and clinical operations, headquartered in Denver, with clinics on our platform across the country. If you run a front desk and you're tired of software that fights you, we built this for you."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Meridian is built for medical clinics:):\n- bold_density:\n- paragraph_uniformity (4 paragraphs, spread 0.21):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "**About Meridian Scheduling**\n\nClinics run on appointments, and most scheduling software wasn't built by anyone who worked a front desk. We were. Two of our founders spent years managing intake at a multi-provider family practice, juggling no-shows, insurance verification, and a phone that never stopped ringing. The tools they had access to treated scheduling as an afterthought bolted onto a billing system. We started this company to fix that.\n\nMeridian is built for medical clinics. It offers multi-provider calendars, automated reminders that cut no-show rates, real-time eligibility checks, and a patient booking portal that skips the phone call. It connects to the major EHR systems clinics already use, so staff don't enter the same patient information twice.\n\nWe work with independent practices, multi-location clinic groups, and specialty providers in dermatology, physical therapy, dental, and behavioral health.\n\nEach has different scheduling needs. A PT clinic books recurring sessions. A dermatology practice manages procedure rooms and equipment. A behavioral health practice needs longer buffer windows between appointments. Our software adapts to those differences instead of forcing every clinic into the same template.\n\nWe're a team of about thirty people, split between engineering and clinical operations, headquartered in Denver, with clinics on our platform across the country. If you run a front desk and you're tired of software that fights you, we built this for you."
+}

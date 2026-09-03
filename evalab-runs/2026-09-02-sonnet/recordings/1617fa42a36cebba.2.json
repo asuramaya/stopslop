@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an internal post arguing for blameless postmortems at a company that does not do them yet. Around 250 words."
+  }
+ ],
+ "output": "Why We Should Run Blameless Postmortems\n\nLast month's outage cost us four hours and a Slack thread full of people quietly trying to figure out who to blame before anyone had figured out what actually broke. That's backwards. We fixed the symptom, never wrote anything down, and now the same failure mode is sitting in three other services waiting for its turn.\n\nThe alternative is a blameless postmortem: after an incident, we write up what happened, in what order, and why it made sense to the people involved at the time \u2014 without naming names as the point of the exercise. The goal is a system fix, not a target.\n\nThis isn't about being nice. It's about getting good information. If engineers expect a postmortem to end with someone's name attached to a mistake, they'll route around the process \u2014 vague timelines, omitted details, no incentive to admit \"I didn't know that config was load-bearing.\" Blameless postmortems get people to say the true version of events, because the true version doesn't cost them anything. That's the version we can actually learn from.\n\nConcretely, I'd propose: any incident above our current severity-2 threshold gets a written postmortem within a week, owned by whoever was closest to the resolution, reviewed by the team, and shared org-wide. Action items get tracked like any other work, not filed away and forgotten.\n\nWe already trust each other enough to hand out production access. We should trust each other enough to say \"here's what I missed\" without it becoming a mark against us. That trust is what actually prevents the next outage."
+}

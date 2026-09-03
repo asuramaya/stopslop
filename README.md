@@ -48,10 +48,12 @@ Gate-only is dominated: It costs more than gate-plus-skill and delivers less tha
 
 And it matters where the skill points. A block naming the checks the gate *already enforces* barely helps (26 against 30, p = 0.17). A block naming the checks it does *not* enforce reaches 13, beating the gate alone 17-2, **p = 0.0007** -- and takes held-out flags from 25 to 11, which is the first time in six rounds that number moved. A gate enforces; an instruction generalises. Pointing both at the same targets wastes the instruction.
 
+And it holds on different weights. Re-run on a second model, the complement arm beats the gate 20 to 40 (19-3, p = 0.0009) and takes held-out flags 25 to 16 (11-2, p = 0.022). Base rates differ between models -- 88 ungated tells against 107 -- which is exactly why a check set needs measuring against the model you actually use. But the ordering of every gated arm is identical, and a blind rewrite still achieves nothing on either. [The replication](evalab-runs/2026-09-02-sonnet/FINDINGS.md) also retracts a claim the first run over-read.
+
 Four findings that are not in this project's favour, and matter more than the win:
 
 - The wording is not the active ingredient. stop-slop has 16.7k stars and thousands of readers' revisions. A block assembled mechanically from a check table matched it: 13-11 with 6 ties, p = 0.84. Meanwhile a blind rewrite -- told to try again, given no specifics, at three times the compute -- moved structural tells from 75 to 75. What works is naming defects, not describing quality.
-- Most checks do nothing. 19 of slopwatch's 31 fired zero times across 59902 words. Six carried 96% of every flag. Tell sets catalogued against 2023-24 output largely do not describe current models, and no skill file in this category carries a date.
+- Most checks do nothing, and it matters which ones. 19 of slopwatch's 31 fired zero times across 59902 words; six carried 96% of every flag. But silence means two different things, so each check declares which it is. A *tell* is a correlate catalogued against some model at some date -- when it stops firing, it has stopped describing anything, and `decay` lists it as a prune candidate. A *defect* is wrong whatever wrote it (an emoji in body text, an em dash as an HTML entity, a generator's own scaffolding), so silence means it is rare, which is what you wanted. The last run's 22 silent checks are 18 decayed tells and 4 defects working as intended.
 - Whether a check is a "tell" depends on your genre. `colon_reveal` reads 1.0x against code documentation and 25.8x against encyclopedia prose. Same check, opposite conclusion. `stopslop.py decay --against` is the command for finding out which way it falls for *your* corpus, and it wants two control genres, not one.
 - The gate does not work on `ste100` at all. 433 flags against ungated's 411, p = 1.0 -- indistinguishable from doing nothing, at three generations per document. The ruleset that fires most in production is the one the loop makes no better. [Findings](evalab-runs/2026-09-02-ste100/FINDINGS.md).
 
@@ -101,7 +103,7 @@ A ruleset is a small Python package under `src/rulesets/` supplying three functi
 
 Defaults with no config file: `slopwatch` on `.md`/`.txt`/`.rst`, `codewatch` on `.py`, `.claude/` out of scope. Route procedures to `ste100` by name, above the general rule. This repository routes exactly one file that way.
 
-The block/warn split follows one rule: a check blocks when it catches a *defect*, and warns when it catches a *tell*. A tell is a correlate, and text that dodges all 31 and says nothing still passes.
+The block/warn split follows one rule: a check blocks when it catches a *defect*, and warns when it catches a *tell*. That is now declared per check as `Check.kind` rather than described here, and a test holds that anything which blocks a write is a defect -- denying a write on evidence that is only a correlate is the unsound-gate criticism this project accepted. A tell is a correlate, and text that dodges all 31 checks and says nothing still passes.
 
 ## Quickstart
 

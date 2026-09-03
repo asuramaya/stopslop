@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  }
+ ],
+ "output": "Nomination: Engineering Excellence Award \u2014 Platform/DevOps Team\n\nThis team rebuilt our deployment process from a manual, error-prone chore into something engineers trust without thinking about it. Six months ago, shipping to production meant a runbook, a Slack thread, and someone crossing their fingers. Rollbacks took upward of 40 minutes and usually needed a senior engineer awake and available.\n\nThey replaced that with automated, staged rollouts, health-check gating, and one-command rollback. Deploy frequency roughly tripled, and the last two incidents that would have been outages were caught and reverted in under five minutes, without paging anyone.\n\nWhat stands out is how they did it: no big-bang rewrite, no forced migration. They shipped the new pipeline alongside the old one, dogfooded it on their own services first, and only asked other teams to switch once it had a track record. Every team that moved over did so voluntarily, because the tool was obviously better, not because a mandate said so.\n\nThe result is that deployment is now boring, in the best sense. Engineers ship on Friday afternoons again. Junior engineers deploy their own code confidently. That kind of quiet reliability rarely gets noticed, but it changed how the whole org works. This team earned the recognition."
+}

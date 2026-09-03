@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a nomination for an internal engineering award, for a team that improved the deployment process. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "**Nomination: Platform Team \u2014 Deployment Process Overhaul**\n\nI'm nominating the Platform team for their work rebuilding our deployment pipeline this quarter.\n\nSix months ago, shipping a change meant a 45-minute build, a manual checklist, and someone on standby in case rollback was needed. Deploys happened on Tuesdays because nobody wanted to risk a Friday incident. The team rewrote the pipeline from the ground up: automated the checklist, added staged rollouts with real health checks, and cut build time to under eight minutes.\n\nThe result isn't just speed. We went from a handful of deploys a week to dozens a day, and rollback \u2014 when we need it \u2014 now takes seconds instead of a war room. Engineers ship fixes the same hour they find bugs. New hires push their first change in week one instead of week three.\n\nWhat stands out is that they did this while keeping the system running for every other team. No freeze, no big-bang cutover \u2014 they migrated services one at a time and caught problems before they reached production.\n\nThis is the kind of infrastructure work that's easy to overlook because it makes everyone else's job quieter. Every team here ships faster because of it. I can't think of a group more deserving of recognition this cycle."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "**Nomination: Platform Team \u2014 Deployment Overhaul**\n\nI want to nominate the Platform team for rebuilding our deployment pipeline this quarter.\n\nSix months ago, shipping a change meant a 45-minute build, a manual checklist, and someone on standby in case something broke. Deploys happened on Tuesdays because nobody wanted a Friday incident. This team rewrote the pipeline from scratch: they automated the checklist, added staged rollouts with real health checks, and got build time under eight minutes.\n\nThe payoff isn't just speed. We went from a handful of deploys a week to dozens a day, and rollback now takes seconds instead of triggering a war room. Engineers fix bugs the same hour they find them. New hires ship their first change in week one instead of week three.\n\nWhat impresses me most is that they pulled this off without freezing the system for everyone else. No big-bang cutover \u2014 they moved services over one at a time and caught problems before production ever saw them.\n\nThis is the kind of work that's easy to miss precisely because it makes everything else quieter. Every team here moves faster because of it. Few groups deserve recognition this cycle more than this one."
+}

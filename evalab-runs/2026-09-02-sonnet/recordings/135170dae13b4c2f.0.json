@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the vision section of an internal engineering strategy document about investing in platform work over the next two years. Around 250 words."
+  }
+ ],
+ "output": "Platform work doesn't announce itself. Nobody files an incident because a build takes eleven minutes instead of two, or because every team hand-rolls its own auth middleware. That's the problem: the cost is real but distributed, so it never wins a prioritization fight against a feature with a customer's name attached to it. Over the next two years we're changing that trade.\n\nThe bet is specific. We invest in the shared layers \u2014 build infrastructure, deployment, internal APIs, observability \u2014 not as a side project teams do when roadmaps are light, but as owned, staffed work with its own headcount and its own deadlines. When a product team ships something, the scaffolding underneath should already be there: tested, documented, someone's job to maintain.\n\nWe're not chasing platform work for its own sake. Every investment has to answer a question a product engineer would actually ask: does this let me ship in days instead of weeks? Does this stop me from re-solving a problem three other teams already solved badly? If the answer is no, it doesn't make the list, no matter how elegant the abstraction.\n\nTwo years is long enough to build things that outlast a quarter's pressure, and short enough that we have to show real teams shipping real work faster along the way \u2014 not just infrastructure that looks good in a diagram. We'll know this worked when the average engineer spends less time fighting deploy pipelines and more time on the problem they were hired to solve."
+}

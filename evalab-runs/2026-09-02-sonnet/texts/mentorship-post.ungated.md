@@ -1,0 +1,11 @@
+Starting a Mentorship Program
+
+We paired every new hire with someone two years ahead of them, on purpose, not randomly. That gap mattered: a senior engineer forgets what it's like not to know the codebase, but someone who joined last year remembers exactly where they got stuck.
+
+The format is simple. Thirty minutes a week, no fixed agenda. Some pairs use the time for code review walkthroughs, others just talk about how the team makes decisions. We stopped requiring notes or reports after the first month, because the paperwork was killing the thing it was supposed to support.
+
+Two things surprised us. First, mentors got as much out of it as mentees. Explaining why we structure services a certain way forces you to check whether the reason still holds, or whether it's just habit. Second, the pairs that worked best weren't matched by skill overlap. A backend engineer mentoring someone on infrastructure worked fine, because most of the early questions are about the team, not the stack: who to ask, what "done" means here, why that one service has a weird name.
+
+We're six months in with twelve pairs. A few faded out, which is fine. The ones that stuck produced something we didn't plan for: new hires now mentor the next round of new hires, without us asking them to.
+
+If you're setting this up on your own team, start with one pair before you build a program around it. You'll learn more from watching it fail once than from any framework.

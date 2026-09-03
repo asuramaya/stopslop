@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the copy for the pricing page of a code review tool, covering three tiers. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Pricing\n\n**Free** costs nothing and covers solo projects and evaluation: up to 500 lines scanned per pull request, the core rule set, and standard GitHub integration. It needs no credit card, so you can try the tool on a real repo before committing to a team plan.\n\n**Team** runs $18 per user per month for engineering teams that review code daily. It includes unlimited scans, custom rule sets, and Slack notifications for flagged patterns, plus priority support and a shared dashboard where leads track trends across repos instead of chasing individual pull requests. Most teams start here once they outgrow the free tier's line limit.\n\n**Enterprise** pricing is custom, built for organizations with compliance requirements or self-hosted infrastructure. It includes everything in Team plus SSO, audit logs, on-premise deployment, and a dedicated account manager. Our team works with yours to define rule sets that match internal standards and to enforce policy across multiple repos org-wide. Contact sales for a quote based on seat count and deployment model.\n\nAll plans run the same detection engine \u2014 the difference is scale and control, not accuracy. Downgrade or cancel at any time; you keep your rule sets and history for 90 days after cancellation. Annual billing saves 15% on Team and Enterprise plans.\n\nNot sure which tier fits your team? Talk to us before you buy. We would rather size you correctly than sign you up for more than you need."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- bold_density:\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "## Pricing\n\nFree costs nothing and covers solo projects and evaluation: up to 500 lines scanned per pull request, the core rule set, and standard GitHub integration. It needs no credit card, so you can try the tool on a real repo before committing to a team plan.\n\nTeam runs $18 per user per month for engineering teams that review code daily. It includes unlimited scans, custom rule sets, and Slack notifications for flagged patterns, plus priority support and a shared dashboard where leads track trends across repos instead of chasing individual pull requests. Most teams start here once they outgrow the free tier's line limit.\n\nEnterprise pricing is custom, built for organizations with compliance requirements or self-hosted infrastructure. It includes everything in Team plus SSO, audit logs, on-premise deployment, and a dedicated account manager. Our team works with yours to define rule sets that match internal standards and to enforce policy across multiple repos org-wide. Contact sales for a quote based on seat count and deployment model.\n\nAll plans run the same detection engine \u2014 the difference is scale and control, not accuracy. Downgrade or cancel at any time; you keep your rule sets and history for 90 days after cancellation. Annual billing saves 15% on Team and Enterprise plans.\n\nNot sure which tier fits your team? Talk to us before you buy. We would rather size you correctly than sign you up for more than you need."
+}

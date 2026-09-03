@@ -1,0 +1,7 @@
+Platform work pays off on a lag: the return shows up in every feature built after, not the one it ships alongside. Over the next two years we want to fund that lag deliberately instead of letting it happen by accident when a team gets desperate enough to fix a shared system mid-sprint.
+
+Concretely, that means three things. First, treating build times, deploy reliability, test flakiness, and local dev setup as owned surfaces with a team accountable for them, not a backlog everyone deprioritizes. Second, funding migrations to completion — half-finished platform changes cost more than the systems they replaced, because engineers now carry both. Third, giving platform engineers the same visibility and career path as product engineers, so the work attracts people who want to do it well rather than people waiting to transfer out.
+
+We're not proposing this because current velocity is bad. Team leads consistently name the same blockers in retros: slow CI, brittle deploys, and onboarding that takes weeks instead of days. Those are platform problems, and they compound. A team that loses two hours a week to CI flakiness loses roughly fifty engineer-days a year, spread thin enough that no single sprint retro catches it. The target for 2028 is simple to state: a new engineer ships a production change in their first week, every deploy is boring, and no team can name a shared system they're afraid to touch.
+
+We'll know we're on track when platform requests show up in planning as investment, not as incidents.

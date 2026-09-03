@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the engineering culture section of a careers page. Around 250 words."
+  }
+ ],
+ "output": "We ship on a small team, so mistakes surface fast \u2014 and so does credit. Code review happens in hours, not days. If a PR sits overnight, someone will ask why.\n\nYou'll touch production in your first week. We don't gate that behind tenure; we gate it behind tests and a second pair of eyes. Every engineer carries a pager rotation, including the people who wrote the original system \u2014 nobody gets to hand off the pain they caused.\n\nWe argue about architecture in writing, in the open, before we build. Design docs get real pushback, not rubber stamps. If you're wrong, someone will say so directly, and you're expected to do the same back. That only works because we separate the critique from the person \u2014 disagreement here doesn't linger.\n\nMeetings are rare. Most days you'll go heads-down for long stretches with Slack muted, and that's fine \u2014 we measure output, not presence. When we do meet, it's because writing it down first wasn't enough.\n\nWe keep a blameless postmortem culture, but \"blameless\" doesn't mean vague. Every incident review names the specific gap \u2014 a missing alert, a skipped test, an assumption nobody checked \u2014 and someone owns closing it before the next sprint.\n\nRefactoring is normal work, not a special request. If you see a mess on the way to your task, you're expected to leave it better, not file a ticket and move on.\n\nIf you'd rather ship something imperfect on Tuesday than something polished on Friday, you'll fit in here."
+}

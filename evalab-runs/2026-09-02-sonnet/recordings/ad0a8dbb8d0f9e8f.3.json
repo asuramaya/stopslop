@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a conference talk abstract for a talk about moving a monolith to microservices. Around 200 words."
+  }
+ ],
+ "output": "Breaking Up the Monolith: Lessons from a Two-Year Migration\n\nOur team spent two years pulling a decade-old monolith apart into microservices, and half of what we learned only became clear after we shipped the first few services. This talk walks through the actual path: how we picked service boundaries around team ownership rather than technical layers, why our first attempt at a shared database nearly stalled the project, and what changed once we moved to event-driven communication between services.\n\nWe'll cover the parts most migration talks skip: the six months of running both systems in parallel, the on-call rotation that had to learn two architectures at once, and the moment we realized our monitoring setup couldn't tell us which service actually caused an outage. You'll hear specific numbers on deploy frequency, incident rates, and team velocity before and after the split, along with the tradeoffs that didn't pay off.\n\nThis talk is for engineers and engineering managers weighing a similar move, or already in the middle of one. You'll leave with a framework for deciding whether your monolith is really the problem, a checklist for sequencing the migration, and a clear list of what we'd do differently if we started over today."
+}

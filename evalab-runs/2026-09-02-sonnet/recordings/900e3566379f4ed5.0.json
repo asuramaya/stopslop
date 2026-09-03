@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the About page for a company that makes scheduling software for medical clinics. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# About Us\n\nMost clinic front desks run on sticky notes and hold music. We started there.\n\nOur founders came from clinic operations, not software. One ran patient intake for a multi-site pediatric practice. The other built internal tools for a hospital network before either of them had heard of Notion. Both kept hitting the same wall: scheduling tools built for restaurants and salons, forced to fit insurance verification, provider licensing rules, recall reminders, and daily no-show patterns.\n\nSo we built something for the actual job. The platform handles multi-provider calendars, automatic eligibility checks, text and email reminders, and waitlist fill-ins that recover slots clinics used to lose. It connects to the EHR systems clinics already run, so staff stop retyping the same patient information three times before lunch.\n\nWe work with independent practices, urgent care groups, and specialty clinics nationwide, from two-provider offices to networks with dozens of locations. During onboarding, almost every one of them says the same thing: they don't want more software. They want fewer clicks, fewer double-bookings, and a front desk that isn't underwater by 10 a.m.\n\nWe're still small enough to talk every week to the people using our product. When a clinic tells us their scheduling rules don't fit our system, we don't tell them to change how they work. We build the feature.\n\nIf your clinic's calendar fights you, talk to us."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "# About Us\n\nOur front desk used to run on sticky notes and hold music. That's where this started.\n\nNeither founder came up through software. One managed intake for a multi-site pediatric practice. The other built internal tools for a hospital network before either of them had heard of Notion. Both hit the same wall over and over: scheduling tools built for restaurants and salons, stretched to cover insurance verification, provider licensing rules, recall reminders, and daily no-show patterns.\n\nSo we built something for the actual job. The platform handles multi-provider calendars, automatic eligibility checks, text and email reminders, and waitlist fill-ins that recover slots clinics used to lose. It connects to the EHR systems clinics already run, so staff stop retyping the same patient information three times before lunch.\n\nWe work with independent practices, urgent care groups, and specialty clinics across the country, from two-provider offices to networks with dozens of locations. During onboarding, almost every one of them says the same thing: they don't want more software. They want fewer clicks, fewer double-bookings, and a front desk that isn't underwater by 10 a.m.\n\nWe're still small enough to talk to the people using our product every week. When a clinic tells us their scheduling rules don't fit our system, we don't tell them to change how they work. We build the feature.\n\nIf your clinic's calendar fights you, talk to us."
+}

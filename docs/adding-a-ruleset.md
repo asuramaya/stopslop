@@ -239,6 +239,24 @@ inspects the signature and calls the two-name form, silently, because a
 project author who scaffolded a ruleset before this existed did nothing
 wrong.
 
+Every `Check` also declares a `kind`: `"tell"` (the default) or
+`"defect"`. It decides what the check's SILENCE means, which is the only
+thing that makes "this check never fires" actionable.
+
+A tell is a correlate of machine authorship, catalogued against some
+model at some date. When it stops firing that is evidence it stopped
+describing anything, and `stopslop.py decay` lists it as a prune
+candidate. A defect is wrong whatever wrote it -- an emoji in body text,
+a bare `except: pass` -- so silence means it is rare, which is the
+outcome you wanted. Frequency cannot separate the two, so it is
+declared.
+
+Default to `"tell"`. A new check is a correlate until someone has
+thought about whether the thing it catches is wrong on its own terms.
+A check whose `default_action` is `"block"` must be a defect: denying a
+write on evidence that is only a correlate is an unsound gate, and a
+test enforces it.
+
 `blocking_semantic_flags` groups the raw flags by check id. It compares
 each group's weight against that check's own threshold, and returns only
 the groups of a triggered `"block"` check. There is no ruleset-wide

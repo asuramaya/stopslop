@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the product page copy for a team chat application, aimed at engineering managers who are choosing between tools. Around 250 words."
+  }
+ ],
+ "output": "**Chat built for engineering teams, not sales teams**\n\nMost chat tools treat engineering the same way they treat every other department. Ping people, share files, add reactions. But your team ships code, reviews pull requests, and gets paged at 2am \u2014 and the tool you use every day should account for that.\n\n[Product] connects to your existing stack. Push a commit and the channel shows the diff. Open an incident and it pulls in the on-call schedule automatically. Link a Jira ticket and the status stays in sync in both directions, so nobody hunts through three tools to find the current state of a task.\n\nThreads stay readable at scale. A channel with 40 engineers doesn't collapse into noise, because replies nest properly and search actually finds the message you're thinking of, not just the one with the most reactions.\n\nNotifications respect focus time. Engineers set working hours once, and the app holds non-urgent messages until they're back, while still surfacing pages and @here alerts. Fewer interruptions, and the ones that get through matter.\n\nFor you, the manager, that means less time asking \"did anyone see this?\" and more time on the decisions that need you. Admin controls give you visibility into channel activity without reading every message, and audit logs cover the compliance requirements your security team will ask about eventually.\n\nMigration from Slack or Teams takes a day, not a quarter \u2014 we import history, channels, and permissions, and your team keeps its muscle memory.\n\nTry it with your team for 14 days. No credit card, no sales call required to start."
+}

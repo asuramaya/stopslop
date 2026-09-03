@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write an announcement telling customers that a service is moving to a new platform next quarter. Around 250 words."
+  }
+ ],
+ "output": "Migrating to a new platform next quarter \u2014 here's an announcement draft:\n\n---\n\n**We're moving to a new platform this fall**\n\nStarting in Q4, we're migrating [Service Name] to a new platform. The change affects how you log in, how billing works, and a few parts of the dashboard, but the core service keeps running the same way it does today.\n\nWhy now: the current infrastructure has reached its limits on speed and uptime as our user base has grown. The new platform fixes both, and gives us room to ship features we've had to delay.\n\nWhat changes for you:\n- A new login flow (single sign-on support included)\n- A faster dashboard, especially for large accounts\n- Consolidated billing \u2014 one invoice instead of the current split system\n- API endpoints stay the same; authentication tokens will need to be reissued\n\nWhat stays the same: your data, your account settings, and your existing integrations. We're handling the migration on our end \u2014 no action is required from you until the week of the switch, when we'll send login instructions.\n\nTimeline:\n- **October**: Early access opens for teams who want to test the new platform first\n- **November**: Migration begins in waves, by account size\n- **December**: Old platform shuts down; all accounts run on the new system\n\nWe'll email each account two weeks before its migration window with exact dates and a rollback contact in case anything breaks. If you have questions before then, reach out to support@[company].com or reply to this email directly.\n\nThank you for sticking with us through this transition.\n\n---\n\nWant me to adjust the tone, shorten it, or tailor it for a specific service/company name?"
+}

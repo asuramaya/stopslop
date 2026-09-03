@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the charter for a newly formed platform engineering team. Around 250 words."
+  }
+ ],
+ "output": "## Platform Engineering Team Charter\n\n**Mission**\nWe build and operate the internal infrastructure, tooling, and developer workflows that let product engineering teams ship reliably without reinventing the plumbing each time. We treat internal engineers as our customers and their velocity as our metric.\n\n**Scope**\n- CI/CD pipelines and deployment tooling\n- Cloud infrastructure and provisioning (IaC)\n- Observability: logging, metrics, tracing, alerting\n- Developer environments and local tooling\n- Service catalogs, golden paths, and paved-road templates\n- On-call support for platform-owned systems\n\n**What we own vs. what we enable**\nWe own the platform's core services and their uptime. We do not own application-level business logic, and we avoid becoming a bottleneck for teams' day-to-day decisions. Where possible, we favor self-service over tickets.\n\n**Operating principles**\n1. Golden paths over gatekeeping \u2014 make the right way the easy way.\n2. Automate the repeatable, document the rest.\n3. Every platform capability ships with sane defaults and an escape hatch.\n4. We measure success by adoption and by the time we save other teams, not by the tools we ship.\n5. Incidents get blameless postmortems and fast follow-through.\n\n**Working agreements**\n- We publish a public roadmap and revisit priorities quarterly with stakeholder input.\n- Breaking changes require a deprecation window and migration guide.\n- On-call rotates weekly; we page only for platform-owned services.\n\n**Success looks like**\nTeams deploy without asking us for help, incidents are rare and short, and engineers describe our tools as things that get out of their way.\n\n---\n\nLet me know if you'd like this tailored to a specific org size, stack, or existing team structure."
+}

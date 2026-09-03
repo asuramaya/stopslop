@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a customer case study about a company that adopted a continuous delivery platform and now deploys more often. Around 250 words."
+  }
+ ],
+ "output": "Fenwick Rail runs the software behind freight scheduling for a dozen regional lines. Three years ago, a release meant a Saturday night: the team froze the codebase Thursday, tested through the weekend, and pushed to production while dispatchers slept. Deploys happened every six weeks. Bugs sat in the queue that long too.\n\nThe team moved to Argon, a continuous delivery platform, in early 2024. They broke the scheduling monolith into services, wired each one to a pipeline that runs the test suite and ships automatically on a green build, and added feature flags so half-finished work could sit in production without reaching users.\n\nThe change showed up fastest in how the team talks about releases. Nobody says \"the release\" anymore, because there isn't one event to point to. Engineers merge a fix in the morning and watch it reach production before lunch. The platform team counted 1,400 deploys in the twelve months after the switch, versus 9 in the twelve months before.\n\nFewer things break, too. Each deploy now carries a smaller diff, so when something goes wrong, the team can point to the one change that caused it and roll back in minutes instead of hours. Mean time to recovery dropped from four hours to eleven minutes.\n\nThe Saturday deploys are gone. So is the dread that came with them. \"We used to schedule our lives around releases,\" says Priya Nagarkar, who leads the scheduling team. \"Now releases just happen, and we plan our weekends instead.\""
+}

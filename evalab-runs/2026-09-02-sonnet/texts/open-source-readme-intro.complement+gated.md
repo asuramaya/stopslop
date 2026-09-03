@@ -1,0 +1,5 @@
+Charting for the web that draws exactly what you give it, no more. Most charting libraries carry a runtime you never fully see: implicit scales, animation queues, a layout engine guessing at your data. This one has three primitives — scale, axis, mark — and you compose them yourself. A line chart is a scale, an axis, and a path. A scatter plot swaps the path for circles. Nothing hides behind a config object with forty optional keys.
+
+It renders to SVG. Every element is inspectable, styleable with plain CSS, and accessible by default: screen readers see real DOM nodes, not a canvas bitmap. Bundle size stays under 8kb gzipped, because there's no built-in theme system, no animation engine, no chart-type registry to tree-shake around. This trades convenience for legibility.
+
+If you want a pie chart in one line, use something else. If your axis labels are wrong at 2am, the answer is in your own code, not in a library's internals. Works with React, Svelte, or vanilla JS, because it never assumes a framework. TypeScript types generate from the same scale definitions the renderer uses, so a bad domain fails at compile time, not in production.

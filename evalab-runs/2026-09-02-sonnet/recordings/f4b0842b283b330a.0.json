@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a post about why a company is investing in developer relations. Around 250 words."
+  },
+  {
+   "role": "assistant",
+   "content": "# Why we're building a developer relations team\n\nWe looked at where new customers came from this year: most read the docs, tried the SDK, or watched a conference talk before anyone from sales talked to them. That's the default path now, not the exception. If a developer can't figure out our API from the documentation alone, we lose them before a salesperson gets a chance.\n\nSupport tickets back this up. A large share of what comes in isn't about bugs. It's missing examples, confusing error messages, gaps between what the docs say and what the SDK does. Nobody owned those problems full time until now.\n\nThe plan: rewrite the docs, replace stub snippets with real example code, and put engineers in Discord and GitHub issues answering questions as they come in. We also want people who sit in on customer calls and carry what they hear back to the product team. Some of our best fixes started as an offhand comment from a developer stuck debugging at 11pm.\n\nThis isn't a marketing hire. The team reports through engineering. Success means fewer support tickets, less time between signup and a working first request, and docs developers trust enough that they stop asking us things we already answered.\n\nIf you've done this work before, we want to talk to you."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "We're hiring a developer relations team because most people evaluating our product read the docs and try the SDK long before a salesperson enters the picture. If someone can't figure out the API from documentation alone, we lose them before that conversation happens.\n\nSupport tickets confirm this. Most of what comes in isn't bugs \u2014 it's missing examples, unclear error messages, gaps between what the docs promise and what the SDK does. No one owned these problems full time. Now someone does.\n\nThe plan: rewrite the docs, replace stub code with working examples, and put engineers directly in Discord and GitHub issues where questions actually happen. The team will also sit in on customer calls and carry what they hear back to product. Some of our best fixes started as a developer complaining about a bug at midnight.\n\nThis isn't a marketing role. The team reports into engineering, and it gets measured the same way: fewer support tickets, less time between signup and a working first request, docs people trust enough to stop asking us things we already answered.\n\nIf you've built developer relations somewhere before, we want to talk to you."
+}

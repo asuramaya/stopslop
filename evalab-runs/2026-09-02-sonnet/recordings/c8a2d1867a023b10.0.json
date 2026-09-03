@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write the opening pitch section of a README for a new open source charting library. Around 200 words."
+  },
+  {
+   "role": "assistant",
+   "content": "## Plotline\n\nPlotline renders charts from plain data, without a config object between you and the result. You describe what the data means; the library picks defaults that work for most cases and lets you override anything.\n\nMost charting libraries make you choose between two extremes: a high-level API that covers ten chart types and stops there, or a low-level canvas/SVG toolkit where every axis and tick mark is your responsibility. Plotline sits between them. Common charts (line, bar, scatter, area) take five lines of code. Anything unusual \u2014 a custom scale, a second axis, a non-standard tooltip \u2014 is a documented extension point, not a fork of the source.\n\nThe renderer is SVG by default and switches to canvas past 10,000 points, so the same code handles a dashboard tile and a million-row scatter plot. Output is responsive by default: charts resize with their container instead of requiring a manual redraw call.\n\nPlotline ships with no dependencies beyond the DOM. It works in React, Vue, Svelte, or a script tag, because it never assumed a framework in the first place.\n\n```js\nimport { chart } from \"plotline\";\n\nchart(\"#app\", { data, x: \"date\", y: \"revenue\" });\n```\n\nThat call produces a line chart, axis labels included."
+  },
+  {
+   "role": "user",
+   "content": "The text above has these problems. Rewrite it so none remain.\nChange nothing else, and keep the same length and purpose.\n\n- colon_reveal (Output is responsive by default:):\n\nReturn only the rewritten text."
+  }
+ ],
+ "output": "Plotline renders charts from plain data, without a config object between you and the result. You describe what the data means; the library picks defaults that work for most cases and lets you override anything.\n\nMost charting libraries make you choose between two extremes: a high-level API that covers ten chart types and stops there, or a low-level canvas/SVG toolkit where every axis and tick mark is your responsibility. Plotline sits between them. Common charts (line, bar, scatter, area) take five lines of code. Anything unusual \u2014 a custom scale, a second axis, a non-standard tooltip \u2014 is a documented extension point, not a fork of the source.\n\nThe renderer defaults to SVG and switches to canvas past 10,000 points, so the same code handles a dashboard tile and a million-row scatter plot. Charts resize with their container by default, with no manual redraw call required.\n\nPlotline ships with no dependencies beyond the DOM. It works in React, Vue, Svelte, or a script tag, because it never assumed a framework in the first place.\n\n```js\nimport { chart } from \"plotline\";\n\nchart(\"#app\", { data, x: \"date\", y: \"revenue\" });\n```\n\nThat call produces a line chart, axis labels included."
+}
