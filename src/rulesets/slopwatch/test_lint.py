@@ -859,3 +859,36 @@ class StructuralTellTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BoldDensityTableTests(unittest.TestCase):
+    """Emphasising a winning number in a comparison table is ordinary
+    human documentation practice, not a bold-label habit.
+
+    Found by running this project's own evaluation write-ups through this
+    check: every one of them tripped it, and every span was a table cell.
+    """
+
+    def test_bold_inside_a_table_row_is_not_body_emphasis(self):
+        table = "\n".join(
+            ["| arm | tells |", "|---|---|"] +
+            [f"| **arm{i}** | **{i}** |" for i in range(12)])
+        self.assertEqual(lint.check_bold_density(table), [])
+
+    def test_bold_in_prose_still_counts(self):
+        prose = "\n".join(f"**label {i}** and some words here." for i in range(12))
+        self.assertTrue(lint.check_bold_density(prose))
+
+    def test_a_document_mixing_both_counts_only_the_prose(self):
+        doc = ("**one** **two** **three**\n"
+                "| a | b |\n"
+                "|---|---|\n"
+                "| **x** | **y** |\n")
+        flags = lint.check_bold_density(doc)
+        self.assertEqual(flags[0]["count"], 3)
+
+    def test_a_line_that_merely_contains_a_pipe_is_still_prose(self):
+        """Only a full table ROW is exempt. A sentence mentioning `a | b`
+        must not buy itself an exemption."""
+        doc = "\n".join(["**bold** text with a | pipe in it."] * 12)
+        self.assertTrue(lint.check_bold_density(doc))

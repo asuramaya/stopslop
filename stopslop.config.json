@@ -310,7 +310,10 @@
           "microsoft-style-guide",
           "nist-security"
         ]
-      }
+      },
+      "disable": [
+        "vocabulary"
+      ]
     },
     {
       "glob": "*.md",

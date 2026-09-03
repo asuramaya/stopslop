@@ -28,7 +28,7 @@ Each row is one gate decision: when, what happened (`clean`, `deny`,
 which checks fired. The filter box narrows by path; the dropdown narrows
 by event kind.
 
-**What to look for.** A long run of `deny` on one file means a check is
+What to look for. A long run of `deny` on one file means a check is
 misfiring on that kind of writing, not that the writing is bad -- the
 fix is usually a per-path exemption on Routing rather than a rewrite. A
 feed with no `deny` at all and plenty of `clean` means the gate is
@@ -39,7 +39,7 @@ The footer carries the three states worth checking at a glance: total
 events, whether the config is the built-in default or a custom one, and
 whether the hook and the integrity check are green.
 
-**For a model:** `python3 stopslop.py status` prints the same counts and
+For a model: `python3 stopslop.py status` prints the same counts and
 the hook/venv/MCP wiring. `core.history.read_history` gives the raw
 events.
 
@@ -54,7 +54,7 @@ check: on/off, its id, the unit it runs over (`sentence`, `document`,
 `line`), what it catches, its threshold, its action (`warn` or `block`),
 and how often it has actually fired.
 
-**The column that matters is how often it fires.** This project measured
+The column that matters is how often it fires. This project measured
 19 of slopwatch's 31 checks firing ZERO times across 59902 words of
 generated prose, with six carrying 96% of every flag. A check that never
 fires costs nothing at the gate and costs a reader attention every time
@@ -65,7 +65,7 @@ four-write sample most of the time.
 The line above the table tells you how many judged writes this ruleset
 has on record, so you know whether the firing counts mean anything yet.
 
-**Threshold** is a per-check number and its meaning is per-check too: on
+Threshold is a per-check number and its meaning is per-check too: on
 a density check it counts occurrences before one flag is raised, on a
 sentence check it counts flags a document may hold. **Action** decides
 whether a flag denies a write or only annotates it.
@@ -73,7 +73,7 @@ whether a flag denies a write or only annotates it.
 "Add a check" opens a plain textarea for a real Python matcher. "Try it"
 lints text through the exact gate a real write would hit.
 
-**For a model:** `python3 stopslop.py checks --ruleset ID` lists the same
+For a model: `python3 stopslop.py checks --ruleset ID` lists the same
 table; `--set-threshold CHECK=N` and `--set-action CHECK=block|warn`
 change it. `python3 stopslop.py decay [PATHS]` answers the firing
 question properly against a corpus, including the zeros, and
@@ -100,13 +100,13 @@ restorable. Your own registrations can be removed outright. That
 asymmetry is deliberate: a shipped list is someone else's judgment and
 you are overriding it rather than editing it.
 
-**Vocabulary packs** are bulk word lists -- the MDN glossary, the
+Vocabulary packs are bulk word lists -- the MDN glossary, the
 Microsoft style guide list, the NIST security glossary -- with their
 licences shown, because they carry other people's terms. A pack does
 nothing until a routing rule binds it to a list, since a pack has no
 opinion about where it applies.
 
-**For a model:** `python3 stopslop.py terms --ruleset ID` lists the same
+For a model: `python3 stopslop.py terms --ruleset ID` lists the same
 thing, `--add TERM --note "why"` registers one. `python3 stopslop.py
 packs` shows packs and their bindings. `check_word` over MCP answers a
 single lookup without a shell.
@@ -117,7 +117,7 @@ single lookup without a shell.
 
 ![The Routing page](screenshots/routing.png)
 
-The rules table, in order, and **order decides everything**: first match
+The rules table, in order, and *order decides everything*: first match
 wins. The arrows reorder. An empty ruleset cell puts a path out of scope
 entirely.
 
@@ -127,15 +127,15 @@ right can be shadowed by an earlier one, and this is how you find out.
 
 The rule picker below binds vocabulary packs and per-rule check
 exemptions to one rule, so a check can be off for `tests/**` and on
-everywhere else. **Rulesets** at the bottom scaffolds a new ruleset from
+everywhere else. Rulesets at the bottom scaffolds a new ruleset from
 an id and a name, renames one, or removes it -- refused while any rule
 still routes to it.
 
-**What to look for.** A rule you added that never fires is almost always
+What to look for. A rule you added that never fires is almost always
 shadowed by a broader rule above it. Probe the path; do not read the
 globs and reason about them.
 
-**For a model:** `python3 stopslop.py list-rulesets` shows every ruleset
+For a model: `python3 stopslop.py list-rulesets` shows every ruleset
 and the globs routed to it. `python3 stopslop.py rule-checks --glob GLOB`
 reads and writes per-rule thresholds. `explain(file_path)` over MCP
 answers what gates a file, what would block, and which checks run -- one

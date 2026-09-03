@@ -12,6 +12,7 @@ import os
 import shutil
 import sys
 import tempfile
+import types
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -862,3 +863,77 @@ class LocalInterventionTests(unittest.TestCase):
         from evalab import interventions
         meta = interventions.provenance(os.path.join(self.dir, "mine.md"))
         self.assertEqual(meta["license"], "not vendored")
+
+
+class RetryClassificationTests(unittest.TestCase):
+    """Retrying a permanent failure costs three calls and buries it.
+
+    When a skill file's YAML front matter was passed on argv, `claude`
+    read the prompt's own first line as an unknown option. Every
+    competitor arm died at once, and each one retried three times first.
+    Retries widen the window for a service hiccup; they do nothing for a
+    wrong command line.
+    """
+
+    def _generator(self, fail_with):
+        gen = ClaudeCliGenerator(attempts=3, backoff=0)
+        calls = []
+
+        def once(messages):
+            calls.append(messages)
+            raise fail_with
+
+        gen._once = once
+        return gen, calls
+
+    def test_a_permanent_failure_raises_on_the_first_attempt(self):
+        gen, calls = self._generator(
+            GeneratorError("claude exited 1: error: unknown option '---'",
+                            transient=False))
+        with self.assertRaises(GeneratorError):
+            gen([{"role": "user", "content": "x"}])
+        self.assertEqual(len(calls), 1)
+
+    def test_a_transient_failure_still_gets_every_attempt(self):
+        gen, calls = self._generator(GeneratorError("claude exited 1: "))
+        with self.assertRaises(GeneratorError):
+            gen([{"role": "user", "content": "x"}])
+        self.assertEqual(len(calls), 3)
+
+    def test_a_usage_error_in_stderr_is_classified_permanent(self):
+        for stderr in ("error: unknown option '---'",
+                        "Usage: claude [options]",
+                        "No such file or directory"):
+            gen = ClaudeCliGenerator(attempts=1, backoff=0)
+            proc = types.SimpleNamespace(returncode=1, stderr=stderr, stdout="")
+            import evalab.generators as gens
+            real = gens.subprocess.run
+            gens.subprocess.run = lambda *a, **k: proc
+            try:
+                with self.assertRaises(GeneratorError) as caught:
+                    gen._once([{"role": "user", "content": "x"}])
+            finally:
+                gens.subprocess.run = real
+            self.assertFalse(caught.exception.transient, stderr)
+
+    def test_an_empty_stderr_stays_transient(self):
+        """The failure that actually recurs: exit 1, nothing to
+        diagnose. That is what retries are for."""
+        gen = ClaudeCliGenerator(attempts=1, backoff=0)
+        proc = types.SimpleNamespace(returncode=1, stderr="", stdout="")
+        import evalab.generators as gens
+        real = gens.subprocess.run
+        gens.subprocess.run = lambda *a, **k: proc
+        try:
+            with self.assertRaises(GeneratorError) as caught:
+                gen._once([{"role": "user", "content": "x"}])
+        finally:
+            gens.subprocess.run = real
+        self.assertTrue(caught.exception.transient)
+
+    def test_a_missing_executable_is_permanent(self):
+        gen = ClaudeCliGenerator(executable="definitely-not-a-real-binary",
+                                  attempts=3, backoff=0)
+        with self.assertRaises(GeneratorError) as caught:
+            gen([{"role": "user", "content": "x"}])
+        self.assertFalse(caught.exception.transient)

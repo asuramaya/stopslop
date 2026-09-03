@@ -770,11 +770,31 @@ def check_section_template(sentence, extra=()):
 _BOLD_SPAN_RE = re.compile(r"\*\*[^*\n]{1,80}\*\*")
 
 
+_TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
+
+
+def _prose_lines(text):
+    """Document lines that are body prose, for a density check.
+
+    Markdown TABLE ROWS are excluded. Emphasising the winning number in a
+    comparison table is ordinary human documentation practice, and
+    counting it as body emphasis makes a findings file full of result
+    tables look like a document written in bold labels. Found by running
+    this project's own evaluation write-ups through this check: every one
+    of them tripped it, and every span was a table cell.
+
+    The habit this check is actually for -- bold opening a paragraph or a
+    list item as a running label -- lives outside tables, and
+    `bold_bullet_lead` catches the list-item form separately.
+    """
+    return [line for line in text.split("\n") if not _TABLE_ROW_RE.match(line)]
+
+
 def check_bold_density(text):
     """Bold used as emphasis throughout the body, not for the rare
     callout. Counted per document because one bold span says nothing and
     fifteen is a fingerprint."""
-    count = len(_BOLD_SPAN_RE.findall(text))
+    count = len(_BOLD_SPAN_RE.findall("\n".join(_prose_lines(text))))
     if count == 0:
         return []
     return [{"count": count, "occurrences": count,

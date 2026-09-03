@@ -1051,6 +1051,15 @@ def cmd_rule_checks(args):
 
     existing = dict(rule.get("check_config") or {})
     changed = []
+    if args.disable is not None:
+        try:
+            core_config.set_rule_disable(REPO_ROOT, args.glob, args.disable,
+                                          known_checks=known or None)
+        except ValueError as exc:
+            print(f"Not saved: {exc}", file=sys.stderr)
+            return 1
+        changed.append("disabled on this rule: " +
+                        (", ".join(sorted(args.disable)) or "(none)"))
     for check_id in sorted(set(thresholds) | set(actions)):
         spec = dict(existing.get(check_id) or {})
         if check_id in thresholds:
@@ -1543,6 +1552,12 @@ def main():
                                 help="threshold for a check, on this rule's paths only")
     p_rule_checks.add_argument("--set-action", action="append", metavar="CHECK=block|warn",
                                 help="action for a check, on this rule's paths only")
+    p_rule_checks.add_argument("--disable", nargs="*", metavar="CHECK",
+                                help="turn these checks OFF for this rule's paths "
+                                     "only (pass with no ids to clear the list). "
+                                     "Union, never subtraction: a rule can switch a "
+                                     "check off and cannot switch one back on that "
+                                     "the project disabled globally")
     p_rule_checks.add_argument("--clear", action="append", metavar="CHECK",
                                 help="drop a check's per-rule override, back to project-wide")
     p_rule_checks.set_defaults(func=cmd_rule_checks)

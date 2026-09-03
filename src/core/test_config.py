@@ -1733,3 +1733,70 @@ class PerRuleCheckConfigTests(unittest.TestCase):
             config.save_rule_check_config(self.dir, "*.rst", "bold_density",
                                            {"threshold": 12},
                                            config_file=self.path)
+
+
+class AtomicWriteTests(unittest.TestCase):
+    """Config writes must be all-or-nothing.
+
+    Every reader in this module treats unparseable JSON the same as a
+    MISSING file, so a torn write silently reverts a project to built-in
+    defaults -- a config that appears to vanish with no error anywhere.
+    And the dashboard is a long-running process editing the same file the
+    CLI edits; it has clobbered a CLI write twice in this project's
+    history.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.path = os.path.join(self.dir, "stopslop.config.json")
+
+    def test_a_write_that_fails_leaves_the_old_file_intact(self):
+        """The failure this protects against: a reader arriving after a
+        half-finished write sees a truncated file and reads it as no
+        config at all."""
+        with open(self.path, "w") as f:
+            json.dump({"rulesets": [{"glob": "*.md", "ruleset": "slopwatch"}]}, f)
+        unserialisable = {"rulesets": [{"glob": "*.md", "ruleset": object()}]}
+        with self.assertRaises(TypeError):
+            config._write_json(self.path, unserialisable)
+        with open(self.path) as f:
+            self.assertEqual(json.load(f)["rulesets"][0]["glob"], "*.md")
+
+    def test_a_failed_write_leaves_no_temp_file_behind(self):
+        with self.assertRaises(TypeError):
+            config._write_json(self.path, {"x": object()})
+        leftovers = [n for n in os.listdir(self.dir) if n.startswith(".stopslop-")]
+        self.assertEqual(leftovers, [])
+
+    def test_the_temp_file_is_written_beside_the_target(self):
+        """os.replace is only atomic within one filesystem, and the
+        system temp directory is frequently a different one."""
+        seen = {}
+        real = config.tempfile.mkstemp
+
+        def spy(*args, **kwargs):
+            seen["dir"] = kwargs.get("dir")
+            return real(*args, **kwargs)
+
+        config.tempfile.mkstemp = spy
+        try:
+            config._write_json(self.path, {"rulesets": []})
+        finally:
+            config.tempfile.mkstemp = real
+        self.assertEqual(os.path.realpath(seen["dir"]),
+                          os.path.realpath(self.dir))
+
+    def test_a_successful_write_round_trips(self):
+        data = {"rulesets": [{"glob": "*.rst", "ruleset": "slopwatch"}]}
+        config._write_json(self.path, data)
+        with open(self.path) as f:
+            self.assertEqual(json.load(f), data)
+
+    def test_no_writer_in_this_module_opens_the_target_directly(self):
+        """A new writer added later must go through _write_json, or it
+        reintroduces the torn-write and the race at once."""
+        source = os.path.join(os.path.dirname(os.path.abspath(config.__file__)),
+                               "config.py")
+        with open(source) as f:
+            text = f.read()
+        self.assertNotIn('open(path, "w")', text)

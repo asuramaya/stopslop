@@ -75,7 +75,29 @@ class SlopwatchSkillTests(unittest.TestCase):
         with open(self.path) as f:
             text = f.read()
         self.assertIn("p = 0.84", text)
-        self.assertRegex(text, r"\b114\b.*\b58\b|\b58\b")
+        self.assertIn("107 to 60", text)
+
+    def test_it_tells_a_gate_user_to_regenerate_with_the_complement(self):
+        """The shipped block repeats what the gate already enforces,
+        which measurement says barely helps (26 against 30, p = 0.17).
+        A user who installs both and never hears about --complement gets
+        the arm that does not stack, from the file they trusted."""
+        with open(self.path) as f:
+            text = f.read()
+        self.assertIn("--complement", text)
+        self.assertIn("0.0007", text)
+
+    def test_it_cites_a_findings_file_that_exists(self):
+        """A skill quoting numbers with no reachable source is an
+        assertion wearing evidence's clothes -- which is the thing this
+        project says every other skill file does."""
+        with open(self.path) as f:
+            text = f.read()
+        cited = re.findall(r"evalab-runs/[\w.-]+/FINDINGS\.md", text)
+        self.assertTrue(cited, "the skill cites no findings file")
+        for rel in cited:
+            self.assertTrue(os.path.exists(os.path.join(REPO_ROOT, rel)),
+                             f"{rel} does not exist")
 
     def test_it_names_the_frontmatter_a_loader_needs(self):
         with open(self.path) as f:

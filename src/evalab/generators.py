@@ -21,7 +21,28 @@ import time
 
 
 class GeneratorError(RuntimeError):
-    pass
+    """A generation failed. `transient` says whether retrying could help."""
+
+    def __init__(self, message, transient=True):
+        super().__init__(message)
+        self.transient = transient
+
+
+# Stderr fragments that mean the command itself is wrong, not that the
+# service hiccuped. Retrying these is three wasted model calls before the
+# real problem surfaces -- which is exactly what happened when a skill
+# file's YAML front matter was passed on argv and read as an unknown
+# option, killing every competitor arm at once and retrying each three
+# times first.
+PERMANENT_SIGNATURES = (
+    "unknown option",
+    "unknown command",
+    "unrecognized option",
+    "invalid argument",
+    "usage:",
+    "no such file or directory",
+    "permission denied",
+)
 
 
 def _key(messages, occurrence=0):
@@ -89,6 +110,12 @@ class ClaudeCliGenerator:
                 text = self._once(messages)
             except GeneratorError as exc:
                 last = exc
+                if not getattr(exc, "transient", True):
+                    # A wrong command line or a missing executable will
+                    # fail identically every time. Surfacing it now costs
+                    # one call instead of three, and says what is wrong
+                    # instead of burying it under a backoff.
+                    raise
                 if attempt + 1 < self.attempts:
                     time.sleep(self.backoff * (attempt + 1))
                 continue
@@ -110,14 +137,20 @@ class ClaudeCliGenerator:
                 [self.executable, "-p"], input=prompt,
                 capture_output=True, text=True, timeout=self.timeout)
         except OSError as exc:
-            raise GeneratorError(f"could not run {self.executable!r}: {exc}") from exc
+            # The executable is missing or unrunnable. No number of
+            # retries makes it appear.
+            raise GeneratorError(f"could not run {self.executable!r}: {exc}",
+                                  transient=False) from exc
         except subprocess.TimeoutExpired as exc:
             raise GeneratorError(f"{self.executable} timed out after "
                                   f"{self.timeout}s") from exc
         if proc.returncode != 0:
+            stderr = proc.stderr.strip()
+            lowered = stderr.lower()
+            permanent = any(sig in lowered for sig in PERMANENT_SIGNATURES)
             raise GeneratorError(
-                f"{self.executable} exited {proc.returncode}: "
-                f"{proc.stderr.strip()[:400]}")
+                f"{self.executable} exited {proc.returncode}: {stderr[:400]}",
+                transient=not permanent)
         text = proc.stdout.strip()
         if not text:
             raise GeneratorError(f"{self.executable} returned nothing")
