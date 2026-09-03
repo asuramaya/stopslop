@@ -208,10 +208,11 @@ Each run writes `result.json`, `report.txt`, the recordings, and the ungated, in
 - One file, one ruleset. First match wins, except for `embedded_prose`, which sends a code file's strings and docstrings through a second prose ruleset.
 - The human control is small. Under 12000 words across two genres, and stdlib docstrings carry no markdown, so three of the structural checks cannot fire there.
 
-Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'` (1157 tests). See [docs/incidents/](docs/incidents/) for a real bypass of this project's own gate, and [CONTRIBUTING.md](CONTRIBUTING.md) for the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
+Run the whole suite with `python3 -m unittest discover -s src -p 'test_*.py'`. See [docs/incidents/](docs/incidents/) for a real bypass of this project's own gate, and [CONTRIBUTING.md](CONTRIBUTING.md) for the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
 
 ## Documentation
 
+- [Changelog](CHANGELOG.md) -- what changed, and what was retracted.
 - [How to contribute](CONTRIBUTING.md) -- how to run the tests, and the one constraint this repo has that most do not: its own gate reads your contribution before a reviewer does.
 - [What this project's own documentation scores](docs/self-audit.md) -- the tool run on its own prose, then re-run after acting on it. 3.32 structural tells per 1000 words against human documentation's 3.18 and ungated generation's 13.32. The first pass found this README using bold as a label at 2.6x the human rate, and found a false positive in the check itself.
 - [Reading the dashboard](docs/dashboard.md) -- what each of the four pages shows, what to look for, and the CLI command that answers the same question without a browser. Written for humans and for models.
