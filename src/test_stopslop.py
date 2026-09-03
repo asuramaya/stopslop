@@ -21,6 +21,7 @@ Run with:
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -937,3 +938,38 @@ class RulesComplementTests(unittest.TestCase):
         check -- true, and useless unless the reason is stated."""
         out = self._run("--ruleset", "slopwatch", "--complement")
         self.assertIn("denies nothing", out.stderr)
+
+
+class InitRecommendsTheComplementTests(unittest.TestCase):
+    """`init` used to hand out the dominated configuration.
+
+    A gate alone costs more than a gate plus an instruction and delivers
+    less than half as much (30 total tells against 13, p = 0.0007). A
+    user who runs init and reads no further gets the worse one, from the
+    command whose whole job is setting them up correctly.
+    """
+
+    def _init_source(self):
+        with open(os.path.join(stopslop.REPO_ROOT, "stopslop.py")) as f:
+            text = f.read()
+        start = text.index("def cmd_init(")
+        end = text.index("\ndef ", start + 1)
+        return text[start:end]
+
+    def test_init_points_at_the_complement_not_plain_rules(self):
+        source = self._init_source()
+        self.assertIn("rules --complement", source)
+
+    def test_it_says_why_rather_than_just_issuing_an_order(self):
+        """A step with no reason attached is the first thing a reader
+        skips."""
+        source = self._init_source()
+        self.assertIn("0.0007", source)
+
+    def test_it_cites_a_findings_file_that_exists(self):
+        source = self._init_source()
+        cited = re.findall(r"evalab-runs/[\w.-]+/FINDINGS\.md", source)
+        self.assertTrue(cited)
+        for rel in cited:
+            self.assertTrue(
+                os.path.exists(os.path.join(stopslop.REPO_ROOT, rel)), rel)

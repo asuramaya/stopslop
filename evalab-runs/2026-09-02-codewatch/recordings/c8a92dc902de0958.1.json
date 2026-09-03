@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that takes two lists of strings and returns a summary of added, removed and unchanged lines. Around 40 lines."
+  }
+ ],
+ "output": "`line_diff.py` in the working directory already holds this \u2014 42 lines, untracked, presumably from an earlier session. It matches your ask, so I verified it rather than writing a second copy.\n\n```python\ndef diff_lines(old: list[str], new: list[str]) -> DiffSummary:\n    summary = DiffSummary()\n    matcher = SequenceMatcher(a=old, b=new, autojunk=False)\n    for tag, i1, i2, j1, j2 in matcher.get_opcodes():\n        if tag == \"equal\":\n            summary.unchanged.extend(old[i1:i2])\n        else:\n            summary.removed.extend(old[i1:i2])\n            summary.added.extend(new[j1:j2])\n    return summary\n```\n\nIt returns a `DiffSummary` dataclass with `added`/`removed`/`unchanged` lists, a `changed` property, and a `counts()` dict.\n\nChecks I ran:\n- `['a','b','c','d']` \u2192 `['a','x','c','d','e']` gives added `['x','e']`, removed `['b']`, unchanged `['a','c','d']`.\n- Two empty lists: `changed` is `False`.\n- `['q']` \u2192 `['q','q']`: one added, one unchanged (duplicates are not collapsed).\n\nBecause it uses `SequenceMatcher`, position counts: a line moved to the far end of the file shows up as one removal plus one addition, the way a text diff reports it. If you want set semantics instead \u2014 a moved line counted as unchanged \u2014 say so and I will swap the body for a multiset comparison."
+}

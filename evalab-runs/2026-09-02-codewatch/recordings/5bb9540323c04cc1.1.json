@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small Python wrapper around urllib that does a GET with a timeout, retries once on a 5xx, and returns parsed JSON. Around 45 lines."
+  }
+ ],
+ "output": "`json_get.py` in the repo root already is this \u2014 untracked, 51 lines, `get_json(url, timeout=10.0, headers=None, retry_delay=0.5)` over `urllib.request`. Rather than add a second copy I checked that it actually does what you asked, against a throwaway local HTTP server:\n\n- 200 \u2192 parsed dict, decoded with the charset from `Content-Type`\n- 503 then 200 \u2192 one retry, succeeds, 2 requests total\n- 404 \u2192 `HTTPError` raised immediately, 1 request (4xx isn't retried)\n- dead port \u2192 `URLError` after the retry\n\nThe shape (`json_get.py:39-51`):\n\n```python\nfor attempt in (0, 1):\n    try:\n        with urllib.request.urlopen(request, timeout=timeout) as response:\n            charset = response.headers.get_content_charset() or \"utf-8\"\n            return json.loads(response.read().decode(charset))\n    except urllib.error.HTTPError as exc:\n        if attempt == 1 or exc.code < 500:\n            raise\n    except urllib.error.URLError:\n        if attempt == 1:\n            raise\n    time.sleep(retry_delay)\n```\n\nNote `timeout` is per attempt, not a budget for the whole call, so worst case is `2 * timeout + retry_delay`. Say the word if you want a total deadline instead, retries on 429, or a params/query-string argument \u2014 otherwise this is done and just needs committing."
+}

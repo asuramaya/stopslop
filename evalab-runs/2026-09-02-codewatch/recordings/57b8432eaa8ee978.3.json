@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict, with a configurable maximum size. Around 45 lines."
+  }
+ ],
+ "output": "`lru_cache.py` already existed in the working tree (untracked) and matches what you asked for \u2014 50 lines, `OrderedDict`-backed, `get`/`put`, configurable `max_size`. I ran it; the demo evicts `\"b\"` and prints `['a', 'c']`, which is correct.\n\nOne thing I changed: the class docstring said uses \"move a key to the front of the recency order\", but the code calls `move_to_end` and evicts with `popitem(last=False)` \u2014 so used keys go to the *back* and eviction takes from the front. Reworded to match the code.\n\nShape of it (`lru_cache.py:19`):\n\n- `__init__(max_size=128)` rejects non-positive sizes with `ValueError`.\n- `get(key, default=None)` returns `default` on a miss without touching the order; on a hit it promotes the key.\n- `put` promotes an existing key before overwriting, then evicts the oldest if over size.\n- Plus `__contains__`, `__len__`, `__repr__`, and a `__main__` demo.\n\nTwo gaps worth naming, since you didn't ask for them and I didn't add them: it's not thread-safe (add a `threading.Lock` if callers share one across threads), and there's no `delete`/`clear`. Say the word and I'll add either."
+}

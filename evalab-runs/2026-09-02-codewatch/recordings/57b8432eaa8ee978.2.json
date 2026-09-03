@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict, with a configurable maximum size. Around 45 lines."
+  }
+ ],
+ "output": "`lru_cache.py` already exists in the working directory (untracked) and is exactly this: a 50-line `LRUCache` class over `OrderedDict` with `get`, `put`, a configurable `max_size`, plus `__contains__`, `__len__`, `__repr__` and a small demo block.\n\nI ran it rather than rewriting it. Behavior checks out:\n\n- `get` on a hit calls `move_to_end`, so reads count as uses \u2014 the eviction demo prints `['a', 'c']`, meaning `'b'` was correctly dropped.\n- `put` on an existing key refreshes recency and overwrites the value (`('a', 9)` survived a later insert past capacity).\n- `get` on a miss returns the `default` instead of raising.\n- `max_size=0` raises `ValueError`.\n\nOne thing to flag: the class docstring says a use moves a key \"to the front of the recency order\", but the implementation moves it to the *end* of the OrderedDict and evicts with `popitem(last=False)`. The code is right; \"front\" in the docstring means front-of-queue in the informal sense and reads as contradicting the code. Say the word and I'll reword that line, or overwrite the file with a fresh implementation if you wanted a different design."
+}

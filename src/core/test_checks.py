@@ -410,3 +410,58 @@ class BlockingSignatureCompatibilityTests(unittest.TestCase):
         got = checks.call_blocking_semantic_flags(
             self._ruleset(Callable().__call__), ["f"], "a.md")
         self.assertEqual(got, ["called"])
+
+
+class CheckKindTests(unittest.TestCase):
+    """What a check's SILENCE means.
+
+    "19 of 31 fired zero times" is alarming and unactionable until the
+    silent ones are split. A tell that stopped firing has stopped
+    describing anything. A defect that never fires is rare, which is the
+    outcome you wanted -- pruning it reads success as failure. Frequency
+    alone cannot separate them, so each check declares its own kind.
+    """
+
+    def test_a_check_is_a_tell_unless_it_says_otherwise(self):
+        """The safe default. A new check is a correlate until someone has
+        thought about whether it is wrong whatever wrote it."""
+        check = checks.Check(id="x", unit=checks.Unit.SENTENCE, fn=lambda s: [],
+                              catches="c", instead="i")
+        self.assertEqual(check.kind, "tell")
+
+    def test_every_check_declares_a_valid_kind(self):
+        import rulesets
+        for module in rulesets.list_rulesets():
+            table = getattr(module, "CHECKS_TABLE", None)
+            if table is None:
+                continue
+            for check_id, check in table.items():
+                self.assertIn(getattr(check, "kind", "tell"),
+                               ("tell", "defect"),
+                               f"{module.RULESET_ID}.{check_id}")
+
+    def test_the_defect_checks_are_the_ones_wrong_whatever_wrote_them(self):
+        """Named explicitly so that widening this set is a decision
+        somebody made rather than a default that drifted."""
+        import rulesets
+        slopwatch = rulesets.get_ruleset("slopwatch")
+        defects = {cid for cid, c in slopwatch.CHECKS_TABLE.items()
+                    if getattr(c, "kind", "tell") == "defect"}
+        self.assertEqual(defects, {"ai_markup_remnant", "emoji_in_prose",
+                                    "entity_encoded_punctuation",
+                                    "id_label_lead"})
+
+    def test_a_blocking_check_is_a_defect(self):
+        """A check that DENIES a write on evidence that is only a
+        correlate is the unsound-gate criticism this project accepted.
+        Blocking implies the thing caught is wrong on its own terms."""
+        import rulesets
+        for module in rulesets.list_rulesets():
+            table = getattr(module, "CHECKS_TABLE", None)
+            if table is None or module.RULESET_ID == "ste100":
+                continue
+            for check_id, check in table.items():
+                if check.default_action == "block":
+                    self.assertEqual(getattr(check, "kind", "tell"), "defect",
+                                      f"{module.RULESET_ID}.{check_id} blocks "
+                                      "a write but is only declared a tell")

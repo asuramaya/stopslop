@@ -74,10 +74,16 @@ class ClaudeCliGenerator:
     name = "claude-cli"
 
     def __init__(self, executable="claude", timeout=240, record_to=None,
-                  attempts=3, backoff=5):
+                  attempts=3, backoff=5, model=None):
         self.executable = executable
         self.timeout = timeout
         self.record_to = record_to
+        # Every number this project has published came from one model on
+        # one machine. `model` is what lets a finding be checked against
+        # different weights, which is the nearest thing to independent
+        # replication an author can do alone -- and the only way to tell
+        # a fact about writing from a fact about one model's habits.
+        self.model = model
         # A 30-prompt run is ~260 subprocesses. At that count a transient
         # non-zero exit is not an anomaly, it is expected, and the first
         # live structural+instructed run died on one at call ~258 of 264
@@ -99,9 +105,13 @@ class ClaudeCliGenerator:
         try:
             out = subprocess.run([self.executable, "--version"],
                                   capture_output=True, text=True, timeout=30)
-            return out.stdout.strip() or "unknown"
+            version = out.stdout.strip() or "unknown"
         except (OSError, subprocess.SubprocessError):
-            return "unknown"
+            version = "unknown"
+        # The model belongs in the recorded version string: a replay that
+        # cannot say which weights produced it is not a record of an
+        # experiment.
+        return f"{version} model={self.model}" if self.model else version
 
     def __call__(self, messages):
         last = None
@@ -133,8 +143,11 @@ class ClaudeCliGenerator:
             # is exactly how the first leaderboard run failed, on every
             # competitor at once. Stdin also sidesteps the argv length
             # limit, and one vendored intervention is 35KB.
+            argv = [self.executable, "-p"]
+            if self.model:
+                argv += ["--model", self.model]
             proc = subprocess.run(
-                [self.executable, "-p"], input=prompt,
+                argv, input=prompt,
                 capture_output=True, text=True, timeout=self.timeout)
         except OSError as exc:
             # The executable is missing or unrunnable. No number of

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that validates a dict against a simple schema of {key: type}, reporting every problem rather than the first. Around 40 lines."
+  }
+ ],
+ "output": "`schema_check.py:6` \u2014 `check_schema(data, schema, allow_extra=True)` returns a list of problem strings, empty when the dict matches.\n\n```python\ns = {\"name\": str, \"age\": int, \"tags\": (list, tuple)}\ncheck_schema({\"age\": True, \"tags\": \"x\", \"z\": 1}, s, allow_extra=False)\n# ['name: missing, expected str',\n#  'age: expected int, got bool',\n#  'tags: expected list or tuple, got str',\n#  'z: unexpected key']\n```\n\nTwo judgment calls worth knowing about:\n\n- A schema value can be a tuple of types, passed straight to `isinstance`, so optional shapes like `(list, tuple)` or `(int, float)` work without extra machinery.\n- `True` is rejected where `int` is required. Python says `isinstance(True, int)` is true, but a flag landing in a count field is usually the bug you were looking for. If you want the permissive behaviour, write `(int, bool)` in the schema.\n\nIt does not recurse into nested dicts \u2014 the schema is flat by design, per your \"simple schema\" framing. Say the word if you want nested dicts to accept a sub-schema as their value."
+}

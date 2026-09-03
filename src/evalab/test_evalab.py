@@ -937,3 +937,47 @@ class RetryClassificationTests(unittest.TestCase):
         with self.assertRaises(GeneratorError) as caught:
             gen([{"role": "user", "content": "x"}])
         self.assertFalse(caught.exception.transient)
+
+
+class ModelSelectionTests(unittest.TestCase):
+    """Every number this project publishes came from one model on one
+    machine. Checking a finding against different weights is the nearest
+    thing to independent replication an author can do alone, and the only
+    way to tell a fact about writing from a fact about one model's
+    habits.
+    """
+
+    def _capture(self, **kwargs):
+        seen = {}
+
+        class FakeProc:
+            returncode = 0
+            stdout = "text"
+            stderr = ""
+
+        import evalab.generators as gens
+        real = gens.subprocess.run
+        gens.subprocess.run = lambda argv, **kw: (
+            seen.update(argv=argv) or FakeProc())
+        try:
+            ClaudeCliGenerator(attempts=1, backoff=0, **kwargs)(
+                [{"role": "user", "content": "x"}])
+        finally:
+            gens.subprocess.run = real
+        return seen["argv"]
+
+    def test_a_model_reaches_the_command_line(self):
+        self.assertIn("--model", self._capture(model="sonnet"))
+        self.assertIn("sonnet", self._capture(model="sonnet"))
+
+    def test_no_model_leaves_the_command_line_alone(self):
+        self.assertEqual(self._capture(), ["claude", "-p"])
+
+    def test_the_version_string_records_which_model_ran(self):
+        """A replay that cannot say which weights produced it is not a
+        record of an experiment."""
+        gen = ClaudeCliGenerator(model="sonnet")
+        self.assertIn("model=sonnet", gen.version())
+
+    def test_no_model_leaves_the_version_string_unchanged(self):
+        self.assertNotIn("model=", ClaudeCliGenerator().version())

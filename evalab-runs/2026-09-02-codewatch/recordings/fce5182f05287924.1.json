@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python module that loads a JSON config file from disk, falls back to defaults when the file is missing, and validates that a `port` key is an integer between 1024 and 65535. Around 50 lines."
+  }
+ ],
+ "output": "`config_loader.py` already exists in the working directory (untracked, 58 lines) and already does exactly what you described, so I left it alone rather than overwriting it. I ran it to confirm:\n\n- missing file \u2192 copy of `DEFAULTS` (`{'host': '127.0.0.1', 'port': 8080, 'debug': False}`)\n- present file \u2192 loaded keys merged over the defaults\n- `port` validation raises `ConfigError` for a non-int (`\"80\"`), out-of-range (`80`), and `True` (bool is an `int` subclass, rejected explicitly)\n- malformed JSON and a non-object top level also raise `ConfigError`\n\nStructure: `DEFAULTS` dict, `MIN_PORT`/`MAX_PORT` constants, `ConfigError(ValueError)`, `load_config(path)` at `config_loader.py:24`, and a private `_validate_port` at `config_loader.py:51`.\n\nTwo things worth deciding:\n\n- It has no tests. Say the word and I'll add a `test_config_loader.py` covering the cases above.\n- Only `port` is validated; `host` and `debug` pass through unchecked. Fine if `port` was the whole ask.\n\nIf you'd rather I rewrite it from scratch \u2014 different API, `dataclass` instead of a dict, or the validation inlined \u2014 tell me which shape you want and I'll replace it."
+}

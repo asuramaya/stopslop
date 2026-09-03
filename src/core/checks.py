@@ -89,6 +89,22 @@ class Check:
     terms_shape: str = "flat"             # "flat" | "with_notes"
     classify: object = "semantic"         # "mechanical" | "semantic" | fn(violation) -> one of those
     dedup: bool = True
+    # "tell" | "defect". The distinction that decides what a check's
+    # SILENCE means, and the only thing that makes "19 of 31 fired zero
+    # times" actionable rather than merely alarming.
+    #
+    # A TELL is a correlate of machine authorship. It was catalogued
+    # against some model at some date, and when it stops firing that is
+    # evidence it stopped describing anything -- a prune candidate.
+    #
+    # A DEFECT is wrong whatever wrote it: an emoji in body text, an em
+    # dash written as an HTML entity, a generator's own scaffolding left
+    # behind. Silence there means the defect is rare, which is the
+    # outcome you wanted. Pruning it would be reading success as failure.
+    #
+    # Frequency alone cannot separate the two, which is why this is
+    # declared rather than measured.
+    kind: str = "tell"
 
 
 CheckTable = dict

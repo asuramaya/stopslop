@@ -148,7 +148,13 @@ def check_activity(report, ruleset):
     for entry in activity.values():
         entry["per_1k"] = round(entry["hits"] / words * 1000, 2) if words else 0.0
     total_hits = sum(e["hits"] for e in activity.values())
+    table = getattr(ruleset, "CHECKS_TABLE", None)
+    if table is None and hasattr(ruleset, "effective_checks_table"):
+        table = ruleset.effective_checks_table()
+    kinds = {cid: getattr(check, "kind", "tell")
+              for cid, check in (table or {}).items()}
     return {"activity": activity, "words": words, "total_hits": total_hits,
+             "kinds": kinds,
              "documents": sum(1 for r in report["results"]
                                if r["ruleset"] == ruleset.RULESET_ID)}
 

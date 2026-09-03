@@ -128,8 +128,23 @@ STE100_ENFORCED = frozenset({
 })
 
 
+# codewatch is the last ruleset with no evidence at all. slopwatch has nine
+# runs and ste100 has one -- which found the gate indistinguishable from
+# doing nothing there. codewatch gates every .py file in this repository,
+# including the code this harness is written in, and has never been
+# measured. Same split-by-construction rule: comment habits and code
+# habits on both sides.
+CODEWATCH_ENFORCED = frozenset({
+    "narrative_comment",
+    "print_debug",
+    "generic_naming",
+    "todo_stub",
+})
+
+
 PRESETS = {
     "lexical": lambda: DEFAULT_ENFORCED,
+    "codewatch": lambda: CODEWATCH_ENFORCED,
     "ste100": lambda: STE100_ENFORCED,
     "structural": lambda: DEFAULT_ENFORCED | STRUCTURAL_ENFORCED,
 }

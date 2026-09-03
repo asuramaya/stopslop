@@ -261,6 +261,20 @@ def cmd_init(args):
           "project's MCP servers (.mcp.json) -- say yes, or the MCP tools and the dashboard they "
           "auto-start won't connect. Run `stopslop.py status` afterward to confirm "
           "everything is actually wired up.")
+    print()
+    print("ONE MORE STEP, and it is not optional in the way it looks.")
+    print("A gate on its own is the WORST configuration this project measured:")
+    print("it costs more than a gate plus an instruction and delivers less than")
+    print("half as much, because an instruction front-loads the fix and the loop")
+    print("then needs fewer revisions. Paste the rules the gate will NOT deny on")
+    print("into your CLAUDE.md:")
+    print()
+    print("  python3 stopslop.py rules --complement >> CLAUDE.md")
+    print()
+    print("Measured: 13 total AI-writing tells against the gate's 30 on the same")
+    print("30 prompts, p = 0.0007. Use --complement rather than plain `rules` --")
+    print("an instruction that repeats what the gate enforces adds almost")
+    print("nothing. See evalab-runs/2026-09-02-complement/FINDINGS.md.")
 
     # The gate itself needs nothing beyond the above -- it's stdlib-only.
     # The optional MCP tools (.mcp.json, already checked into this repo)
@@ -1192,14 +1206,28 @@ def cmd_decay(args):
               f"{entry['per_1k']:7.2f}  {share}")
 
     silent = [c for c, e in ranked if not e["hits"]]
+    kinds = summary.get("kinds") or {}
     print()
     if silent:
-        print(f"{core_text.n(len(silent), 'check')} never fired: "
-              f"{', '.join(silent)}")
-        print("A check that never fires costs nothing at the gate and costs a")
-        print("reader attention every time they read the list. Before cutting")
-        print("one, ask which kind it is: a tell that decayed, or cheap")
-        print("insurance against a defect that is real but uncommon.")
+        tells = sorted(c for c in silent if kinds.get(c, "tell") == "tell")
+        defects = sorted(c for c in silent if kinds.get(c) == "defect")
+        if tells:
+            print(f"{core_text.n(len(tells), 'TELL')} never fired: "
+                  f"{', '.join(tells)}")
+            print("  A tell is a correlate, catalogued against some model at")
+            print("  some date. Silence is evidence it stopped describing")
+            print("  anything. These are the prune candidates -- check them")
+            print("  against a second corpus before cutting.")
+            print()
+        if defects:
+            print(f"{core_text.n(len(defects), 'DEFECT check')} never fired: "
+                  f"{', '.join(defects)}")
+            print("  A defect is wrong whatever wrote it. Silence means it is")
+            print("  rare, which is the outcome you wanted. Keep these: they")
+            print("  cost nothing and pruning one reads success as failure.")
+            print()
+        print("Frequency alone cannot tell the two apart, which is why each")
+        print("check declares its own kind rather than having one inferred.")
     else:
         print("Every check fired at least once on this corpus.")
     return 0

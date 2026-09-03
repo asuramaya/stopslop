@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Include a docstring. Around 40 lines."
+  }
+ ],
+ "output": "`retry.py` already exists in the working tree (untracked, 60 lines) and already does what you asked. I tested it rather than overwriting it:\n\n- retries a flaky function and returns on the 3rd attempt\n- re-raises the final exception when attempts run out (the log line above is the `logger.warning(exc_info=True)` traceback, not a crash)\n\nThe signature is `retry(attempts=3, delay=1.0, backoff=2.0, max_delay=None, jitter=False, exceptions=(Exception,))`, with a full Args/Returns/Raises docstring, `functools.wraps`, a `ValueError` guard on `attempts < 1`, and a retry-only-on-listed-exceptions filter.\n\nIt runs 60 lines rather than ~40, because of `max_delay`, `jitter`, the exception filter, and logging. Two options:\n\n1. Keep it as is \u2014 nothing to write.\n2. I cut it to ~40 by dropping `jitter`, `max_delay`, and the logging, leaving attempts + exponential backoff + the docstring.\n\nWhich do you want? I did not touch the file either way."
+}

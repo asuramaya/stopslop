@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread, processes each with a callback, and shuts down cleanly on a sentinel. Around 50 lines."
+  }
+ ],
+ "output": "`queue_worker.py:1` \u2014 62 lines, smoke-tested above (three items processed in order, the `1/0` item routed to `on_error` without killing the thread).\n\nDesign points:\n\n- **Sentinel is a private module object**, not `None` or a string, so any user value is a legal queue item.\n- **`task_done()` in `finally`** \u2014 pairs with `queue.join()` in `stop(drain=True)`, and stays balanced even when the callback raises.\n- **The sentinel is enqueued after the drain**, so `stop()` waits for the backlog and then exits. `stop(drain=False)` skips the join and drops whatever is still queued.\n- **Callback exceptions go to `on_error(item, exc)`** and are otherwise swallowed; a bare `raise` inside your `on_error` still propagates and ends the thread, if you want that.\n- Thread is a daemon, so a forgotten `stop()` doesn't hang interpreter exit \u2014 but the context manager is the intended path.\n\nOne thing worth naming: this is a single consumer thread. If you want N workers, the drain logic needs N sentinels (or a shared `threading.Event` checked alongside the get), because one sentinel only stops one thread."
+}

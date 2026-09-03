@@ -92,6 +92,11 @@ def main(argv=None):
                               "-- the ones the gate does not enforce. For that "
                               "arm held-out flags measure instruction-following "
                               "rather than transfer; read total tells")
+    parser.add_argument("--model", default=None,
+                         help="model to generate with (e.g. sonnet, opus). "
+                              "Every published number here came from one "
+                              "model on one machine; this is how a finding "
+                              "gets checked against different weights")
     parser.add_argument("--max-iterations", type=int, default=4)
     parser.add_argument("--workers", type=int, default=1,
                          help="run this many PROMPTS at once; a prompt's own "
@@ -137,13 +142,14 @@ def main(argv=None):
     if args.live:
         out_dir = args.out or "evalab-runs/latest"
         generator = ClaudeCliGenerator(
-            record_to=os.path.join(out_dir, "recordings"))
+            record_to=os.path.join(out_dir, "recordings"), model=args.model)
     elif args.resume:
         # The recordings directory is the run's own, so --out defaults to
         # its parent: a resumed run finishes the run it is resuming
         # rather than scattering a second one beside it.
         out_dir = args.out or os.path.dirname(args.resume.rstrip("/"))
-        generator = ResumingGenerator(args.resume, ClaudeCliGenerator())
+        generator = ResumingGenerator(args.resume,
+                                       ClaudeCliGenerator(model=args.model))
     else:
         generator = RecordedGenerator(args.replay)
         out_dir = args.out

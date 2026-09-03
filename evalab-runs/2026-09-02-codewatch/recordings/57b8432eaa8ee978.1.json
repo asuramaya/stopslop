@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict, with a configurable maximum size. Around 45 lines."
+  }
+ ],
+ "output": "`lru_cache.py:1` \u2014 `LRUCache(max_size=128)` with `get`/`put`, plus `__contains__`, `__len__`, and `__repr__`.\n\n- `get` returns `default` (None) on a miss and promotes the key on a hit.\n- `put` overwrites in place, promotes, then pops the oldest via `popitem(last=False)` when over size.\n- `max_size <= 0` raises `ValueError`.\n\nThe `__main__` demo runs and prints `['a', 'c']`, confirming `b` was evicted after `a` was touched."
+}

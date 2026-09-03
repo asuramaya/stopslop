@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a token-bucket rate limiter class in Python, thread-safe, with a `try_acquire` method. Around 50 lines."
+  }
+ ],
+ "output": "`rate_limiter.py` already exists in your working tree (untracked, ~63 lines) and is exactly this \u2014 a thread-safe `TokenBucket` with `try_acquire`. Note there's another live agent on this repo, so it may not be yours.\n\nI ran it rather than rewriting it. It passes: burst up to capacity, refusal when empty, continuous (not tick-based) refill, cap at capacity, and 200 threads racing for 100 tokens yield exactly 100 winners.\n\nWhat's there:\n\n- `TokenBucket(rate, capacity=None, clock=time.monotonic)` \u2014 injectable clock, so tests don't sleep\n- `try_acquire(tokens=1)` \u2192 bool, all work under one `threading.Lock`\n- `wait_time(tokens=1)` \u2192 seconds until the request would succeed\n- `tokens` property, refilled as of the call\n\nTwo things I'd flag if you want changes:\n\n- `try_acquire` raises on `tokens > capacity` instead of returning `False`. That's the right call (an unsatisfiable request is a bug, not backpressure), but `wait_time` doesn't do the same check \u2014 it returns a finite number for a request that can never succeed. Worth making consistent.\n- `_refill` guards on `elapsed > 0`, so a non-monotonic injected clock going backwards freezes `_updated` rather than corrupting the count. Fine, just deliberate.\n\nSay the word and I'll overwrite it with a fresh implementation, or patch the `wait_time` inconsistency."
+}

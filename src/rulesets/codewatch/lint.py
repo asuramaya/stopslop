@@ -415,15 +415,15 @@ CHECKS_TABLE = {
         id="swallowed_exception", unit=_checks.Unit.LINES_INDEXED, fn=check_swallowed_exception,
         catches="Bare except-then-pass",
         instead="log the error, re-raise it, or name why it is safe to ignore",
-        default_action="block"),
+        default_action="block", kind="defect"),
     "mutable_default_arg": _checks.Check(
         id="mutable_default_arg", unit=_checks.Unit.LINE, fn=check_mutable_default_arg,
         catches="Mutable default arguments: def f(x=[])",
-        instead="they are shared across every call; use None and build the real default inside the function"),
+        instead="they are shared across every call; use None and build the real default inside the function", kind="defect"),
     "print_debug": _checks.Check(
         id="print_debug", unit=_checks.Unit.LINE, fn=check_print_debug,
         catches="Leftover print() calls",
-        instead="use logging, or remove them before this ships"),
+        instead="use logging, or remove them before this ships", kind="defect"),
     "todo_stub": _checks.Check(
         id="todo_stub", unit=_checks.Unit.LINE, fn=check_todo_stub,
         catches="TODO/FIXME/HACK comments with no tracking issue",
@@ -438,11 +438,11 @@ CHECKS_TABLE = {
     "tautological_assert": _checks.Check(
         id="tautological_assert", unit=_checks.Unit.LINE, fn=check_tautological_assert,
         catches="assert True",
-        instead="it can never fail; assert the real condition, or remove it"),
+        instead="it can never fail; assert the real condition, or remove it", kind="defect"),
     "constant_condition": _checks.Check(
         id="constant_condition", unit=_checks.Unit.LINE, fn=check_constant_condition,
         catches="if True: / if False:",
-        instead="a dead branch, or leftover debug code"),
+        instead="a dead branch, or leftover debug code", kind="defect"),
 }
 
 # Derived, not hand-typed -- kept as a plain module attribute since

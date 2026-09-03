@@ -955,7 +955,7 @@ CHECKS_TABLE = {
     "ai_markup_remnant": _checks.Check(
         id="ai_markup_remnant", unit=_checks.Unit.DOCUMENT, fn=check_ai_markup_remnant,
         catches="Generator scaffolding left in: oaicite, [cite: 1], placeholders",
-        instead="finish the text and read it"),
+        instead="finish the text and read it", kind="defect"),
     "paragraph_uniformity": _checks.Check(
         id="paragraph_uniformity", unit=_checks.Unit.DOCUMENT, fn=check_paragraph_uniformity,
         catches="Body paragraphs nearly identical in length",
@@ -973,7 +973,7 @@ CHECKS_TABLE = {
     "entity_encoded_punctuation": _checks.Check(
         id="entity_encoded_punctuation", unit=_checks.Unit.SENTENCE, fn=check_entity_encoded_punctuation,
         catches="An em dash, section sign or middle dot written as an HTML entity",
-        instead="write the plain character", classify="mechanical"),
+        instead="write the plain character", classify="mechanical", kind="defect"),
     "bold_bullet_lead": _checks.Check(
         id="bold_bullet_lead", unit=_checks.Unit.LINE, fn=check_bold_bullet_lead,
         catches="A bolded word opening a list item as a per-item tag",
@@ -981,7 +981,7 @@ CHECKS_TABLE = {
     "id_label_lead": _checks.Check(
         id="id_label_lead", unit=_checks.Unit.LINE, fn=check_id_label_lead,
         catches="Fake ID tags opening list items: \"R-1.\", \"US-01\"",
-        instead="number the list plainly"),
+        instead="number the list plainly", kind="defect"),
     "not_just_x_but_y": _checks.Check(
         id="not_just_x_but_y", unit=_checks.Unit.SENTENCE, fn=check_not_just_but,
         catches="The \"not just X but Y\" construction",
@@ -993,7 +993,7 @@ CHECKS_TABLE = {
     "emoji_in_prose": _checks.Check(
         id="emoji_in_prose", unit=_checks.Unit.SENTENCE, fn=check_emoji,
         catches="Emoji or decorative checkmarks in body text",
-        instead="cut them", classify="mechanical"),
+        instead="cut them", classify="mechanical", kind="defect"),
     "marketing_adjective": _checks.Check(
         id="marketing_adjective", unit=_checks.Unit.SENTENCE, fn=check_marketing_adjective,
         catches="Marketing adjectives: seamless, robust, cutting-edge",
