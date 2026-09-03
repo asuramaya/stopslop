@@ -308,22 +308,52 @@ def load_set(path):
             if not isinstance(entry, dict) or "text" not in entry:
                 raise ValueError(
                     f"{path}: prompt {index} needs at least a 'text' field")
-            prompts.append({"id": str(entry.get("id") or f"prompt-{index}"),
-                             "text": entry["text"].strip()})
+            prompt = {"id": str(entry.get("id") or f"prompt-{index}"),
+                       "text": entry["text"].strip()}
+            turns = entry.get("turns")
+            if turns:
+                if not isinstance(turns, list):
+                    raise ValueError(f"{path}: prompt {index}'s 'turns' must "
+                                      "be a list of follow-up requests")
+                prompt["turns"] = [str(t).strip() for t in turns if str(t).strip()]
+            prompts.append(prompt)
     else:
         prompts = []
-        current_id, buffer = None, []
+        current = None
+        buffer = []
+        collecting = "text"
+
+        def flush():
+            if current is None:
+                return
+            body = "\n".join(buffer).strip()
+            if collecting == "text":
+                current["text"] = body
+            elif body:
+                current.setdefault("turns", []).append(body)
+
         for line in raw.splitlines():
             if line.startswith("## "):
-                if current_id and "".join(buffer).strip():
-                    prompts.append({"id": current_id,
-                                     "text": "\n".join(buffer).strip()})
-                current_id = line[3:].strip().lower().replace(" ", "-")
-                buffer = []
-            elif current_id is not None:
+                flush()
+                if current and current.get("text"):
+                    prompts.append(current)
+                current = {"id": line[3:].strip().lower().replace(" ", "-"),
+                            "text": ""}
+                buffer, collecting = [], "text"
+            elif (line.rstrip() == "###" or line.startswith("### ")) \
+                    and current is not None:
+                # A `### heading` under a prompt is a FOLLOW-UP TURN: the
+                # next thing asked of the document once it exists. Real
+                # documents are written over many turns, and a harness
+                # that only measures first drafts is measuring a mode of
+                # writing that mostly does not happen.
+                flush()
+                buffer, collecting = [], "turn"
+            elif current is not None:
                 buffer.append(line)
-        if current_id and "".join(buffer).strip():
-            prompts.append({"id": current_id, "text": "\n".join(buffer).strip()})
+        flush()
+        if current and current.get("text"):
+            prompts.append(current)
     if not prompts:
         raise ValueError(
             f"{path}: no prompts found. JSON needs a list of objects with a "

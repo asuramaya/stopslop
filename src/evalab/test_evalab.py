@@ -981,3 +981,131 @@ class ModelSelectionTests(unittest.TestCase):
 
     def test_no_model_leaves_the_version_string_unchanged(self):
         self.assertNotIn("model=", ClaudeCliGenerator().version())
+
+
+class MultiTurnTests(unittest.TestCase):
+    """Documents are written over many turns; this harness measured first
+    drafts.
+
+    Two things only a multi-turn run can see. DRIFT -- does a document get
+    sloppier as it is edited. And whether the published comparison was
+    unfair to the instruction: in real use a CLAUDE.md line sits in
+    context on EVERY turn, while the single-turn instructed arm gives it
+    one shot at one prompt.
+    """
+
+    def setUp(self):
+        self.ruleset = rulesets.get_ruleset("slopwatch")
+        self.dirty = "Needless to say, this is seamless and very robust."
+        self.clean = "The cache stores results on disk."
+
+    def _prompt(self, turns=("add a section", "tighten it")):
+        return [{"id": "p1", "text": "write a thing", "turns": list(turns)}]
+
+    def _run(self, **kwargs):
+        generator = ScriptedGenerator([self.dirty, self.clean] * 90)
+        return harness.run(self._prompt(), self.ruleset, generator,
+                            enforced="structural", max_iterations=3, **kwargs)
+
+    def test_an_ungated_arm_spends_one_generation_per_turn(self):
+        row = self._run()["rows"][0]
+        self.assertEqual(row["ungated"]["iterations"], 3)
+
+    def test_the_gate_runs_after_every_turn_not_once_per_document(self):
+        """The live hook fires on each write. A budget spread across the
+        whole life of a file would model something nobody runs."""
+        row = self._run()["rows"][0]
+        self.assertGreater(row["gated"]["iterations"],
+                            row["ungated"]["iterations"])
+
+    def test_every_arm_is_scored_at_every_turn(self):
+        """An unscored arm cannot show drift, which is the point."""
+        row = self._run()["rows"][0]
+        for arm in ("ungated", "control", "instructed", "gated"):
+            self.assertEqual(len(row[arm]["per_turn"]), 3, arm)
+            for turn in row[arm]["per_turn"]:
+                self.assertIn("total", turn)
+
+    def test_an_instruction_leads_every_turn_not_only_the_first(self):
+        """A CLAUDE.md line is present for the whole session. Giving it
+        one shot at the opening prompt understates it."""
+        generator = ScriptedGenerator([self.clean] * 90)
+        harness.run(self._prompt(), self.ruleset, generator,
+                     enforced="structural", max_iterations=1)
+        followups = [m[-1]["content"] for m in generator.seen
+                      if len(m) > 1 and m[-1]["role"] == "user"]
+        self.assertTrue(any(harness.INSTRUCTION_HEADER in c for c in followups),
+                         "no follow-up turn carried the instruction")
+
+    def test_the_plain_ungated_arm_carries_no_instruction_on_any_turn(self):
+        generator = ScriptedGenerator([self.clean] * 90)
+        harness.run(self._prompt(), self.ruleset, generator,
+                     enforced="structural", max_iterations=1)
+        bare = [m for m in generator.seen
+                 if m[0]["content"] == "write a thing"]
+        self.assertTrue(bare)
+
+    def test_each_turn_sees_the_document_it_is_editing(self):
+        """A follow-up that does not carry the previous text is a new
+        document, not an edit."""
+        generator = ScriptedGenerator([self.clean] * 90)
+        harness.run(self._prompt(), self.ruleset, generator,
+                     enforced="structural", max_iterations=1)
+        multi = [m for m in generator.seen if len(m) >= 3]
+        self.assertTrue(multi)
+        self.assertEqual(multi[0][1]["role"], "assistant")
+
+    def test_the_blind_arm_stays_matched_across_turns(self):
+        row = self._run()["rows"][0]
+        self.assertGreaterEqual(row["blind"]["iterations"],
+                                 row["ungated"]["iterations"])
+
+    def test_a_prompt_without_turns_still_runs_single_turn(self):
+        """Nine committed runs use turnless prompts and must keep
+        reproducing."""
+        generator = ScriptedGenerator([self.clean] * 30)
+        row = harness.run([{"id": "p", "text": "write a thing"}],
+                           self.ruleset, generator, enforced="structural",
+                           max_iterations=2)["rows"][0]
+        self.assertEqual(row["turns"], [])
+        self.assertNotIn("per_turn", row["ungated"])
+
+    def test_the_row_records_the_turns_it_ran(self):
+        row = self._run()["rows"][0]
+        self.assertEqual(row["turns"], ["add a section", "tighten it"])
+
+
+class TurnHeadingTests(unittest.TestCase):
+    """A turn separator is a separator, with or without a title."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.dir)
+
+    def _load(self, text):
+        path = os.path.join(self.dir, "p.md")
+        with open(path, "w") as f:
+            f.write(text)
+        return prompts.load_set(path)
+
+    def test_a_bare_hash_separator_starts_a_turn(self):
+        """Requiring a title after ### silently produced zero turns on a
+        file that looked correct -- the run would have measured first
+        drafts while reporting itself as multi-turn."""
+        loaded = self._load("## a\nDraft it.\n\n###\nAdd a section.\n")
+        self.assertEqual(loaded[0]["turns"], ["Add a section."])
+
+    def test_a_titled_separator_still_works(self):
+        loaded = self._load("## a\nDraft it.\n\n### second pass\nTighten it.\n")
+        self.assertEqual(loaded[0]["turns"], ["Tighten it."])
+
+    def test_turns_keep_their_order(self):
+        loaded = self._load("## a\nDraft.\n\n###\nOne.\n\n###\nTwo.\n\n###\nThree.\n")
+        self.assertEqual(loaded[0]["turns"], ["One.", "Two.", "Three."])
+
+    def test_an_empty_turn_is_dropped_rather_than_sent(self):
+        loaded = self._load("## a\nDraft.\n\n###\n\n###\nReal.\n")
+        self.assertEqual(loaded[0]["turns"], ["Real."])
+
+    def test_a_prompt_with_no_turns_reports_none(self):
+        self.assertNotIn("turns", self._load("## a\nDraft it.\n")[0])

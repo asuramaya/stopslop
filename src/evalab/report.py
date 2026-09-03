@@ -148,6 +148,9 @@ def render(result):
         add("  references included, which is the strongest form of it.")
         add("")
 
+    if rows and rows[0].get("turns"):
+        add(_drift_table(rows))
+
     scope = signal if signal else rows
     scope_label = (f"the {len(signal)} prompts the loop revised"
                     if signal else "ALL prompts (the loop revised none)")
@@ -236,3 +239,45 @@ def render(result):
     add(f"  {len(rows)} prompts and one model settle nothing by themselves.")
     add("  Read the saved texts side by side before believing any of it.")
     return "\n".join(out)
+
+
+def _drift_table(rows):
+    """Tells after each turn, per arm.
+
+    The question a multi-turn run exists to answer and a single-turn run
+    cannot: does a document get sloppier as it is edited? An endpoint
+    number hides it entirely -- two arms can finish level having taken
+    opposite paths, and only one of those is a tool you would trust for a
+    long session.
+    """
+    turn_count = max(len(r[a].get("per_turn") or [])
+                      for r in rows for a in _arms(rows))
+    if turn_count < 2:
+        return ""
+    lines = ["DRIFT  (total tells after each turn, summed over prompts)",
+              "-" * 66,
+              "  " + f"{'arm':<22}" +
+              "".join(f"{('t' + str(i)):>7}" for i in range(turn_count)) +
+              f"{'change':>9}"]
+    for arm in _arms(rows):
+        totals = []
+        for index in range(turn_count):
+            total = 0
+            for row in rows:
+                per_turn = row[arm].get("per_turn") or []
+                if index < len(per_turn):
+                    total += per_turn[index]["total"]
+            totals.append(total)
+        if not totals:
+            continue
+        delta = totals[-1] - totals[0]
+        lines.append("  " + f"{arm:<22}" +
+                      "".join(f"{t:>7}" for t in totals) +
+                      f"{delta:>+9}")
+    lines += ["",
+               "  A rising row is a document getting worse as it is edited.",
+               "  A flat row at a low number is the only shape worth having:",
+               "  finishing clean says nothing if the path there was noisy,",
+               "  because a real session is judged at every write, not once.",
+               ""]
+    return "\n".join(lines)

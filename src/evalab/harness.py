@@ -291,24 +291,52 @@ def _run_one(prompt, ruleset, generator, enforced, held_out, max_iterations,
               on_progress, instructions, combined):
     if on_progress:
         on_progress(prompt["id"])
-    ungated = run_arm_ungated(generator, prompt["text"])
-    control = run_arm_ungated(generator, prompt["text"])
-    arms = {name: run_arm_instructed(generator, prompt["text"], text)
-             for name, text in instructions.items()}
-    gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
-                           max_iterations=max_iterations)
-    for name in combined:
-        arms[f"{name}+gated"] = run_arm_gated(
-            generator, prompt["text"], ruleset, enforced,
-            max_iterations=max_iterations, instruction=instructions[name])
+    turns = prompt.get("turns") or []
+    if turns:
+        # A prompt carrying follow-up turns makes EVERY arm multi-turn.
+        # Mixing a one-shot arm with a five-turn one in the same row would
+        # compare a first draft against a finished document and call the
+        # difference an effect.
+        def arm(instruction="", gated=False):
+            return run_turns(generator, prompt["text"], turns,
+                              ruleset=ruleset, enforced=enforced,
+                              max_iterations=max_iterations,
+                              instruction=instruction, gate=gated)
+
+        ungated = arm()
+        control = arm()
+        arms = {name: arm(instruction=text)
+                 for name, text in instructions.items()}
+        gated = arm(gated=True)
+        for name in combined:
+            arms[f"{name}+gated"] = arm(instruction=instructions[name],
+                                         gated=True)
+    else:
+        ungated = run_arm_ungated(generator, prompt["text"])
+        control = run_arm_ungated(generator, prompt["text"])
+        arms = {name: run_arm_instructed(generator, prompt["text"], text)
+                 for name, text in instructions.items()}
+        gated = run_arm_gated(generator, prompt["text"], ruleset, enforced,
+                               max_iterations=max_iterations)
+        for name in combined:
+            arms[f"{name}+gated"] = run_arm_gated(
+                generator, prompt["text"], ruleset, enforced,
+                max_iterations=max_iterations, instruction=instructions[name])
     # Matched compute: the same number of generations the gated arm spent
     # on THIS prompt, so the two differ only in whether the rewrite was
-    # told what to fix.
-    blind = run_arm_blind_revision(generator, prompt["text"],
-                                    gated["iterations"])
+    # told what to fix. In a multi-turn row the blind arm spends the same
+    # total across the same turns, told only to rewrite at each one.
+    if turns:
+        blind = run_turns(generator, prompt["text"],
+                           [BLIND_REVISION] * (len(turns) + 1),
+                           ruleset=ruleset, enforced=enforced)
+    else:
+        blind = run_arm_blind_revision(generator, prompt["text"],
+                                        gated["iterations"])
     return {
         "id": prompt["id"],
         "prompt": prompt["text"],
+        "turns": turns,
         "ungated": {**ungated, "scores": score(ruleset, ungated["text"],
                                                 enforced, held_out)},
         "control": {**control, "scores": score(ruleset, control["text"],
@@ -435,3 +463,99 @@ def run_arm_instructed(generator, prompt, instruction):
     """
     text = generator([{"role": "user", "content": instruction + prompt}])
     return {"text": text, "iterations": 1, "passed": None}
+
+
+# ---------------------------------------------------------------------------
+# Multi-turn.
+#
+# Every arm above generates once and then, at most, revises the same text.
+# Real documents are written over many turns: draft, add a section, tighten
+# the intro, rename the thing. This harness has been measuring first drafts
+# and the tool it evaluates is used across whole sessions.
+#
+# Two things only a multi-turn run can see.
+#
+# DRIFT. Does a document get sloppier as it is edited? Nobody in this
+# category has asked, and it is the question that would justify a gate most
+# strongly -- or least.
+#
+# And the comparison this project has been publishing may be UNFAIR TO THE
+# INSTRUCTION. In real use a CLAUDE.md line sits in context on every turn.
+# The single-turn instructed arm gives it exactly one shot at one prompt.
+# So the instruction is modelled here the way it actually works: present at
+# every turn, not just the first.
+
+
+def _gate_until_clean(generator, ruleset, enforced, messages, text,
+                       max_iterations):
+    """Revise `text` until the enforced checks pass or the budget runs out.
+
+    Returns (text, generations_spent, passed). `max_iterations` counts the
+    FIRST generation too, matching run_arm_gated, so a budget of 1 means
+    no revision at all.
+    """
+    spent = 0
+    while spent < max_iterations - 1:
+        flags = _blocking_enforced(ruleset, text, enforced)
+        if not flags:
+            return text, spent, True
+        text = generator(messages + [
+            {"role": "assistant", "content": text},
+            {"role": "user", "content": _revision_message(flags)}])
+        spent += 1
+    return text, spent, not _blocking_enforced(ruleset, text, enforced)
+
+
+def run_turns(generator, prompt, turns, ruleset=None, enforced=None,
+               max_iterations=1, instruction="", gate=False):
+    """One arm across a document's whole life.
+
+    `turns` are follow-up requests applied in order to the document the
+    first prompt produced. When `ruleset` is given, the gate runs AFTER
+    EVERY TURN with its own budget -- which is what the live hook does. It
+    fires on each write, not once per document.
+
+    `instruction`, when given, leads every turn rather than only the
+    first. That is how a CLAUDE.md line actually behaves: it sits in
+    context for the whole session. Giving it one shot at the opening
+    prompt, which is what the single-turn arms do, understates it.
+
+    Returns the usual arm dict plus `per_turn` -- the flag count after
+    each turn, so drift is visible rather than only the endpoint.
+    """
+    # `ruleset` is always used for SCORING each turn -- drift is the point
+    # of a multi-turn run and an unscored arm cannot show it. `gate` is a
+    # separate decision: whether this arm also revises against the checks.
+    gating = gate and ruleset is not None and max_iterations > 1
+    history = [{"role": "user", "content": instruction + prompt}]
+    text = generator(history)
+    generations = 1
+    passed = None
+    if gating:
+        text, spent, passed = _gate_until_clean(
+            generator, ruleset, enforced, history, text, max_iterations)
+        generations += spent
+    per_turn = [_turn_score(ruleset, text, enforced)]
+
+    for request in turns:
+        history = history + [{"role": "assistant", "content": text},
+                              {"role": "user", "content": instruction + request}]
+        text = generator(history)
+        generations += 1
+        if gating:
+            text, spent, passed = _gate_until_clean(
+                generator, ruleset, enforced, history, text, max_iterations)
+            generations += spent
+        per_turn.append(_turn_score(ruleset, text, enforced))
+
+    return {"text": text, "iterations": generations, "passed": passed,
+             "per_turn": per_turn}
+
+
+def _turn_score(ruleset, text, enforced):
+    if ruleset is None:
+        return None
+    kinds = _flag_kinds(ruleset, text)
+    return {"total": len(kinds),
+             "enforced": sum(1 for k in kinds if k in enforced),
+             "words": len(text.split())}
