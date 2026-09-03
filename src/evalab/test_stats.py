@@ -7,6 +7,7 @@ falsify what nobody can rerun.
 """
 import json
 import os
+import re
 import sys
 import unittest
 
@@ -131,3 +132,54 @@ class PublishedNumbersTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PublishedRunsTests(unittest.TestCase):
+    """Every committed run must be usable by a stranger.
+
+    A run directory that cannot be replayed, or whose numbers have no
+    findings file behind them, is a directory of JSON rather than
+    evidence. This project's whole claim is that its results can be
+    checked, so the check is a test.
+    """
+
+    def _runs(self):
+        base = os.path.join(REPO_ROOT, "evalab-runs")
+        return [os.path.join(base, name) for name in sorted(os.listdir(base))
+                 if name.startswith("2026-")
+                 and os.path.isdir(os.path.join(base, name))]
+
+    def test_every_run_with_results_can_be_replayed_or_says_why(self):
+        for path in self._runs():
+            if not os.path.exists(os.path.join(path, "result.json")):
+                continue
+            if os.path.isdir(os.path.join(path, "recordings")):
+                continue
+            findings = os.path.join(path, "FINDINGS.md")
+            self.assertTrue(os.path.exists(findings),
+                             f"{os.path.basename(path)} has results, no "
+                             "recordings, and no findings explaining why")
+            with open(findings) as f:
+                text = f.read().lower()
+            self.assertIn("recording", text,
+                           f"{os.path.basename(path)} cannot be replayed and "
+                           "does not say so")
+
+    def test_every_run_directory_leads_a_reader_somewhere(self):
+        """A per-model leg has no findings of its own -- the analysis
+        pools across legs. Without a pointer it is a dead end."""
+        for path in self._runs():
+            has = any(os.path.exists(os.path.join(path, name))
+                       for name in ("FINDINGS.md", "README.md"))
+            self.assertTrue(has, f"{os.path.basename(path)} has neither "
+                                  "FINDINGS.md nor a README pointing at one")
+
+    def test_the_index_lists_every_run(self):
+        with open(os.path.join(REPO_ROOT, "evalab-runs", "README.md")) as f:
+            index = f.read()
+        for path in self._runs():
+            name = os.path.basename(path)
+            listed = name in index or any(
+                name.startswith(stem) for stem in
+                re.findall(r"`(2026-[0-9a-z-]+)\*/`", index))
+            self.assertTrue(listed, f"{name} is not in the runs index")

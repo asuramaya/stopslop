@@ -35,7 +35,7 @@ That is the actual product. Everything above is a default.
 
 ## What the evidence says
 
-Sixteen committed runs on three models, all replayable from [`evalab-runs/`](evalab-runs/), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). One of them measured this project against the other tools in its category on the same prompts, in the same run -- as far as I can find, nobody had done that before, because until this harness there was no rig.
+Sixteen committed runs on three models in [`evalab-runs/`](evalab-runs/), fifteen of them replayable without a model (the first predates a fix to the recording key and says so), every p-value recomputable with [`src/evalab/stats.py`](src/evalab/stats.py). One of them measured this project against the other tools in its category on the same prompts, in the same run -- as far as I can find, nobody had done that before, because until this harness there was no rig.
 
 | tier | tells | generations |
 |---|---|---|
