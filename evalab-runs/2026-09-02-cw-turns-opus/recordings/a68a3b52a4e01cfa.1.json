@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
+  }
+ ],
+ "output": "`simple_lru.py:1` \u2014 46 lines, smoke test above passes.\n\nTwo details worth naming:\n- `get` uses a `_MISSING` sentinel instead of `key in self._data`, so a stored `None` is a hit rather than a miss.\n- Order convention is the OrderedDict-native one: most recent at the end, `popitem(last=False)` evicts. That's the opposite of the convention in `lru_cache.py`, which keeps the most recent at the front \u2014 worth knowing if you ever merge the two."
+}

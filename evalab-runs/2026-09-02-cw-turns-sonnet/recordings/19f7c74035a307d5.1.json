@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- if True: / if False: -- a dead branch, or leftover debug code\n- Comments citing the plan/spec/ticket, or narrating before/after state -- that belongs in a commit message, not the source\n- Mutable default arguments: def f(x=[]) -- they are shared across every call; use None and build the real default inside the function\n- Bare except-then-pass -- log the error, re-raise it, or name why it is safe to ignore\n- assert True -- it can never fail; assert the real condition, or remove it\n- Comments that only restate the next line -- cut them, or say why the code does this\n\nNow write the following. Return only the requested text.\nWrite a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
+  }
+ ],
+ "output": "```python\nimport fnmatch\nimport os\nfrom collections.abc import Iterator\n\n\ndef find_matching_files(root_dir: str, pattern: str) -> Iterator[str]:\n    for dirpath, _dirnames, filenames in os.walk(root_dir):\n        for filename in filenames:\n            if fnmatch.fnmatch(filename, pattern):\n                yield os.path.join(dirpath, filename)\n```"
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "This already exists (`queue_thread_worker.py`, 53 lines) and does exactly what you asked. I don't need to write a new one \u2014 want me to reuse this, or write a fresh variant elsewhere?"
+  },
+  {
+   "role": "user",
+   "content": "Add a clean shutdown on a sentinel value."
+  }
+ ],
+ "output": "Already has it \u2014 the sentinel shutdown is already implemented: `_STOP` sentinel (line 11), `stop()` puts it on the queue and joins the thread (line 27-30), and `_run` checks for it and returns (line 36-37). Nothing to add here."
+}

@@ -282,6 +282,26 @@ def by_ids(ids=None, prompt_set="technical"):
     return chosen
 
 
+# Recommended closing line for any prompt whose artefact is CODE.
+#
+# `claude -p` is an agent. On a code-writing prompt it will write the
+# file and reply with a summary of what it did, and a harness that lints
+# that summary is scoring a report rather than the artefact. It happened:
+# half the arms of two codewatch runs contained no code at all, and the
+# arms that did were exactly the ones carrying an instruction block
+# ending "Return only the requested text" -- so the instruction appeared
+# to CAUSE flags when all it had done was produce something lintable.
+#
+# This is a constant rather than something the loader appends. A loader
+# that silently edits the prompts it reads changes the question every
+# committed recording was keyed against, and fourteen runs stop
+# replaying. Put it in the prompt file; the loader loads what is written.
+INLINE_DEMAND = (
+    "Return the full text inline in your reply. Do not create, edit or "
+    "read any file, and do not describe what you did -- the reply itself "
+    "is the deliverable.")
+
+
 def load_set(path):
     """A prompt set from a file, so a run can measure YOUR writing tasks.
 

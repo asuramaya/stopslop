@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`retry_decorator.py:5` \u2014 42 lines.\n\n```python\n@retry(attempts=5, delay=0.5, backoff=2.0, exceptions=(ConnectionError,))\ndef fetch(url):\n    ...\n```\n\n- Calls the function up to `attempts` times; waits `delay`, then `delay * backoff`, and so on between calls.\n- Only the types in `exceptions` trigger a retry; everything else propagates on the spot.\n- The last attempt's exception propagates rather than returning `None`.\n- `attempts < 1` raises `ValueError` at decoration time.\n\nSmoke-tested both paths: a function that fails twice returns on the third call, and an uncaught type propagates immediately.\n\nTwo things worth your call: there is no jitter here, so many clients retrying the same backend will sync up; and `KeyboardInterrupt`/`SystemExit` are not caught by the default `(Exception,)` but would be caught if you pass a broader tuple. The `with_retries` already sitting in `retry.py` handles both. Say the word and I'll fold this into that file instead of leaving two decorators in the tree."
+  },
+  {
+   "role": "user",
+   "content": "Add jitter to the backoff so retries do not synchronise."
+  }
+ ],
+ "output": "`retry_decorator.py:6` \u2014 52 lines.\n\nNew `jitter` parameter, a fraction defaulting to 0.1. Each sleep is multiplied by `random.uniform(1 - jitter, 1 + jitter)`, so two clients that fail at the same instant wait different amounts. The jitter hits the sleep only \u2014 `wait` keeps its clean `delay * backoff ** n` progression, so the schedule cannot drift low or high over a long retry chain. `jitter=0` gives the old exact waits, which is what you want in a test.\n\nSmoke test with `time.sleep` stubbed: sleeps of 0.456 and 0.8254 against bases of 0.5 and 1.0, both inside the \u00b125% band; `jitter=0` gives exactly 0.5 and 1.0; the last exception still propagates; an uncaught type still propagates on the spot; `attempts=0`, `jitter=1.5`, and `jitter=-0.1` each raise `ValueError` at decoration time.\n\nTwo notes. This is proportional jitter, not the \"full jitter\" of `random.uniform(0, wait)` \u2014 proportional keeps the backoff shape you asked for, while full jitter spreads a large thundering herd better at the cost of sometimes retrying almost immediately. Say which you want if the herd is the real problem. And it draws from the global `random` module, which is fine for spreading load but is shared state under a seed; a private `random.Random()` per decorator would isolate it if anything else in the process seeds globally.\n\nThe `with_retries` in `retry.py` still covers this ground. My earlier offer stands: I can fold this in there and drop the second decorator."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  }
+ ],
+ "output": "`retry_decorator.py:5` \u2014 42 lines.\n\n```python\n@retry(attempts=5, delay=0.5, backoff=2.0, exceptions=(ConnectionError,))\ndef fetch(url):\n    ...\n```\n\n- Calls the function up to `attempts` times; waits `delay`, then `delay * backoff`, and so on between calls.\n- Only the types in `exceptions` trigger a retry; everything else propagates on the spot.\n- The last attempt's exception propagates rather than returning `None`.\n- `attempts < 1` raises `ValueError` at decoration time.\n\nSmoke-tested both paths: a function that fails twice returns on the third call, and an uncaught type propagates immediately.\n\nTwo things worth your call: there is no jitter here, so many clients retrying the same backend will sync up; and `KeyboardInterrupt`/`SystemExit` are not caught by the default `(Exception,)` but would be caught if you pass a broader tuple. The `with_retries` already sitting in `retry.py` handles both. Say the word and I'll fold this into that file instead of leaving two decorators in the tree."
+}

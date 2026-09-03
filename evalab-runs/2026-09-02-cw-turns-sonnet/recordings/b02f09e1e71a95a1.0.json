@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "Created `callback_worker.py` (49 lines). `CallbackWorker` runs a background thread that blocks on `queue.get()`, invokes `callback(item)` for each item, catches exceptions so one bad item doesn't kill the loop, and shuts down cleanly via a sentinel when `stop()` is called."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "I made `callback_worker.py` (49 lines). `CallbackWorker` runs a background thread that blocks on `queue.get()`, calls `callback(item)` for each item, catches exceptions so a bad item does not stop the loop, and shuts down cleanly with a sentinel when `stop()` runs."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "I built `callback_worker.py` (49 lines). `CallbackWorker` runs a background thread that blocks on `queue.get()`, calls `callback(item)` for each item, catches exceptions so a bad item does not stop the loop, and shuts down cleanly using a sentinel when `stop()` runs."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "I created `callback_worker.py` (49 lines). `CallbackWorker` runs a background thread that blocks on `queue.get()`, invokes `callback(item)` on each item, catches exceptions so a bad item does not stop the loop, and shuts down cleanly with a sentinel when `stop()` runs."
+}

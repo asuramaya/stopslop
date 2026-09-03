@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a token-bucket rate limiter class in Python with a `try_acquire` method. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "Written to `rate_limiter_core.py` (49 lines): a `TokenBucket` class that refills lazily on each call based on elapsed time, is thread-safe via a lock, and exposes `try_acquire(tokens=1) -> bool`."
+  },
+  {
+   "role": "user",
+   "content": "Make it thread-safe."
+  },
+  {
+   "role": "assistant",
+   "content": "It's already thread-safe: `_refill()` and the acquire/decrement in `try_acquire` both run inside `self._lock`, so concurrent threads can't interleave and double-spend tokens. No changes needed."
+  },
+  {
+   "role": "user",
+   "content": "Add a blocking `acquire` with a timeout."
+  },
+  {
+   "role": "assistant",
+   "content": "Added `acquire(tokens=1, timeout=None)` to `rate_limiter_core.py` \u2014 it polls `try_acquire` in a short sleep loop, returning `True` once granted or `False` if the timeout expires; `timeout=None` blocks indefinitely."
+  },
+  {
+   "role": "user",
+   "content": "The refill currently drifts under load because it uses time.time(). Fix it."
+  }
+ ],
+ "output": "Already using `time.monotonic()`, not `time.time()` \u2014 so it isn't affected by wall-clock adjustments (NTP sync, DST, manual changes). No change needed."
+}

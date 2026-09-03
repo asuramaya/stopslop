@@ -1,0 +1,1 @@
+Changed the default `maxsize` from `0` (unbounded) to `100`. Once 100 items are queued, `submit()` blocks until the callback drains some, so a slow callback caps the backlog instead of growing it forever. Callers needing a different cap can still pass `maxsize=` explicitly.

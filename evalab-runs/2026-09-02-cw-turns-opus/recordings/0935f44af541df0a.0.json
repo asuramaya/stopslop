@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`walk_glob.py` in this repo already has it (uncommitted, ~55 lines) \u2014 `find_files(root, pattern=\"*\", *, include_hidden=False, max_depth=None)`:\n\n- Patterns without a separator (`*.py`) match the file name; patterns with one (`src/*.py`) match the path relative to `root` component by component, so `*` never crosses a separator.\n- Hidden files and directories are pruned unless `include_hidden=True`.\n- Symlinked directories aren't descended and symlinked files aren't returned, so each real file is visited once.\n- `max_depth=0` is files directly in `root`; `None` is unlimited.\n- Returns a sorted list of `Path`; raises `NotADirectoryError` for a bad root and `ValueError` for negative depth.\n\nI ran it against a scratch tree (hidden file, nested dirs, a symlink) \u2014 `*.py` \u2192 `a.py, src/b.py, src/deep/e.py`; `src/*.py` \u2192 `src/b.py` only; `max_depth=0` \u2192 `a.py`; `max_depth=1` adds `src/b.py`; the symlink `link.py` stays out, and `include_hidden=True` pulls in `.hid.py`. All as documented.\n\nTell me if you want something different from what's there \u2014 a generator instead of a list, `**` support for recursive path patterns, or symlink following \u2014 and I'll change it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nThat already exists in this repo as `walk_glob.py` (uncommitted, ~55 lines): `find_files(root, pattern=\"*\", *, include_hidden=False, max_depth=None)`.\n\n- A pattern with no separator (`*.py`) is matched against the file name. A pattern that has one (`src/*.py`) is matched component by component against the path relative to `root`, so `*` stops at a separator.\n- Hidden files and hidden directories get pruned unless you pass `include_hidden=True`.\n- Symlinked directories are not descended into and symlinked files are not returned, which means every real file shows up exactly once.\n- `max_depth=0` means files sitting directly in `root`; `None` means no limit.\n- The return value is a sorted list of `Path`. A bad root raises `NotADirectoryError`, a negative depth raises `ValueError`.\n\nI pointed it at a scratch tree containing a hidden file, some nested dirs, and a symlink. `*.py` gave `a.py, src/b.py, src/deep/e.py`; `src/*.py` gave `src/b.py` and nothing else; `max_depth=0` gave `a.py`, and `max_depth=1` added `src/b.py`. The `link.py` symlink never appeared, and `include_hidden=True` brought in `.hid.py`. Everything matched the docs.\n\nSay the word if you want something the current version doesn't do \u2014 a generator rather than a list, `**` for recursive path patterns, or following symlinks \u2014 and I'll make the change."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  },
+  {
+   "role": "assistant",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nThe repo already has this: `walk_glob.py` (uncommitted, ~55 lines), with the signature `find_files(root, pattern=\"*\", *, include_hidden=False, max_depth=None)`.\n\n- Separator-free patterns like `*.py` match against the file name. Patterns containing a separator, like `src/*.py`, match component by component against the path relative to `root`, so a `*` never runs past a separator.\n- Hidden files and hidden directories are pruned, unless `include_hidden=True`.\n- Symlinked directories are not walked into, and symlinked files are not returned \u2014 so each real file turns up once, no more.\n- `max_depth=0` covers the files sitting directly in `root`. `None` is unlimited.\n- The result is a sorted list of `Path`. A bad root raises `NotADirectoryError`; a negative depth raises `ValueError`.\n\nI ran it over a scratch tree with a hidden file, some nested dirs, and a symlink. `*.py` returned `a.py, src/b.py, src/deep/e.py`. `src/*.py` returned just `src/b.py`. `max_depth=0` returned `a.py`, and `max_depth=1` added `src/b.py`. The `link.py` symlink never showed up, and `include_hidden=True` picked up `.hid.py`. All of it lined up with the docs.\n\nIf you want behavior the current version lacks \u2014 a generator instead of a list, `**` for recursive path patterns, or symlink following \u2014 tell me and I'll change it."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines.\n\nThere's already one in the repo: `walk_glob.py`, uncommitted, about 55 lines. The signature is `find_files(root, pattern=\"*\", *, include_hidden=False, max_depth=None)`.\n\n- If the pattern has no separator (`*.py`), it gets matched against the file name. If it has one (`src/*.py`), it gets matched component by component against the path relative to `root`, which keeps `*` from crossing a separator.\n- Hidden files and hidden directories are pruned unless you pass `include_hidden=True`.\n- Symlinked directories aren't descended into and symlinked files aren't returned, so every real file appears exactly once.\n- `max_depth=0` means the files sitting directly in `root`. `None` means no limit.\n- You get back a sorted list of `Path`. A bad root raises `NotADirectoryError`; a negative depth raises `ValueError`.\n\nI tried it on a scratch tree holding a hidden file, a few nested dirs, and a symlink. `*.py` gave `a.py, src/b.py, src/deep/e.py`. `src/*.py` gave `src/b.py` and nothing more. `max_depth=0` gave `a.py`; `max_depth=1` added `src/b.py`. The `link.py` symlink stayed out, and `include_hidden=True` brought `.hid.py` in. Everything agreed with the docs.\n\nIf there's something the current version doesn't do that you want \u2014 a generator in place of the list, `**` for recursive path patterns, or symlink following \u2014 say so and I'll change it."
+}

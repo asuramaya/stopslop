@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- if True: / if False: -- a dead branch, or leftover debug code\n- Comments citing the plan/spec/ticket, or narrating before/after state -- that belongs in a commit message, not the source\n- Mutable default arguments: def f(x=[]) -- they are shared across every call; use None and build the real default inside the function\n- Bare except-then-pass -- log the error, re-raise it, or name why it is safe to ignore\n- assert True -- it can never fail; assert the real condition, or remove it\n- Comments that only restate the next line -- cut them, or say why the code does this\n\nNow write the following. Return only the requested text.\nWrite a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  }
+ ],
+ "output": "```python\nimport time\nimport functools\n\n\ndef retry(max_attempts=3, base_delay=1.0, exceptions=(Exception,)):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            attempt = 0\n            delay = base_delay\n            while True:\n                try:\n                    return func(*args, **kwargs)\n                except exceptions as exc:\n                    attempt += 1\n                    if attempt >= max_attempts:\n                        raise\n                    time.sleep(delay)\n                    delay *= 2\n        return wrapper\n    return decorator\n```"
+}

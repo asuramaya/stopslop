@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`queue_worker.py`, tested with the smoke run above (five items processed in order; a raising callback routed to `on_error`).\n\nShape:\n\n- `QueueWorker(callback, maxsize=0, on_error=None)` owns its own `queue.Queue` and a daemon thread.\n- `put()` forwards to the queue; `join()` waits for the backlog to clear via `task_done` accounting.\n- `stop()` sends a private sentinel and joins the thread. `drain=False` discards anything still pending first.\n- Context manager support, so `with QueueWorker(fn) as w:` starts and stops it.\n- With no `on_error`, a callback exception propagates and kills the thread \u2014 that's the deliberate default rather than a silent swallow. Pass `on_error(item, exc)` to keep the worker alive.\n\nOne thing to know: `stop()` puts the sentinel through the same queue, so on a bounded queue (`maxsize>0`) that call blocks until a slot frees up. Fine for normal shutdown, worth knowing if you ever stop from a producer thread that's already wedged on a full queue."
+  },
+  {
+   "role": "user",
+   "content": "Add a clean shutdown on a sentinel value."
+  }
+ ],
+ "output": "All five checks pass, including the original smoke run (five items in order, raising callback routed to `on_error`).\n\nWhat changed:\n\n- `sentinel=` constructor arg. Default is a private `_UNSET` marker, so `sentinel=None` means \"None ends the stream\" rather than \"no sentinel\" \u2014 the usual `None` default would have made the most common sentinel value unspecifiable.\n- `_is_sentinel` matches on identity first, then `==`. Identity alone breaks for a plain `\"EOF\"` string that crosses a module boundary and isn't interned; `==` alone breaks for an item whose class has an odd `__eq__`. Identity-then-equality covers both usual cases.\n- The sentinel is checked inside the existing `try`, so the `finally: task_done()` still fires for it and `join()` accounting stays balanced.\n- `stop()` now only puts `_STOP` if the thread is still alive. Without that guard, `stop()` after a sentinel shutdown left an item in the queue that nothing would ever consume, and any later `join()` would hang. `stop()` is now safe to call unconditionally, which is what `__exit__` does.\n\nTwo things about the semantics that are worth knowing:\n\nItems queued after the sentinel are never consumed, and `join()` blocks forever on them. There's no ordering guarantee once several producers share the queue, so the sentinel is really only sound with a single producer that sends it last. I documented that in the class docstring rather than trying to enforce it \u2014 enforcement would mean rejecting `put()` after the sentinel, which needs a lock and doesn't help the multi-producer race anyway.\n\nThe sentinel stops the thread but does not set `_started` back, so the worker stays un-restartable, matching the existing `start()` behavior."
+}

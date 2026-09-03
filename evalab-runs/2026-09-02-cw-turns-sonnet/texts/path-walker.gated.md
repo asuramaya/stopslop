@@ -1,0 +1,1 @@
+Results were already sorted; now `find_files(root, pattern, max_depth=None)` in walk_glob.py also caps recursion depth relative to `root` (0 = root only), pruning `dirnames` once the limit is hit. CLI takes an optional third `max_depth` arg.

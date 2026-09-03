@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  }
+ ],
+ "output": "`queue_worker.py`, tested with the smoke run above (five items processed in order; a raising callback routed to `on_error`).\n\nShape:\n\n- `QueueWorker(callback, maxsize=0, on_error=None)` owns its own `queue.Queue` and a daemon thread.\n- `put()` forwards to the queue; `join()` waits for the backlog to clear via `task_done` accounting.\n- `stop()` sends a private sentinel and joins the thread. `drain=False` discards anything still pending first.\n- Context manager support, so `with QueueWorker(fn) as w:` starts and stops it.\n- With no `on_error`, a callback exception propagates and kills the thread \u2014 that's the deliberate default rather than a silent swallow. Pass `on_error(item, exc)` to keep the worker alive.\n\nOne thing to know: `stop()` puts the sentinel through the same queue, so on a bounded queue (`maxsize>0`) that call blocks until a slot frees up. Fine for normal shutdown, worth knowing if you ever stop from a producer thread that's already wedged on a full queue."
+}

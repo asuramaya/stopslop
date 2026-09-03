@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`retry_decorator.py:5` \u2014 42 lines.\n\n```python\n@retry(attempts=5, delay=0.5, backoff=2.0, exceptions=(ConnectionError,))\ndef fetch(url):\n    ...\n```\n\n- Calls the function up to `attempts` times; waits `delay`, then `delay * backoff`, and so on between calls.\n- Only the types in `exceptions` trigger a retry; everything else propagates on the spot.\n- The last attempt's exception propagates rather than returning `None`.\n- `attempts < 1` raises `ValueError` at decoration time.\n\nSmoke-tested both paths: a function that fails twice returns on the third call, and an uncaught type propagates immediately.\n\nTwo things worth your call: there is no jitter here, so many clients retrying the same backend will sync up; and `KeyboardInterrupt`/`SystemExit` are not caught by the default `(Exception,)` but would be caught if you pass a broader tuple. The `with_retries` already sitting in `retry.py` handles both. Say the word and I'll fold this into that file instead of leaving two decorators in the tree."
+  },
+  {
+   "role": "user",
+   "content": "Add jitter to the backoff so retries do not synchronise."
+  },
+  {
+   "role": "assistant",
+   "content": "`retry_decorator.py:6` \u2014 52 lines.\n\nNew `jitter` parameter, a fraction defaulting to 0.1. Each sleep is multiplied by `random.uniform(1 - jitter, 1 + jitter)`, so two clients that fail at the same instant wait different amounts. The jitter hits the sleep only \u2014 `wait` keeps its clean `delay * backoff ** n` progression, so the schedule cannot drift low or high over a long retry chain. `jitter=0` gives the old exact waits, which is what you want in a test.\n\nSmoke test with `time.sleep` stubbed: sleeps of 0.456 and 0.8254 against bases of 0.5 and 1.0, both inside the \u00b125% band; `jitter=0` gives exactly 0.5 and 1.0; the last exception still propagates; an uncaught type still propagates on the spot; `attempts=0`, `jitter=1.5`, and `jitter=-0.1` each raise `ValueError` at decoration time.\n\nTwo notes. This is proportional jitter, not the \"full jitter\" of `random.uniform(0, wait)` \u2014 proportional keeps the backoff shape you asked for, while full jitter spreads a large thundering herd better at the cost of sometimes retrying almost immediately. Say which you want if the herd is the real problem. And it draws from the global `random` module, which is fine for spreading load but is shared state under a seed; a private `random.Random()` per decorator would isolate it if anything else in the process seeds globally.\n\nThe `with_retries` in `retry.py` still covers this ground. My earlier offer stands: I can fold this in there and drop the second decorator."
+  },
+  {
+   "role": "user",
+   "content": "It should not retry on KeyboardInterrupt or SystemExit. Fix that."
+  },
+  {
+   "role": "assistant",
+   "content": "`retry_decorator.py:50` \u2014 58 lines.\n\nA `except (KeyboardInterrupt, SystemExit): raise` clause sits ahead of `except exceptions:`, so those two are re-raised before the retry clause ever sees them. Ordering is what does the work here: putting it first means it wins even when `exceptions` is wide enough to match, which the earlier default-only argument did not cover.\n\nSmoke-tested with `time.sleep` stubbed. Under `exceptions=(BaseException,)`, a `KeyboardInterrupt` and a `SystemExit(3)` each escape after one call with zero sleeps, and the exit code survives. The normal paths are unchanged: a function failing twice returns on the third call with sleeps of 0.5 and 1.0, an exhausted chain still propagates the last exception after 3 calls, and an uncaught type still propagates after one call.\n\nOne caveat on scope. This covers the two you named, but not the rest of the bare-`BaseException` family \u2014 `asyncio.CancelledError` is the one that bites in practice, since it is a `BaseException` in Python 3.8+ and a broad `exceptions` tuple will still retry through a cancellation. Say the word and I'll add it to the passthrough tuple, or widen it to \"re-raise any `BaseException` that is not an `Exception`\", which is the general form of the rule you asked for.\n\nThe `with_retries` in `retry.py` already had this passthrough, which is part of why I keep pointing at it. Two decorators in the tree now differ only in jitter policy. My offer to fold this one into that file still stands."
+  },
+  {
+   "role": "user",
+   "content": "Rename `retry` to `with_retries` everywhere and update the docstring."
+  }
+ ],
+ "output": "`retry_decorator.py:6` \u2014 61 lines.\n\nThe name is now `with_retries`, the docstring example uses it, and I added the `Returns:` section the docstring was missing. No `retry` name is left in the module and nothing outside the file imported it, so \"everywhere\" is one file. Behaviour is unchanged: fail-twice returns on the third call with sleeps of 0.5 and 1.0, an uncaught type propagates on the spot, `KeyboardInterrupt` escapes with zero sleeps under `exceptions=(BaseException,)`, and `attempts=0` raises at decoration time.\n\nThe rename collides with the point I have been raising. There are now two functions named `with_retries` in the tree, `retry.py:11` and this one, with different signatures \u2014 `retry.py` also takes `max_delay` and `never_retry`, treats `jitter` as full jitter at 1.0 rather than proportional, and logs each retry. An import of the wrong one is now a silent behaviour change instead of a `NameError`. Confirm and I will delete `retry_decorator.py` and carry over whatever the proportional-jitter version has that the other lacks."
+}

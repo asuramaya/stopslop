@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  }
+ ],
+ "output": "`worker.py` (61 lines, smoke-tested above):\n\n- `Worker(callback, q=None)` \u2014 owns a `queue.Queue` unless you pass one in.\n- The thread is a daemon, so a stuck worker never blocks interpreter shutdown.\n- Callback exceptions are logged and swallowed; `task_done()` fires in a `finally` so a raising callback cannot deadlock `join()`.\n- `stop()` pushes a private sentinel rather than flipping a flag, so it never has to poll with a `get(timeout=...)` and wakes immediately.\n- Usable as a context manager: `with Worker(fn) as w: ...` starts on entry and drains-then-stops on exit.\n\nOne thing to know: `stop()` only drains items queued *before* it \u2014 anything `put()` after the sentinel is discarded with the queue. If you want a hard cancel that drops the backlog, that needs a separate flag checked in the loop; say the word and I'll add it.\n\nThe repo already has `queue_worker.py` and `simple_queue_worker.py` covering the same ground at ~165 lines each, so I wrote to a new file instead of overwriting either."
+}

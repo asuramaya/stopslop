@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`thread_worker.py` in this repo already implements exactly this \u2014 `ThreadWorker` pulls items off a `queue.Queue` in a background thread and calls `callback` on each, with `put()`/`stop()`/`join()`, ~60 lines. Do you want me to reuse/import that, or do you specifically need a new standalone file (this repo already has five near-duplicate worker implementations: `worker.py`, `queue_worker.py`, `queue_thread_worker.py`, `simple_queue_worker.py`, `thread_worker.py`)?"
+  },
+  {
+   "role": "user",
+   "content": "Add a clean shutdown on a sentinel value."
+  },
+  {
+   "role": "assistant",
+   "content": "`thread_worker.py` already has this \u2014 `_STOP` sentinel object (line 8), pushed onto the queue in `stop()` (line 40), and the worker loop returns cleanly when it sees it (lines 47-48), calling `task_done()` in the `finally` either way. Nothing to add here."
+  },
+  {
+   "role": "user",
+   "content": "An exception in the callback currently kills the thread silently. Handle it."
+  }
+ ],
+ "output": "This is already handled \u2014 `_run` (lines 43-53) wraps the callback in try/except, logs with `logger.exception` on failure, and still calls `task_done()` in `finally`, so one bad item doesn't kill the thread or leave the queue stuck. Nothing to change."
+}

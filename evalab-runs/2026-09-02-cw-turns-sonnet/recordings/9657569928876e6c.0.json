@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a token-bucket rate limiter class in Python with a `try_acquire` method. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "Wrote `token_bucket.py` \u2014 a thread-safe `TokenBucket` with lazy refill based on elapsed time, plus `try_acquire(tokens=1)` returning a bool and an `available_tokens()` helper."
+  },
+  {
+   "role": "user",
+   "content": "Make it thread-safe."
+  },
+  {
+   "role": "assistant",
+   "content": "This is already thread-safe \u2014 `_refill` and the token check/decrement both happen inside `self._lock` (a `threading.Lock`), so concurrent calls to `try_acquire` and `available_tokens` are serialized and can't race on `_tokens`/`_last_refill`. No changes needed."
+  },
+  {
+   "role": "user",
+   "content": "Add a blocking `acquire` with a timeout."
+  }
+ ],
+ "output": "Added `acquire(tokens=1, timeout=None)` \u2014 it polls `try_acquire` and sleeps for the estimated refill time between attempts, returning `False` if `timeout` expires (`None` blocks indefinitely)."
+}

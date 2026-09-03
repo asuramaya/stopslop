@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines."
+  }
+ ],
+ "output": "Written to `config_loader.py:1` \u2014 `load_config()` merges a JSON file's contents over defaults (or returns defaults untouched if the file doesn't exist), `save_config()` writes back, and there's a small CLI entry point for quick checks."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
+  }
+ ],
+ "output": "`lru.py:1` \u2014 44 lines, tests pass.\n\nNotes on the design:\n- The recency order is the `OrderedDict` itself; most-recent lives at the right end, so eviction is `popitem(last=False)`.\n- `get` uses `key not in self._data` rather than a sentinel default, which keeps a stored `None` distinguishable from a miss.\n- Updating an existing key doesn't evict, so `capacity` counts distinct keys.\n\nNo lock and no TTL here, unlike the two existing files. If you want this one to be thread-safe, say so and I'll add the lock."
+}

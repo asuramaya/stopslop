@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  }
+ ],
+ "output": "`thread_worker.py:1` \u2014 60 lines, smoke-tested (both runs above: ordered delivery, and a raising callback logged then skipped without stopping the loop).\n\n```python\nwith ThreadWorker(handle, maxsize=100) as w:\n    for item in source:\n        w.put(item)\n    w.join()   # wait for the backlog to drain\n```\n\nHow it works:\n\n- One daemon thread blocks on `queue.get()`. `put()` blocks when `maxsize` is reached, so a slow callback pushes back on the producer instead of letting the backlog grow.\n- A callback exception is logged with a traceback and the item dropped; the loop continues.\n- `stop()` puts a private sentinel, so it lands behind whatever is already queued rather than cutting the backlog off. `join()` waits for drain without shutting down.\n- The context manager starts on entry and stops on exit.\n\nNote the repo already has three of these: `queue_worker.py` (170 lines, adds `on_error`, a caller-supplied sentinel, `max_in_flight`, and a `WorkerDead` state when the thread dies), plus `worker.py` and `simple_queue_worker.py`. I wrote a new file since you asked for a fresh ~50-line one, but if this was meant to replace one of those, say which and I'll consolidate."
+}

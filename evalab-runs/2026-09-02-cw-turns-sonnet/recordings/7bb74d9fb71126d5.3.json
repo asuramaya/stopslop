@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  }
+ ],
+ "output": "Created `callback_worker.py` (49 lines). `CallbackWorker` runs a background thread that blocks on `queue.get()`, invokes `callback(item)` for each item, catches exceptions so one bad item doesn't kill the loop, and shuts down cleanly via a sentinel when `stop()` is called."
+}

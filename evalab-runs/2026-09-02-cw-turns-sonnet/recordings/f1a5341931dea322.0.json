@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    \"\"\"Fixed-capacity cache that evicts the least recently used entry.\"\"\"\n\n    def __init__(self, capacity):\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n        self.capacity = capacity\n        self._data = OrderedDict()\n\n    def get(self, key, default=None):\n        if key not in self._data:\n            return default\n        self._data.move_to_end(key)\n        return self._data[key]\n\n    def put(self, key, value):\n        if key in self._data:\n            self._data.move_to_end(key)\n        self._data[key] = value\n        if len(self._data) > self.capacity:\n            self._data.popitem(last=False)\n\n    def __contains__(self, key):\n        return key in self._data\n\n    def __len__(self):\n        return len(self._data)\n\n    def __repr__(self):\n        return \"LRUCache(capacity={}, size={})\".format(\n            self.capacity, len(self._data)\n        )\n```\n\n`get` and `put` both refresh recency via `move_to_end`; when `put` pushes size past `capacity`, `popitem(last=False)` drops the oldest entry. This is standalone code shown in chat \u2014 the repo already has several similarly-named LRU files (`lru_cache.py`, `lru.py`, `simple_lru.py`, `small_lru.py`), so I didn't write to any of them. Let me know if you want this saved to a specific file."
+  },
+  {
+   "role": "user",
+   "content": "Add a `stats()` method returning hits, misses and the current size."
+  }
+ ],
+ "output": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    \"\"\"Fixed-capacity cache that evicts the least recently used entry.\"\"\"\n\n    def __init__(self, capacity):\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n        self.capacity = capacity\n        self._data = OrderedDict()\n        self._hits = 0\n        self._misses = 0\n\n    def get(self, key, default=None):\n        if key not in self._data:\n            self._misses += 1\n            return default\n        self._hits += 1\n        self._data.move_to_end(key)\n        return self._data[key]\n\n    def put(self, key, value):\n        if key in self._data:\n            self._data.move_to_end(key)\n        self._data[key] = value\n        if len(self._data) > self.capacity:\n            self._data.popitem(last=False)\n\n    def stats(self):\n        return {\n            \"hits\": self._hits,\n            \"misses\": self._misses,\n            \"size\": len(self._data),\n        }\n\n    def __contains__(self, key):\n        return key in self._data\n\n    def __len__(self):\n        return len(self._data)\n\n    def __repr__(self):\n        return \"LRUCache(capacity={}, size={})\".format(\n            self.capacity, len(self._data)\n        )\n```\n\n`stats()` reads `_hits`/`_misses`, counters incremented in `get` (a miss doesn't touch recency, so it stays a plain counter bump). Still standalone \u2014 not written to any file in the repo."
+}

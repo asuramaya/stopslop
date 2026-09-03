@@ -1172,3 +1172,54 @@ class DriftTableTests(unittest.TestCase):
                            enforced="structural", max_iterations=1)["rows"][0]
         self.assertEqual(len(row["blind"]["per_turn"]),
                           len(row["ungated"]["per_turn"]))
+
+
+class InlineDemandTests(unittest.TestCase):
+    """`claude -p` is an AGENT, and a harness that forgets it scores the
+    wrong thing.
+
+    Two codewatch runs were invalidated by this: on a code-writing prompt
+    the model wrote the file and replied with a summary of what it did.
+    Half the arms contained no code at all, and the arms that did were
+    exactly the ones carrying an instruction block ending "Return only
+    the requested text" -- so the instruction appeared to CAUSE flags
+    when all it had done was produce something lintable.
+    """
+
+    def test_the_wording_forbids_touching_files(self):
+        """Asking for text is not enough. The model has to be told not to
+        reach for the filesystem, because reaching for it is the default
+        behaviour on a code task."""
+        self.assertIn("Do not create, edit or read any file",
+                       prompts.INLINE_DEMAND)
+        self.assertIn("the reply itself", prompts.INLINE_DEMAND)
+
+    def test_the_loader_does_not_inject_it(self):
+        """A loader that silently edits the prompts it reads changes the
+        question every committed recording was keyed against, and
+        fourteen runs stop replaying. The demand belongs in the prompt
+        file; the loader loads what is written."""
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        path = os.path.join(directory, "p.md")
+        with open(path, "w") as f:
+            f.write("## a\nWrite a retry decorator.\n")
+        self.assertNotIn(prompts.INLINE_DEMAND,
+                          prompts.load_set(path)[0]["text"])
+
+    def test_the_built_in_sets_are_left_frozen(self):
+        self.assertNotIn(prompts.INLINE_DEMAND,
+                          prompts.by_ids(None, prompt_set="padding")[0]["text"])
+
+    def test_the_code_prompt_set_carries_it_on_every_prompt_and_turn(self):
+        """A follow-up is where the model is most likely to reach for the
+        file it just wrote."""
+        root = os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))))
+        path = os.path.join(root, "evalab-prompts", "code-edited.md")
+        if not os.path.exists(path):
+            self.skipTest("code prompt set not present")
+        for prompt in prompts.load_set(path):
+            self.assertIn(prompts.INLINE_DEMAND, prompt["text"], prompt["id"])
+            for turn in prompt.get("turns", []):
+                self.assertIn(prompts.INLINE_DEMAND, turn, prompt["id"])

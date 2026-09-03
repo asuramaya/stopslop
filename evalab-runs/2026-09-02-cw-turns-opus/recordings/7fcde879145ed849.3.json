@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines."
+  }
+ ],
+ "output": "`config.py`, 54 lines. All five paths exercised above: missing file, valid override, bad JSON, non-object top level, custom defaults.\n\nThe one judgment call worth naming: a **missing** file falls back to defaults (that's your ask), but a file that exists and is malformed raises `ConfigError`. Swallowing a typo in a config someone deliberately wrote turns a five-second fix into a debugging session. `OSError` on an unreadable file (bad permissions, directory in the path) also raises, since that's a broken deployment rather than an absent config.\n\nMerging is one level deep \u2014 a nested object in the file replaces its default outright. Say the word if you need a recursive merge."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines."
+  }
+ ],
+ "output": "`config_loader.py` already existed in the working tree (untracked, left over from an earlier eval run in `evalab-runs/2026-09-02-codewatch/`) and already did what you asked, so I verified it instead of overwriting it \u2014 and fixed one real gap.\n\nWhat it does: `load_config(path, defaults=None)` merges the file's keys over `DEFAULTS` (`host`/`port`/`debug`), returns the defaults when the file is absent, and raises `ConfigError` (a `ValueError` subclass) for malformed JSON, a non-object top level, or a bad `port`. `validate_port` rejects non-ints and rejects `bool` explicitly, so `{\"port\": true}` doesn't slip through as `1`.\n\nSmoke test, all passing:\n\n- missing file \u2192 `{'host': '127.0.0.1', 'port': 8080, 'debug': False}`\n- `{\"port\": 9000, \"host\": \"0.0.0.0\"}` \u2192 merged over defaults\n- `80` \u2192 outside 1024-65535; `\"9000\"` and `true` \u2192 not an integer\n- `{ not json` \u2192 JSON decode error; `[1,2]` \u2192 not an object\n\nThe gap I fixed: the missing-file branch returned the defaults without validating them, so `load_config(missing, defaults={\"host\": \"x\"})` handed back a config with no `port` at all, while the file-present branch raised for the same thing. Both paths now go through `_checked` at `config_loader.py:61`, so a caller-supplied defaults dict gets the same port check.\n\nStill unwrapped by design: `PermissionError` and `IsADirectoryError` propagate as-is rather than becoming `ConfigError`, since a file you can't read is a misconfiguration, not an absence. Say the word if you'd rather those fall back to defaults too, or if you want a `test_config_loader.py` covering the cases above."
+}

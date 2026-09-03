@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  }
+ ],
+ "output": "`retry_exponential.py:6` \u2014 `retry(attempts, delay, backoff, max_delay, jitter, exceptions)`.\n\n- Calls the function up to `attempts` times; the last failure's exception propagates.\n- Wait starts at `delay` and multiplies by `backoff` each round, capped by `max_delay`.\n- Jitter scales each sleep by a random factor in `[1 - jitter, 1 + jitter]` so simultaneous failures don't retry in lockstep.\n- `KeyboardInterrupt` and `SystemExit` always propagate, even under the default `exceptions=(Exception,)`.\n- `functools.wraps` keeps the wrapped function's name and docstring.\n\nSmoke test passed: a function failing twice then succeeding returned `\"ok\"` after 3 calls, and a function that always raises propagated its `RuntimeError`.\n\nNote the repo already has near-identical implementations in `retry.py`, `retry_backoff.py`, and `retry_decorator.py` (all named `with_retries`) \u2014 I wrote a new file rather than overwrite any of them."
+}

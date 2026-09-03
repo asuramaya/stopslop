@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\nWrite a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    \"\"\"Fixed-capacity cache that evicts the least recently used entry.\"\"\"\n\n    _MISSING = object()\n\n    def __init__(self, capacity):\n        if capacity <= 0:\n            raise ValueError(f\"capacity must be positive, got {capacity}\")\n        self.capacity = capacity\n        self._entries = OrderedDict()\n        self.hits = 0\n        self.misses = 0\n\n    def get(self, key, default=None):\n        \"\"\"Return the value for key and mark it most recently used.\"\"\"\n        value = self._entries.get(key, self._MISSING)\n        if value is self._MISSING:\n            self.misses += 1\n            return default\n        self._entries.move_to_end(key)\n        self.hits += 1\n        return value\n\n    def put(self, key, value):\n        \"\"\"Store value under key, evicting the oldest entry if full.\n\n        Returns the evicted (key, value) pair, or None if nothing was evicted.\n        \"\"\"\n        if key in self._entries:\n            self._entries[key] = value\n            self._entries.move_to_end(key)\n            return None\n        self._entries[key] = value\n        if len(self._entries) > self.capacity:\n            return self._entries.popitem(last=False)\n        return None\n\n    def __contains__(self, key):\n        return key in self._entries\n\n    def __len__(self):\n        return len(self._entries)\n\n    def __repr__(self):\n        return f\"LRUCache(capacity={self.capacity}, size={len(self._entries)})\"\n```\n\nMembership tests via `in` deliberately do not reorder entries, so you can inspect the cache without disturbing eviction order. `get` distinguishes a missing key from a stored `None` internally with a sentinel, so caching `None` values works."
+  },
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\nAdd a `stats()` method returning hits, misses and the current size."
+  }
+ ],
+ "output": "```python\n    def stats(self):\n        \"\"\"Return hit/miss counters and the current entry count.\"\"\"\n        return {\"hits\": self.hits, \"misses\": self.misses, \"size\": len(self._entries)}\n```\n\nCounters are cumulative since construction and are not reset by eviction, so `hits + misses` is the total number of `get` calls the cache has served. `size` is the live entry count, which never exceeds `capacity`."
+}

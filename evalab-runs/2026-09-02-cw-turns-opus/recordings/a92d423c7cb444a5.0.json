@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`retry_backoff.py:6` \u2014 `retry(attempts, delay, backoff, max_delay, jitter, exceptions)`. Smoke test confirms it retries until success and re-raises the last exception when attempts run out.\n\nDesign points worth knowing:\n\n- The retry loop counts total calls, not extra calls, so `attempts=3` means one call plus two retries.\n- Sleeps are jittered by \u00b110% by default to break up lockstep retries across clients; pass `jitter=0` for deterministic waits in tests.\n- `max_delay` caps a single sleep, applied before the jitter, so the backoff can't run away on long attempt counts.\n- `KeyboardInterrupt` and `SystemExit` are caught and re-raised ahead of the `exceptions` clause, since the default `(Exception,)` would otherwise swallow a Ctrl-C mid-chain. (Both inherit from `BaseException`, so the default tuple actually misses them \u2014 the explicit clause matters once a caller passes `exceptions=BaseException`.)\n\nOn the duplication: `retry.py` and `retry_decorator.py` cover the same ground, differing mainly in whether they log failures and how jitter is defined (full-jitter fraction vs. symmetric band). If you want one canonical version instead of three, tell me which behaviour to keep and I'll consolidate."
+  },
+  {
+   "role": "user",
+   "content": "Add jitter to the backoff so retries do not synchronise."
+  },
+  {
+   "role": "assistant",
+   "content": "Already there \u2014 `retry_backoff.py:58` scales every sleep by `random.uniform(1 - jitter, 1 + jitter)`, with `jitter=0.1` as the default, so waits land in a \u00b110% band around the backoff value. Nothing to add.\n\nTwo things you may actually want instead:\n\n- **A wider band.** \u00b110% desynchronises small clusters but leaves the retry storm roughly where it was. If many clients fail on the same upstream event, full jitter (`sleep = random.uniform(0, capped)`) spreads them across the whole window. That's the scheme `retry_decorator.py` uses.\n- **Per-process rather than per-sleep randomness.** The current jitter re-rolls on every sleep, so a client that fails five times drifts around the schedule rather than sitting on a fixed offset. Either is defensible; the re-roll is the usual choice.\n\nSay which of the two you want and I'll change it. Same offer as before stands on the three copies \u2014 `retry.py`, `retry_backoff.py`, `retry_decorator.py` \u2014 pick the jitter definition to keep and I'll fold them into one file."
+  },
+  {
+   "role": "user",
+   "content": "It should not retry on KeyboardInterrupt or SystemExit. Fix that."
+  },
+  {
+   "role": "assistant",
+   "content": "No change was needed \u2014 all three files already re-raise those before the `exceptions` clause, and I ran the case to confirm rather than reread the code:\n\n| file | line |\n|---|---|\n| `retry_backoff.py:52` | `except (KeyboardInterrupt, SystemExit): raise` |\n| `retry_decorator.py:54` | `except (KeyboardInterrupt, SystemExit): raise` |\n| `retry.py:60` | `except never_retry: raise`, where `NEVER_RETRY = (KeyboardInterrupt, SystemExit, GeneratorExit)` |\n\nThe test raised each of the two from the wrapped function, under both `exceptions=(Exception,)` and `exceptions=BaseException`, against all three decorators. Every one of the 12 combinations propagated the original exception after exactly 1 call \u2014 no retry, no sleep.\n\nSince you've asked twice, I suspect you're seeing something I'm not. Two guesses at what it could be:\n\n- **A different call site.** If some caller wraps `func` in its own `try`/`except BaseException` and re-raises as a plain `Exception`, the interrupt arrives at the decorator already laundered into a retryable type, and the guard never sees it. The decorator can't fix that; the caller has to stop catching `BaseException`.\n- **`GeneratorExit`.** Only `retry.py` blocks it. In the other two, closing a generator that's inside a retried call gets treated as a transient failure. That one is a real gap, and I can close it in a line each if you want.\n\nOtherwise, tell me what you observed \u2014 the traceback or the retry log \u2014 and I'll trace it from there. The consolidation offer still stands on the three copies."
+  },
+  {
+   "role": "user",
+   "content": "Rename `retry` to `with_retries` everywhere and update the docstring."
+  }
+ ],
+ "output": "Renamed. `retry_backoff.py:6` now defines `with_retries`, the docstring example at line 10 uses the new name, and the continuation line is re-indented to the new paren column. Smoke test still passes (retries twice, then returns).\n\nTwo notes:\n\n- `retry.py` and `retry_decorator.py` already called their decorator `with_retries`, so nothing changed there. That means all three files now export the same name with different behaviour \u2014 importing two of them into one module is a silent shadowing.\n- Nothing in the repo imported `retry_backoff`, so there were no call sites to update. The only other `retry` hits under `src/` are the word in prose and test strings, not this decorator.\n\nThe consolidation offer still stands, and it's now more pointed given the name collision: pick which jitter definition survives (\u00b1band from `retry_backoff.py`, or full jitter from `retry_decorator.py`) and whether you want the logging and the `GeneratorExit` guard from `retry.py`, and I'll fold the three into one file."
+}

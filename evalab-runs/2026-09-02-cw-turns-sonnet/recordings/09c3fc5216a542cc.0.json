@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python worker that pulls items off a queue.Queue in a thread and processes each with a callback. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "Created `queue_thread_worker.py` (~50 lines): a `QueueWorker` class that pulls items off a `queue.Queue` on a background thread, runs a callback on each, logs any callback exception instead of swallowing it, and supports clean shutdown via `stop()`."
+  },
+  {
+   "role": "user",
+   "content": "Add a clean shutdown on a sentinel value."
+  }
+ ],
+ "output": "The sentinel-based shutdown is already in place \u2014 `_STOP` is a unique sentinel object, `stop()` enqueues it, and `_run()` checks `item is self._STOP` before returning, so the loop exits cleanly (including calling `task_done()` in `finally` for that final item) and `stop(wait=True)` joins the thread. No change needed."
+}

@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nimport functools\nimport random\nimport time\n\n\ndef retry(max_attempts=3, base_delay=1.0, max_delay=30.0, exceptions=(Exception,)):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            attempt = 0\n            delay = base_delay\n            while True:\n                attempt += 1\n                try:\n                    return func(*args, **kwargs)\n                except exceptions:\n                    if attempt >= max_attempts:\n                        raise\n                    sleep_for = min(delay, max_delay)\n                    time.sleep(sleep_for + random.uniform(0, sleep_for * 0.1))\n                    delay *= 2\n        return wrapper\n    return decorator\n\n\n@retry(max_attempts=5, base_delay=0.5, exceptions=(ConnectionError,))\ndef fetch(url):\n    ...\n```\n\nUsage: apply `@retry(...)` above a function; it re-runs the call up to `max_attempts` times, doubling the wait (capped at `max_delay`, with small jitter) between failures, then re-raises the last exception."
+  },
+  {
+   "role": "user",
+   "content": "Add jitter to the backoff so retries do not synchronise."
+  },
+  {
+   "role": "assistant",
+   "content": "The decorator is already written above \u2014 it's complete and ready to use as-is."
+  },
+  {
+   "role": "user",
+   "content": "It should not retry on KeyboardInterrupt or SystemExit. Fix that."
+  },
+  {
+   "role": "assistant",
+   "content": "Since `KeyboardInterrupt` and `SystemExit` are `BaseException` subclasses, not `Exception` subclasses, they already slip past `except exceptions` when `exceptions=(Exception,)` \u2014 but if a caller passes something broader (e.g. `exceptions=(BaseException,)`), the current code would happily retry them. Guard explicitly so the behavior holds regardless of what's passed in:\n\n```python\nimport functools\nimport random\nimport time\n\n\ndef retry(max_attempts=3, base_delay=1.0, max_delay=30.0, exceptions=(Exception,)):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            attempt = 0\n            delay = base_delay\n            while True:\n                attempt += 1\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except exceptions:\n                    if attempt >= max_attempts:\n                        raise\n                    sleep_for = min(delay, max_delay)\n                    time.sleep(sleep_for + random.uniform(0, sleep_for * 0.1))\n                    delay *= 2\n        return wrapper\n    return decorator\n\n\n@retry(max_attempts=5, base_delay=0.5, exceptions=(ConnectionError,))\ndef fetch(url):\n    ...\n```\n\nAdded `except (KeyboardInterrupt, SystemExit): raise` before the general handler, so those always propagate immediately no matter what `exceptions` is set to."
+  },
+  {
+   "role": "user",
+   "content": "Rename `retry` to `with_retries` everywhere and update the docstring."
+  }
+ ],
+ "output": "```python\nimport functools\nimport random\nimport time\n\n\ndef with_retries(max_attempts=3, base_delay=1.0, max_delay=30.0, exceptions=(Exception,)):\n    \"\"\"Re-run the decorated function on exception, up to max_attempts times,\n    doubling the wait (capped at max_delay, with jitter) between attempts,\n    then re-raise. Always lets KeyboardInterrupt and SystemExit propagate.\"\"\"\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            attempt = 0\n            delay = base_delay\n            while True:\n                attempt += 1\n                try:\n                    return func(*args, **kwargs)\n                except (KeyboardInterrupt, SystemExit):\n                    raise\n                except exceptions:\n                    if attempt >= max_attempts:\n                        raise\n                    sleep_for = min(delay, max_delay)\n                    time.sleep(sleep_for + random.uniform(0, sleep_for * 0.1))\n                    delay *= 2\n        return wrapper\n    return decorator\n\n\n@with_retries(max_attempts=5, base_delay=0.5, exceptions=(ConnectionError,))\ndef fetch(url):\n    ...\n```\n\nRenamed the function to `with_retries`, updated the decorator name in the usage example, and added a docstring describing the behavior."
+}

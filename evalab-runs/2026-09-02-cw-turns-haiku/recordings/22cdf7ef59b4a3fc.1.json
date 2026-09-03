@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a token-bucket rate limiter class in Python with a `try_acquire` method. Around 50 lines."
+  }
+ ],
+ "output": "A token bucket rate limiter already exists in your repo at `/home/asuramaya/code/stopslop/token_bucket.py` with the `try_acquire` method you requested. It's ~54 lines and includes:\n\n- **Continuous refill**: tokens accumulate at `rate` tokens/second, capped at `capacity`\n- **`try_acquire(tokens)`**: returns True if enough tokens exist and deducts them, False otherwise\n- **Thread-safe**: uses a lock to handle concurrent access\n- **Input validation**: ensures positive capacity/rate/token values\n- **`available_tokens` property**: peek at current tokens without consuming them\n- **Better timing**: uses `time.monotonic()` instead of `time.time()` (immune to system clock adjustments)\n\nThe core algorithm: on each acquire attempt, refill tokens based on elapsed time since the last refill, then check if enough are available."
+}

@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\nWrite a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nimport fnmatch\nimport os\nfrom pathlib import Path\n\n\ndef find_files(root: str, pattern: str) -> list[Path]:\n    root_path = Path(root)\n    matches = []\n    for dirpath, _dirnames, filenames in os.walk(root_path):\n        for filename in filenames:\n            if fnmatch.fnmatch(filename, pattern):\n                matches.append(Path(dirpath) / filename)\n    return matches\n```"
+  },
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\nSkip hidden directories and symlinks."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nimport fnmatch\nimport os\nfrom pathlib import Path\n\n\ndef find_files(root: str, pattern: str) -> list[Path]:\n    root_path = Path(root)\n    matches = []\n    for dirpath, dirnames, filenames in os.walk(root_path):\n        dirnames[:] = [d for d in dirnames if not d.startswith(\".\")]\n        for filename in filenames:\n            file_path = Path(dirpath) / filename\n            if file_path.is_symlink():\n                continue\n            if fnmatch.fnmatch(filename, pattern):\n                matches.append(file_path)\n    return matches\n```"
+  },
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\nIt follows symlinked directories and can loop forever. Fix that."
+  }
+ ],
+ "output": "```python\nimport fnmatch\nimport os\nfrom pathlib import Path\n\n\ndef find_files(root: str, pattern: str) -> list[Path]:\n    root_path = Path(root)\n    matches = []\n    seen_dirs = set()\n    stack = [root_path]\n    while stack:\n        current = stack.pop()\n        real = current.resolve()\n        if real in seen_dirs:\n            continue\n        seen_dirs.add(real)\n        try:\n            entries = list(current.iterdir())\n        except OSError:\n            continue\n        for entry in entries:\n            if entry.name.startswith(\".\"):\n                continue\n            if entry.is_symlink():\n                continue\n            if entry.is_dir():\n                stack.append(entry)\n            elif fnmatch.fnmatch(entry.name, pattern):\n                matches.append(entry)\n    return matches\n```"
+}

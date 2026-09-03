@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
+  }
+ ],
+ "output": "Wrote `find_files` in `walk_glob.py:1` \u2014 iteratively walks the tree with an explicit stack (avoids recursion limits), skips unreadable directories, and yields files matching the glob pattern via `Path.match`."
+}

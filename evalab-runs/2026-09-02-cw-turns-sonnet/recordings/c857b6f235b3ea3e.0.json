@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "Wrote `find_files` in `walk_glob.py:1` \u2014 walks the tree with `os.walk`, matches file names against the glob pattern with `fnmatch`, and returns a sorted list of `Path`s. Includes a small CLI entry point for quick testing."
+  },
+  {
+   "role": "user",
+   "content": "Skip hidden directories and symlinks."
+  },
+  {
+   "role": "assistant",
+   "content": "Updated `find_files` in `walk_glob.py:21` \u2014 hidden directories (dot-prefixed) are pruned from `dirnames` in place so `os.walk` never descends into them, and symlinked files are excluded from the results."
+  },
+  {
+   "role": "user",
+   "content": "It follows symlinked directories and can loop forever. Fix that."
+  },
+  {
+   "role": "assistant",
+   "content": "`followlinks=False` is already the default, but making it explicit and pruning symlinked directories in `dirnames` before descent guarantees no cycle even if that default ever changes."
+  },
+  {
+   "role": "user",
+   "content": "Return the results sorted, and add a `max_depth` argument."
+  }
+ ],
+ "output": "Added `max_depth` to `find_files` in `walk_glob.py:6` \u2014 directories at depth `>= max_depth` are pruned before descent, and the CLI now accepts an optional third argument for it."
+}

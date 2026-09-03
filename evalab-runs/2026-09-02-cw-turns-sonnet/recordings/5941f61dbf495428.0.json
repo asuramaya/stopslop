@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\nWrite a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
+  }
+ ],
+ "output": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n        self.capacity = capacity\n        self._data: OrderedDict = OrderedDict()\n\n    def get(self, key):\n        if key not in self._data:\n            return None\n        self._data.move_to_end(key)\n        return self._data[key]\n\n    def put(self, key, value):\n        if key in self._data:\n            self._data.move_to_end(key)\n        self._data[key] = value\n        if len(self._data) > self.capacity:\n            self._data.popitem(last=False)\n\n    def __contains__(self, key):\n        return key in self._data\n\n    def __len__(self):\n        return len(self._data)\n```"
+}

@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import subprocess
+import tempfile
 import threading
 import time
 
@@ -74,8 +75,20 @@ class ClaudeCliGenerator:
     name = "claude-cli"
 
     def __init__(self, executable="claude", timeout=240, record_to=None,
-                  attempts=3, backoff=5, model=None):
+                  attempts=3, backoff=5, model=None, sandbox=None):
         self.executable = executable
+        # `claude -p` is an AGENT. Given a code-writing prompt it will
+        # write the file and report what it did, and the file lands in
+        # whatever directory this process was started from -- which is
+        # the repository under test. That happened: a codewatch run wrote
+        # six modules into the repo root, `git add -A` committed them,
+        # and the run's own arms scored a report about the code rather
+        # than the code.
+        #
+        # So every generation runs in a scratch directory. A generator
+        # that can write into the tree it is measuring is not an
+        # instrument.
+        self.sandbox = sandbox
         self.timeout = timeout
         self.record_to = record_to
         # Every number this project has published came from one model on
@@ -100,6 +113,18 @@ class ClaudeCliGenerator:
         # the same occurrence number and one would overwrite the other's
         # recording.
         self._lock = threading.Lock()
+
+    def _scratch(self):
+        """A directory the generator may write into freely.
+
+        Created once per generator and never cleaned up during a run:
+        anything left behind is evidence about what the model did, and
+        deleting it would hide exactly the behaviour worth knowing about.
+        """
+        if self.sandbox is None:
+            self.sandbox = tempfile.mkdtemp(prefix="evalab-scratch-")
+        os.makedirs(self.sandbox, exist_ok=True)
+        return self.sandbox
 
     def version(self):
         try:
@@ -147,7 +172,7 @@ class ClaudeCliGenerator:
             if self.model:
                 argv += ["--model", self.model]
             proc = subprocess.run(
-                argv, input=prompt,
+                argv, input=prompt, cwd=self._scratch(),
                 capture_output=True, text=True, timeout=self.timeout)
         except OSError as exc:
             # The executable is missing or unrunnable. No number of

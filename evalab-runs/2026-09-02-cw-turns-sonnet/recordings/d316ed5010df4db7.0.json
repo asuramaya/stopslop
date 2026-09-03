@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n        self.capacity = capacity\n        self._data = OrderedDict()\n\n    def get(self, key):\n        if key not in self._data:\n            return None\n        self._data.move_to_end(key)\n        return self._data[key]\n\n    def put(self, key, value):\n        if key in self._data:\n            self._data.move_to_end(key)\n        self._data[key] = value\n        if len(self._data) > self.capacity:\n            self._data.popitem(last=False)\n\n    def __len__(self):\n        return len(self._data)\n\n    def __contains__(self, key):\n        return key in self._data\n```\n\nNote: there are already several LRU-related files in your working tree (`lru.py`, `lru_cache.py`, `simple_lru.py`, `small_lru.py`) \u2014 let me know if you want this written into one of those instead of just returned inline."
+  },
+  {
+   "role": "user",
+   "content": "Add a `stats()` method returning hits, misses and the current size."
+  }
+ ],
+ "output": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n        self.capacity = capacity\n        self._data = OrderedDict()\n        self._hits = 0\n        self._misses = 0\n\n    def get(self, key):\n        if key not in self._data:\n            self._misses += 1\n            return None\n        self._data.move_to_end(key)\n        self._hits += 1\n        return self._data[key]\n\n    def put(self, key, value):\n        if key in self._data:\n            self._data.move_to_end(key)\n        self._data[key] = value\n        if len(self._data) > self.capacity:\n            self._data.popitem(last=False)\n\n    def stats(self):\n        return {\"hits\": self._hits, \"misses\": self._misses, \"size\": len(self._data)}\n\n    def __len__(self):\n        return len(self._data)\n\n    def __contains__(self, key):\n        return key in self._data\n```\n\n`put` doesn't touch hit/miss counters \u2014 only `get` does, matching the usual definition. Want this written into one of the existing files (`lru.py`, `lru_cache.py`, `simple_lru.py`, `small_lru.py`) instead of left inline?"
+}

@@ -1,0 +1,33 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "Wrote `retry` to retry_backoff.py:14-42 (the decorator itself, ~29 lines). It retries up to `max_attempts` times, backs off exponentially (`base_delay * 2^(attempt-1)`, capped at `max_delay`), adds jitter by default, and re-raises the last exception once attempts are exhausted. A small self-test at the bottom exercises it directly."
+  },
+  {
+   "role": "user",
+   "content": "Add jitter to the backoff so retries do not synchronise."
+  },
+  {
+   "role": "assistant",
+   "content": "Jitter's already in there \u2014 line 25-26 multiplies the delay by a random factor in `[0.5, 1.5)` when `jitter=True` (the default), so concurrent callers won't retry in lockstep. Nothing to change."
+  },
+  {
+   "role": "user",
+   "content": "It should not retry on KeyboardInterrupt or SystemExit. Fix that."
+  },
+  {
+   "role": "assistant",
+   "content": "Added an explicit `except (KeyboardInterrupt, SystemExit): raise` before the generic handler at retry_backoff.py:20-21, so those propagate immediately even if a caller passes `exceptions=(BaseException,)`."
+  },
+  {
+   "role": "user",
+   "content": "Rename `retry` to `with_retries` everywhere and update the docstring."
+  }
+ ],
+ "output": "Renamed to `with_retries` at retry_backoff.py:6, docstring updated, and the self-test's usage at line 40 updated to match."
+}

@@ -1,0 +1,17 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`config.py`, 54 lines. All five paths exercised above: missing file, valid override, bad JSON, non-object top level, custom defaults.\n\nThe one judgment call worth naming: a **missing** file falls back to defaults (that's your ask), but a file that exists and is malformed raises `ConfigError`. Swallowing a typo in a config someone deliberately wrote turns a five-second fix into a debugging session. `OSError` on an unreadable file (bad permissions, directory in the path) also raises, since that's a broken deployment rather than an absent config.\n\nMerging is one level deep \u2014 a nested object in the file replaces its default outright. Say the word if you need a recursive merge."
+  },
+  {
+   "role": "user",
+   "content": "Rewrite the text above. Keep the same length and the same purpose. Return only the rewritten text."
+  }
+ ],
+ "output": "Here's `config.py`, 54 lines. The five paths I described are all covered: absent file, valid override, malformed JSON, a top level that isn't an object, and caller-supplied defaults.\n\nOne decision is worth calling out. A **missing** file falls back to defaults, which is what you asked for, but a file that exists and parses badly raises `ConfigError`. Quietly ignoring a typo in a config that somebody sat down and wrote turns a five-second fix into an afternoon of hunting. An `OSError` on an unreadable file (wrong permissions, a directory where a file should be) raises too; that's a broken deployment, not an absent config.\n\nMerging goes one level down only. A nested object in the file replaces the corresponding default wholesale rather than blending into it. Tell me if you want the recursive version instead."
+}

@@ -1,0 +1,25 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
+  },
+  {
+   "role": "assistant",
+   "content": "`walk_glob.py:11` \u2014 `find_files(root, pattern, *, include_hidden=False, follow_symlinks=False)`\n\nHow it works:\n\n- `os.walk` over the tree, returning sorted `Path` objects.\n- Pattern dispatch: if the pattern contains a separator it matches against the path relative to `root` (`evalab-prompts/*.md`), otherwise against the bare file name (`*.py`). This avoids the usual surprise where `*.py` fails because the full path has slashes in it.\n- Hidden files and directories are pruned by default; pruning happens in `dirnames[:]` so `os.walk` never descends into them.\n- `follow_symlinks=True` tracks visited `(st_ino, st_dev)` pairs so a symlink cycle terminates instead of recursing forever.\n- Raises `NotADirectoryError` if `root` isn't a directory.\n\nVerified against this repo: `*.py` and `evalab-prompts/*.md` return the expected sets, and `include_hidden=True` picks up files under `.claude/`.\n\nOne limitation worth naming: `fnmatch` has no `**` semantics, so `*` in a path-style pattern will cross directory separators \u2014 `find_files('.', '*/*.md')` also matches `a/b/c.md`. If you want true recursive-glob semantics instead, `Path(root).rglob(pattern)` is the drop-in, and I can rewrite around it."
+  },
+  {
+   "role": "user",
+   "content": "Skip hidden directories and symlinks."
+  },
+  {
+   "role": "assistant",
+   "content": "Done \u2014 `walk_glob.py` now skips both unconditionally.\n\nChanges:\n\n- `follow_symlinks` is gone. Symlinked directories are pruned from `dirnames[:]`, and symlinked files are skipped in the match loop, so a symlink is never returned as a result either. With nothing following links, the `(st_ino, st_dev)` cycle guard became dead code and came out with it.\n- Hidden pruning merged into the same `dirnames[:]` comprehension. I kept `include_hidden` as an opt-in since it already defaults to skipping; say the word if you want it dropped too.\n\nTest on a temp tree with `real.py`, a symlink `link.py` to it, a symlinked directory, and a self-referential `a/up -> root`: `*.py` returns `a/x.py` and `real.py` only, and `include_hidden=True` adds `.hidden/y.py`. Against this repo, `*.py` gives 112 files and `evalab-prompts/*.md` gives the three expected files.\n\nThe `fnmatch` limitation from before still stands \u2014 `*` crosses separators in a path-style pattern."
+  },
+  {
+   "role": "user",
+   "content": "It follows symlinked directories and can loop forever. Fix that."
+  }
+ ],
+ "output": "I checked before changing anything \u2014 it doesn't follow symlinked directories, and it can't loop. Two independent guards are in place, both from the previous round:\n\n- `os.walk` defaults to `followlinks=False`, so a symlinked directory is never descended into.\n- `walk_glob.py:27-32` also prunes symlinked directories out of `dirnames[:]`, so they're not even yielded as walk entries.\n\nEvidence, on a tree built to loop: `/tmp/sltest` with `real.py`, `a/x.py`, `a/b/deep.py`, a self-referential `a/b/up -> ../..`, a `loopdir -> a`, and a file symlink `link.py -> real.py`.\n\n```\nfind_files('/tmp/sltest', '*.py')\n  \u2192 a/b/deep.py, a/x.py, real.py\n```\n\nIt returns in well under the 20s timeout, exit 0. `up` and `loopdir` are never entered, and `link.py` is absent because symlinked files are skipped at `walk_glob.py:38`.\n\nSo there's no fix to make here. If you're seeing a hang, it's coming from somewhere else \u2014 the most likely candidate is a caller using `Path.rglob` or `os.walk(..., followlinks=True)` rather than this function, since `rglob` was the alternative I floated earlier and it *does* follow directory symlinks. Point me at the code or the traceback that hangs and I'll trace it.\n\nOne thing I can still change if you want it: `include_hidden` is currently an opt-in keyword. You asked to skip hidden directories, which is already the default, but I left the escape hatch in. Say the word and it goes."
+}

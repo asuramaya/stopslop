@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a token-bucket rate limiter class in Python with a `try_acquire` method. Around 50 lines."
+  }
+ ],
+ "output": "`token_bucket.py:7` \u2014 `TokenBucket`, 66 lines with docstrings (about 45 of code).\n\n- `try_acquire(tokens=1)` refills first, then spends if the balance covers the cost; never blocks.\n- Refill is continuous (`elapsed * rate`, clamped to `capacity`), so an idle caller keeps a burst budget instead of waiting on a window edge.\n- A `clock` injection point makes it testable without sleeping \u2014 the smoke test above drives it with a fake clock: 5 grants, 6th denied, `time_until` reports 0.2s, and at t=0.4 two tokens are available again.\n- Asking for more than `capacity` raises rather than returning False forever.\n\nOne thing worth flagging: `rate_limiter.py` in this tree already has a `TokenBucket` with the same `try_acquire`, plus a blocking `acquire(timeout=...)`. I left it untouched and wrote a new file. If you meant to replace that one, say so and I'll fold this in and delete the duplicate."
+}

@@ -1,0 +1,9 @@
+{
+ "messages": [
+  {
+   "role": "user",
+   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
+  }
+ ],
+ "output": "Wrote `LRUCache` in `lru_cache.py:1` \u2014 `get`/`put` backed by `OrderedDict`, with `move_to_end` for recency and `popitem(last=False)` eviction when over capacity."
+}
