@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Follow these writing rules. They matter as much as the content:\n\n- Generic, numbered names: helper_1, data2, temp1 -- say what the value actually is\n- Separator bars, \"Phase/Step N\" headers, step-by-step narration -- the code already says what it does\n- Leftover print() calls -- use logging, or remove them before this ships\n- TODO/FIXME/HACK comments with no tracking issue -- link an issue, or resolve it now\n\nNow write the following. Return only the requested text.\nWrite a Python function that reads a CSV file and returns a list of dicts, tolerating a missing trailing newline and rows with too few columns. Around 40 lines."
-  }
- ],
- "output": "```python\nimport csv\nfrom pathlib import Path\n\n\ndef read_csv_rows(path, fieldnames=None, fill=\"\"):\n    \"\"\"Read a CSV file into a list of dicts.\n\n    Handles files whose last line has no trailing newline, and rows that\n    stop short of the header width -- missing values become `fill`.\n    Extra columns beyond the header are collected under the key None,\n    matching csv.DictReader's own convention.\n    \"\"\"\n    path = Path(path)\n    text = path.read_text(encoding=\"utf-8-sig\")\n    if not text:\n        return []\n    if not text.endswith(\"\\n\"):\n        text += \"\\n\"\n\n    reader = csv.reader(text.splitlines(True))\n    header = fieldnames\n    if header is None:\n        try:\n            header = next(reader)\n        except StopIteration:\n            return []\n        header = [name.strip() for name in header]\n\n    rows = []\n    width = len(header)\n    for fields in reader:\n        if not fields or (len(fields) == 1 and not fields[0].strip()):\n            continue\n        row = dict(zip(header, fields))\n        for name in header[len(fields):]:\n            row[name] = fill\n        if len(fields) > width:\n            row[None] = fields[width:]\n        rows.append(row)\n    return rows\n```"
-}

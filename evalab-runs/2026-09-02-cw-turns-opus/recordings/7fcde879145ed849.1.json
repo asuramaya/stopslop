@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines."
-  }
- ],
- "output": "`json_config.py` \u2014 56 lines, smoke-tested on all four paths (missing file, valid file, malformed JSON, non-object top level).\n\nTwo judgment calls worth naming:\n\n- **Missing vs. malformed are treated differently.** A missing file returns the defaults; a file that exists but doesn't parse raises `ConfigError`. Silently falling back on a typo'd config hands you a server on the wrong port with nothing but an INFO line to explain it. The existing `config_loader.py` in this tree makes the opposite call (warns and falls back) \u2014 if you want these two to agree, say which way and I'll align them.\n- **`OSError` is separated from `FileNotFoundError`**, so a permissions problem or a directory in the path raises instead of quietly looking like absence.\n\nThe `save` helper is the one thing past a literal reading of the ask; drop it if you don't want it."
-}

@@ -14,3 +14,9 @@ __pycache__/
 # has these on disk until the first session start / gate event renames them.
 .claude/ste100-history.log
 .claude/ste100-integrity.json
+
+# Model droppings. An agentic generator writes files where it is
+# started; runs are sandboxed now, but a stray module in the repo root
+# is never this project.
+/*.py
+!/stopslop.py

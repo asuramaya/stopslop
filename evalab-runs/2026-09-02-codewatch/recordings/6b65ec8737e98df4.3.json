@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a token-bucket rate limiter class in Python, thread-safe, with a `try_acquire` method. Around 50 lines."
-  }
- ],
- "output": "`rate_limiter.py` at the repo root already holds exactly this \u2014 a thread-safe `TokenBucket` with `try_acquire`, 61 lines, untracked (it shows in `git status` as new). Rather than write a second copy, I ran it:\n\n- Burst of 5 against `capacity=5` grants 5, sixth returns `False`.\n- `wait_time()` reports 0.1s at `rate=10`; after advancing an injected clock 0.5s the bucket is back to 5 and stays capped at 5 even after 100s.\n- 8 threads \u00d7 100 attempts against a 50-token bucket with a frozen clock grant 50 total, not 51 \u2014 the lock holds.\n- `TokenBucket(0)`, `try_acquire(0)`, and `try_acquire(99)` each raise `ValueError`.\n\nDesign points worth knowing: refill is continuous (elapsed \u00d7 rate) rather than on a tick, and the clock is injectable via the `clock=` argument, which is what let me test time-dependent behavior without sleeping.\n\nOne gap: `wait_time(tokens)` skips the `tokens > capacity` check that `try_acquire` does, so `wait_time(99)` on a 5-token bucket returns a finite number for a wait that never ends. Want me to add that guard, or leave the file as is?"
-}

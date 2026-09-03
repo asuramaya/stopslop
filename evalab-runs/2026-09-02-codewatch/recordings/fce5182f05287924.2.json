@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python module that loads a JSON config file from disk, falls back to defaults when the file is missing, and validates that a `port` key is an integer between 1024 and 65535. Around 50 lines."
-  }
- ],
- "output": "`config_loader.py` already existed in the working tree (untracked, 60 lines) and already did what you described, so I verified it rather than rewriting it from scratch.\n\nWhat it does \u2014 `load_config(path, defaults=None)` merges the file over `DEFAULTS` (`host`/`port`/`debug`), returns the defaults untouched on `FileNotFoundError`, and raises `ConfigError` (a `ValueError` subclass) for malformed JSON, a non-object top level, or a bad port. `validate_port` rejects non-ints, and rejects `bool` explicitly so `{\"port\": true}` doesn't sneak through as `1`.\n\nSmoke test results, all passing:\n\n- missing file \u2192 defaults\n- `{\"port\": 9000, \"host\": \"0.0.0.0\"}` \u2192 merged\n- `80` \u2192 outside 1024-65535\n- `\"9000\"` \u2192 not an integer\n- `true` \u2192 not an integer (bool guard works)\n- `{ not json` \u2192 JSON decode error\n- `[1,2]` \u2192 not an object\n\nOne gap I did fix: if you passed a custom `defaults` dict with no `port` and the file also omitted one, `config[\"port\"]` raised a bare `KeyError` instead of `ConfigError`. Now it raises `ConfigError(\"... has no port and no default supplies one\")` (config_loader.py:59).\n\nStill unhandled, by design rather than oversight: `PermissionError` and `IsADirectoryError` propagate as-is instead of being wrapped. Say the word if you'd rather those become `ConfigError` too."
-}

@@ -22,7 +22,6 @@ pointed at.
 | `2026-09-02-combined/` | Does an instruction STACK with the gate, or compete with it? | It stacks, and costs less than the gate alone: 15 tells against 30, in 2.37 generations against 2.97. But only an instruction that names things the gate does not already enforce. |
 | `2026-09-02-ste100/` | Does the gate work on the ruleset that actually fires in production? | No. 433 flags against ungated's 411, p = 1.0. An instruction beats it 6-0 for a third of the cost. |
 | `2026-09-02-complement/` | Where should the instruction POINT -- at what the gate enforces, or at what it ignores? | At what it ignores, and it is not close: 13 total tells against the gate's 30 (p = 0.0007), and held-out flags 25 to 11 -- the first time in six rounds that number moved. |
-| `2026-09-02-codewatch/` | Does the gate work on the code ruleset? | No result: the loop revised 0 of 10 prompts. codewatch catches EDITING debris and one-shot generation produces none -- the experiment was wrong, not the ruleset. |
 | `2026-09-02-sonnet/` | Do these findings hold on different weights? | The headline replicates (20 against 40, p = 0.0009) and so does the held-out fix. One claim from the first run does not, and is retracted there. |
 | `2026-09-02-turns*/` | What happens across a document's whole life, on three models? | The combined arm holds flat and low at every turn (8 tells against ungated's 50, p = 0.000015). Documents do NOT drift -- the hypothesis this run was built on is dead. An INSTRUCTION fades instead: it works in one turn and not by the fourth. |
 

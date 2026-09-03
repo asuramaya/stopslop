@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
-  }
- ],
- "output": "Here's a directory-walking glob function, about 40 lines:\n\n```python\nimport fnmatch\nimport os\n\n\ndef find_matching_files(root, pattern, follow_symlinks=False):\n    \"\"\"Walk root and return every file whose basename matches pattern.\n\n    Args:\n        root: Directory to start the walk from.\n        pattern: A glob pattern (e.g. \"*.txt\") matched against basenames.\n        follow_symlinks: Whether to descend into symlinked directories.\n\n    Returns:\n        A sorted list of matching file paths.\n    \"\"\"\n    matches = []\n    for dirpath, dirnames, filenames in os.walk(root, followlinks=follow_symlinks):\n        if not follow_symlinks:\n            dirnames[:] = [\n                d for d in dirnames\n                if not os.path.islink(os.path.join(dirpath, d))\n            ]\n        for name in filenames:\n            if fnmatch.fnmatch(name, pattern):\n                matches.append(os.path.join(dirpath, name))\n    return sorted(matches)\n\n\nif __name__ == \"__main__\":\n    import sys\n\n    if len(sys.argv) != 3:\n        print(f\"usage: {sys.argv[0]} <root> <pattern>\")\n        sys.exit(1)\n\n    for path in find_matching_files(sys.argv[1], sys.argv[2]):\n        print(path)\n```\n\nNote: this repo already has `walk_glob.py` with an equivalent (currently uncommitted-modified) implementation \u2014 let me know if you want me to write this into a file instead of just showing it here."
-}

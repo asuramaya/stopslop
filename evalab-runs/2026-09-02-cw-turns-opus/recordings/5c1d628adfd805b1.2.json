@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
-  }
- ],
- "output": "This already exists in the repo: `walk_glob.py:10` defines `find_files(root, pattern=\"*\", *, include_hidden=False, max_depth=None)` \u2014 64 lines with the docstring, about 40 lines of code. Rather than add a near-duplicate (the tree already has several of those, and Ooblek XXIII is live in it), I tested the existing one against a sample tree:\n\n```\n*.py                    \u2192 a.py, src/c.py, src/pkg/d.py\nsrc/*.py                \u2192 src/c.py            (a * never spans a separator)\n*, max_depth=0          \u2192 a.py, b.txt         (root only)\n*.py, include_hidden    \u2192 also .secret.py, .hidden/e.py\n```\n\nA symlink `link.py \u2192 a.py` was correctly left out of every result. Behavior it gives you:\n\n- Patterns with a `/` match component-by-component against the path relative to `root`; bare patterns match the file name only.\n- Hidden files and directories are pruned unless `include_hidden=True`.\n- Symlinks are neither followed nor returned, so each real file is visited once.\n- `max_depth=0` is root-only, `None` is unlimited; a negative value raises `ValueError`, a non-directory `root` raises `NotADirectoryError`.\n- Returns a sorted list of `pathlib.Path`.\n\nI left the file untouched \u2014 note it has uncommitted modifications in the shared tree that aren't mine. If you'd rather have a fresh standalone version (say, one that yields lazily instead of returning a sorted list, or supports `**`), tell me which shape and I'll write it."
-}

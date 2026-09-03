@@ -973,3 +973,32 @@ class InitRecommendsTheComplementTests(unittest.TestCase):
         for rel in cited:
             self.assertTrue(
                 os.path.exists(os.path.join(stopslop.REPO_ROOT, rel)), rel)
+
+
+class NoStrayModulesTests(unittest.TestCase):
+    """The repository root holds one Python file.
+
+    An agentic generator writes files where it was started. Two codewatch
+    runs left twenty modules in the root, and `git add -A` committed them
+    -- once in 422ced2, and again in the commit that was supposed to fix
+    it. Runs are sandboxed now; this is the check that says so.
+    """
+
+    def test_the_root_holds_only_stopslop(self):
+        root = stopslop.REPO_ROOT
+        found = sorted(name for name in os.listdir(root)
+                        if name.endswith(".py")
+                        and os.path.isfile(os.path.join(root, name)))
+        self.assertEqual(found, ["stopslop.py"],
+                          "stray modules in the repository root -- an "
+                          "agentic run wrote them and they are not this "
+                          "project's code")
+
+    def test_gitignore_guards_the_root(self):
+        """A test catches them after the fact. The ignore rule keeps them
+        out of a commit in the first place, which is where the damage
+        actually happened."""
+        with open(os.path.join(stopslop.REPO_ROOT, ".gitignore")) as f:
+            text = f.read()
+        self.assertIn("/*.py", text)
+        self.assertIn("!/stopslop.py", text)

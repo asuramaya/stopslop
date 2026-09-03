@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a token-bucket rate limiter class in Python with a `try_acquire` method. Around 50 lines."
-  }
- ],
- "output": "Wrote `token_bucket.py` \u2014 a thread-safe `TokenBucket` with lazy refill based on elapsed time, plus `try_acquire(tokens=1)` returning a bool and an `available_tokens()` helper."
-}

@@ -1,1 +1,0 @@
-It already uses `time.monotonic()` throughout (`_last_refill`, `_refill`, and `acquire`'s deadline) rather than `time.time()`, so it's immune to wall-clock adjustments (NTP sync, DST, manual changes) that would otherwise cause drift or negative-elapsed jumps. No changes needed.

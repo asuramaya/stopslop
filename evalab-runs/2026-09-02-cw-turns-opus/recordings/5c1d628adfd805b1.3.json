@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
-  }
- ],
- "output": "`walk_glob.py` in this repo already has it (uncommitted, ~55 lines) \u2014 `find_files(root, pattern=\"*\", *, include_hidden=False, max_depth=None)`:\n\n- Patterns without a separator (`*.py`) match the file name; patterns with one (`src/*.py`) match the path relative to `root` component by component, so `*` never crosses a separator.\n- Hidden files and directories are pruned unless `include_hidden=True`.\n- Symlinked directories aren't descended and symlinked files aren't returned, so each real file is visited once.\n- `max_depth=0` is files directly in `root`; `None` is unlimited.\n- Returns a sorted list of `Path`; raises `NotADirectoryError` for a bad root and `ValueError` for negative depth.\n\nI ran it against a scratch tree (hidden file, nested dirs, a symlink) \u2014 `*.py` \u2192 `a.py, src/b.py, src/deep/e.py`; `src/*.py` \u2192 `src/b.py` only; `max_depth=0` \u2192 `a.py`; `max_depth=1` adds `src/b.py`; the symlink `link.py` stays out, and `include_hidden=True` pulls in `.hid.py`. All as documented.\n\nTell me if you want something different from what's there \u2014 a generator instead of a list, `**` support for recursive path patterns, or symlink following \u2014 and I'll change it."
-}

@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python function that walks a directory tree and returns every file matching a glob. Around 40 lines."
-  }
- ],
- "output": "`walk_glob.py:11` \u2014 `find_files(root, pattern, *, include_hidden=False, follow_symlinks=False)`\n\nHow it works:\n\n- `os.walk` over the tree, returning sorted `Path` objects.\n- Pattern dispatch: if the pattern contains a separator it matches against the path relative to `root` (`evalab-prompts/*.md`), otherwise against the bare file name (`*.py`). This avoids the usual surprise where `*.py` fails because the full path has slashes in it.\n- Hidden files and directories are pruned by default; pruning happens in `dirnames[:]` so `os.walk` never descends into them.\n- `follow_symlinks=True` tracks visited `(st_ino, st_dev)` pairs so a symlink cycle terminates instead of recursing forever.\n- Raises `NotADirectoryError` if `root` isn't a directory.\n\nVerified against this repo: `*.py` and `evalab-prompts/*.md` return the expected sets, and `include_hidden=True` picks up files under `.claude/`.\n\nOne limitation worth naming: `fnmatch` has no `**` semantics, so `*` in a path-style pattern will cross directory separators \u2014 `find_files('.', '*/*.md')` also matches `a/b/c.md`. If you want true recursive-glob semantics instead, `Path(root).rglob(pattern)` is the drop-in, and I can rewrite around it."
-}

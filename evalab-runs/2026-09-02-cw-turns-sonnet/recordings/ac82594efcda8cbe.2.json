@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python decorator `retry` that re-runs a function on exception, with a maximum attempt count and exponential backoff. Around 40 lines."
-  }
- ],
- "output": "Wrote `retry` to retry_backoff.py:14-42 (the decorator itself, ~29 lines). It retries up to `max_attempts` times, backs off exponentially (`base_delay * 2^(attempt-1)`, capped at `max_delay`), adds jitter by default, and re-raises the last exception once attempts are exhausted. A small self-test at the bottom exercises it directly."
-}

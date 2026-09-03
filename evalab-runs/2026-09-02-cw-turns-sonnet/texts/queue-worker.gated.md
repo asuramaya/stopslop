@@ -1,1 +1,0 @@
-This already has it — `maxsize` at line 21/23 bounds the `queue.Queue`, so once that many items are queued, `put()` blocks until the callback drains one (line 17-18 doc it explicitly). That's already the max in-flight cap; a slow callback stalls producers rather than letting the backlog grow unbounded. Nothing to add.

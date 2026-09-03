@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a Python module that loads a JSON config file from disk and falls back to defaults when the file is missing. Around 50 lines."
-  }
- ],
- "output": "`load_json_config.py:1` \u2014 54 lines, all branches exercised above.\n\nThe one design call worth flagging: only a *missing* file falls back. A file that exists but holds broken JSON raises `ConfigError` instead, on the theory that whoever shipped that file wanted something other than the defaults, and silently ignoring it hides the typo. `json_config.py` in this repo makes the opposite choice (log at WARNING, fall back). Say the word if you want it to match that one.\n\nAlso: `DEFAULTS` is copied per call, so callers can mutate the result freely, and the merge is one level deep \u2014 a nested object in the file replaces the default rather than merging into it."
-}

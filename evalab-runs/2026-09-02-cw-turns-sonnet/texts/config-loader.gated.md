@@ -1,1 +1,0 @@
-Env overrides work as expected. `app_config.py` now supports `APP_CONFIG_<KEY>` env vars (e.g. `APP_CONFIG_PORT=9000`) applied after the file load, coerced to match each key's existing type (bool/int/str), then re-validated against the port range.

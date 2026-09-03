@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a token-bucket rate limiter class in Python, thread-safe, with a `try_acquire` method. Around 50 lines."
-  }
- ],
- "output": "`rate_limiter.py:7` \u2014 `TokenBucket(rate, capacity=None, clock=time.monotonic)`, 62 lines.\n\n- `try_acquire(tokens=1)` refills based on elapsed monotonic time, then takes the tokens under a `threading.Lock` if enough are present. Returns bool, never blocks.\n- Refill is continuous, not ticked, so partial waits earn partial credit.\n- `capacity` defaults to `rate` (one second of burst). `wait_time()` and the `tokens` property come along cheaply since the refill logic is already there.\n- The injectable `clock` is there so tests can drive time instead of sleeping.\n\nChecks I ran: burst of 10 exhausts and the 11th is refused; 8 threads racing over a 50-token bucket with a near-zero refill rate hand out exactly 50 grants; a fake clock advanced 0.5s at rate=10 yields exactly 5 more.\n\n`tokens > capacity` raises rather than returning False \u2014 a request that can never succeed is a caller bug, not backpressure. Say the word if you'd rather it just return False."
-}

@@ -1,9 +1,0 @@
-{
- "messages": [
-  {
-   "role": "user",
-   "content": "Write a small LRU cache class in Python with `get` and `put`, backed by an OrderedDict. Around 45 lines."
-  }
- ],
- "output": "Here's a minimal LRU cache class around 45 lines:\n\n```python\nfrom collections import OrderedDict\n\nclass LRUCache:\n    \"\"\"Least Recently Used cache backed by OrderedDict.\"\"\"\n    \n    def __init__(self, capacity):\n        \"\"\"Initialize cache with max capacity.\"\"\"\n        if capacity <= 0:\n            raise ValueError(\"Capacity must be positive\")\n        self.capacity = capacity\n        self.cache = OrderedDict()\n    \n    def get(self, key):\n        \"\"\"Get value for key, or None if not found. Marks key as recently used.\"\"\"\n        if key not in self.cache:\n            return None\n        self.cache.move_to_end(key)\n        return self.cache[key]\n    \n    def put(self, key, value):\n        \"\"\"Put key-value pair in cache. Evicts LRU item if at capacity.\"\"\"\n        if key in self.cache:\n            self.cache.move_to_end(key)\n        self.cache[key] = value\n        \n        if len(self.cache) > self.capacity:\n            self.cache.popitem(last=False)\n    \n    def __len__(self):\n        return len(self.cache)\n    \n    def __contains__(self, key):\n        return key in self.cache\n\n\n# Example usage\nif __name__ == \"__main__\":\n    lru = LRUCache(2)\n    lru.put(1, \"a\")\n    lru.put(2, \"b\")\n    print(lru.get(1))  # \"a\" (marks 1 as recently used)\n    lru.put(3, \"c\")   # Evicts key 2 (least recently used)\n    print(lru.get(2))  # None\n    print(lru.get(3))  # \"c\"\n```\n\nThe class uses `OrderedDict.move_to_end()` to mark accessed keys as recently used, and `popitem(last=False)` to evict the least recently used (oldest) item when capacity is exceeded. Want me to save this to a file?"
-}
